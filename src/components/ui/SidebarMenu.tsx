@@ -224,7 +224,10 @@ export default function SidebarMenu({
       { key: "games", group: "games", to: "/games", label: gamesLabel, icon: "games" },
     ];
     const steam: SidebarItem[] = [
-      { key: "steam", group: "steam", to: "/steam", label: steamHubLabel, icon: "steamLogo" },
+      // end: only highlight on the exact /steam hub page, not on its
+      // sub-pages (inventory / accounts / authenticator / downloads), which
+      // otherwise also match via NavLink's prefix matching.
+      { key: "steam", group: "steam", to: "/steam", label: steamHubLabel, icon: "steamLogo", end: true },
     ];
     const system: SidebarItem[] = [
       { key: "settings", group: "system", to: "/settings", label: settingsLabel, icon: "settings" },
