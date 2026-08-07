@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { showToast } from "../Notification";
@@ -124,13 +123,6 @@ export default function ProfilePanel({
     void invoke("open_url", { url: `https://steamcommunity.com/profiles/${session.steamId}` });
   };
 
-  const detailRow = (label: string, value: ReactNode) => (
-    <div className="flex items-center justify-between gap-3 py-2">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-right min-w-0">{value}</span>
-    </div>
-  );
-
   const statCell = (icon: IconName, label: string, value: string) => (
     <div className="flex items-center gap-3">
       <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-primary/15 text-primary">
@@ -168,6 +160,19 @@ export default function ProfilePanel({
                   {t("steam.levelBadge", { defaultValue: "Lv. {{level}}", level: profile.level })}
                 </span>
               )}
+              {/* Account name and SteamID as separate badges (SteamID copies). */}
+              <span className="rounded-full border border-border/60 bg-secondary/40 px-2 py-0.5 text-[11px] text-muted-foreground">
+                {session.accountName}
+              </span>
+              <button
+                type="button"
+                onClick={() => void copySteamId()}
+                className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-secondary/40 px-2 py-0.5 text-[11px] font-medium text-foreground transition-colors hover:border-primary/30 hover:text-primary"
+                title={t("steam.copySteamId")}
+              >
+                {session.steamId}
+                <Icon name="copy" size={10} />
+              </button>
               {profile?.inGameName && (
                 <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
                   <Icon name="launcher" size={12} />
@@ -176,24 +181,6 @@ export default function ProfilePanel({
               )}
             </div>
           </div>
-        </div>
-
-        <div className="mt-4 divide-y divide-border/40 border-t border-border/40">
-          {detailRow(t("steam.accountName", { defaultValue: "账号名" }), session.accountName)}
-          {detailRow(
-            t("steam.copySteamId64Short"),
-            <button
-              type="button"
-              onClick={() => void copySteamId()}
-              className="inline-flex items-center gap-1 text-foreground transition-colors hover:text-primary"
-              title={t("steam.copySteamId")}
-            >
-              {session.steamId}
-              <Icon name="externalLink" size={11} />
-            </button>
-          )}
-          {profile?.level != null && detailRow(t("steam.level", { defaultValue: "等级" }), String(profile.level))}
-          {profile?.inGameName != null && detailRow(t("steam.inGame"), profile.inGameName)}
         </div>
       </div>
 
