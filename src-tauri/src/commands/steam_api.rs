@@ -465,8 +465,8 @@ fn fetch_user_info(client: &SteamHttpClient, sid: u64) -> Result<serde_json::Val
 }
 
 #[tauri::command]
-pub fn get_steam_user_info(
-    state: State<AppState>,
+pub async fn get_steam_user_info(
+    state: State<'_, AppState>,
     steam_id64: String,
 ) -> Result<serde_json::Value, String> {
     let sid: u64 = steam_id64
