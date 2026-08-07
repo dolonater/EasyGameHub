@@ -1,0 +1,13 @@
+{
+  "name": "plugin-template",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.tsx --bundle --format=esm --external:sdk --jsx=transform --outfile=dist/bundle.js",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
+  }
+}

@@ -1,0 +1,9 @@
+export const glassCardBaseClass = "app-surface app-glass-card rounded-[var(--radius)]";
+export const glassTileButtonBaseClass = `${glassCardBaseClass} border transition-all`;
+export const glassFloatingBaseClass = "app-surface app-glass-floating";
+export const glassTitleBarBaseClass = "app-surface app-glass-titlebar";
+export const glassSidebarBaseClass = "app-surface app-glass-sidebar";
+export const glassControlBaseClass = "app-surface app-glass-control";
+export const glassToastBaseClass = "app-surface app-glass-floating app-glass-toast";
+export const glassMenuPanelBaseClass = "app-surface app-glass-floating";
+export const glassMenuItemBaseClass = "app-glass-menu-item";

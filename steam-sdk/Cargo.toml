@@ -1,0 +1,46 @@
+[package]
+name = "steam-sdk"
+version = "0.1.0"
+description = "Steam SDK for Doona GameSave Backup - Auth, Inventory, Cloud Saves, Achievements, Authenticator"
+authors = ["Doona"]
+edition = "2021"
+
+[dependencies]
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Protobuf (runtime, for DecodeError in error type)
+prost = "0.13"
+
+# Error handling
+thiserror = "1"
+
+# Logging
+log = "0.4"
+
+# HTTP client (sync, already used by src-tauri)
+ureq = "2"
+
+# Crypto
+ring = "0.17"
+rsa = "0.9"
+rand = "0.8"
+base64 = "0.22"
+
+# Process info
+sysinfo = "0.31"
+
+# File system watcher (matching C# FileSystemWatcher in SteamTools)
+notify = { version = "7", default-features = false, features = ["macos_kqueue"] }
+
+# Windows registry (for Steam installation detection)
+[target.'cfg(windows)'.dependencies]
+winreg = "0.52"
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_System_Diagnostics_Debug"] }
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+[build-dependencies]
+prost-build = "0.13"

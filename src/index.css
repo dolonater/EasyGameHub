@@ -1,0 +1,761 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+    --app-overlay-opacity: 0.35;
+    --app-bg-blur: 0px;
+    --app-surface-opacity: 1;
+    --app-surface-blur: 0px;
+    --app-dyn-primary: var(--primary);
+    --app-dyn-primary-foreground: var(--primary-foreground);
+    --app-dyn-accent: var(--accent);
+    --app-dyn-accent-foreground: var(--accent-foreground);
+    --app-dyn-foreground: var(--foreground);
+    --app-dyn-card-foreground: var(--card-foreground);
+    --app-dyn-secondary-foreground: var(--secondary-foreground);
+    --app-dyn-muted-foreground: var(--muted-foreground);
+    --app-dyn-ring: var(--ring);
+    --app-scrollbar-thumb: hsl(var(--foreground) / 0.22);
+    --app-scrollbar-thumb-hover: hsl(var(--foreground) / 0.36);
+    --app-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--app-font-family);
+  }
+
+  body[use-custom-font] {
+    font-family: var(--app-font-family) !important;
+  }
+}
+
+/* ── UI Animations ────────────────────────────────────────── */
+
+/* Page entrance — opacity only */
+@keyframes fadeSlideUp {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Card data pop-in */
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Context menu / dialog entrance */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Inspired by the oh-no.exe / Surprise! popup spring:
+   source animates a Window from scale 0 -> 1.5 with spring tension.
+   For cards we keep the same "popup" feel but tone down overshoot so it
+   reads polished instead of comic. */
+@keyframes riseSpringIn {
+  0%   { transform: translateY(18px) scale(0.42); }
+  38%  { transform: translateY(2px) scale(1.06); }
+  58%  { transform: translateY(0) scale(0.984); }
+  74%  { transform: translateY(0) scale(1.012); }
+  88%  { transform: translateY(0) scale(0.998); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes riseOpacityIn {
+  0%   { opacity: 0; }
+  24%  { opacity: 0.35; }
+  42%  { opacity: 0.78; }
+  100% { opacity: 1; }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.3s ease-out both;
+}
+
+.animate-count-up {
+  animation: countUp 0.4s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.15s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.2s ease-in both;
+}
+
+.animate-rise-in {
+  animation:
+    riseSpringIn 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+    riseOpacityIn 0.38s ease-out both;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.22s ease-out both;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.18s ease-in both;
+}
+
+/* App appearance shell */
+.app-shell {
+  background: hsl(var(--background));
+}
+
+.app-shell-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.app-shell-background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+  user-select: none;
+}
+
+.app-shell-background-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, var(--app-overlay-opacity));
+  transition: opacity 0.35s ease, background-color 0.35s ease, background-image 0.35s ease;
+}
+
+.app-liquid-glass .app-shell-background-overlay {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0.03) 18%, rgb(255 255 255 / 0) 38%),
+    radial-gradient(circle at top center, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 46%),
+    rgb(7 11 24 / var(--app-overlay-opacity));
+}
+
+.app-surface {
+  background: hsl(var(--card) / var(--app-surface-opacity));
+  border-radius: var(--radius);
+  backdrop-filter: blur(var(--app-surface-blur));
+  -webkit-backdrop-filter: blur(var(--app-surface-blur));
+  transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease, -webkit-backdrop-filter 0.25s ease;
+}
+
+.app-liquid-glass .app-surface {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.08) 18%, rgb(255 255 255 / 0.03) 58%, rgb(255 255 255 / 0.12) 100%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0) 42%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 18px 24px -24px rgba(255, 255, 255, 0.58),
+    inset 0 -14px 20px -20px rgba(255, 255, 255, 0.1),
+    0 14px 34px rgba(15, 23, 42, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(calc(var(--app-surface-blur) + 12px)) saturate(1.24) brightness(1.05);
+  -webkit-backdrop-filter: blur(calc(var(--app-surface-blur) + 12px)) saturate(1.24) brightness(1.05);
+  border-color: hsl(var(--border) / 0.6);
+}
+
+.app-liquid-glass .app-glass-sidebar {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.07) 24%, rgb(255 255 255 / 0.02) 100%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.26), rgb(255 255 255 / 0) 40%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px 0 0 rgba(255, 255, 255, 0.07),
+    12px 0 32px rgba(15, 23, 42, 0.12);
+}
+
+.app-liquid-glass .app-glass-titlebar {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.05) 52%, rgb(255 255 255 / 0.02) 100%),
+    radial-gradient(circle at top center, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0) 52%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.app-liquid-glass .app-glass-floating {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.1) 22%, rgb(255 255 255 / 0.04) 100%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.34), rgb(255 255 255 / 0) 42%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 20px 24px -24px rgba(255, 255, 255, 0.64),
+    inset 0 -14px 20px -20px rgba(255, 255, 255, 0.12),
+    0 20px 48px rgba(15, 23, 42, 0.2),
+    0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(calc(var(--app-surface-blur) + 18px)) saturate(1.32) brightness(1.08);
+  -webkit-backdrop-filter: blur(calc(var(--app-surface-blur) + 18px)) saturate(1.32) brightness(1.08);
+}
+
+.app-liquid-glass .app-glass-card {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.07) 26%, rgb(255 255 255 / 0.03) 100%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0) 38%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -12px 18px -20px rgba(255, 255, 255, 0.08),
+    0 16px 30px rgba(15, 23, 42, 0.14);
+}
+
+.app-liquid-glass .app-glass-card:hover {
+  border-color: hsl(var(--primary) / 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -12px 18px -20px rgba(255, 255, 255, 0.1),
+    0 18px 38px rgba(15, 23, 42, 0.18),
+    0 0 0 1px hsl(var(--primary) / 0.08);
+}
+
+.app-liquid-glass .app-glass-control {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.08) 44%, rgb(255 255 255 / 0.03) 100%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 40%);
+  border-color: hsl(var(--border) / 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 10px 22px rgba(15, 23, 42, 0.12);
+}
+
+.app-liquid-glass .app-glass-control:hover {
+  border-color: hsl(var(--primary) / 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 14px 28px rgba(15, 23, 42, 0.16);
+}
+
+.app-liquid-glass .app-glass-control:focus,
+.app-liquid-glass .app-glass-control:focus-within,
+.app-liquid-glass .app-glass-control[data-open="true"] {
+  border-color: hsl(var(--primary) / 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    0 0 0 1px hsl(var(--primary) / 0.12),
+    0 16px 30px rgba(15, 23, 42, 0.18);
+}
+
+.app-liquid-glass .app-glass-button {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 24px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(calc(var(--app-surface-blur) + 10px)) saturate(1.16);
+  -webkit-backdrop-filter: blur(calc(var(--app-surface-blur) + 10px)) saturate(1.16);
+}
+
+.app-liquid-glass .app-glass-button:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 14px 28px rgba(15, 23, 42, 0.18);
+}
+
+.app-liquid-glass .app-glass-nav-item {
+  border: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.app-liquid-glass .app-glass-nav-item:hover {
+  border-color: hsl(var(--primary) / 0.12);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0));
+}
+
+.app-liquid-glass .app-glass-nav-item.bg-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 12px 24px hsl(var(--primary) / 0.24);
+}
+
+.app-liquid-glass .app-glass-pill-indicator {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 10px 22px hsl(var(--primary) / 0.24);
+}
+
+.app-liquid-glass .app-glass-badge {
+  border-color: hsl(var(--border) / 0.55);
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.05)),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0) 48%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+.app-liquid-glass .app-glass-menu-item:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.app-liquid-glass .app-glass-toggle-track {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.04));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 8px 16px rgba(15, 23, 42, 0.12);
+}
+
+.app-liquid-glass .app-glass-toggle-thumb {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.88), rgb(255 255 255 / 0.62));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 8px 16px rgba(15, 23, 42, 0.18);
+}
+
+.app-liquid-glass .app-glass-slider {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.app-liquid-glass .app-glass-toast {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.32), rgb(255 255 255 / 0.1) 28%, rgb(255 255 255 / 0.04) 100%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.34), rgb(255 255 255 / 0) 42%);
+}
+
+.app-page-surface {
+  background: transparent;
+}
+
+/* Modal/drawer backdrop — aligned with cc-switch: dark overlay + plain blur */
+.soft-backdrop {
+  background: rgba(0, 0, 0, calc(var(--app-overlay-opacity) + 0.15));
+  backdrop-filter: blur(calc(var(--app-surface-blur) + 4px));
+  -webkit-backdrop-filter: blur(calc(var(--app-surface-blur) + 4px));
+}
+
+.app-liquid-glass .soft-backdrop {
+  background:
+    radial-gradient(circle at top, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0) 42%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0)),
+    rgba(2, 6, 23, 0.42);
+  backdrop-filter: blur(calc(var(--app-surface-blur) + 12px)) saturate(1.12);
+  -webkit-backdrop-filter: blur(calc(var(--app-surface-blur) + 12px)) saturate(1.12);
+}
+
+/* Utility: hide scrollbar completely (keep scroll function) */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* App scrollbars — slim thumb */
+.app-scrollbar {
+  scrollbar-gutter: stable;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button:single-button,
+*::-webkit-scrollbar-button:vertical:start:decrement,
+*::-webkit-scrollbar-button:vertical:end:increment,
+*::-webkit-scrollbar-button:horizontal:start:decrement,
+*::-webkit-scrollbar-button:horizontal:end:increment {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: 0;
+  -webkit-appearance: none;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 2px;
+}
+
+.app-scrollbar:hover::-webkit-scrollbar-thumb,
+.app-scrollbar.is-scrolling::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--app-scrollbar-thumb);
+}
+
+.app-scrollbar:hover::-webkit-scrollbar-thumb:hover,
+.app-scrollbar.is-scrolling::-webkit-scrollbar-thumb:hover {
+  background-color: var(--app-scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Sidebar scrollbars — always hidden */
+.sidebar-scrollbar {
+  scrollbar-width: none;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Cover card style variants */
+.game-cover-card {
+  isolation: isolate;
+}
+
+.game-cover-card .game-card-surface {
+  position: relative;
+}
+
+.game-cover-card .game-card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.04) 22%, rgb(255 255 255 / 0) 42%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 34%),
+    linear-gradient(180deg, rgb(255 255 255 / 0) 0%, rgb(5 8 18 / 0.06) 72%, rgb(5 8 18 / 0.24) 100%);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.game-cover-card .game-card-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(140deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0) 28%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.game-cover-card .game-card-media-image {
+  transition: transform 0.42s ease, filter 0.32s ease;
+}
+
+.game-cover-card .game-card-info {
+  position: relative;
+  z-index: 1;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.app-liquid-glass .game-cover-card .game-card-info {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.06) 36%, rgb(255 255 255 / 0.02) 100%),
+    hsl(var(--card) / 0.72);
+  backdrop-filter: blur(calc(var(--app-surface-blur) + 10px)) saturate(1.14);
+  -webkit-backdrop-filter: blur(calc(var(--app-surface-blur) + 10px)) saturate(1.14);
+  border-top: 1px solid rgb(255 255 255 / 0.18);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
+}
+
+.app-liquid-glass .game-cover-card .game-card-media::after,
+.app-liquid-glass .game-cover-card .game-card-media::before {
+  opacity: 1;
+}
+
+.game-cover-card:hover .game-card-media-image {
+  transform: scale(1.035);
+}
+
+.app-liquid-glass .game-cover-card:hover .game-card-media-image {
+  transform: scale(1.045);
+  filter: saturate(1.08) brightness(1.03);
+}
+
+.game-cover-card:hover .game-card-info {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 -6px 14px -18px rgb(15 23 42 / 0.12);
+}
+
+.app-liquid-glass .game-cover-card:hover .game-card-info {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.08) 36%, rgb(255 255 255 / 0.03) 100%),
+    hsl(var(--card) / 0.76);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 -8px 18px -18px rgb(255 255 255 / 0.2);
+}
+
+.game-card-style-card1 {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.212);
+  transition: all 0.4s;
+}
+
+.game-card-style-card1 .game-card-surface {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.212);
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.4s;
+  background: hsl(var(--card));
+}
+
+.game-card-style-card1 .game-card-info {
+  min-width: 0;
+  background: hsl(var(--card));
+}
+
+.game-card-style-card1 .game-card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.04) 22%, rgb(255 255 255 / 0) 42%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 34%),
+    linear-gradient(180deg, rgb(255 255 255 / 0) 0%, rgb(5 8 18 / 0.06) 72%, rgb(5 8 18 / 0.24) 100%);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.game-card-style-card1 .game-card-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(140deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0) 28%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.game-card-style-card1 .game-card-media-image {
+  transition: transform 0.42s ease, filter 0.32s ease;
+}
+
+.game-card-style-card1:hover .game-card-media-image {
+  transform: scale(1.035);
+}
+
+.app-liquid-glass .game-card-style-card1 .game-card-media::after,
+.app-liquid-glass .game-card-style-card1 .game-card-media::before {
+  opacity: 1;
+}
+
+.app-liquid-glass .game-card-style-card1:hover .game-card-media-image {
+  transform: scale(1.045);
+  filter: saturate(1.08) brightness(1.03);
+}
+
+.app-liquid-glass .game-card-style-card1 .game-card-info {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0.06) 38%, rgb(255 255 255 / 0.02) 100%),
+    hsl(var(--card) / 0.62);
+  border-top: 1px solid rgb(255 255 255 / 0.16);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+.app-liquid-glass .game-card-style-card1 .game-card-surface {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.34), rgb(255 255 255 / 0.12) 22%, rgb(255 255 255 / 0.04) 100%),
+    radial-gradient(circle at top left, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0) 42%),
+    hsl(var(--card) / 0.76);
+  backdrop-filter: blur(calc(var(--app-surface-blur) + 14px)) saturate(1.18) brightness(1.05);
+  -webkit-backdrop-filter: blur(calc(var(--app-surface-blur) + 14px)) saturate(1.18) brightness(1.05);
+  border: 1px solid hsl(var(--border) / 0.42);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.34),
+    inset 0 18px 24px -24px rgb(255 255 255 / 0.62),
+    inset 0 -12px 18px -20px rgb(255 255 255 / 0.12),
+    0 12px 30px rgb(15 23 42 / 0.16);
+}
+
+.app-liquid-glass .game-card-style-card1:hover .game-card-surface {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.38),
+    inset 0 18px 24px -24px rgb(255 255 255 / 0.68),
+    inset 0 -12px 18px -20px rgb(255 255 255 / 0.16),
+    0 16px 34px rgb(15 23 42 / 0.2);
+}
+
+.game-card-style-card1 .game-card-reveal {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 8px;
+  font-size: 0.56em;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-card-style-card1.is-animated:hover .game-card-surface {
+  transform: translateY(-26px);
+}
+
+/* ── Button ripple (button2 / button2_dark design) ─────────────── */
+
+.btn-ripple {
+  position: relative;
+  z-index: 1;
+}
+.btn-ripple::after {
+  content: "";
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  border-radius: 100px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  transition: all 0.4s;
+  background-color: var(--btn-ripple);
+}
+.btn-ripple:hover::after {
+  transform: scaleX(1.15) scaleY(1.25);
+  opacity: 0;
+}
+.btn-no-ripple::after {
+  display: none;
+}
+
+.game-card-style-card1.is-animated:hover .game-card-surface {
+  transform: translateY(-26px);
+}
+
+/* ── iOS checkbox draw animation ───────────────────────────────── */
+
+@keyframes ck-draw {
+  0%   { stroke-dashoffset: 40; }
+  100% { stroke-dashoffset: 0;  }
+}
+
+/* ── Custom title bar drag region ────────────────────────────── */
+
+.titlebar-drag {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+.titlebar-drag button,
+.titlebar-drag input,
+.titlebar-drag select {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* ── Dashboard / Playtime chart animations ────────────────────── */
+
+@keyframes donutFill {
+  from { stroke-dashoffset: var(--donut-circumference, 283); }
+  to   { stroke-dashoffset: var(--donut-offset, 100); }
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes pieReveal {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes timelineSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-donut-fill {
+  animation: donutFill 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-bar-grow {
+  animation: barGrow 0.5s ease-out both;
+  transform-origin: bottom;
+}
+
+.animate-pie-reveal {
+  animation: pieReveal 0.4s ease-out both;
+}
+
+.animate-timeline-slide-in {
+  animation: timelineSlideIn 0.4s ease-out both;
+}

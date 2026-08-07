@@ -1,0 +1,54 @@
+{
+  "monitored": [
+    "crusader-kings-3",
+    "the-binding-of-isaac-rebirth",
+    "crunch-element-vr-infiltration",
+    "crusader-kings-iii",
+    "euro-truck-simulator-2",
+    "monster-hunter-world",
+    "觅长生",
+    "custom-1",
+    "custom-2"
+  ],
+  "pinned": [],
+  "auto_backup": [],
+  "path_overrides": [],
+  "launch_configs": [],
+  "play_sessions": [
+    {
+      "game_id": "crusader-kings-iii",
+      "start_time": "2026-07-23T14:09:20",
+      "end_time": "2026-07-23T14:09:20",
+      "duration_seconds": 13
+    },
+    {
+      "game_id": "the-binding-of-isaac-rebirth",
+      "start_time": "2026-07-27T15:39:40",
+      "end_time": "2026-07-27T15:39:40",
+      "duration_seconds": 1
+    },
+    {
+      "game_id": "crusader-kings-iii",
+      "start_time": "2026-08-05T09:13:32",
+      "end_time": "2026-08-05T09:13:32",
+      "duration_seconds": 31989
+    }
+  ],
+  "total_playtime": [
+    [
+      "crusader-kings-iii",
+      32002
+    ],
+    [
+      "the-binding-of-isaac-rebirth",
+      1
+    ]
+  ],
+  "screenshot_sources": [],
+  "favorites": [
+    "觅长生",
+    "crusader-kings-iii"
+  ],
+  "game_tags": [],
+  "steam_account_remarks": []
+}

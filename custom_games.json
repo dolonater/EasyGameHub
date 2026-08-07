@@ -1,0 +1,14 @@
+{
+  "games": [
+    {
+      "id": "custom-1",
+      "name": "欧洲卡车模拟2",
+      "save_path": "C:\\Users\\JT\\Documents\\Euro Truck Simulator 2\\steam_profiles"
+    },
+    {
+      "id": "custom-2",
+      "name": "GW",
+      "save_path": "C:\\Users\\JT\\Documents\\My Games\\Grim Dawn\\save"
+    }
+  ]
+}

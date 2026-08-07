@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EasyGameHub</title>
+    <script>
+      (function () {
+        var map;
+        if (window.location.protocol === "http:") {
+          map = { imports: { sdk: "/src/plugins/sdk.ts" } };
+        } else {
+          map = {
+            imports: {
+              sdk: "/plugin-sdk.js",
+              react: "/react.js",
+              "react-dom": "/react.js",
+            },
+          };
+        }
+        var el = document.createElement("script");
+        el.type = "importmap";
+        el.textContent = JSON.stringify(map);
+        document.head.appendChild(el);
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-Dmh-Wzcn.js"></script>
+    <link rel="modulepreload" crossorigin href="/react.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DtPCbn_o.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

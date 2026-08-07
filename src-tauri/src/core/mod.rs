@@ -1,0 +1,17 @@
+pub mod backgrounds;
+pub mod backup;
+pub mod config;
+pub mod db;
+pub mod music;
+pub mod paths;
+pub mod plugins;
+pub mod process;
+pub mod restore;
+pub mod scanner;
+pub mod scheduler;
+pub mod steam_cloud;
+pub mod steam_prices;
+pub mod steam_sync;
+pub mod themes;
+pub mod view_settings;
+pub mod watcher;

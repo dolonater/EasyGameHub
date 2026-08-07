@@ -1,0 +1,81 @@
+{
+  "plugins": [
+    {
+      "id": "com.example.webdav",
+      "name": "WebDAV 自动上传",
+      "version": "1.0.0",
+      "api_version": 1,
+      "entry": "bundle.js",
+      "permissions": [
+        "core.read",
+        "events",
+        "ui"
+      ],
+      "enabled": false,
+      "installed_at": "2026-08-04T14:48:01.316989200+08:00",
+      "last_error": null,
+      "error_count": 0
+    },
+    {
+      "id": "com.example.stats",
+      "name": "备份统计",
+      "version": "1.0.0",
+      "api_version": 1,
+      "entry": "bundle.js",
+      "permissions": [
+        "core.read",
+        "ui"
+      ],
+      "enabled": false,
+      "installed_at": "2026-08-04T14:48:11.891067700+08:00",
+      "last_error": null,
+      "error_count": 0
+    },
+    {
+      "id": "com.example.template",
+      "name": "模板插件",
+      "version": "0.1.0",
+      "api_version": 1,
+      "entry": "bundle.js",
+      "permissions": [
+        "core.read",
+        "events",
+        "ui"
+      ],
+      "enabled": false,
+      "installed_at": "2026-08-04T14:53:10.072384800+08:00",
+      "last_error": null,
+      "error_count": 0
+    },
+    {
+      "id": "com.easygamehub.netease-music",
+      "name": "网易云播放器",
+      "version": "0.1.0",
+      "api_version": 1,
+      "entry": "bundle.js",
+      "permissions": [
+        "ui",
+        "music"
+      ],
+      "enabled": true,
+      "installed_at": "2026-08-04T17:54:43.041330400+08:00",
+      "last_error": null,
+      "error_count": 0
+    },
+    {
+      "id": "com.easygamehub.achievement-print",
+      "name": "成就打印",
+      "version": "0.1.0",
+      "api_version": 1,
+      "entry": "bundle.js",
+      "permissions": [
+        "core.read",
+        "ui"
+      ],
+      "enabled": true,
+      "installed_at": "2026-08-07T16:16:08.105300400+08:00",
+      "last_error": null,
+      "error_count": 0
+    }
+  ]
+}

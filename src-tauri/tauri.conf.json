@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicknisi/tauri/main/tooling/cli/schema.json",
+  "productName": "EasyGameHub",
+  "version": "0.1.0",
+  "identifier": "com.easygamehub.app",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "EasyGameHub",
+        "width": 1100,
+        "height": 750,
+        "resizable": true,
+        "decorations": false,
+        "dragDropEnabled": true,
+        "minWidth": 720,
+        "minHeight": 480
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi", "nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../resources/defaults/config.json": "config.json",
+      "../resources/defaults/data/games.db.json": "data/games.db.json",
+      "../resources/defaults/games_index.json": "games_index.json",
+      "../resources/defaults/custom_games.json": "custom_games.json",
+      "../resources/defaults/user_games.json": "user_games.json",
+      "../resources/defaults/themes.json": "themes.json",
+      "../resources/defaults/plugins/com.easygamehub.netease-music/manifest.json": "plugins/com.easygamehub.netease-music/manifest.json",
+      "../resources/defaults/plugins/com.easygamehub.netease-music/bundle.js": "plugins/com.easygamehub.netease-music/bundle.js"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/doona/gamesave-backup/releases/latest/download/latest.json"
+      ],
+      "pubkey": ""
+    },
+    "autostart": {
+      "enabled": true
+    }
+  }
+}

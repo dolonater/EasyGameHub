@@ -1,0 +1,315 @@
+{
+  "version": 1,
+  "pageSettings": {
+    "launcher": {
+      "defaultView": "list",
+      "common": {
+        "contentDensity": "standard",
+        "cardRadius": "medium",
+        "shadowLevel": "medium"
+      },
+      "list": {
+        "presetId": "list-standard",
+        "mode": "preset",
+        "values": {
+          "template": "standard",
+          "rowGap": "standard",
+          "bannerWidth": "standard",
+          "titleLines": 1,
+          "showPath": true,
+          "showAppId": true,
+          "showLastBackup": true,
+          "showSnapshotCount": true,
+          "showPlaytime": true,
+          "showInstallState": true,
+          "showRunningState": true,
+          "showBadges": true
+        },
+        "lastPresetId": "list-standard"
+      },
+      "grid": {
+        "presetId": "grid-standard",
+        "mode": "preset",
+        "values": {
+          "template": "standard",
+          "gridDensity": "standard",
+          "cardGap": "standard",
+          "coverScale": "standard",
+          "showTitle": true,
+          "showSubtitle": true,
+          "showLastBackup": true,
+          "showSnapshotCount": true,
+          "showPlaytime": true,
+          "showInstallState": true,
+          "showRunningState": true,
+          "showBadges": true
+        },
+        "lastPresetId": "grid-standard"
+      }
+    },
+    "gameList": {
+      "defaultView": "grid",
+      "common": {
+        "contentDensity": "standard",
+        "cardRadius": "medium",
+        "shadowLevel": "soft"
+      },
+      "list": {
+        "presetId": "list-standard",
+        "mode": "preset",
+        "values": {
+          "template": "standard",
+          "rowGap": "standard",
+          "bannerWidth": "standard",
+          "titleLines": 1,
+          "showPath": true,
+          "showAppId": true,
+          "showLastBackup": true,
+          "showSnapshotCount": true,
+          "showPlaytime": true,
+          "showInstallState": true,
+          "showRunningState": true,
+          "showBadges": true
+        },
+        "lastPresetId": "list-standard"
+      },
+      "grid": {
+        "presetId": "grid-standard",
+        "mode": "preset",
+        "values": {
+          "template": "standard",
+          "gridDensity": "standard",
+          "cardGap": "standard",
+          "coverScale": "standard",
+          "showTitle": true,
+          "showSubtitle": true,
+          "showLastBackup": true,
+          "showSnapshotCount": true,
+          "showPlaytime": true,
+          "showInstallState": true,
+          "showRunningState": true,
+          "showBadges": true
+        },
+        "lastPresetId": "grid-standard"
+      }
+    },
+    "inventory": {
+      "defaultView": "grid",
+      "common": {
+        "contentDensity": "standard",
+        "cardRadius": "medium",
+        "shadowLevel": "soft"
+      },
+      "list": {
+        "presetId": "list-standard",
+        "mode": "preset",
+        "values": {
+          "template": "standard",
+          "rowGap": "standard",
+          "bannerWidth": "standard",
+          "titleLines": 1,
+          "showPath": true,
+          "showAppId": true,
+          "showLastBackup": true,
+          "showSnapshotCount": true,
+          "showPlaytime": true,
+          "showInstallState": true,
+          "showRunningState": true,
+          "showBadges": true
+        },
+        "lastPresetId": "list-standard"
+      },
+      "grid": {
+        "presetId": "grid-standard",
+        "mode": "preset",
+        "values": {
+          "template": "standard",
+          "gridDensity": "standard",
+          "cardGap": "standard",
+          "coverScale": "standard",
+          "showTitle": true,
+          "showSubtitle": true,
+          "showLastBackup": true,
+          "showSnapshotCount": true,
+          "showPlaytime": true,
+          "showInstallState": true,
+          "showRunningState": true,
+          "showBadges": true
+        },
+        "lastPresetId": "grid-standard"
+      }
+    }
+  },
+  "presetLibraries": {
+    "list": {
+      "builtins": [
+        {
+          "id": "list-compact",
+          "name": "紧凑",
+          "isPreset": true,
+          "description": "高密度列表，尽量压缩辅助信息。",
+          "values": {
+            "template": "compact",
+            "rowGap": "tight",
+            "bannerWidth": "narrow",
+            "titleLines": 1,
+            "showPath": false,
+            "showAppId": false,
+            "showLastBackup": false,
+            "showSnapshotCount": true,
+            "showPlaytime": true,
+            "showInstallState": true,
+            "showRunningState": false,
+            "showBadges": false
+          }
+        },
+        {
+          "id": "list-standard",
+          "name": "标准",
+          "isPreset": true,
+          "description": "映射当前列表布局，作为迁移后的默认基线。",
+          "values": {
+            "template": "standard",
+            "rowGap": "standard",
+            "bannerWidth": "standard",
+            "titleLines": 1,
+            "showPath": true,
+            "showAppId": true,
+            "showLastBackup": true,
+            "showSnapshotCount": true,
+            "showPlaytime": true,
+            "showInstallState": true,
+            "showRunningState": true,
+            "showBadges": true
+          }
+        },
+        {
+          "id": "list-info-rich",
+          "name": "信息增强",
+          "isPreset": true,
+          "description": "保留更多辅助信息，适合管理与检索。",
+          "values": {
+            "template": "info-rich",
+            "rowGap": "relaxed",
+            "bannerWidth": "wide",
+            "titleLines": 2,
+            "showPath": true,
+            "showAppId": true,
+            "showLastBackup": true,
+            "showSnapshotCount": true,
+            "showPlaytime": true,
+            "showInstallState": true,
+            "showRunningState": true,
+            "showBadges": true
+          }
+        },
+        {
+          "id": "list-banner",
+          "name": "横幅",
+          "isPreset": true,
+          "description": "强调横向封面展示，同时保留核心状态信息。",
+          "values": {
+            "template": "banner",
+            "rowGap": "standard",
+            "bannerWidth": "wide",
+            "titleLines": 1,
+            "showPath": false,
+            "showAppId": true,
+            "showLastBackup": true,
+            "showSnapshotCount": true,
+            "showPlaytime": true,
+            "showInstallState": true,
+            "showRunningState": true,
+            "showBadges": true
+          }
+        }
+      ],
+      "customs": []
+    },
+    "grid": {
+      "builtins": [
+        {
+          "id": "grid-compact",
+          "name": "紧凑",
+          "isPreset": true,
+          "description": "提高网格密度，突出快速浏览。",
+          "values": {
+            "template": "compact",
+            "gridDensity": "compact",
+            "cardGap": "tight",
+            "coverScale": "tight",
+            "showTitle": true,
+            "showSubtitle": false,
+            "showLastBackup": false,
+            "showSnapshotCount": false,
+            "showPlaytime": true,
+            "showInstallState": true,
+            "showRunningState": false,
+            "showBadges": false
+          }
+        },
+        {
+          "id": "grid-standard",
+          "name": "标准",
+          "isPreset": true,
+          "description": "映射当前封面网格布局，作为迁移后的默认基线。",
+          "values": {
+            "template": "standard",
+            "gridDensity": "standard",
+            "cardGap": "standard",
+            "coverScale": "standard",
+            "showTitle": true,
+            "showSubtitle": true,
+            "showLastBackup": true,
+            "showSnapshotCount": true,
+            "showPlaytime": true,
+            "showInstallState": true,
+            "showRunningState": true,
+            "showBadges": true
+          }
+        },
+        {
+          "id": "grid-poster-wall",
+          "name": "海报墙",
+          "isPreset": true,
+          "description": "突出封面展示，弱化辅助信息。",
+          "values": {
+            "template": "poster-wall",
+            "gridDensity": "relaxed",
+            "cardGap": "standard",
+            "coverScale": "showcase",
+            "showTitle": true,
+            "showSubtitle": false,
+            "showLastBackup": false,
+            "showSnapshotCount": false,
+            "showPlaytime": false,
+            "showInstallState": false,
+            "showRunningState": true,
+            "showBadges": false
+          }
+        },
+        {
+          "id": "grid-info-card-wall",
+          "name": "信息卡片墙",
+          "isPreset": true,
+          "description": "在封面网格中保留更多文本与状态信息。",
+          "values": {
+            "template": "info-card-wall",
+            "gridDensity": "standard",
+            "cardGap": "standard",
+            "coverScale": "standard",
+            "showTitle": true,
+            "showSubtitle": true,
+            "showLastBackup": true,
+            "showSnapshotCount": true,
+            "showPlaytime": true,
+            "showInstallState": true,
+            "showRunningState": true,
+            "showBadges": true
+          }
+        }
+      ],
+      "customs": []
+    }
+  }
+}

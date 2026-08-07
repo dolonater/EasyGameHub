@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "noEmit": false
+  },
+  "include": ["vite.config.ts", "vite.sdk.config.ts"]
+}

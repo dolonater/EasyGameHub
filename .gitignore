@@ -1,0 +1,10 @@
+node_modules
+target/
+assets/
+animotion/
+*.zip
+*.7z
+*.rar
+backups/
+bak/
+cache/

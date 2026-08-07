@@ -1,0 +1,14 @@
+{
+  "name": "easygamehub-netease-music-plugin",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.tsx --bundle --format=esm --external:sdk --jsx=transform --outfile=dist/bundle.js",
+    "pack": "node scripts/pack.mjs",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
+  }
+}

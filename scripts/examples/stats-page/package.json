@@ -1,0 +1,12 @@
+{
+  "name": "stats-page-example",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.tsx --bundle --format=esm --external:sdk --jsx=transform --outfile=dist/bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
+  }
+}
