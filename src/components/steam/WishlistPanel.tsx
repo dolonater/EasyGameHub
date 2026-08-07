@@ -4,8 +4,9 @@ import { invoke } from "@tauri-apps/api/core";
 import Button from "../ui/Button";
 import TextField from "../ui/TextField";
 import Icon from "../ui/Icon";
-import { glassMenuItemClass, GlassMenuPanel } from "../ui/GlassSurface";
+import ChipDropdown from "../ui/ChipDropdown";
 import GameSearchBox from "./GameSearchBox";
+import PriceChartDialog from "./PriceChartDialog";
 import { showToast } from "../Notification";
 import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
 import { formatPriceCents } from "../../lib/steamCommunity";
@@ -38,83 +39,20 @@ interface CombinedItem {
 }
 
 type SortMode = "default" | "discount" | "priceAsc" | "priceDesc" | "name";
-type FilterMode = "all" | "discount" | "free" | "dropped";
+type FilterMode = "all" | "discount" | "free" | "dropped" | "comingSoon";
+type SourceFilter = "all" | "wishlist" | "local";
 
-const MENU_ITEM_CLASS = [
-  `${glassMenuItemClass} flex w-full items-center gap-2 px-[7px] py-[3px] rounded-md text-sm font-semibold whitespace-nowrap`,
-  "text-foreground/80 dark:text-muted-foreground",
-  "hover:!text-primary-foreground",
-  "hover:bg-primary",
-  "hover:-translate-y-[1px]",
-  "active:scale-[0.99]",
-  "transition-all duration-300 ease-out",
-  "[&_svg]:w-[17px] [&_svg]:h-[17px] [&_svg]:transition-all [&_svg]:duration-300 [&_svg]:ease-out",
-  "[&_svg]:stroke-current",
-].join(" ");
-
-/** Small click-to-open menu used for the sort / filter dropdowns. */
-function ChipDropdown({
-  label,
-  options,
-  value,
-  onSelect,
+/** Tiny inline price-history line, green when the current price is the low.
+ *  Clicking opens the larger chart (PriceChartDialog). */
+function PriceSparkline({
+  points,
+  onClick,
+  title,
 }: {
-  label: string;
-  options: { value: string; label: string }[];
-  value: string;
-  onSelect: (value: string) => void;
+  points: PriceHistoryPoint[];
+  onClick?: () => void;
+  title?: string;
 }) {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  const current = options.find((o) => o.value === value);
-
-  return (
-    <div ref={rootRef} className="relative">
-      <Button variant="outline" size="sm" onClick={() => setOpen((v) => !v)} ripple={false}>
-        <Icon name="chevronDown" size={12} />
-        {label}:{current?.label}
-      </Button>
-      {open && (
-        <GlassMenuPanel className="absolute right-0 top-full z-30 mt-1 w-max min-w-[7rem] rounded-[10px] border border-border px-[5px] py-[6px] flex flex-col gap-[3px] shadow-xl">
-          {options.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              className={MENU_ITEM_CLASS}
-              onClick={() => {
-                onSelect(o.value);
-                setOpen(false);
-              }}
-            >
-              {o.label}
-              {o.value === value && <Icon name="check" size={14} className="ml-auto" />}
-            </button>
-          ))}
-        </GlassMenuPanel>
-      )}
-    </div>
-  );
-}
-
-/** Tiny inline price-history line, green when the current price is the low. */
-function PriceSparkline({ points }: { points: PriceHistoryPoint[] }) {
   if (points.length < 2) return null;
   const W = 64;
   const H = 22;
@@ -131,10 +69,17 @@ function PriceSparkline({ points }: { points: PriceHistoryPoint[] }) {
     .map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.finalPrice).toFixed(1)}`)
     .join(" ");
   return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="flex-none text-muted-foreground/60">
-      <path d={d} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx={x(points.length - 1)} cy={y(last.finalPrice)} r={1.8} fill={color} />
-    </svg>
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className="flex-none rounded transition-opacity hover:opacity-80"
+    >
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="text-muted-foreground/60">
+        <path d={d} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx={x(points.length - 1)} cy={y(last.finalPrice)} r={1.8} fill={color} />
+      </svg>
+    </button>
   );
 }
 
@@ -158,6 +103,7 @@ export default function WishlistPanel({
 
   const [sort, setSort] = useState<SortMode>("default");
   const [filter, setFilter] = useState<FilterMode>("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [thresholds, setThresholds] = useState<Record<number, number>>({});
   const [thresholdEditing, setThresholdEditing] = useState<number | null>(null);
   const [thresholdInput, setThresholdInput] = useState("");
@@ -165,6 +111,13 @@ export default function WishlistPanel({
   const [manual, setManual] = useState(false);
   const [newAppId, setNewAppId] = useState("");
   const [newName, setNewName] = useState("");
+  const [chartItem, setChartItem] = useState<{
+    appId: number;
+    name: string;
+    points: PriceHistoryPoint[];
+    currency: string | null;
+  } | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const combined = useMemo<CombinedItem[]>(() => {
     const map = new Map<number, CombinedItem>();
@@ -276,6 +229,13 @@ export default function WishlistPanel({
       list = list.filter((i) => metadata[i.appId]?.isFree === true);
     } else if (filter === "dropped") {
       list = list.filter((i) => prices[i.appId]?.dropped === true);
+    } else if (filter === "comingSoon") {
+      list = list.filter((i) => metadata[i.appId]?.comingSoon === true);
+    }
+    if (sourceFilter === "wishlist") {
+      list = list.filter((i) => i.source === "wishlist");
+    } else if (sourceFilter === "local") {
+      list = list.filter((i) => i.source === "local");
     }
     const sorted = [...list];
     switch (sort) {
@@ -295,7 +255,7 @@ export default function WishlistPanel({
         sorted.sort((a, b) => a.appId - b.appId);
     }
     return sorted;
-  }, [combined, sort, filter, prices, metadata]);
+  }, [combined, sort, filter, sourceFilter, prices, metadata]);
 
   const handlePick = (appId: number, name: string) => {
     void onAddWatch(appId, name);
@@ -339,6 +299,83 @@ export default function WishlistPanel({
     setThresholdEditing(appId);
     setThresholdInput(thresholds[appId] != null ? String((thresholds[appId]! / 100).toFixed(2)) : "");
   };
+
+  const currencyOf = (appId: number) => prices[appId]?.currency ?? null;
+
+  interface DropEvent {
+    appId: number;
+    name: string;
+    date: string;
+    prevPrice: number;
+    newPrice: number;
+    discount: number;
+    /** Synthetic event for a sale that is live now but was never observed
+     *  dropping (e.g. the game was added while already on sale). */
+    isCurrent: boolean;
+  }
+
+  function fmtNow(): string {
+    const d = new Date();
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  }
+
+  /** Replay each app's price history into a list of price-drop events, plus a
+   *  synthetic entry for any game on sale right now. */
+  const dropHistory = useMemo<DropEvent[]>(() => {
+    const events: DropEvent[] = [];
+    for (const item of combined) {
+      const price = prices[item.appId];
+      if (!price) continue;
+
+      // Observed drops: a later point strictly below an earlier one.
+      for (let i = 1; i < price.history.length; i++) {
+        const prev = price.history[i - 1];
+        const cur = price.history[i];
+        if (cur.finalPrice < prev.finalPrice) {
+          events.push({
+            appId: item.appId,
+            name: item.name,
+            date: cur.date,
+            prevPrice: prev.finalPrice,
+            newPrice: cur.finalPrice,
+            discount: cur.discountPercent,
+            isCurrent: false,
+          });
+        }
+      }
+
+      // Live sale that was never observed dropping into its current price
+      // (e.g. the game was added mid-sale): synthesize list price → sale price.
+      const final = price.finalPrice;
+      const initial = price.initialPrice;
+      const alreadyRecorded = price.history.some(
+        (p) => p.finalPrice === final && p.discountPercent === price.discountPercent,
+      );
+      if (
+        final != null &&
+        initial != null &&
+        price.discountPercent > 0 &&
+        final < initial &&
+        !alreadyRecorded
+      ) {
+        events.push({
+          appId: item.appId,
+          name: item.name,
+          // Use the last observed date when available so it sorts like history.
+          date: price.history.length > 0 ? price.history[price.history.length - 1].date : fmtNow(),
+          prevPrice: initial,
+          newPrice: final,
+          discount: price.discountPercent,
+          isCurrent: true,
+        });
+      }
+    }
+    // Date strings are fixed-width "YYYY-MM-DD HH:MM:SS", so lexicographic
+    // sorting equals chronological sorting.
+    events.sort((a, b) => b.date.localeCompare(a.date));
+    return events.slice(0, 30);
+  }, [combined, prices]);
 
   const fmtPrice = (cents: number, currency: string | null) => formatPriceCents(cents, currency);
 
@@ -393,6 +430,12 @@ export default function WishlistPanel({
     { value: "discount", label: t("steam.wishlistFilterDiscount", { defaultValue: "折扣中" }) },
     { value: "free", label: t("steam.wishlistFilterFree", { defaultValue: "免费" }) },
     { value: "dropped", label: t("steam.wishlistFilterDropped", { defaultValue: "降价中" }) },
+    { value: "comingSoon", label: t("steam.wishlistFilterComingSoon", { defaultValue: "未发售" }) },
+  ];
+  const sourceOptions = [
+    { value: "all", label: t("steam.wishlistSourceAll", { defaultValue: "全部来源" }) },
+    { value: "wishlist", label: t("steam.wishlistSourceSteam", { defaultValue: "Steam 愿望单" }) },
+    { value: "local", label: t("steam.wishlistSourceLocal", { defaultValue: "本地关注" }) },
   ];
 
   return (
@@ -415,6 +458,21 @@ export default function WishlistPanel({
             value={filter}
             onSelect={(v) => setFilter(v as FilterMode)}
           />
+          <ChipDropdown
+            label={t("steam.wishlistSource", { defaultValue: "来源" })}
+            options={sourceOptions}
+            value={sourceFilter}
+            onSelect={(v) => setSourceFilter(v as SourceFilter)}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setHistoryOpen((v) => !v)}
+            ripple={false}
+          >
+            <Icon name="chartLine" size={14} />
+            {t("steam.wishlistDropHistory", { defaultValue: "降价记录" })}
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setAddOpen((v) => !v)} ripple={false}>
             <Icon name="addGame" size={14} />
             {t("steam.wishlistAddGame")}
@@ -425,6 +483,49 @@ export default function WishlistPanel({
           </Button>
         </div>
       </div>
+
+      {/* Price-drop history */}
+      {historyOpen && (
+        <div className="app-surface app-glass-card relative z-40 rounded-[var(--radius)] border border-border/40 p-3">
+          <div className="mb-2 text-xs text-muted-foreground">
+            {t("steam.wishlistDropHistoryTitle", { defaultValue: "降价记录（来自价格历史）" })}
+          </div>
+          {dropHistory.length === 0 ? (
+            <div className="text-xs text-muted-foreground">
+              {t("steam.wishlistDropHistoryEmpty", { defaultValue: "暂无降价记录" })}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {dropHistory.map((e, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-secondary/40"
+                >
+                  <span className="min-w-0 flex-1 truncate text-sm">{e.name}</span>
+                  {e.isCurrent && (
+                    <span className="flex-none rounded-full border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
+                      {t("steam.wishlistDropCurrent", { defaultValue: "当前折扣" })}
+                    </span>
+                  )}
+                  <span className="flex-none text-[11px] text-muted-foreground">{e.date}</span>
+                  <span className="flex-none text-xs text-muted-foreground line-through">
+                    {fmtPrice(e.prevPrice, currencyOf(e.appId))}
+                  </span>
+                  <Icon name="arrowRight" size={11} className="flex-none text-muted-foreground" />
+                  <span className="flex-none text-sm font-semibold text-green-600 dark:text-green-400">
+                    {fmtPrice(e.newPrice, currencyOf(e.appId))}
+                  </span>
+                  {e.discount > 0 && (
+                    <span className="flex-none rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                      -{e.discount}%
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Wishlist notice */}
       {(notice || wishLoading) && (
@@ -529,6 +630,11 @@ export default function WishlistPanel({
                     <span className="rounded-full border border-border/60 bg-secondary/40 px-2 py-0.5 text-[11px] text-muted-foreground">
                       {item.source === "wishlist" ? t("steam.wishlistSourceSteam") : t("steam.wishlistSourceLocal")}
                     </span>
+                    {meta?.comingSoon && (
+                      <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
+                        {t("steam.wishlistComingSoon", { defaultValue: "即将发售" })}
+                      </span>
+                    )}
                   </div>
 
                   {meta && meta.genres.length > 0 && (
@@ -546,9 +652,26 @@ export default function WishlistPanel({
                   <div className="mt-1.5">{priceNode(item)}</div>
 
                   {/* Historical low + sparkline + reminder threshold row */}
-                  {price && price.history.length > 0 && (
+                  {price && price.finalPrice != null && (
                     <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                      <PriceSparkline points={price.history} />
+                      {price.history.length >= 2 ? (
+                        <PriceSparkline
+                          points={price.history}
+                          onClick={() =>
+                            setChartItem({
+                              appId: item.appId,
+                              name: item.name,
+                              points: price.history,
+                              currency: price.currency,
+                            })
+                          }
+                          title={t("steam.wishlistViewChart", { defaultValue: "查看价格走势" })}
+                        />
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground/60">
+                          {t("steam.wishlistChartHint", { defaultValue: "价格曲线将在多次刷新后生成" })}
+                        </span>
+                      )}
                       {price.lowestPrice != null &&
                         price.finalPrice === price.lowestPrice &&
                         price.history.length >= 2 && (
@@ -626,6 +749,14 @@ export default function WishlistPanel({
           })}
         </div>
       )}
+
+      <PriceChartDialog
+        open={chartItem !== null}
+        onClose={() => setChartItem(null)}
+        title={chartItem?.name ?? ""}
+        points={chartItem?.points ?? []}
+        currency={chartItem?.currency ?? null}
+      />
     </div>
   );
 }

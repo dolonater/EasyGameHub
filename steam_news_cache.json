@@ -1,41 +1,5 @@
 [
   {
-    "app_id": 1158310,
-    "fetched_at": 1786121920,
-    "items": [
-      {
-        "appId": 1158310,
-        "title": "Dragon Age: Thedas at War is a BioWare RPG-inspired Crusader Kings 3 total conversion mod that's here to keep the series alive while it sits in EA limbo",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1839041357035930",
-        "author": "",
-        "contents": "Who knows when or if BioWare'll ever be allowed to make a follow-up to Dragon Age: The Veilguard. Whatever ends up being the future of a series EA've left in a rather ambiguous place, a group of Crusader Kings 3 modders have stepped up to make a Dragon Age total conversion that lets folks play out a...",
-        "feedLabel": "Rock, Paper, Shotgun",
-        "feedType": 0,
-        "date": 1785163333
-      },
-      {
-        "appId": 1158310,
-        "title": "PDX ModCon: July 24-26",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029195",
-        "author": "PDX-Trinexx",
-        "contents": "Rulers! Great tidings to all from PDX ModCon!We are a fan-organised three-day showcase and celebration event for Paradox mods; specifically those of Crusader Kings III, Victoria 3, and this year, Europa Universalis V. We will be presenting no less than 60 mods over the coming weekend. Besides traile...",
-        "feedLabel": "Community Announcements",
-        "feedType": 1,
-        "date": 1784890753
-      },
-      {
-        "appId": 1158310,
-        "title": "PC Game Pass takes a fresh blow with eight big losses, including Crusader Kings 3",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1838407329263782",
-        "author": "editor@pcgamesn.com",
-        "contents": "Eight more games will leave PC Game Pass at the end of July, including heavy hitters CK3, Mount and Blade 2, Rain World, and Whiskerwood. Read the full story on PCGamesN: PC Game Pass takes a fresh blow with eight big losses, including Crusader Kings 3",
-        "feedLabel": "PCGamesN",
-        "feedType": 0,
-        "date": 1784467930
-      }
-    ]
-  },
-  {
     "app_id": 2358720,
     "fetched_at": 1786122362,
     "items": [
@@ -72,8 +36,44 @@
     ]
   },
   {
+    "app_id": 1158310,
+    "fetched_at": 1786124275,
+    "items": [
+      {
+        "appId": 1158310,
+        "title": "Dragon Age: Thedas at War is a BioWare RPG-inspired Crusader Kings 3 total conversion mod that's here to keep the series alive while it sits in EA limbo",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1839041357035930",
+        "author": "",
+        "contents": "Who knows when or if BioWare'll ever be allowed to make a follow-up to Dragon Age: The Veilguard. Whatever ends up being the future of a series EA've left in a rather ambiguous place, a group of Crusader Kings 3 modders have stepped up to make a Dragon Age total conversion that lets folks play out a...",
+        "feedLabel": "Rock, Paper, Shotgun",
+        "feedType": 0,
+        "date": 1785163333
+      },
+      {
+        "appId": 1158310,
+        "title": "PDX ModCon: July 24-26",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029195",
+        "author": "PDX-Trinexx",
+        "contents": "Rulers! Great tidings to all from PDX ModCon!We are a fan-organised three-day showcase and celebration event for Paradox mods; specifically those of Crusader Kings III, Victoria 3, and this year, Europa Universalis V. We will be presenting no less than 60 mods over the coming weekend. Besides traile...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1784890753
+      },
+      {
+        "appId": 1158310,
+        "title": "PC Game Pass takes a fresh blow with eight big losses, including Crusader Kings 3",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1838407329263782",
+        "author": "editor@pcgamesn.com",
+        "contents": "Eight more games will leave PC Game Pass at the end of July, including heavy hitters CK3, Mount and Blade 2, Rain World, and Whiskerwood. Read the full story on PCGamesN: PC Game Pass takes a fresh blow with eight big losses, including Crusader Kings 3",
+        "feedLabel": "PCGamesN",
+        "feedType": 0,
+        "date": 1784467930
+      }
+    ]
+  },
+  {
     "app_id": 1091500,
-    "fetched_at": 1786122582,
+    "fetched_at": 1786125000,
     "items": [
       {
         "appId": 1091500,
@@ -104,6 +104,42 @@
         "feedLabel": "Gamemag.ru",
         "feedType": 0,
         "date": 1785373800
+      }
+    ]
+  },
+  {
+    "app_id": 292030,
+    "fetched_at": 1786125413,
+    "items": [
+      {
+        "appId": 292030,
+        "title": "Just in time for pre-Songs of the Past DLC refreshers, Witcher 3 modders have restored a cut menu which lets you watch story recaps at any time",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1840310314341558",
+        "author": "",
+        "contents": "Remember those little 'last time on The Witcher 3' recaps CD Projekt Red have Dandelion narrate if you load up a save or fast travel to a new section of the map midway through the RPG's main story? Well, it turns out the studio cut out a menu that'd have allowed you to go back and watch any of these...",
+        "feedLabel": "Rock, Paper, Shotgun",
+        "feedType": 0,
+        "date": 1786009428
+      },
+      {
+        "appId": 292030,
+        "title": "The Witcher 3's expansion reveal is scheduled for next month",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PC Gamer/1838407329269113",
+        "author": "Joshua Wolens",
+        "contents": "CD Projekt Red sent us all scurrying for our calendars when it announced, last May, that 2015's The Witcher 3 would be getting a brand-new expansion in the year of our lord 2027. It's called Songs of the Past, it's set to be \"a little bit closer to Blood and Wine\" in terms of size, and it's being co...",
+        "feedLabel": "PC Gamer",
+        "feedType": 0,
+        "date": 1784643109
+      },
+      {
+        "appId": 292030,
+        "title": "CD Projekt Red's CEO still thinks they need to finish their post-Cyberpunk redemption arc, and he's hoping The Witcher 4 will help",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/rps/1835871199309978",
+        "author": "",
+        "contents": "I think despite the mess that was the launch of Cyberpunk 2077, it wouldn't be right to say that CD Projekt Red's reputation was completely tarnished. It is still a game with a lot of cultural relevancy, and nobody can shut up about The Witcher 3 to such a degree that it's even getting a brand new e...",
+        "feedLabel": "Rock, Paper, Shotgun",
+        "feedType": 0,
+        "date": 1781978444
       }
     ]
   }

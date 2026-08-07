@@ -188,5 +188,7 @@ export interface MetadataDto {
   genres: string[];
   developers: string[];
   releaseDate: string | null;
+  /** True when the store marks this title as not yet released. */
+  comingSoon: boolean;
   isFree: boolean;
 }

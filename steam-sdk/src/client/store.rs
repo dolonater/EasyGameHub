@@ -88,6 +88,8 @@ pub struct AppDetail {
     pub genres: Vec<String>,
     pub developers: Vec<String>,
     pub release_date: Option<String>,
+    /// True when the store marks this title as not yet released.
+    pub release_date_coming_soon: bool,
     pub is_free: bool,
     pub price: Option<AppPrice>,
 }
@@ -120,6 +122,8 @@ struct Genre {
 #[serde(rename_all = "snake_case")]
 struct ReleaseDate {
     date: Option<String>,
+    #[serde(default)]
+    coming_soon: bool,
 }
 
 /// Fetch metadata + price for a batch of apps.
@@ -192,7 +196,12 @@ fn fetch_app_detail(
                                         .map(|g| g.description)
                                         .collect(),
                                     developers: data.developers.unwrap_or_default(),
-                                    release_date: data.release_date.and_then(|rd| rd.date),
+                                    release_date: data.release_date.as_ref().and_then(|rd| rd.date.clone()),
+                                    release_date_coming_soon: data
+                                        .release_date
+                                        .as_ref()
+                                        .map(|rd| rd.coming_soon)
+                                        .unwrap_or(false),
                                     is_free: data.is_free.unwrap_or(false),
                                     price: data.price_overview,
                                 });
@@ -427,7 +436,12 @@ mod tests {
                             .map(|g| g.description)
                             .collect(),
                         developers: data.developers.unwrap_or_default(),
-                        release_date: data.release_date.and_then(|rd| rd.date),
+                        release_date: data.release_date.as_ref().and_then(|rd| rd.date.clone()),
+                        release_date_coming_soon: data
+                            .release_date
+                            .as_ref()
+                            .map(|rd| rd.coming_soon)
+                            .unwrap_or(false),
                         is_free: data.is_free.unwrap_or(false),
                         price: data.price_overview,
                     });

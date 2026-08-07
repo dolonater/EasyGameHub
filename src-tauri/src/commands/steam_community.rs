@@ -611,6 +611,9 @@ pub struct MetadataDto {
     pub genres: Vec<String>,
     pub developers: Vec<String>,
     pub release_date: Option<String>,
+    /// True when the store marks this title as not yet released.
+    #[serde(default)]
+    pub coming_soon: bool,
     pub is_free: bool,
 }
 
@@ -684,6 +687,7 @@ pub async fn get_steam_metadata(state: State<'_, AppState>, app_ids: Vec<u32>) -
                             genres: detail.genres,
                             developers: detail.developers,
                             release_date: detail.release_date,
+                            coming_soon: detail.release_date_coming_soon,
                             is_free: detail.is_free,
                         },
                         fetched_at: now,

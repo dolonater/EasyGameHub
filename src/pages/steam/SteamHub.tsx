@@ -113,6 +113,7 @@ export default function SteamHub() {
           <NewsFeed
             appIds={monitoredAppIds}
             appNames={monitoredAppNames}
+            watchAppIds={watch.appIds}
             onAddWatch={watch.add}
             onRemoveWatch={watch.remove}
           />
