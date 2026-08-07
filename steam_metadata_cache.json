@@ -1,5 +1,20 @@
 [
   {
+    "appId": 1091500,
+    "name": "赛博朋克 2077",
+    "shortDescription": "《赛博朋克 2077》是一款开放世界动作冒险 RPG 游戏。故事发生在暗黑未来的夜之城，一座五光十色、危机四伏的超级大都会，权力更迭和无尽的身体改造是这里不变的主题。",
+    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/4e88035f3a75e69e0ef2005fc611a7fafcb227e1/header_schinese.jpg?t=1784714077",
+    "genres": [
+      "角色扮演"
+    ],
+    "developers": [
+      "CD PROJEKT RED"
+    ],
+    "releaseDate": "2020 年 12 月 9 日",
+    "isFree": false,
+    "fetchedAt": 1786115583
+  },
+  {
     "appId": 1158310,
     "name": "Crusader Kings III",
     "shortDescription": "坠入爱河、投身争斗、策划计谋、成就宏图伟业，在大战略游戏《Crusader Kings III》中书写你的贵族传承。死亡不过是下一场开始——在这个精彩纷呈、跃然纸上的中世纪模拟世界中，延续宗族血脉，谱写王朝史诗。",

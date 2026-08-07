@@ -8,9 +8,9 @@ use crate::client::SteamHttpClient;
 use crate::error::{Result, SteamError};
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::time::Duration;
 
 const STORE_BASE: &str = "https://store.steampowered.com";
-const BATCH_SIZE: usize = 10;
 
 // ── Wishlist ────────────────────────────────────────────────
 
@@ -122,10 +122,14 @@ struct ReleaseDate {
     date: Option<String>,
 }
 
-/// Fetch metadata + price for a batch of apps (batched to keep URLs short).
+/// Fetch metadata + price for a batch of apps.
 ///
-/// A failed or rate-limited chunk is skipped rather than failing the whole
-/// call, so a transient store error degrades to partial data.
+/// Steam's `appdetails` endpoint only returns ONE app per request: comma-
+/// separated ids (`?appids=730,570`) yield `null`, and repeated params
+/// (`?appids=730&appids=570`) yield only the last id. So each app is fetched
+/// individually, in parallel with bounded concurrency, so a batch of N apps
+/// takes roughly one request's latency. Per-app failures degrade to partial
+/// data instead of failing the whole call.
 ///
 /// Prices are pinned to the China store (`cc=cn`) so the currency is always
 /// CNY instead of whatever region Steam geolocates the request to.
@@ -134,46 +138,75 @@ pub fn get_app_details(
     app_ids: &[u32],
     language: &str,
 ) -> Result<Vec<AppDetail>> {
+    const PARALLELISM: usize = 8;
     let mut all = Vec::new();
-    for chunk in app_ids.chunks(BATCH_SIZE) {
-        let ids = chunk
-            .iter()
-            .map(|id| id.to_string())
-            .collect::<Vec<_>>()
-            .join(",");
-        let url = format!("{}/api/appdetails?appids={}&l={}&cc=cn", STORE_BASE, ids, language);
-        let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
-        if response.status() != 200 {
-            continue;
-        }
-        let body: HashMap<String, AppDetailResponse> = match response.into_json() {
-            Ok(b) => b,
-            Err(_) => continue,
-        };
-        for (key, entry) in body {
-            if let (Ok(app_id), Some(data)) = (key.parse::<u32>(), entry.data) {
-                if entry.success {
-                    all.push(AppDetail {
-                        app_id,
-                        name: data.name,
-                        short_description: data.short_description,
-                        header_image: data.header_image,
-                        genres: data
-                            .genres
-                            .unwrap_or_default()
-                            .into_iter()
-                            .map(|g| g.description)
-                            .collect(),
-                        developers: data.developers.unwrap_or_default(),
-                        release_date: data.release_date.and_then(|rd| rd.date),
-                        is_free: data.is_free.unwrap_or(false),
-                        price: data.price_overview,
-                    });
+    for chunk in app_ids.chunks(PARALLELISM) {
+        let batch: Vec<AppDetail> = std::thread::scope(|scope| {
+            let handles: Vec<_> = chunk
+                .iter()
+                .map(|&app_id| {
+                    let client = client.clone();
+                    scope.spawn(move || fetch_app_detail(&client, app_id, language))
+                })
+                .collect();
+            handles
+                .into_iter()
+                .filter_map(|h| h.join().unwrap_or_default())
+                .collect()
+        });
+        all.extend(batch);
+    }
+    Ok(all)
+}
+
+/// Fetch a single app's detail with one retry and a short backoff; returns
+/// `None` when the request or parse fails so the caller degrades gracefully.
+fn fetch_app_detail(
+    client: &SteamHttpClient,
+    app_id: u32,
+    language: &str,
+) -> Option<AppDetail> {
+    let url = format!(
+        "{}/api/appdetails?appids={}&l={}&cc=cn",
+        STORE_BASE, app_id, language
+    );
+    for attempt in 0..2 {
+        if let Ok(response) = client.get_with_headers(&url, &[("Referer", STORE_BASE)]) {
+            if response.status() == 200 {
+                if let Ok(body) = response.into_json::<HashMap<String, AppDetailResponse>>() {
+                    if let Some((_, entry)) = body
+                        .into_iter()
+                        .find(|(key, _)| key.parse::<u32>().ok() == Some(app_id))
+                    {
+                        if entry.success {
+                            if let Some(data) = entry.data {
+                                return Some(AppDetail {
+                                    app_id,
+                                    name: data.name,
+                                    short_description: data.short_description,
+                                    header_image: data.header_image,
+                                    genres: data
+                                        .genres
+                                        .unwrap_or_default()
+                                        .into_iter()
+                                        .map(|g| g.description)
+                                        .collect(),
+                                    developers: data.developers.unwrap_or_default(),
+                                    release_date: data.release_date.and_then(|rd| rd.date),
+                                    is_free: data.is_free.unwrap_or(false),
+                                    price: data.price_overview,
+                                });
+                            }
+                        }
+                    }
                 }
             }
         }
+        if attempt == 0 {
+            std::thread::sleep(Duration::from_millis(250));
+        }
     }
-    Ok(all)
+    None
 }
 
 #[cfg(test)]

@@ -1,36 +1,37 @@
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { patchSteamHubCache, useSteamHubCache } from "../lib/steamHubCache";
 import type { SessionDto, SteamProfileDto } from "../lib/steamCommunity";
 
 /**
  * Session + profile state for the Steam hub.
  *
- * `refresh()` reloads the active session and, when present, the public
- * profile (mini-profile API). Backend-side token auto-refresh happens inside
- * `get_active_session`, so a near-expiry token is renewed transparently here.
+ * Data lives in a module-level cache that survives route switches, so coming
+ * back to the Steam page renders instantly from the last-loaded session and
+ * refreshes silently in the background. Backend-side token auto-refresh
+ * happens inside `get_active_session`, so a near-expiry token is renewed
+ * transparently here.
  */
 export function useSteamSession() {
-  const [session, setSession] = useState<SessionDto | null>(null);
-  const [profile, setProfile] = useState<SteamProfileDto | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { session, profile, hasLoaded } = useSteamHubCache();
   const [loginOpen, setLoginOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
       const active = await invoke<SessionDto | null>("get_active_session");
-      setSession(active);
+      patchSteamHubCache({ session: active });
       if (active) {
         const info = await invoke<SteamProfileDto>("get_steam_user_info", {
           steamId64: active.steamId,
         });
-        setProfile(info);
+        patchSteamHubCache({ profile: info });
       } else {
-        setProfile(null);
+        patchSteamHubCache({ profile: null });
       }
     } catch {
       // Session lookup may fail (no session store); keep current state.
     } finally {
-      setLoading(false);
+      patchSteamHubCache({ hasLoaded: true });
     }
   }, []);
 
@@ -44,14 +45,15 @@ export function useSteamSession() {
     } catch {
       // Ignore — still clear the local state.
     }
-    setSession(null);
-    setProfile(null);
+    patchSteamHubCache({ session: null, profile: null });
   }, []);
 
   return {
     session,
     profile,
-    loading,
+    // Only the very first load in the whole app session shows a spinner;
+    // afterwards the cached snapshot renders immediately.
+    loading: !hasLoaded,
     loginOpen,
     setLoginOpen,
     refresh,

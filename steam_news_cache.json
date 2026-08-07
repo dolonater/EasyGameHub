@@ -1,7 +1,43 @@
 [
   {
+    "app_id": 1091500,
+    "fetched_at": 1786115650,
+    "items": [
+      {
+        "appId": 1091500,
+        "title": "Steam Global Top Sellers for week of 28 Jul — 4 August 2026",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/SteamDB/1839676055897393",
+        "author": "SteamDB",
+        "contents": "* Mistfall Hunter; * Cyberpunk 2077; * Halo: Campaign Evolved; * Palworld; * Marvel's Spider-Man 2; * Baldur's Gate 3; * Shift At Midnight; * Corsair Cove; * Marvel’s Spider-Man Remastered; * Battlefield™ 6; * excluding free to play games View top 100 on SteamDB",
+        "feedLabel": "SteamDB",
+        "feedType": 0,
+        "date": 1785834000
+      },
+      {
+        "appId": 1091500,
+        "title": "Cyberpunk 2077 in 2026: still alive, and still iconic",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1839676055888333",
+        "author": "editor@pcgamesn.com",
+        "contents": "From a rocky launch to one of the most quintessential RPGs ever made: I asked CDPR why you should play the iconic Cyberpunk 2077 in 2026. Read the full story on PCGamesN: Cyberpunk 2077 in 2026: still alive, and still iconic",
+        "feedLabel": "PCGamesN",
+        "feedType": 0,
+        "date": 1785503348
+      },
+      {
+        "appId": 1091500,
+        "title": "Слух: Авторы Shantae и River City Girls работают над новой 2D-игрой во вселенной Cyberpunk 2077",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Gamemag.ru/1839676055884593",
+        "author": "Семен Страндов",
+        "contents": "Похоже, независимая студия WayForward, известная по серии Shantae и битемапу River City Girls, объединила усилия с польской компанией CD Projekt RED для разработки нового проекта во вселенной Cyberpunk 2077.",
+        "feedLabel": "Gamemag.ru",
+        "feedType": 0,
+        "date": 1785373800
+      }
+    ]
+  },
+  {
     "app_id": 1158310,
-    "fetched_at": 1786112337,
+    "fetched_at": 1786116638,
     "items": [
       {
         "appId": 1158310,

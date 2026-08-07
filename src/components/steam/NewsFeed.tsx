@@ -5,6 +5,7 @@ import Button from "../ui/Button";
 import TextField from "../ui/TextField";
 import Icon from "../ui/Icon";
 import { showToast } from "../Notification";
+import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
 import type { MetadataDto, NewsItemDto } from "../../lib/steamCommunity";
 
 interface NewsFeedProps {
@@ -28,9 +29,17 @@ export default function NewsFeed({
   onRemoveWatch,
 }: NewsFeedProps) {
   const { t } = useTranslation();
-  const [items, setItems] = useState<NewsItemDto[]>([]);
-  const [metadata, setMetadata] = useState<Record<number, MetadataDto>>({});
-  const [loading, setLoading] = useState(true);
+  const { newsItems, newsMetadata, newsKey } = useSteamHubCache();
+  const cacheKey = appIds.join(",");
+  const hasCache = newsKey === cacheKey;
+
+  // Initialize from the shared cache so re-mounting after a route switch shows
+  // the last feed instantly instead of flashing a spinner.
+  const [items, setItems] = useState<NewsItemDto[]>(hasCache ? newsItems : []);
+  const [metadata, setMetadata] = useState<Record<number, MetadataDto>>(
+    hasCache ? newsMetadata : {}
+  );
+  const [loading, setLoading] = useState(!hasCache);
   const [error, setError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [newAppId, setNewAppId] = useState("");
@@ -47,7 +56,11 @@ export default function NewsFeed({
       }
       try {
         const list = await invoke<MetadataDto[]>("get_steam_metadata", { appIds });
-        if (!cancelled) setMetadata(Object.fromEntries(list.map((m) => [m.appId, m])));
+        if (!cancelled) {
+          const map = Object.fromEntries(list.map((m) => [m.appId, m]));
+          setMetadata(map);
+          patchSteamHubCache({ newsMetadata: map });
+        }
       } catch {
         // Covers are optional — fall back to name-only cards.
       }
@@ -59,19 +72,24 @@ export default function NewsFeed({
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      setLoading(true);
       setError(false);
       if (appIds.length === 0) {
         setItems([]);
         setLoading(false);
         return;
       }
+      // Only flash the spinner when we don't already have cached data for this
+      // key; otherwise render the snapshot and refresh silently.
+      if (newsKey !== cacheKey) setLoading(true);
       try {
         const feed = await invoke<NewsItemDto[]>("get_news_feed", {
           appIds,
           perGame: 3,
         });
-        if (!cancelled) setItems(feed);
+        if (!cancelled) {
+          setItems(feed);
+          patchSteamHubCache({ newsItems: feed, newsKey: cacheKey });
+        }
       } catch {
         if (!cancelled) setError(true);
       } finally {
@@ -80,7 +98,8 @@ export default function NewsFeed({
     };
     void load();
     return () => { cancelled = true; };
-  }, [appIds, refreshKey]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appIds, refreshKey, cacheKey]);
 
   const openLink = (url: string) => {
     void invoke("open_url", { url });

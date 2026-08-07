@@ -12,6 +12,7 @@ import SteamLoginDialog from "../../components/steam/SteamLoginDialog";
 import { useSteamSession } from "../../hooks/useSteamSession";
 import { useSteamWatchlist } from "../../hooks/useSteamWatchlist";
 import { useSteamWishlist } from "../../hooks/useSteamWishlist";
+import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
 
 type SteamTab =
   | "overview"
@@ -40,7 +41,10 @@ export default function SteamHub() {
     logout,
   } = useSteamSession();
   const watch = useSteamWatchlist();
-  const [tab, setTab] = useState<SteamTab>("overview");
+  const { activeTab } = useSteamHubCache();
+  // Restore the last sub-tab after a route switch, so returning to the Steam
+  // page does not bounce you back to Overview.
+  const [tab, setTab] = useState<SteamTab>(() => (activeTab as SteamTab) || "overview");
   // Wishlist loads only when its tab is open — no cross-region request on
   // every Steam page mount.
   const wish = useSteamWishlist(session, tab === "wishlist");
@@ -82,7 +86,10 @@ export default function SteamHub() {
       <TabButtons
         name="steam-hub-tabs"
         value={tab}
-        onChange={(v) => setTab(v as SteamTab)}
+        onChange={(v) => {
+          setTab(v as SteamTab);
+          patchSteamHubCache({ activeTab: v });
+        }}
         options={[
           { value: "overview", label: t("steam.tabOverview") },
           { value: "news", label: t("steam.tabNews") },

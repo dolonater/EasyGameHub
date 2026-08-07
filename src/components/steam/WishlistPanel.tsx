@@ -5,6 +5,7 @@ import Button from "../ui/Button";
 import TextField from "../ui/TextField";
 import Icon from "../ui/Icon";
 import { showToast } from "../Notification";
+import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
 import type {
   MetadataDto,
   PriceDto,
@@ -63,14 +64,7 @@ export default function WishlistPanel({
   onRemoveWatch,
 }: WishlistPanelProps) {
   const { t } = useTranslation();
-  const [prices, setPrices] = useState<Record<number, PriceDto>>({});
-  const [metadata, setMetadata] = useState<Record<number, MetadataDto>>({});
-  const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [addOpen, setAddOpen] = useState(false);
-  const [newAppId, setNewAppId] = useState("");
-  const [newName, setNewName] = useState("");
-  const toasted = useRef(new Set<number>());
+  const { wishPrices, wishMetadata, wishKey } = useSteamHubCache();
 
   const combined = useMemo<CombinedItem[]>(() => {
     const map = new Map<number, CombinedItem>();
@@ -91,6 +85,22 @@ export default function WishlistPanel({
     }
     return Array.from(map.values()).sort((a, b) => a.appId - b.appId);
   }, [wishItems, watchItems]);
+  const cacheKey = useMemo(() => combined.map((c) => c.appId).join(","), [combined]);
+  const hasCache = wishKey === cacheKey;
+
+  // Initialize prices/metadata from the shared cache so re-mounting after a
+  // route switch renders the last snapshot instantly instead of flashing a
+  // loading placeholder while the (network) price fetch runs again.
+  const [prices, setPrices] = useState<Record<number, PriceDto>>(hasCache ? wishPrices : {});
+  const [metadata, setMetadata] = useState<Record<number, MetadataDto>>(
+    hasCache ? wishMetadata : {}
+  );
+  const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [addOpen, setAddOpen] = useState(false);
+  const [newAppId, setNewAppId] = useState("");
+  const [newName, setNewName] = useState("");
+  const toasted = useRef(new Set<number>());
 
   useEffect(() => {
     let cancelled = false;
@@ -100,7 +110,9 @@ export default function WishlistPanel({
         setMetadata({});
         return;
       }
-      setLoadState("loading");
+      // Only flash the loading placeholder when we don't have cached data for
+      // this key; otherwise render the snapshot and refresh silently.
+      if (wishKey !== cacheKey) setLoadState("loading");
       try {
         const appIds = combined.map((c) => c.appId);
         const [priceList, metaList] = await Promise.all([
@@ -108,9 +120,12 @@ export default function WishlistPanel({
           invoke<MetadataDto[]>("get_steam_metadata", { appIds }),
         ]);
         if (cancelled) return;
-        setPrices(Object.fromEntries(priceList.map((p) => [p.appId, p])));
-        setMetadata(Object.fromEntries(metaList.map((m) => [m.appId, m])));
+        const priceMap = Object.fromEntries(priceList.map((p) => [p.appId, p]));
+        const metaMap = Object.fromEntries(metaList.map((m) => [m.appId, m]));
+        setPrices(priceMap);
+        setMetadata(metaMap);
         setLoadState("idle");
+        patchSteamHubCache({ wishPrices: priceMap, wishMetadata: metaMap, wishKey: cacheKey });
 
         // Toast newly-detected drops once per price-drop event.
         const dropped = priceList.filter((p) => p.dropped && !toasted.current.has(p.appId));
@@ -119,12 +134,21 @@ export default function WishlistPanel({
           showToast("info", t("steam.priceDropToast", { defaultValue: "{{count}} 款关注游戏降价", count: dropped.length }));
         }
       } catch {
-        if (!cancelled) setLoadState("error");
+        if (!cancelled) {
+          // Keep any cached/displayed prices or metadata — only surface an
+          // error when there is nothing at all to show (e.g. genuine first
+          // load failure). A transient background-refresh failure must not
+          // replace cached prices with an error banner.
+          const hasAnyData =
+            Object.keys(prices).length > 0 || Object.keys(metadata).length > 0;
+          if (!hasAnyData) setLoadState("error");
+        }
       }
     };
     void load();
     return () => { cancelled = true; };
-  }, [combined, refreshKey, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combined, refreshKey, cacheKey, t]);
 
   const handleAdd = async () => {
     const appId = Number(newAppId);

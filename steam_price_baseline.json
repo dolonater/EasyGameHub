@@ -1,8 +1,14 @@
 {
+  "1091500": {
+    "finalPrice": 8940,
+    "discountPct": 70,
+    "checkedAt": "2026-08-07 23:30:57",
+    "currency": "CNY"
+  },
   "1158310": {
     "finalPrice": 19800,
     "discountPct": 0,
-    "checkedAt": "2026-08-07 22:19:48",
+    "checkedAt": "2026-08-07 23:30:57",
     "currency": "CNY"
   }
 }

@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { patchSteamHubCache, useSteamHubCache } from "../lib/steamHubCache";
 import type { WatchItemDto } from "../lib/steamCommunity";
 
 /**
  * Manual watchlist (`steam_watchlist.json`) that drives the news feed before
  * the wishlist lands (Phase 4). Exposes appIds + name lookup for consumers.
+ *
+ * Kept in the shared Steam Hub cache so it survives route switches.
  */
 export function useSteamWatchlist() {
-  const [items, setItems] = useState<WatchItemDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { watchItems, hasLoaded } = useSteamHubCache();
 
   const refresh = useCallback(async () => {
     try {
       const list = await invoke<WatchItemDto[]>("get_manual_watchlist");
-      setItems(list);
+      patchSteamHubCache({ watchItems: list });
     } catch {
       // Ignore — keep current list.
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -41,10 +41,24 @@ export function useSteamWatchlist() {
     [refresh]
   );
 
-  const appIds = items.map((item) => item.appId);
-  const appNames = Object.fromEntries(
-    items.map((item) => [item.appId, item.name || `App ${item.appId}`])
-  ) as Record<number, string>;
+  // Memoized so consumers (NewsFeed effects etc.) get a stable reference and
+  // do not re-fetch on every unrelated re-render.
+  const appIds = useMemo(() => watchItems.map((item) => item.appId), [watchItems]);
+  const appNames = useMemo(
+    () =>
+      Object.fromEntries(
+        watchItems.map((item) => [item.appId, item.name || `App ${item.appId}`])
+      ) as Record<number, string>,
+    [watchItems]
+  );
 
-  return { items, appIds, appNames, loading, refresh, add, remove };
+  return {
+    items: watchItems,
+    appIds,
+    appNames,
+    loading: !hasLoaded,
+    refresh,
+    add,
+    remove,
+  };
 }
