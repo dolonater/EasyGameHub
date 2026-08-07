@@ -171,8 +171,8 @@ fn fetch_news_for_app(
 
 /// Fetch the latest news items for a single game (memory + file cache).
 #[tauri::command]
-pub fn get_game_news(
-    state: State<AppState>,
+pub async fn get_game_news(
+    state: State<'_, AppState>,
     app_id: u32,
     count: Option<u32>,
 ) -> Result<Vec<NewsItemDto>, String> {
@@ -185,8 +185,8 @@ pub fn get_game_news(
 /// ~one request time instead of one per watched game. Individual app failures
 /// are skipped rather than failing the whole feed.
 #[tauri::command]
-pub fn get_news_feed(
-    state: State<AppState>,
+pub async fn get_news_feed(
+    state: State<'_, AppState>,
     app_ids: Vec<u32>,
     per_game: Option<u32>,
 ) -> Result<Vec<NewsItemDto>, String> {
@@ -253,13 +253,13 @@ fn save_watchlist(path: &Path, list: &[WatchItemDto]) {
 }
 
 #[tauri::command]
-pub fn get_manual_watchlist(state: State<AppState>) -> Result<Vec<WatchItemDto>, String> {
+pub fn get_manual_watchlist(state: State<'_, AppState>) -> Result<Vec<WatchItemDto>, String> {
     Ok(load_watchlist(&watchlist_path(&state.tool_dir)))
 }
 
 #[tauri::command]
 pub fn add_manual_watch(
-    state: State<AppState>,
+    state: State<'_, AppState>,
     app_id: u32,
     name: Option<String>,
 ) -> Result<(), String> {
@@ -277,7 +277,7 @@ pub fn add_manual_watch(
 }
 
 #[tauri::command]
-pub fn remove_manual_watch(state: State<AppState>, app_id: u32) -> Result<(), String> {
+pub fn remove_manual_watch(state: State<'_, AppState>, app_id: u32) -> Result<(), String> {
     let path = watchlist_path(&state.tool_dir);
     let list = load_watchlist(&path);
     save_watchlist(&path, &list.into_iter().filter(|item| item.app_id != app_id).collect::<Vec<_>>());
@@ -348,7 +348,7 @@ fn fetch_wishlist(client: &SteamHttpClient, steam_id: u64) -> Result<Vec<Wishlis
 /// request every time. Errors (not logged in / private / network) are surfaced
 /// to the frontend, which falls back to the local watchlist.
 #[tauri::command]
-pub fn get_steam_wishlist(state: State<AppState>) -> Result<Vec<WishlistItemDto>, String> {
+pub async fn get_steam_wishlist(state: State<'_, AppState>) -> Result<Vec<WishlistItemDto>, String> {
     let steam_id = crate::commands::steam_auth::active_steam_id(&state.tool_dir)
         .ok_or_else(|| "Not logged in. Sign in to view your wishlist.".to_string())?;
     let steam_id_str = steam_id.to_string();
@@ -418,64 +418,64 @@ fn price_baseline_path(tool_dir: &Path) -> std::path::PathBuf {
 /// recorded baseline. The baseline is updated to the current price so each
 /// price-drop event is only reported once.
 #[tauri::command]
-pub fn get_steam_prices(state: State<AppState>, app_ids: Vec<u32>) -> Result<Vec<PriceDto>, String> {
+pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> Result<Vec<PriceDto>, String> {
     if app_ids.is_empty() {
         return Ok(Vec::new());
     }
-
-    let client = shared_client();
-    let details = steam_sdk::client::store::get_app_details(&client, &app_ids, "schinese")
-        .map_err(|e| e.to_string())?;
 
     let baseline_path = price_baseline_path(&state.tool_dir);
     let mut baseline = crate::core::steam_prices::load_price_baseline(&baseline_path);
     let now = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
     let mut results = Vec::new();
-    for detail in details {
-        let (final_price, initial_price, discount, currency, final_formatted, initial_formatted) =
-            match &detail.price {
-                Some(p) => (
-                    Some(p.final_price),
-                    Some(p.initial_price),
-                    p.discount_percent,
-                    Some(p.currency.clone()),
-                    p.final_formatted.clone(),
-                    p.initial_formatted.clone(),
-                ),
-                None => (None, None, 0, None, None, None),
+    if let Ok(details) =
+        steam_sdk::client::store::get_app_details(&shared_client(), &app_ids, "schinese")
+    {
+        for detail in details {
+            let (final_price, initial_price, discount, currency, final_formatted, initial_formatted) =
+                match &detail.price {
+                    Some(p) => (
+                        Some(p.final_price),
+                        Some(p.initial_price),
+                        p.discount_percent,
+                        Some(p.currency.clone()),
+                        p.final_formatted.clone(),
+                        p.initial_formatted.clone(),
+                    ),
+                    None => (None, None, 0, None, None, None),
+                };
+
+            let dropped = match final_price {
+                Some(fp) => {
+                    let prev = baseline.get(&detail.app_id);
+                    let currency = currency.clone().unwrap_or_default();
+                    let drop =
+                        crate::core::steam_prices::check_price_drop(prev, fp, discount, &currency);
+                    baseline.insert(
+                        detail.app_id,
+                        crate::core::steam_prices::PriceBaseline {
+                            final_price: fp,
+                            discount_pct: discount,
+                            checked_at: now.clone(),
+                            currency,
+                        },
+                    );
+                    drop
+                }
+                None => false,
             };
 
-        let dropped = match final_price {
-            Some(fp) => {
-                let prev = baseline.get(&detail.app_id);
-                let currency = currency.clone().unwrap_or_default();
-                let drop =
-                    crate::core::steam_prices::check_price_drop(prev, fp, discount, &currency);
-                baseline.insert(
-                    detail.app_id,
-                    crate::core::steam_prices::PriceBaseline {
-                        final_price: fp,
-                        discount_pct: discount,
-                        checked_at: now.clone(),
-                        currency,
-                    },
-                );
-                drop
-            }
-            None => false,
-        };
-
-        results.push(PriceDto {
-            app_id: detail.app_id,
-            currency,
-            final_price,
-            initial_price,
-            discount_percent: discount,
-            final_formatted,
-            initial_formatted,
-            dropped,
-        });
+            results.push(PriceDto {
+                app_id: detail.app_id,
+                currency,
+                final_price,
+                initial_price,
+                discount_percent: discount,
+                final_formatted,
+                initial_formatted,
+                dropped,
+            });
+        }
     }
 
     crate::core::steam_prices::save_price_baseline(&baseline_path, &baseline);
@@ -533,7 +533,7 @@ const METADATA_CACHE_TTL_SECS: u64 = 7 * 24 * 60 * 60;
 /// Missing/expired apps are fetched from the store and written back. Apps
 /// without store data simply stay absent from the result.
 #[tauri::command]
-pub fn get_steam_metadata(state: State<AppState>, app_ids: Vec<u32>) -> Result<Vec<MetadataDto>, String> {
+pub async fn get_steam_metadata(state: State<'_, AppState>, app_ids: Vec<u32>) -> Result<Vec<MetadataDto>, String> {
     if app_ids.is_empty() {
         return Ok(Vec::new());
     }
