@@ -17,6 +17,12 @@ export interface SessionDto {
   isActive: boolean;
 }
 
+/** Abbreviate a SteamID64 for display only, e.g. 76561198000000001 → 7656...001. */
+export function shortSteamId(id: string): string {
+  if (id.length <= 8) return id;
+  return `${id.slice(0, 4)}...${id.slice(-3)}`;
+}
+
 /** Public profile summary (from `get_steam_user_info`, mini-profile API). */
 export interface SteamProfileDto {
   /** SteamID64 as a string — exceeds JS safe-integer range as a number. */

@@ -5,6 +5,7 @@ import { showToast } from "../Notification";
 import Button from "../ui/Button";
 import Icon from "../ui/Icon";
 import { glassMenuItemClass, GlassMenuPanel } from "../ui/GlassSurface";
+import { shortSteamId } from "../../lib/steamCommunity";
 import type { SessionDto, SteamProfileDto } from "../../lib/steamCommunity";
 
 interface AccountMenuProps {
@@ -135,21 +136,18 @@ export default function AccountMenu({
       </button>
 
       {open && (
-        <GlassMenuPanel className="absolute right-0 top-full z-50 mt-2 w-64 rounded-[10px] border border-border px-[5px] py-[6px] flex flex-col gap-[3px] shadow-xl animate-fade-in">
+        <GlassMenuPanel className="absolute right-0 top-full z-50 mt-2 w-max max-w-[min(90vw,26rem)] rounded-[10px] border border-border px-[5px] py-[6px] flex flex-col gap-[3px] shadow-xl animate-fade-in">
           {/* Identity header */}
           <div className="border-b border-border/60 px-2 pb-2 pt-1 mb-1">
-            <div className="flex items-center gap-3">
-              {avatarNode()}
-              <div className="min-w-0">
-                <div className="truncate text-sm font-bold">{personaName}</div>
-                <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                  {session.accountName}
-                  {profile?.level != null && (
-                    <span className="ml-1 text-muted-foreground/70">
-                      {t("steam.levelBadge", { defaultValue: "Lv. {{level}}", level: profile.level })}
-                    </span>
-                  )}
-                </div>
+            <div className="min-w-0">
+              <div className="truncate text-sm font-bold">{personaName}</div>
+              <div className="mt-0.5 truncate text-xs text-muted-foreground">
+                {session.accountName}
+                {profile?.level != null && (
+                  <span className="ml-1 text-muted-foreground/70">
+                    {t("steam.levelBadge", { defaultValue: "Lv. {{level}}", level: profile.level })}
+                  </span>
+                )}
               </div>
             </div>
             <button
@@ -159,7 +157,7 @@ export default function AccountMenu({
               title={t("steam.copySteamId")}
             >
               <Icon name="copy" size={13} />
-              <span className="truncate">SteamID64: {session.steamId}</span>
+              <span className="truncate">ID:{shortSteamId(session.steamId)}</span>
             </button>
           </div>
 
