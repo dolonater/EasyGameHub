@@ -1,14 +1,54 @@
 {
+  "292030": {
+    "finalPrice": 2980,
+    "discountPct": 80,
+    "checkedAt": "2026-08-08 01:14:25",
+    "currency": "CNY",
+    "history": [
+      {
+        "finalPrice": 2980,
+        "discountPct": 80,
+        "date": "2026-08-08 01:13:43"
+      }
+    ]
+  },
   "1091500": {
     "finalPrice": 8940,
     "discountPct": 70,
-    "checkedAt": "2026-08-07 23:30:57",
-    "currency": "CNY"
+    "checkedAt": "2026-08-08 01:14:25",
+    "currency": "CNY",
+    "history": [
+      {
+        "finalPrice": 8940,
+        "discountPct": 70,
+        "date": "2026-08-08 00:58:42"
+      }
+    ]
+  },
+  "2358720": {
+    "finalPrice": 26800,
+    "discountPct": 0,
+    "checkedAt": "2026-08-08 01:14:25",
+    "currency": "CNY",
+    "history": [
+      {
+        "finalPrice": 26800,
+        "discountPct": 0,
+        "date": "2026-08-08 01:05:25"
+      }
+    ]
   },
   "1158310": {
     "finalPrice": 19800,
     "discountPct": 0,
-    "checkedAt": "2026-08-07 23:30:57",
-    "currency": "CNY"
+    "checkedAt": "2026-08-08 01:14:25",
+    "currency": "CNY",
+    "history": [
+      {
+        "finalPrice": 19800,
+        "discountPct": 0,
+        "date": "2026-08-08 00:58:42"
+      }
+    ]
   }
 }

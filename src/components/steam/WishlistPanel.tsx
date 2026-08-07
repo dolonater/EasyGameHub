@@ -433,9 +433,11 @@ export default function WishlistPanel({
         </div>
       )}
 
-      {/* Add-watch form */}
+      {/* Add-watch form. `relative z-40` lifts the card (and its search
+          dropdown) above the sibling glass cards, which each form their own
+          stacking context via backdrop-filter. */}
       {addOpen && (
-        <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 p-3 flex flex-col gap-2">
+        <div className="app-surface app-glass-card relative z-40 rounded-[var(--radius)] border border-border/40 p-3 flex flex-col gap-2">
           {!manual ? (
             <>
               <GameSearchBox onPick={handlePick} autoFocus />

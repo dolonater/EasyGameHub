@@ -72,7 +72,7 @@
         "core.read",
         "ui"
       ],
-      "enabled": true,
+      "enabled": false,
       "installed_at": "2026-08-07T16:16:08.105300400+08:00",
       "last_error": null,
       "error_count": 0

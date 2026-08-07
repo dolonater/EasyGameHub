@@ -153,7 +153,7 @@ export default function NewsFeed({
       </div>
 
       {addOpen && (
-        <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 p-3 flex flex-col gap-2">
+        <div className="app-surface app-glass-card relative z-40 rounded-[var(--radius)] border border-border/40 p-3 flex flex-col gap-2">
           {!manual ? (
             <>
               <GameSearchBox onPick={handlePick} autoFocus />

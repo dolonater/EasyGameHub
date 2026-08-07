@@ -1,43 +1,7 @@
 [
   {
-    "app_id": 1091500,
-    "fetched_at": 1786115650,
-    "items": [
-      {
-        "appId": 1091500,
-        "title": "Steam Global Top Sellers for week of 28 Jul — 4 August 2026",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/SteamDB/1839676055897393",
-        "author": "SteamDB",
-        "contents": "* Mistfall Hunter; * Cyberpunk 2077; * Halo: Campaign Evolved; * Palworld; * Marvel's Spider-Man 2; * Baldur's Gate 3; * Shift At Midnight; * Corsair Cove; * Marvel’s Spider-Man Remastered; * Battlefield™ 6; * excluding free to play games View top 100 on SteamDB",
-        "feedLabel": "SteamDB",
-        "feedType": 0,
-        "date": 1785834000
-      },
-      {
-        "appId": 1091500,
-        "title": "Cyberpunk 2077 in 2026: still alive, and still iconic",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1839676055888333",
-        "author": "editor@pcgamesn.com",
-        "contents": "From a rocky launch to one of the most quintessential RPGs ever made: I asked CDPR why you should play the iconic Cyberpunk 2077 in 2026. Read the full story on PCGamesN: Cyberpunk 2077 in 2026: still alive, and still iconic",
-        "feedLabel": "PCGamesN",
-        "feedType": 0,
-        "date": 1785503348
-      },
-      {
-        "appId": 1091500,
-        "title": "Слух: Авторы Shantae и River City Girls работают над новой 2D-игрой во вселенной Cyberpunk 2077",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Gamemag.ru/1839676055884593",
-        "author": "Семен Страндов",
-        "contents": "Похоже, независимая студия WayForward, известная по серии Shantae и битемапу River City Girls, объединила усилия с польской компанией CD Projekt RED для разработки нового проекта во вселенной Cyberpunk 2077.",
-        "feedLabel": "Gamemag.ru",
-        "feedType": 0,
-        "date": 1785373800
-      }
-    ]
-  },
-  {
     "app_id": 1158310,
-    "fetched_at": 1786116638,
+    "fetched_at": 1786121920,
     "items": [
       {
         "appId": 1158310,
@@ -68,6 +32,78 @@
         "feedLabel": "PCGamesN",
         "feedType": 0,
         "date": 1784467930
+      }
+    ]
+  },
+  {
+    "app_id": 2358720,
+    "fetched_at": 1786122362,
+    "items": [
+      {
+        "appId": 2358720,
+        "title": "Black Myth: Wukong — 30% Off Coming Soon",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1840310314337994",
+        "author": "xichen.huang",
+        "contents": "Dear Destined Ones,With August 20, our annual \"traditional holiday,\" just around the corner, Black Myth: Wukong is getting in on the fun a little early. All digital editions of the game (Digital Standard Edition, Digital Deluxe Edition, and Deluxe Edition Upgrade) will soon be available at 30% off.S...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1785895204
+      },
+      {
+        "appId": 2358720,
+        "title": "2024's award-winning soulslike Black Myth Wukong gets a rare discount, dropping to an all-time low price",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1825727806710296",
+        "author": "editor@pcgamesn.com",
+        "contents": "Black Myth Wukong was a huge surprise. Game Science's debut into triple-A games development was a bold one, boasting impressive graphics and gorgeous action while adapting the iconic Journey to the West novel. It was a risk, one that paid off extremely well, earning it a space in our best soulslikes...",
+        "feedLabel": "PCGamesN",
+        "feedType": 0,
+        "date": 1772179214
+      },
+      {
+        "appId": 2358720,
+        "title": "Steam Global Top Sellers for week of 10 Feb — 17 February 2026",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/SteamDB/1824644522847718",
+        "author": "SteamDB",
+        "contents": "* Mewgenics; * HELLDIVERS™ 2; * Resident Evil Requiem; * ARC Raiders; * Steam Deck; * Diablo II: Resurrected – Infernal Edition; * REANIMAL; * Black Myth: Wukong; * Cyberpunk 2077; * Rust; * excluding free to play games View top 100 on SteamDB",
+        "feedLabel": "SteamDB",
+        "feedType": 0,
+        "date": 1771318800
+      }
+    ]
+  },
+  {
+    "app_id": 1091500,
+    "fetched_at": 1786122582,
+    "items": [
+      {
+        "appId": 1091500,
+        "title": "Steam Global Top Sellers for week of 28 Jul — 4 August 2026",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/SteamDB/1839676055897393",
+        "author": "SteamDB",
+        "contents": "* Mistfall Hunter; * Cyberpunk 2077; * Halo: Campaign Evolved; * Palworld; * Marvel's Spider-Man 2; * Baldur's Gate 3; * Shift At Midnight; * Corsair Cove; * Marvel’s Spider-Man Remastered; * Battlefield™ 6; * excluding free to play games View top 100 on SteamDB",
+        "feedLabel": "SteamDB",
+        "feedType": 0,
+        "date": 1785834000
+      },
+      {
+        "appId": 1091500,
+        "title": "Cyberpunk 2077 in 2026: still alive, and still iconic",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1839676055888333",
+        "author": "editor@pcgamesn.com",
+        "contents": "From a rocky launch to one of the most quintessential RPGs ever made: I asked CDPR why you should play the iconic Cyberpunk 2077 in 2026. Read the full story on PCGamesN: Cyberpunk 2077 in 2026: still alive, and still iconic",
+        "feedLabel": "PCGamesN",
+        "feedType": 0,
+        "date": 1785503348
+      },
+      {
+        "appId": 1091500,
+        "title": "Слух: Авторы Shantae и River City Girls работают над новой 2D-игрой во вселенной Cyberpunk 2077",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Gamemag.ru/1839676055884593",
+        "author": "Семен Страндов",
+        "contents": "Похоже, независимая студия WayForward, известная по серии Shantae и битемапу River City Girls, объединила усилия с польской компанией CD Projekt RED для разработки нового проекта во вселенной Cyberpunk 2077.",
+        "feedLabel": "Gamemag.ru",
+        "feedType": 0,
+        "date": 1785373800
       }
     ]
   }
