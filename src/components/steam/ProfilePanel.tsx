@@ -1,10 +1,23 @@
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { showToast } from "../Notification";
 import Button from "../ui/Button";
 import Icon from "../ui/Icon";
-import type { SessionDto, SteamProfileDto } from "../../lib/steamCommunity";
+import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
+import type { IconName } from "../../lib/icons";
+import {
+  formatPlaytimeMinutes,
+  ownedGameIconUrl,
+} from "../../lib/steamCommunity";
+import type {
+  LocalGameDto,
+  OwnedGameDto,
+  OverviewStats,
+  SessionDto,
+  SteamProfileDto,
+} from "../../lib/steamCommunity";
 
 interface ProfilePanelProps {
   session: SessionDto | null;
@@ -14,9 +27,8 @@ interface ProfilePanelProps {
 }
 
 /**
- * 概览 tab: a fuller profile summary card plus quick actions. The compact
- * identity strip lives in ProfileHeader; this tab is only meaningful when a
- * session exists.
+ * 概览 tab: a fuller profile summary card plus account-level library stats
+ * (owned games, total playtime, recently played) and quick actions.
  */
 export default function ProfilePanel({
   session,
@@ -25,6 +37,67 @@ export default function ProfilePanel({
   onSwitchAccount,
 }: ProfilePanelProps) {
   const { t } = useTranslation();
+  const { overviewStats } = useSteamHubCache();
+  const [loading, setLoading] = useState(false);
+
+  // Load account-level stats once per session (cached across tab switches).
+  // Games count + total playtime come from the local library (offline, no API
+  // key); recently played comes from the Web API and falls back to the most
+  // played local games when no API key is configured.
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [localGames, recent] = await Promise.all([
+          invoke<LocalGameDto[]>("get_local_steam_games"),
+          invoke<OwnedGameDto[]>("get_recently_played").catch(
+            () => null as OwnedGameDto[] | null,
+          ),
+        ]);
+        if (cancelled) return;
+
+        let recentList = recent ?? [];
+        let recentSource: OverviewStats["recentSource"] = "web";
+        if (recentList.length === 0) {
+          // Fall back to the most played local games.
+          recentSource = "local";
+          recentList = [...localGames]
+            .sort((a, b) => b.playtimeMinutes - a.playtimeMinutes)
+            .slice(0, 5)
+            .map((g) => ({
+              appid: g.appId,
+              name: g.name,
+              playtimeForever: g.playtimeMinutes,
+              playtime2weeks: null,
+              imgIconUrl: null,
+              imgLogoUrl: null,
+            }));
+        }
+
+        patchSteamHubCache({
+          overviewStats: {
+            gamesCount: localGames.length,
+            totalMinutes: localGames.reduce(
+              (sum, g) => sum + g.playtimeMinutes,
+              0,
+            ),
+            recent: recentList.slice(0, 5),
+            recentSource,
+          },
+        });
+      } catch {
+        // Local library unavailable (no Steam install) — leave stats empty.
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
 
   if (!session) {
     return (
@@ -55,6 +128,18 @@ export default function ProfilePanel({
     <div className="flex items-center justify-between gap-3 py-2">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-sm font-medium text-right min-w-0">{value}</span>
+    </div>
+  );
+
+  const statCell = (icon: IconName, label: string, value: string) => (
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-primary/15 text-primary">
+        <Icon name={icon} size={18} />
+      </div>
+      <div className="min-w-0">
+        <div className="text-[11px] text-muted-foreground">{label}</div>
+        <div className="text-lg font-bold leading-tight">{value}</div>
+      </div>
     </div>
   );
 
@@ -112,6 +197,59 @@ export default function ProfilePanel({
         </div>
       </div>
 
+      {/* Account-level library stats */}
+      <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 p-4">
+        <div className="grid grid-cols-2 gap-4">
+          {statCell(
+            "games",
+            t("steam.overviewOwnedGames", { defaultValue: "拥有游戏" }),
+            loading ? "–" : String(overviewStats?.gamesCount ?? "–"),
+          )}
+          {statCell(
+            "clock",
+            t("steam.overviewTotalPlaytime", { defaultValue: "总时长" }),
+            loading || !overviewStats ? "–" : formatPlaytimeMinutes(overviewStats.totalMinutes),
+          )}
+        </div>
+
+        <div className="mt-3 border-t border-border/40 pt-3">
+          <div className="mb-1 flex items-center gap-2">
+            <span className="text-sm font-semibold">{t("steam.overviewRecentlyPlayed", { defaultValue: "最近游玩" })}</span>
+            {overviewStats?.recentSource === "local" && (
+              <span className="rounded-full border border-border/60 bg-secondary/40 px-2 py-0.5 text-[11px] text-muted-foreground">
+                {t("steam.overviewLocalFallback", { defaultValue: "本机游玩最多" })}
+              </span>
+            )}
+          </div>
+          {!overviewStats && loading && (
+            <div className="py-3 text-xs text-muted-foreground">{t("common.loading")}</div>
+          )}
+          {overviewStats && overviewStats.recent.length === 0 && (
+            <div className="py-3 text-xs text-muted-foreground">
+              {t("steam.overviewRecentEmpty", { defaultValue: "暂无游玩记录" })}
+            </div>
+          )}
+          {overviewStats && overviewStats.recent.map((game) => {
+            const iconUrl = ownedGameIconUrl(game);
+            return (
+              <div key={game.appid} className="flex items-center gap-3 py-1.5">
+                {iconUrl ? (
+                  <img src={iconUrl} alt="" className="h-7 w-7 flex-none rounded object-cover" />
+                ) : (
+                  <div className="flex h-7 w-7 flex-none items-center justify-center rounded bg-secondary/40 text-muted-foreground">
+                    <Icon name="steamInventory" size={14} />
+                  </div>
+                )}
+                <span className="min-w-0 flex-1 truncate text-sm">{game.name || `App ${game.appid}`}</span>
+                <span className="flex-none text-xs text-muted-foreground">
+                  {formatPlaytimeMinutes(game.playtimeForever)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Quick actions */}
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onClick={openProfile} ripple={false}>
@@ -125,11 +263,6 @@ export default function ProfilePanel({
         <Button variant="outline" size="sm" onClick={() => void onLogout()} ripple={false}>
           {t("steamLogin.logout")}
         </Button>
-      </div>
-
-      {/* Upcoming features hint */}
-      <div className="text-xs text-muted-foreground">
-        {t("steam.overviewComingSoon", { defaultValue: "更多社区功能（新闻、愿望单、成就）将在后续版本上线。" })}
       </div>
     </div>
   );

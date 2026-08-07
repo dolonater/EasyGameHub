@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import type {
   MetadataDto,
   NewsItemDto,
+  OverviewStats,
   PriceDto,
   SessionDto,
   SteamProfileDto,
@@ -37,6 +38,8 @@ export interface SteamHubCache {
   newsMetadata: Record<number, MetadataDto>;
   /** appIds signature ("a,b,c") that newsItems/newsMetadata correspond to. */
   newsKey: string;
+  /** Overview tab library stats (games count, total playtime, recent). */
+  overviewStats: OverviewStats | null;
   /** Last active sub-tab, restored on return. */
   activeTab: string;
 }
@@ -55,6 +58,7 @@ const initialCache: SteamHubCache = {
   newsItems: [],
   newsMetadata: {},
   newsKey: "",
+  overviewStats: null,
   activeTab: "overview",
 };
 

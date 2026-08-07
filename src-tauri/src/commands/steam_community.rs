@@ -398,6 +398,14 @@ pub async fn get_steam_wishlist(state: State<'_, AppState>) -> Result<Vec<Wishli
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct PricePointDto {
+    pub final_price: u64,
+    pub discount_pct: u32,
+    pub date: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PriceDto {
     pub app_id: u32,
     pub currency: Option<String>,
@@ -408,15 +416,76 @@ pub struct PriceDto {
     pub initial_formatted: Option<String>,
     /// True when the final price dropped below the last recorded baseline.
     pub dropped: bool,
+    /// Lowest final price ever recorded for this app (sparkline minimum).
+    pub lowest_price: Option<u64>,
+    /// Price history (newest last) for the sparkline.
+    pub history: Vec<PricePointDto>,
+    /// True when the current price is at or below the user's reminder price.
+    pub threshold_hit: bool,
 }
 
 fn price_baseline_path(tool_dir: &Path) -> std::path::PathBuf {
     tool_dir.join("steam_price_baseline.json")
 }
 
+// ── Reminder price thresholds (per app) ────────────────────
+
+fn price_thresholds_path(tool_dir: &Path) -> std::path::PathBuf {
+    tool_dir.join("steam_price_thresholds.json")
+}
+
+fn load_price_thresholds(path: &Path) -> HashMap<u32, u64> {
+    if path.exists() {
+        if let Ok(content) = std::fs::read_to_string(path) {
+            if let Ok(map) = serde_json::from_str::<HashMap<u32, u64>>(&content) {
+                return map;
+            }
+        }
+    }
+    HashMap::new()
+}
+
+fn save_price_thresholds(path: &Path, map: &HashMap<u32, u64>) {
+    if let Ok(json) = serde_json::to_string_pretty(map) {
+        let _ = std::fs::write(path, json);
+    }
+}
+
+/// Set (or clear, when `threshold` is `None`) a reminder price for a game.
+/// The price is in store base units (cents for decimal currencies, e.g. ¥68.00
+/// → 6800). A check later reports `threshold_hit` when the live price is at or
+/// below it, and the frontend turns that into a reminder.
+#[tauri::command]
+pub fn set_price_threshold(
+    state: State<'_, AppState>,
+    app_id: u32,
+    threshold: Option<u64>,
+) -> Result<(), String> {
+    let path = price_thresholds_path(&state.tool_dir);
+    let mut map = load_price_thresholds(&path);
+    match threshold {
+        Some(v) if v > 0 => {
+            map.insert(app_id, v);
+        }
+        _ => {
+            map.remove(&app_id);
+        }
+    }
+    save_price_thresholds(&path, &map);
+    Ok(())
+}
+
+/// All set reminder prices, app id → base-unit price.
+#[tauri::command]
+pub fn get_price_thresholds(state: State<'_, AppState>) -> Result<HashMap<u32, u64>, String> {
+    Ok(load_price_thresholds(&price_thresholds_path(&state.tool_dir)))
+}
+
 /// Fetch live prices for a batch of apps and detect drops against the
 /// recorded baseline. The baseline is updated to the current price so each
-/// price-drop event is only reported once.
+/// price-drop event is only reported once. History is preserved per app and
+/// exposed as `lowest_price` + `history` for the "历史最低价" badge and the
+/// price sparkline.
 #[tauri::command]
 pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> Result<Vec<PriceDto>, String> {
     if app_ids.is_empty() {
@@ -424,6 +493,7 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
     }
 
     let baseline_path = price_baseline_path(&state.tool_dir);
+    let thresholds = load_price_thresholds(&price_thresholds_path(&state.tool_dir));
     let mut baseline = crate::core::steam_prices::load_price_baseline(&baseline_path);
     let now = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
@@ -445,24 +515,26 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
                     None => (None, None, 0, None, None, None),
                 };
 
-            let dropped = match final_price {
+            let (dropped, lowest_price, history) = match final_price {
                 Some(fp) => {
                     let prev = baseline.get(&detail.app_id);
                     let currency = currency.clone().unwrap_or_default();
                     let drop =
                         crate::core::steam_prices::check_price_drop(prev, fp, discount, &currency);
-                    baseline.insert(
-                        detail.app_id,
-                        crate::core::steam_prices::PriceBaseline {
-                            final_price: fp,
-                            discount_pct: discount,
-                            checked_at: now.clone(),
-                            currency,
-                        },
+                    let next = crate::core::steam_prices::update_baseline(
+                        prev, fp, discount, &currency, &now,
                     );
-                    drop
+                    let lowest = crate::core::steam_prices::lowest_recorded(&next);
+                    let hist = next.history.clone();
+                    baseline.insert(detail.app_id, next);
+                    (drop, lowest, hist)
                 }
-                None => false,
+                None => (false, None, Vec::new()),
+            };
+
+            let threshold_hit = match (final_price, thresholds.get(&detail.app_id)) {
+                (Some(fp), Some(t)) => fp <= *t,
+                _ => false,
             };
 
             results.push(PriceDto {
@@ -474,12 +546,57 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
                 final_formatted,
                 initial_formatted,
                 dropped,
+                lowest_price,
+                history: history
+                    .into_iter()
+                    .map(|p| PricePointDto {
+                        final_price: p.final_price,
+                        discount_pct: p.discount_pct,
+                        date: p.date,
+                    })
+                    .collect(),
+                threshold_hit,
             });
         }
     }
 
     crate::core::steam_prices::save_price_baseline(&baseline_path, &baseline);
     Ok(results)
+}
+
+// ── Store search (global game search) ──────────────────────
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchResultDto {
+    pub app_id: u32,
+    pub name: String,
+    pub tiny_image: Option<String>,
+    pub final_price: Option<u64>,
+    pub currency: Option<String>,
+}
+
+/// Search the Steam store by name (pinned to the China store, CNY prices).
+/// The frontend uses this to add games by name instead of typing an AppID.
+#[tauri::command]
+pub async fn search_steam_games(term: String) -> Result<Vec<SearchResultDto>, String> {
+    let term = term.trim().to_string();
+    if term.chars().count() < 2 {
+        return Ok(Vec::new());
+    }
+    let results =
+        steam_sdk::client::store::search_games(&shared_client(), &term, "schinese")
+            .map_err(|e| e.to_string())?;
+    Ok(results
+        .into_iter()
+        .map(|r| SearchResultDto {
+            app_id: r.app_id,
+            name: r.name,
+            tiny_image: r.tiny_image,
+            final_price: r.final_price,
+            currency: r.currency,
+        })
+        .collect())
 }
 
 // ── Metadata completion (file cache, 7 days) ────────────────

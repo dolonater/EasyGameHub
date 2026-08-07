@@ -209,9 +209,148 @@ fn fetch_app_detail(
     None
 }
 
+// ── Store search ────────────────────────────────────────────
+
+/// A single hit from the store search API (`/api/storesearch`).
+#[derive(Debug, Clone)]
+pub struct SearchResult {
+    pub app_id: u32,
+    pub name: String,
+    pub tiny_image: Option<String>,
+    /// Current price in base units (cents for decimal currencies), if any.
+    pub final_price: Option<u64>,
+    pub currency: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "snake_case")]
+struct StoreSearchResponse {
+    items: Vec<StoreSearchItem>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "snake_case")]
+struct StoreSearchItem {
+    r#type: String,
+    id: u32,
+    name: Option<String>,
+    tiny_image: Option<String>,
+    price: Option<StoreSearchPrice>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "snake_case")]
+struct StoreSearchPrice {
+    #[serde(rename = "final")]
+    final_price: Option<u64>,
+    currency: Option<String>,
+}
+
+/// Search the Steam store by name. Pinned to the China store (`cc=cn`) so
+/// prices come back in CNY. Returns only `app` hits (no bundles/subs).
+pub fn search_games(
+    client: &SteamHttpClient,
+    term: &str,
+    language: &str,
+) -> Result<Vec<SearchResult>> {
+    let url = format!(
+        "{}/api/storesearch/?term={}&l={}&cc=cn",
+        STORE_BASE,
+        percent_encode(term),
+        language
+    );
+    let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
+    if response.status() != 200 {
+        return Err(SteamError::ApiError {
+            code: response.status() as i32,
+            message: format!("HTTP {}", response.status()),
+        });
+    }
+    let body: StoreSearchResponse = response.into_json()?;
+    Ok(body
+        .items
+        .into_iter()
+        .filter(|item| item.r#type == "app")
+        .map(|item| SearchResult {
+            app_id: item.id,
+            name: item.name.unwrap_or_default(),
+            tiny_image: item.tiny_image,
+            final_price: item.price.as_ref().and_then(|p| p.final_price),
+            currency: item.price.as_ref().and_then(|p| p.currency.clone()),
+        })
+        .collect())
+}
+
+/// RFC 3986 percent-encode for query terms (UTF-8 aware, covers Chinese).
+fn percent_encode(input: &str) -> String {
+    const HEX: &[u8; 16] = b"0123456789ABCDEF";
+    let mut out = String::new();
+    for b in input.bytes() {
+        match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(b as char)
+            }
+            _ => {
+                out.push('%');
+                out.push(HEX[(b >> 4) as usize] as char);
+                out.push(HEX[(b & 0x0F) as usize] as char);
+            }
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_percent_encode() {
+        assert_eq!(percent_encode("cyberpunk"), "cyberpunk");
+        assert_eq!(percent_encode("艾尔登法环"), "%E8%89%BE%E5%B0%94%E7%99%BB%E6%B3%95%E7%8E%AF");
+        assert_eq!(percent_encode("counter strike"), "counter%20strike");
+    }
+
+    #[test]
+    fn test_search_deserialize() {
+        let json = r#"{
+            "success": 1,
+            "total": 2,
+            "items": [
+                {
+                    "type": "app",
+                    "name": "Counter-Strike 2",
+                    "id": 730,
+                    "tiny_image": "https://cdn.akamai.steamstatic.com/steam/apps/730/capsule_231x87.jpg",
+                    "price": { "currency": "CNY", "final": 0, "initial": 0, "discount_percent": 0 }
+                },
+                {
+                    "type": "sub",
+                    "name": "CS2 Starter Bundle",
+                    "id": 999,
+                    "price": null
+                }
+            ]
+        }"#;
+        let body: StoreSearchResponse = serde_json::from_str(json).unwrap();
+        let results: Vec<SearchResult> = body
+            .items
+            .into_iter()
+            .filter(|item| item.r#type == "app")
+            .map(|item| SearchResult {
+                app_id: item.id,
+                name: item.name.unwrap_or_default(),
+                tiny_image: item.tiny_image,
+                final_price: item.price.as_ref().and_then(|p| p.final_price),
+                currency: item.price.as_ref().and_then(|p| p.currency.clone()),
+            })
+            .collect();
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].app_id, 730);
+        assert_eq!(results[0].name, "Counter-Strike 2");
+        assert_eq!(results[0].final_price, Some(0));
+        assert_eq!(results[0].currency.as_deref(), Some("CNY"));
+    }
 
     #[test]
     fn test_wishlist_deserialize() {

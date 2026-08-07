@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import Button from "../ui/Button";
 import TextField from "../ui/TextField";
 import Icon from "../ui/Icon";
+import GameSearchBox from "./GameSearchBox";
 import { showToast } from "../Notification";
 import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
 import type { MetadataDto, NewsItemDto } from "../../lib/steamCommunity";
@@ -42,6 +43,7 @@ export default function NewsFeed({
   const [loading, setLoading] = useState(!hasCache);
   const [error, setError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [manual, setManual] = useState(false);
   const [newAppId, setNewAppId] = useState("");
   const [newName, setNewName] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -112,7 +114,16 @@ export default function NewsFeed({
     setNewAppId("");
     setNewName("");
     setAddOpen(false);
+    setManual(false);
     showToast("success", t("steam.newsAdded", { defaultValue: "已添加关注" }));
+  };
+
+  const handlePick = (appId: number, name: string) => {
+    Promise.resolve(onAddWatch(appId, name)).then(() => {
+      setAddOpen(false);
+      setManual(false);
+      showToast("success", t("steam.newsAdded", { defaultValue: "已添加关注" }));
+    });
   };
 
   const fmtDate = (sec: number) => new Date(sec * 1000).toLocaleString();
@@ -142,31 +153,60 @@ export default function NewsFeed({
       </div>
 
       {addOpen && (
-        <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 p-3 flex flex-wrap items-end gap-2">
-          <div className="min-w-[120px] flex-1">
-            <label className="block text-xs text-muted-foreground mb-1">
-              {t("steam.newsAppId", { defaultValue: "AppID" })}
-            </label>
-            <TextField
-              type="number"
-              value={newAppId}
-              onChange={(e) => setNewAppId(e.target.value)}
-              placeholder="730"
-            />
-          </div>
-          <div className="min-w-[140px] flex-1">
-            <label className="block text-xs text-muted-foreground mb-1">
-              {t("steam.newsNameOptional", { defaultValue: "名称(可选)" })}
-            </label>
-            <TextField
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder={t("steam.newsNameOptional", { defaultValue: "名称(可选)" })}
-            />
-          </div>
-          <Button size="sm" onClick={() => void handleAdd()} ripple={false}>
-            {t("steam.newsAdd", { defaultValue: "添加" })}
-          </Button>
+        <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 p-3 flex flex-col gap-2">
+          {!manual ? (
+            <>
+              <GameSearchBox onPick={handlePick} autoFocus />
+              <div className="flex items-center justify-between gap-2 text-xs">
+                <span className="text-muted-foreground">{t("steam.newsSearchHint", { defaultValue: "输入游戏名搜索，点击结果直接添加" })}</span>
+                <button
+                  type="button"
+                  onClick={() => setManual(true)}
+                  className="text-muted-foreground transition-colors hover:text-primary"
+                >
+                  {t("steam.searchManual", { defaultValue: "手动输入 AppID" })}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-end gap-2">
+                <div className="min-w-[120px] flex-1">
+                  <label className="block text-xs text-muted-foreground mb-1">
+                    {t("steam.newsAppId", { defaultValue: "AppID" })}
+                  </label>
+                  <TextField
+                    type="number"
+                    value={newAppId}
+                    onChange={(e) => setNewAppId(e.target.value)}
+                    placeholder="730"
+                  />
+                </div>
+                <div className="min-w-[140px] flex-1">
+                  <label className="block text-xs text-muted-foreground mb-1">
+                    {t("steam.newsNameOptional", { defaultValue: "名称(可选)" })}
+                  </label>
+                  <TextField
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder={t("steam.newsNameOptional", { defaultValue: "名称(可选)" })}
+                  />
+                </div>
+                <Button size="sm" onClick={() => void handleAdd()} ripple={false}>
+                  {t("steam.newsAdd", { defaultValue: "添加" })}
+                </Button>
+              </div>
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setManual(false)}
+                  className="text-xs text-muted-foreground transition-colors hover:text-primary"
+                >
+                  {t("steam.searchByName", { defaultValue: "按名称搜索" })}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

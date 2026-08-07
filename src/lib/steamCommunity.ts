@@ -81,6 +81,102 @@ export interface PriceDto {
   initialFormatted: string | null;
   /** True when the final price dropped below the last recorded baseline. */
   dropped: boolean;
+  /** Lowest final price ever recorded for this app (sparkline minimum). */
+  lowestPrice: number | null;
+  /** Price history (newest last) for the sparkline. */
+  history: PriceHistoryPoint[];
+  /** True when the current price is at or below the user's reminder price. */
+  thresholdHit: boolean;
+}
+
+/** One recorded price observation in a game's history. */
+export interface PriceHistoryPoint {
+  finalPrice: number;
+  discountPercent: number;
+  /** Local time "YYYY-MM-DD HH:MM:SS". */
+  date: string;
+}
+
+/** A hit from the Steam store search (from `search_steam_games`). */
+export interface SearchResultDto {
+  appId: number;
+  name: string;
+  tinyImage: string | null;
+  finalPrice: number | null;
+  currency: string | null;
+}
+
+/** A game from the Web API inventory (`GetOwnedGames` / `GetRecentlyPlayedGames`). */
+export interface OwnedGameDto {
+  appid: number;
+  name: string | null;
+  /** Total playtime in minutes. */
+  playtimeForever: number;
+  /** Playtime in the last two weeks, in minutes. */
+  playtime2weeks: number | null;
+  imgIconUrl: string | null;
+  imgLogoUrl: string | null;
+}
+
+/** A game from the local library (from `get_local_steam_games`). */
+export interface LocalGameDto {
+  appId: number;
+  name: string | null;
+  /** Playtime in minutes. */
+  playtimeMinutes: number;
+  isInstalled: boolean;
+  installDir: string | null;
+  installPath: string | null;
+  sizeOnDisk: number | null;
+  isHidden: boolean;
+}
+
+/** Snapshot of account-level library stats shown on the overview tab. */
+export interface OverviewStats {
+  /** Owned games found in the local Steam library. */
+  gamesCount: number;
+  /** Total playtime in minutes across owned games. */
+  totalMinutes: number;
+  /** Recently played (Web API) or top-played (local fallback) games. */
+  recent: OwnedGameDto[];
+  /** Where `recent` came from: "web" (API key available) or "local". */
+  recentSource: "web" | "local";
+}
+
+/** Icon URL for an owned game from the Web API (media.steampowered.com). */
+export function ownedGameIconUrl(game: OwnedGameDto): string | null {
+  if (game.imgIconUrl) {
+    return `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.imgIconUrl}.jpg`;
+  }
+  return null;
+}
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  CNY: "¥",
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  JPY: "¥",
+  RUB: "₽",
+  KRW: "₩",
+  CAD: "C$",
+  AUD: "A$",
+  BRL: "R$",
+  HKD: "HK$",
+  TWD: "NT$",
+};
+
+/** Format a base-unit price (cents) into a readable string, e.g. 6800 → "¥68.00". */
+export function formatPriceCents(cents: number, currency: string | null): string {
+  const symbol = currency ? CURRENCY_SYMBOLS[currency] || `${currency} ` : "";
+  return `${symbol}${(cents / 100).toFixed(2)}`;
+}
+
+/** Convert a playtime in minutes to a short human string, e.g. 3845 → "64.1h". */
+export function formatPlaytimeMinutes(minutes: number): string {
+  if (minutes <= 0) return "0h";
+  const hours = minutes / 60;
+  return hours >= 100 ? `${Math.round(hours)}h` : `${hours.toFixed(1)}h`;
 }
 
 /** Cached store metadata for a game (from `get_steam_metadata`). */

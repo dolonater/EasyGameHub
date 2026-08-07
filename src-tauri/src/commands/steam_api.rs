@@ -190,7 +190,7 @@ pub struct LocalGameDto {
 /// Cross-references with Doona's game index for proper names.
 /// Also merges custom names from steam_game_names.json.
 #[tauri::command]
-pub fn get_local_steam_games(state: State<AppState>) -> Result<Vec<LocalGameDto>, String> {
+pub async fn get_local_steam_games(state: State<'_, AppState>) -> Result<Vec<LocalGameDto>, String> {
     let name_map = build_steam_name_map(&state.games_index_path);
     let hidden = load_hidden_games(&state.tool_dir);
     // Steam appinfo.vdf binary cache — local, covers ALL Steam apps
