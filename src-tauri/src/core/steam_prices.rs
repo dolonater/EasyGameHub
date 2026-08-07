@@ -1,12 +1,24 @@
-//! Steam price baseline and discount-drop detection (pure logic, testable).
+//! Steam price baseline, discount-drop detection and price history
+//! (pure logic, testable).
 //!
-//! The baseline records the last price we saw for each app. A "drop" is a
-//! strictly lower final price than that baseline, which the frontend turns
-//! into a discount reminder. First-time checks never report a drop.
+//! The baseline records the last price we saw for each app plus a bounded
+//! history used for the "历史最低价" badge and the price sparkline. A "drop"
+//! is a strictly lower final price than the last baseline, which the frontend
+//! turns into a discount reminder. First-time checks never report a drop.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
+
+/// A single recorded price observation for the history sparkline.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PricePoint {
+    pub final_price: u64,
+    pub discount_pct: u32,
+    /// Local time "YYYY-MM-DD HH:MM:SS".
+    pub date: String,
+}
 
 /// Last-seen price for a game, used to detect drops on subsequent checks.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,6 +33,10 @@ pub struct PriceBaseline {
     /// spurious price-drop event.
     #[serde(default)]
     pub currency: String,
+    /// Price history (newest last) for the sparkline. Skipped on checks that
+    /// see the same price + discount, so a sale-end blip adds no noise.
+    #[serde(default)]
+    pub history: Vec<PricePoint>,
 }
 
 pub fn load_price_baseline(path: &Path) -> HashMap<u32, PriceBaseline> {
@@ -50,7 +66,7 @@ pub fn save_price_baseline(path: &Path, map: &HashMap<u32, PriceBaseline>) {
 pub fn check_price_drop(
     prev: Option<&PriceBaseline>,
     new_final: u64,
-    new_discount: u32,
+    _new_discount: u32,
     currency: &str,
 ) -> bool {
     match prev {
@@ -64,6 +80,56 @@ pub fn check_price_drop(
     }
 }
 
+/// Max history points kept per app (oldest dropped first).
+const MAX_HISTORY_POINTS: usize = 200;
+
+/// Build the next baseline from a fresh price observation, preserving the
+/// price history. When the previous baseline is missing or recorded in a
+/// different currency, history starts fresh (prices across currencies are not
+/// comparable). A check that sees the same final price + discount as the last
+/// recorded point adds no new point, so stable prices don't grow the file.
+pub fn update_baseline(
+    prev: Option<&PriceBaseline>,
+    new_final: u64,
+    new_discount: u32,
+    currency: &str,
+    checked_at: &str,
+) -> PriceBaseline {
+    let (mut history, comparable) = match prev {
+        Some(b) if !b.currency.is_empty() && b.currency == currency => (b.history.clone(), true),
+        _ => (Vec::new(), false),
+    };
+
+    let changed = history
+        .last()
+        .map(|p| p.final_price != new_final || p.discount_pct != new_discount)
+        .unwrap_or(true);
+    if !comparable || changed {
+        history.push(PricePoint {
+            final_price: new_final,
+            discount_pct: new_discount,
+            date: checked_at.into(),
+        });
+        if history.len() > MAX_HISTORY_POINTS {
+            let excess = history.len() - MAX_HISTORY_POINTS;
+            history.drain(0..excess);
+        }
+    }
+
+    PriceBaseline {
+        final_price: new_final,
+        discount_pct: new_discount,
+        checked_at: checked_at.into(),
+        currency: currency.into(),
+        history,
+    }
+}
+
+/// Lowest price ever recorded for a game across its history, if any.
+pub fn lowest_recorded(baseline: &PriceBaseline) -> Option<u64> {
+    baseline.history.iter().map(|p| p.final_price).min()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -74,6 +140,11 @@ mod tests {
             discount_pct: 0,
             checked_at: "2026-08-07 00:00:00".into(),
             currency: "CNY".into(),
+            history: vec![PricePoint {
+                final_price,
+                discount_pct: 0,
+                date: "2026-08-07 00:00:00".into(),
+            }],
         }
     }
 
@@ -129,7 +200,61 @@ mod tests {
         save_price_baseline(&path, &map);
         let loaded = load_price_baseline(&path);
         assert_eq!(loaded.get(&730).unwrap().final_price, 4980);
+        assert_eq!(loaded.get(&730).unwrap().history.len(), 1);
 
         let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_update_baseline_appends_history_on_change() {
+        let prev = baseline(4980);
+        let next = update_baseline(Some(&prev), 2980, 40, "CNY", "2026-08-08 10:00:00");
+        assert_eq!(next.final_price, 2980);
+        assert_eq!(next.history.len(), 2);
+        assert_eq!(next.history[0].final_price, 4980);
+        assert_eq!(next.history[1].final_price, 2980);
+    }
+
+    #[test]
+    fn test_update_baseline_dedupes_unchanged_price() {
+        let prev = baseline(4980);
+        // Same price + discount → no new point.
+        let next = update_baseline(Some(&prev), 4980, 0, "CNY", "2026-08-08 10:00:00");
+        assert_eq!(next.history.len(), 1);
+        // Same price but discount changed → record (sale blip worth seeing).
+        let next = update_baseline(Some(&prev), 4980, 10, "CNY", "2026-08-08 10:00:00");
+        assert_eq!(next.history.len(), 2);
+    }
+
+    #[test]
+    fn test_update_baseline_resets_on_currency_change() {
+        let prev = baseline(4980);
+        let next = update_baseline(Some(&prev), 500, 0, "USD", "2026-08-08 10:00:00");
+        assert_eq!(next.history.len(), 1);
+        assert_eq!(next.history[0].final_price, 500);
+    }
+
+    #[test]
+    fn test_update_baseline_caps_history_length() {
+        let mut prev = baseline(1000);
+        for i in 0..250u64 {
+            prev = update_baseline(
+                Some(&prev),
+                1000 + i,
+                (i % 100) as u32,
+                "CNY",
+                "2026-08-08 10:00:00",
+            );
+        }
+        assert!(prev.history.len() <= 200);
+    }
+
+    #[test]
+    fn test_lowest_recorded() {
+        let mut b = baseline(5000);
+        b = update_baseline(Some(&b), 3000, 40, "CNY", "2026-08-08 10:00:00");
+        b = update_baseline(Some(&b), 4000, 20, "CNY", "2026-08-09 10:00:00");
+        assert_eq!(lowest_recorded(&b), Some(3000));
+        assert_eq!(lowest_recorded(&baseline(1000)), Some(1000));
     }
 }
