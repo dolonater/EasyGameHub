@@ -58,21 +58,34 @@ pub struct IncomingChat {
     pub chat_entry_type: i32,
 }
 
+/// An incoming group (chat room) message from the CM.
+#[derive(Debug, Clone)]
+pub struct GroupIncoming {
+    pub group_id: u64,
+    pub chat_id: u64,
+    pub sender_steam_id: u64,
+    pub message: String,
+    pub timestamp: u32,
+    pub ordinal: u32,
+}
+
 #[derive(Default)]
 struct CmData {
     session_id: u32,
     friends: HashMap<u64, FriendState>,
     personas: HashMap<u64, PersonaState>,
     messages: VecDeque<IncomingChat>,
+    group_messages: VecDeque<GroupIncoming>,
     next_job_id: i64,
     pending: HashMap<i64, oneshot::Sender<Result<Vec<u8>, String>>>,
 }
 
+/// A generic correlated service-method call (`ChatRoom.*`, `FriendMessages.*`, …).
 enum Cmd {
-    SendMessage {
-        partner: u64,
-        text: String,
-        reply: oneshot::Sender<Result<(), String>>,
+    CallService {
+        method: String,
+        request: Vec<u8>,
+        reply: oneshot::Sender<Result<Vec<u8>, String>>,
     },
 }
 
@@ -93,14 +106,24 @@ pub async fn connect(access_token: &str, steam_id: u64) -> Result<CmClient, Stri
         .map_err(|e| format!("CM bootstrap failed: {}", e))?;
     let endpoints = bootstrap::fetch_endpoints(&http).map_err(|e| format!("CM list failed: {}", e))?;
 
-    let mut last_err: Option<String> = None;
-    for host in &endpoints {
-        match open_logged_on(host, &token, steam_id).await {
-            Ok((ws, session_id, pre)) => return Ok(spawn_task(ws, session_id, steam_id, pre)),
-            Err(e) => last_err = Some(e),
+    for attempt in 0..2 {
+        let mut last_err: Option<String> = None;
+        for host in &endpoints {
+            match open_logged_on(host, &token, steam_id).await {
+                Ok((ws, session_id, pre)) => return Ok(spawn_task(ws, session_id, steam_id, pre)),
+                Err(e) => last_err = Some(e),
+            }
         }
+        let err = last_err.unwrap_or_else(|| "no usable Steam CM endpoint".into());
+        // eresult=5 = LoggedInElsewhere: Steam may still hold the previous
+        // session (e.g. right after an app restart). Retry once after a delay.
+        if attempt == 0 && err.contains("eresult=5") {
+            tokio::time::sleep(Duration::from_secs(5)).await;
+            continue;
+        }
+        return Err(err);
     }
-    Err(last_err.unwrap_or_else(|| "no usable Steam CM endpoint".into()))
+    Err("no usable Steam CM endpoint".into())
 }
 
 impl CmClient {
@@ -124,12 +147,22 @@ impl CmClient {
         data.messages.drain(..).collect()
     }
 
-    /// Send a text message to a friend via the `FriendMessages.SendMessage`
-    /// service method.
-    pub async fn send_message(&self, partner: u64, text: &str) -> Result<(), String> {
+    /// Drain the buffered incoming group messages.
+    pub async fn take_group_messages(&self) -> Vec<GroupIncoming> {
+        let mut data = self.data.lock().await;
+        data.group_messages.drain(..).collect()
+    }
+
+    /// Invoke a CM service method (`ChatRoom.*`, `FriendMessages.*`, …) and
+    /// wait for its correlated response (15s timeout).
+    pub async fn call_service(&self, method: &str, request: Vec<u8>) -> Result<Vec<u8>, String> {
         let (reply_tx, reply_rx) = oneshot::channel();
         self.cmd_tx
-            .send(Cmd::SendMessage { partner, text: text.to_string(), reply: reply_tx })
+            .send(Cmd::CallService {
+                method: method.to_string(),
+                request,
+                reply: reply_tx,
+            })
             .await
             .map_err(|_| "Steam CM disconnected".to_string())?;
         tokio::time::timeout(Duration::from_secs(15), reply_rx)
@@ -138,12 +171,28 @@ impl CmClient {
             .map_err(|_| "Steam CM disconnected".to_string())?
     }
 
+    /// Send a text message to a friend via the `FriendMessages.SendMessage`
+    /// service method.
+    pub async fn send_message(&self, partner: u64, text: &str) -> Result<(), String> {
+        let body = build_send_message_body(partner, text);
+        self.call_service("FriendMessages.SendMessage#1", body).await.map(|_| ())
+    }
+
     /// Whether the background task is still alive.
     pub async fn is_alive(&self) -> bool {
         let task = self.task.lock().await;
         match task.as_ref() {
             Some(t) => !t.is_finished(),
             None => false,
+        }
+    }
+
+    /// Close the connection (abort the socket task so the websocket drops and
+    /// Steam releases the session). The next call reconnects on demand.
+    pub async fn close(&self) {
+        let task = self.task.lock().await.take();
+        if let Some(t) = task {
+            t.abort();
         }
     }
 }
@@ -265,7 +314,7 @@ async fn run(mut ws: WsStream, mut cmd_rx: mpsc::Receiver<Cmd>, data: Arc<Mutex<
             }
             Some(cmd) = cmd_rx.recv() => {
                 match cmd {
-                    Cmd::SendMessage { partner, text, reply } => {
+                    Cmd::CallService { method, request, reply } => {
                         let session_id = data.lock().await.session_id;
                         let job_id = {
                             let mut d = data.lock().await;
@@ -274,14 +323,13 @@ async fn run(mut ws: WsStream, mut cmd_rx: mpsc::Receiver<Cmd>, data: Arc<Mutex<
                         };
                         let (resp_tx, resp_rx) = oneshot::channel();
                         data.lock().await.pending.insert(job_id, resp_tx);
-                        let body = build_send_message_body(partner, &text);
                         let wire = frame::encode_envelope(
                             frame::EMSG_SERVICE_METHOD_CALL_FROM_CLIENT,
                             steam_id,
                             session_id,
                             job_id,
-                            Some("FriendMessages.SendMessage#1"),
-                            &body,
+                            Some(&method),
+                            &request,
                         );
                         if ws.send(Message::Binary(wire.into())).await.is_err() {
                             data.lock().await.pending.remove(&job_id);
@@ -289,11 +337,9 @@ async fn run(mut ws: WsStream, mut cmd_rx: mpsc::Receiver<Cmd>, data: Arc<Mutex<
                         } else {
                             // Relay the service response to the caller.
                             tokio::spawn(async move {
-                                let result = match resp_rx.await {
-                                    Ok(Ok(_)) => Ok(()),
-                                    Ok(Err(e)) => Err(e),
-                                    Err(_) => Err("Steam CM request failed".into()),
-                                };
+                                let result = resp_rx
+                                    .await
+                                    .unwrap_or_else(|_| Err("Steam CM request failed".into()));
                                 let _ = reply.send(result);
                             });
                         }
@@ -352,6 +398,10 @@ async fn handle_envelope(envelope: Envelope, data: &Arc<Mutex<CmData>>) -> Resul
                 if method == "FriendMessagesClient.IncomingMessage" {
                     if let Some(chat) = parse_incoming_message(&envelope.body) {
                         data.lock().await.messages.push_back(chat);
+                    }
+                } else if method == "ChatRoomClient.NotifyIncomingChatMessage" {
+                    if let Some(chat) = parse_incoming_group_message(&envelope.body) {
+                        data.lock().await.group_messages.push_back(chat);
                     }
                 }
             }
@@ -417,6 +467,29 @@ fn parse_incoming_message(body: &[u8]) -> Option<IncomingChat> {
         ordinal: proto_wire::get_varint(&fields, 6).unwrap_or(0) as u32,
         local_echo: proto_wire::get_bool(&fields, 7).unwrap_or(false),
         chat_entry_type,
+    })
+}
+
+/// Parse a `ChatRoomClient.NotifyIncomingChatMessage` body into a group chat
+/// message (fields 1/2 = group/chat id, 3 = sender steamid64, 4 = body,
+/// 5 = timestamp, 7 = ordinal).
+fn parse_incoming_group_message(body: &[u8]) -> Option<GroupIncoming> {
+    let fields = proto_wire::parse(body).ok()?;
+    let group_id = proto_wire::get_number(&fields, 1)?;
+    let chat_id = proto_wire::get_number(&fields, 2)?;
+    let sender = proto_wire::get_fixed64(&fields, 3)?;
+    let message = proto_wire::get_string(&fields, 4)
+        .or_else(|| proto_wire::get_string(&fields, 9))?;
+    if message.is_empty() {
+        return None;
+    }
+    Some(GroupIncoming {
+        group_id,
+        chat_id,
+        sender_steam_id: sender,
+        message,
+        timestamp: proto_wire::get_number(&fields, 5).unwrap_or(0) as u32,
+        ordinal: proto_wire::get_number(&fields, 7).unwrap_or(0) as u32,
     })
 }
 

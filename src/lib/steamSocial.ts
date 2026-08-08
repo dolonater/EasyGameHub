@@ -52,3 +52,52 @@ export function sendChatMessage(steamId: string, text: string): Promise<void> {
 export function getChatHistory(steamId: string, count?: number): Promise<ChatMessageDto[]> {
   return invoke<ChatMessageDto[]>("get_chat_history", { steamId, count });
 }
+
+// ── Group chat ───────────────────────────────────────────────
+
+/** A channel (room) inside a chat room group. */
+export interface ChatGroupRoomDto {
+  chatId: string;
+  name: string;
+  lastMessage: string;
+  lastMessageTimestamp: number;
+  lastSenderSteamId: string;
+}
+
+/** A Steam chat room group (from `get_chat_groups`). */
+export interface ChatGroupDto {
+  groupId: string;
+  name: string;
+  defaultChatId: string;
+  rooms: ChatGroupRoomDto[];
+}
+
+/** One group chat message. */
+export interface GroupMessageDto {
+  groupId: string;
+  chatId: string;
+  senderSteamId: string;
+  timestamp: number;
+  ordinal: number;
+  message: string;
+}
+
+/** List the chat room groups the account belongs to. */
+export function getChatGroups(): Promise<ChatGroupDto[]> {
+  return invoke<ChatGroupDto[]>("get_chat_groups");
+}
+
+/** Last messages in a group channel. */
+export function getGroupHistory(groupId: string, chatId: string): Promise<GroupMessageDto[]> {
+  return invoke<GroupMessageDto[]>("get_group_history", { groupId, chatId });
+}
+
+/** Send a text message to a group channel. */
+export function sendGroupMessage(groupId: string, chatId: string, text: string): Promise<void> {
+  return invoke("send_group_message", { groupId, chatId, text });
+}
+
+/** Drain group chat messages buffered by the CM connection. */
+export function pollGroupMessages(): Promise<GroupMessageDto[]> {
+  return invoke<GroupMessageDto[]>("poll_group_messages");
+}

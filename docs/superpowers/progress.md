@@ -96,6 +96,29 @@
 - **用户实测通过**：好友列表正常显示（头像/昵称/在线状态）。
 - 待验证：聊天（CM 发/收一条消息）。
 
+### P5 聊天链路修复完成（2026-08-08，用户实测通过）
+- **历史 400 根因**：`GetRecentMessages` 的 `input_protobuf_encoded` 值含 base64 `+`/`/`/`=`，直接拼进 URL 查询串时 `+` 被当成空格 → Steam 解码损坏 protobuf → 400。改为 `percent_encode` 编码该值。**请求体本身已验证正确**（字段 1/2 双方 steamid、3=count、4=start_from_most_recent、6=request_bbcode）。
+- 历史解析对数字字段改用 `get_number`（proto_wire 新增，通吃 varint/fixed64/fixed32），避免固定线类型漏读。
+- 诊断机制：结构异常时错误带原始响应片段/字段结构；前端不再吞历史错误（显示在聊天面板）。
+- 验证：social 8 + cm 8 + login 5 passed、steam-sdk 全量 86 passed、cargo check、前端构建通过。
+- **用户实测通过**：发送消息好友能收到（CM send）、刷新后历史可读回（GetRecentMessages）。
+- 待确认：接收对方回复（CM IncomingMessage + 3s 轮询）。
+- **用户实测确认**：接收对方回复正常（CM IncomingMessage + 轮询）。**P5（E1 好友 + 私聊）全部完成**：好友列表/在线状态（REST）、发送（CM）、接收（CM 入站）、历史（GetRecentMessages）。
+- Active stage: Stage 3 P5 完成，P6（E2 群聊）待用户批准开始。
+
+### Stage 3 P6 完成情况（2026-08-08，E2 群聊基础文字）
+- **审查结论**（参考 Monica `SteamGroupChatService`/`SteamGroupChatRealtimeParser`）：
+  - 群聊走 **CM 服务方法 `ChatRoom.<Method>#1`**：`GetMyChatRoomGroups` / `GetMessageHistory` / `SendChatMessage` / `AckChatMessage`；群/频道 ID 为 uint64。
+  - 实时入站：`ChatRoomClient.NotifyIncomingChatMessage`（字段 1/2=group/chat id、3=sender steamid、4=body、5=ts、7=ordinal）。
+  - **计划偏差**：`join_chat_group`（邀请码加入）在 Monica 无可靠请求规格 → **延后**，v1 为「列出我的群 + 文字收发」；补 `get_group_history`（打开群必需）。
+- **T24**：cm::client 重构 `Cmd::SendMessage` → **通用 `Cmd::CallService`**（method + request + reply），新增 `call_service`/`take_group_messages`/`GroupIncoming`，handle_envelope 处理 `ChatRoomClient.NotifyIncomingChatMessage`；commands 新增 `get_chat_groups`/`get_group_history`/`send_group_message`/`poll_group_messages` + DTO 与 proto 解析（群列表 pair→summary→rooms、历史消息、发送）。
+- **T25**：SocialPanel 新增**好友/群聊模式切换**（TabButtons）：群列表（名+最近消息）→ 选群加载默认频道历史 → 3s 轮询群消息 → 发送（乐观追加+Enter）。
+- **T26**：i18n 键（socialFriends/socialGroups/socialGroupsEmpty）。
+- 验证：`cargo check`（工作区）、steam-sdk 86 passed、`npm run build` 通过。
+- 待用户手测：社交 Tab → 群聊 → 群列表 → 打开群看历史 → 发/收群消息。
+- **用户实测通过**：群聊收发正常；另修复两处——(a) 群聊自我回显导致消息显示两遍（`poll_group_messages` 丢弃 sender=自己，前端乐观追加）；(b) `CM logon failed (eresult=5)`（LoggedInElsewhere，重启后旧连接未释放）：`CmClient::close()` + `connect` 遇 eresult=5 延迟重试一次 + `ensure_cm` 重连前关闭旧连接。**P6 完成**。
+- Active stage: Stage 3 P6 完成，P7（E3 通知页）待用户批准开始。
+
 ## Current Workflow Request
 - Topic: Doona Music 独立网易云播放器（插件 → 独立桌面应用）
 - Stage 1 Requirement Exploration: Completed at 2026-08-06（设计经 grill-me 访谈 13 轮逐项确认）
