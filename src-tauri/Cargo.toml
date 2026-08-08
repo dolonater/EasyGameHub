@@ -38,7 +38,7 @@ futures-util = "0.3"
 tauri-plugin-store = "2"
 url = "2"
 urlencoding = "2"
-tokio = { version = "1", features = ["net", "time"] }
+tokio = { version = "1", features = ["net", "time", "sync"] }
 steamlocate = "1"
 steam-sdk = { path = "../steam-sdk" }
 base64 = "0.22"

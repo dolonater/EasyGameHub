@@ -20,7 +20,7 @@ use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use crate::cm::bootstrap;
 use crate::cm::frame::{
     self, Envelope, JOB_ID_NONE, EMSG_CLIENT_FRIENDS_LIST, EMSG_CLIENT_HEARTBEAT, EMSG_CLIENT_LOGON,
-    EMSG_CLIENT_LOGON_RESPONSE, EMSG_CLIENT_LOGGED_OFF, EMSG_CLIENT_PERSONA_STATE,
+    EMSG_CLIENT_LOGON_RESPONSE, EMSG_CLIENT_LOGGED_OFF, EMSG_CLIENT_LOG_OFF, EMSG_CLIENT_PERSONA_STATE,
     EMSG_SERVICE_METHOD, EMSG_SERVICE_METHOD_RESPONSE, EMSG_SERVICE_METHOD_SEND_TO_CLIENT,
 };
 use crate::cm::proto_wire::{self, Writer};
@@ -87,6 +87,8 @@ enum Cmd {
         request: Vec<u8>,
         reply: oneshot::Sender<Result<Vec<u8>, String>>,
     },
+    /// Send `CMsgClientLogOff` and tear the socket down cleanly.
+    LogOff,
 }
 
 /// Handle to an authenticated CM connection. Cheap to clone; the underlying
@@ -106,7 +108,12 @@ pub async fn connect(access_token: &str, steam_id: u64) -> Result<CmClient, Stri
         .map_err(|e| format!("CM bootstrap failed: {}", e))?;
     let endpoints = bootstrap::fetch_endpoints(&http).map_err(|e| format!("CM list failed: {}", e))?;
 
-    for attempt in 0..2 {
+    // eresult=5 = LoggedInElsewhere: Steam still holds the previous session
+    // (e.g. after abrupt restarts or the desktop client being online). It
+    // releases the stale session after its heartbeat timeout, so retry with
+    // Monica-style exponential backoff (1s → 2s → 4s → … capped at 30s).
+    let mut retry: u64 = 1;
+    for attempt in 0..8 {
         let mut last_err: Option<String> = None;
         for host in &endpoints {
             match open_logged_on(host, &token, steam_id).await {
@@ -115,13 +122,16 @@ pub async fn connect(access_token: &str, steam_id: u64) -> Result<CmClient, Stri
             }
         }
         let err = last_err.unwrap_or_else(|| "no usable Steam CM endpoint".into());
-        // eresult=5 = LoggedInElsewhere: Steam may still hold the previous
-        // session (e.g. right after an app restart). Retry once after a delay.
-        if attempt == 0 && err.contains("eresult=5") {
-            tokio::time::sleep(Duration::from_secs(5)).await;
+        if err.contains("eresult=5") && attempt < 7 {
+            tokio::time::sleep(Duration::from_secs(retry)).await;
+            retry = (retry * 2).min(30);
             continue;
         }
-        return Err(err);
+        return Err(if err.contains("eresult=5") {
+            "Steam 账号已在其他地方登录（可能残留了旧的连接，或 Steam 客户端在线）。请关闭 Steam 客户端/残留进程后重试。".to_string()
+        } else {
+            err
+        });
     }
     Err("no usable Steam CM endpoint".into())
 }
@@ -165,10 +175,11 @@ impl CmClient {
             })
             .await
             .map_err(|_| "Steam CM disconnected".to_string())?;
-        tokio::time::timeout(Duration::from_secs(15), reply_rx)
+        let result = tokio::time::timeout(Duration::from_secs(15), reply_rx)
             .await
             .map_err(|_| "Steam CM request timed out".to_string())?
-            .map_err(|_| "Steam CM disconnected".to_string())?
+            .map_err(|_| "Steam CM disconnected".to_string())?;
+        result
     }
 
     /// Send a text message to a friend via the `FriendMessages.SendMessage`
@@ -187,12 +198,13 @@ impl CmClient {
         }
     }
 
-    /// Close the connection (abort the socket task so the websocket drops and
-    /// Steam releases the session). The next call reconnects on demand.
+    /// Close the connection: send `CMsgClientLogOff` so Steam releases the
+    /// session, then tear the socket down. The next call reconnects on demand.
     pub async fn close(&self) {
         let task = self.task.lock().await.take();
+        let _ = self.cmd_tx.send(Cmd::LogOff).await;
         if let Some(t) = task {
-            t.abort();
+            let _ = tokio::time::timeout(Duration::from_secs(2), t).await;
         }
     }
 }
@@ -298,8 +310,7 @@ async fn run(mut ws: WsStream, mut cmd_rx: mpsc::Receiver<Cmd>, data: Arc<Mutex<
                         if let Ok(envelopes) = frame::decode_envelopes(&payload) {
                             let mut failed = false;
                             for envelope in envelopes {
-                                if let Err(e) = handle_envelope(envelope, &data).await {
-                                    log::warn!("[cm] envelope failed: {}", e);
+                                if handle_envelope(envelope, &data).await.is_err() {
                                     failed = true;
                                     break;
                                 }
@@ -343,6 +354,19 @@ async fn run(mut ws: WsStream, mut cmd_rx: mpsc::Receiver<Cmd>, data: Arc<Mutex<
                                 let _ = reply.send(result);
                             });
                         }
+                    }
+                    Cmd::LogOff => {
+                        let session_id = data.lock().await.session_id;
+                        let wire = frame::encode_envelope(
+                            EMSG_CLIENT_LOG_OFF,
+                            steam_id,
+                            session_id,
+                            JOB_ID_NONE,
+                            None,
+                            &[],
+                        );
+                        let _ = ws.send(Message::Binary(wire.into())).await;
+                        break;
                     }
                 }
             }

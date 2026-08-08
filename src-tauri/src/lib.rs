@@ -475,6 +475,8 @@ pub fn run() {
             commands::steam_social::get_group_history,
             commands::steam_social::send_group_message,
             commands::steam_social::poll_group_messages,
+            commands::steam_notifications::get_notifications,
+            commands::steam_notifications::mark_notifications_read,
             commands::files::write_binary_file,
             commands::steam_auth::login_step1,
             commands::steam_auth::login_poll,

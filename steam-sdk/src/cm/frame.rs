@@ -18,6 +18,7 @@ pub const EMSG_CLIENT_LOGGED_OFF: u32 = 757;
 pub const EMSG_CLIENT_FRIENDS_LIST: u32 = 767;
 pub const EMSG_CLIENT_PERSONA_STATE: u32 = 704;
 pub const EMSG_CLIENT_HEARTBEAT: u32 = 703;
+pub const EMSG_CLIENT_LOG_OFF: u32 = 738;
 
 pub const JOB_ID_NONE: i64 = -1;
 

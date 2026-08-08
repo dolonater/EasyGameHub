@@ -134,42 +134,6 @@
     ]
   },
   {
-    "app_id": 2358720,
-    "fetched_at": 1786186683,
-    "items": [
-      {
-        "appId": 2358720,
-        "title": "Black Myth: Wukong — 30% Off Coming Soon",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1840310314337994",
-        "author": "xichen.huang",
-        "contents": "Dear Destined Ones,With August 20, our annual \"traditional holiday,\" just around the corner, Black Myth: Wukong is getting in on the fun a little early. All digital editions of the game (Digital Standard Edition, Digital Deluxe Edition, and Deluxe Edition Upgrade) will soon be available at 30% off.S...",
-        "feedLabel": "Community Announcements",
-        "feedType": 1,
-        "date": 1785895204
-      },
-      {
-        "appId": 2358720,
-        "title": "2024's award-winning soulslike Black Myth Wukong gets a rare discount, dropping to an all-time low price",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1825727806710296",
-        "author": "editor@pcgamesn.com",
-        "contents": "Black Myth Wukong was a huge surprise. Game Science's debut into triple-A games development was a bold one, boasting impressive graphics and gorgeous action while adapting the iconic Journey to the West novel. It was a risk, one that paid off extremely well, earning it a space in our best soulslikes...",
-        "feedLabel": "PCGamesN",
-        "feedType": 0,
-        "date": 1772179214
-      },
-      {
-        "appId": 2358720,
-        "title": "Steam Global Top Sellers for week of 10 Feb — 17 February 2026",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/SteamDB/1824644522847718",
-        "author": "SteamDB",
-        "contents": "* Mewgenics; * HELLDIVERS™ 2; * Resident Evil Requiem; * ARC Raiders; * Steam Deck; * Diablo II: Resurrected – Infernal Edition; * REANIMAL; * Black Myth: Wukong; * Cyberpunk 2077; * Rust; * excluding free to play games View top 100 on SteamDB",
-        "feedLabel": "SteamDB",
-        "feedType": 0,
-        "date": 1771318800
-      }
-    ]
-  },
-  {
     "app_id": 1091500,
     "fetched_at": 1786193554,
     "items": [
@@ -238,6 +202,32 @@
         "feedLabel": "Gamemag.ru",
         "feedType": 0,
         "date": 1781664840
+      }
+    ]
+  },
+  {
+    "app_id": 2358720,
+    "fetched_at": 1786201516,
+    "items": [
+      {
+        "appId": 2358720,
+        "title": "Black Myth: Wukong — 30% Off Coming Soon",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1840310314337994",
+        "author": "xichen.huang",
+        "contents": "Dear Destined Ones,With August 20, our annual \"traditional holiday,\" just around the corner, Black Myth: Wukong is getting in on the fun a little early. All digital editions of the game (Digital Standard Edition, Digital Deluxe Edition, and Deluxe Edition Upgrade) will soon be available at 30% off.S...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1785895204
+      },
+      {
+        "appId": 2358720,
+        "title": "2024's award-winning soulslike Black Myth Wukong gets a rare discount, dropping to an all-time low price",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/PCGamesN/1825727806710296",
+        "author": "editor@pcgamesn.com",
+        "contents": "Black Myth Wukong was a huge surprise. Game Science's debut into triple-A games development was a bold one, boasting impressive graphics and gorgeous action while adapting the iconic Journey to the West novel. It was a risk, one that paid off extremely well, earning it a space in our best soulslikes...",
+        "feedLabel": "PCGamesN",
+        "feedType": 0,
+        "date": 1772179214
       }
     ]
   }

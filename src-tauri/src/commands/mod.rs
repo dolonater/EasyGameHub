@@ -15,6 +15,7 @@ pub mod steam_auth;
 pub mod steam_cloud;
 pub mod steam_community;
 pub mod steam_guard;
+pub mod steam_notifications;
 pub mod steam_social;
 pub mod themes;
 pub mod view_settings;

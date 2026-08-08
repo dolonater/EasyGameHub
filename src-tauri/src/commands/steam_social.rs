@@ -60,21 +60,42 @@ fn resolve_session(tool_dir: &Path) -> Result<(u64, String), String> {
     Ok((session.steam_id, session.access_token.clone()))
 }
 
+/// Serialize CM (re)connects so concurrent commands (friend + group chat polls
+/// both call `ensure_cm` every few seconds) never open duplicate connections —
+/// a second logon for the same account is rejected by Steam (eresult=5).
+static CONNECT_LOCK: OnceLock<tokio::sync::Mutex<()>> = OnceLock::new();
+
+fn connect_lock() -> &'static tokio::sync::Mutex<()> {
+    CONNECT_LOCK.get_or_init(|| tokio::sync::Mutex::new(()))
+}
+
 /// Reuse the live connection for this account or open a fresh one.
 async fn ensure_cm(steam_id: u64, access_token: &str) -> Result<cm::CmClient, String> {
+    // Fast path: reuse a live connection (no lock).
     let cached = {
-        let mut guard = active_cm().lock().unwrap();
-        guard.take()
+        let guard = active_cm().lock().unwrap();
+        guard.as_ref().map(|(sid, client)| (*sid, client.clone()))
     };
-    if let Some((sid, old)) = cached {
-        if sid == steam_id && old.is_alive().await {
-            *active_cm().lock().unwrap() = Some((sid, old.clone()));
-            return Ok(old);
+    if let Some((sid, client)) = cached {
+        if sid == steam_id && client.is_alive().await {
+            return Ok(client);
         }
-        // Different account or a dead socket — close the old one so Steam
-        // releases its session before we log on again (avoids eresult=5).
-        old.close().await;
+        client.close().await;
     }
+
+    // Serialize reconnects, then re-check (another caller may have connected).
+    let _guard = connect_lock().lock().await;
+    let cached = {
+        let guard = active_cm().lock().unwrap();
+        guard.as_ref().map(|(sid, client)| (*sid, client.clone()))
+    };
+    if let Some((sid, client)) = cached {
+        if sid == steam_id && client.is_alive().await {
+            return Ok(client);
+        }
+        client.close().await;
+    }
+
     let client = cm::connect(access_token, steam_id).await?;
     let mut guard = active_cm().lock().unwrap();
     *guard = Some((steam_id, client.clone()));
@@ -118,11 +139,6 @@ pub async fn get_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, S
         .filter(|r| r.relationship == "friend")
         .map(|r| r.steamid.clone())
         .collect();
-    log::info!(
-        "[social] get_friends: {} relations, {} friends",
-        relations.len(),
-        friend_ids.len()
-    );
     if friend_ids.is_empty() {
         return Ok(Vec::new());
     }

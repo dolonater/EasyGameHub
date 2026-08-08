@@ -9,6 +9,7 @@ import AccountSwitch from "./AccountSwitch";
 import Authenticator from "./Authenticator";
 import DownloadManager from "./DownloadManager";
 import SocialPanel from "../../components/steam/SocialPanel";
+import NotificationsPanel from "../../components/steam/NotificationsPanel";
 import SteamLoginDialog from "../../components/steam/SteamLoginDialog";
 import { useSteamSession } from "../../hooks/useSteamSession";
 import { useSteamWatchlist } from "../../hooks/useSteamWatchlist";
@@ -19,6 +20,7 @@ type SteamTab =
   | "overview"
   | "news"
   | "wishlist"
+  | "notifications"
   | "social"
   | "accounts"
   | "authenticator"
@@ -43,7 +45,7 @@ export default function SteamHub() {
     logout,
   } = useSteamSession();
   const watch = useSteamWatchlist();
-  const { activeTab } = useSteamHubCache();
+  const { activeTab, notificationsUnread } = useSteamHubCache();
   // Restore the last sub-tab after a route switch, so returning to the Steam
   // page does not bounce you back to Overview.
   const [tab, setTab] = useState<SteamTab>(() => (activeTab as SteamTab) || "overview");
@@ -96,6 +98,19 @@ export default function SteamHub() {
           { value: "overview", label: t("steam.tabOverview") },
           { value: "news", label: t("steam.tabNews") },
           { value: "wishlist", label: t("steam.tabWishlist") },
+          {
+            value: "notifications",
+            label: (
+              <span className="inline-flex items-center gap-1">
+                {t("steam.tabNotifications")}
+                {notificationsUnread > 0 && (
+                  <span className="rounded-full bg-primary px-1.5 text-[10px] font-bold leading-4 text-primary-foreground">
+                    {notificationsUnread}
+                  </span>
+                )}
+              </span>
+            ),
+          },
           { value: "social", label: t("steam.tabSocial") },
           { value: "accounts", label: t("steam.accountSwitch") },
           { value: "authenticator", label: t("authenticator.title") },
@@ -132,6 +147,9 @@ export default function SteamHub() {
             onAddWatch={watch.add}
             onRemoveWatch={watch.remove}
           />
+        )}
+        {tab === "notifications" && (
+          <NotificationsPanel appIds={monitoredAppIds} embedded />
         )}
         {tab === "social" && <SocialPanel session={session} embedded />}
         {tab === "accounts" && <AccountSwitch embedded />}

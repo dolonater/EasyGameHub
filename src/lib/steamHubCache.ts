@@ -5,6 +5,7 @@ import type {
   OverviewStats,
   PriceDto,
   SessionDto,
+  SteamNotificationDto,
   SteamProfileDto,
   WatchItemDto,
   WishlistItemDto,
@@ -42,6 +43,10 @@ export interface SteamHubCache {
   overviewStats: OverviewStats | null;
   /** Last active sub-tab, restored on return. */
   activeTab: string;
+  /** Notification feed (from `get_notifications`), for the 通知 tab + badge. */
+  notifications: SteamNotificationDto[];
+  /** Number of unread notifications in the last fetched feed. */
+  notificationsUnread: number;
 }
 
 const initialCache: SteamHubCache = {
@@ -60,6 +65,8 @@ const initialCache: SteamHubCache = {
   newsKey: "",
   overviewStats: null,
   activeTab: "overview",
+  notifications: [],
+  notificationsUnread: 0,
 };
 
 let cache: SteamHubCache = initialCache;

@@ -281,3 +281,17 @@ export interface RegionPriceDto {
   /** Approximate CNY (static FX table), for cross-region comparison. */
   cnyCents: number | null;
 }
+
+// ── Notifications ────────────────────────────────────────────
+
+/** One entry in the Steam notification feed (from `get_notifications`). */
+export interface SteamNotificationDto {
+  /** Stable id (`drop:<appid>:<date>` / `news:<appid>:<ts>` / `confirmation:<id>`). */
+  id: string;
+  kind: "price_drop" | "news" | "confirmation";
+  title: string;
+  subtitle: string;
+  /** Local "YYYY-MM-DD HH:MM:SS". */
+  timestamp: string;
+  read: boolean;
+}

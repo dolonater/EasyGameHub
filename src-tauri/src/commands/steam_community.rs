@@ -498,11 +498,11 @@ pub struct PriceDropEventDto {
     pub date: String,
 }
 
-fn drop_events_path(tool_dir: &Path) -> std::path::PathBuf {
+pub(crate) fn drop_events_path(tool_dir: &Path) -> std::path::PathBuf {
     tool_dir.join("steam_price_drop_events.json")
 }
 
-fn load_drop_events(path: &Path) -> Vec<PriceDropEventDto> {
+pub(crate) fn load_drop_events(path: &Path) -> Vec<PriceDropEventDto> {
     if path.exists() {
         if let Ok(content) = std::fs::read_to_string(path) {
             if let Ok(events) = serde_json::from_str::<Vec<PriceDropEventDto>>(&content) {

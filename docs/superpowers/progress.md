@@ -119,6 +119,17 @@
 - **用户实测通过**：群聊收发正常；另修复两处——(a) 群聊自我回显导致消息显示两遍（`poll_group_messages` 丢弃 sender=自己，前端乐观追加）；(b) `CM logon failed (eresult=5)`（LoggedInElsewhere，重启后旧连接未释放）：`CmClient::close()` + `connect` 遇 eresult=5 延迟重试一次 + `ensure_cm` 重连前关闭旧连接。**P6 完成**。
 - Active stage: Stage 3 P6 完成，P7（E3 通知页）待用户批准开始。
 
+### Stage 3 P7 完成情况（2026-08-08，E3 通知页）
+- **审查结论**：
+  - 聚合走 option A：实时从来源生成通知 + 只持久化 `read_ids`（`steam_notifications.json`，更安全，符合设计 §8 不存正文）。
+  - 新闻范围（wishlist ∪ watchlist 的 app_ids）由前端传入（SteamHub 已有 `monitoredAppIds`）。
+  - **计划偏差**：好友状态通知需持续 presence 变化追踪（后台快照+diff），成本高 → **延后**记录；T28 系统通知（tauri-plugin-notification）标记为后置可选，不阻塞 P7。
+- **T27** `commands/steam_notifications.rs`（新）：`get_notifications(app_ids)` 聚合 降价事件（复用 `drop_events_path`/`load_drop_events`，改 pub(crate)）+ 关注游戏新闻（`get_news_feed`，date 转 "YYYY-MM-DD HH:MM:SS" 排序）+ 待确认（`get_pending_confirmations`，best-effort）；稳定 id（`drop:<appid>:<date>` / `news:<appid>:<ts>` / `confirmation:<id>`），未读标记 + 倒序 + 截断 100；`mark_notifications_read(ids)` 合并 read_ids；lib.rs 注册。`State` 传值需 `clone`（Tauri State 非 Copy）、`get_pending_confirmations` 为同步调用。
+- **T29** `NotificationsPanel.tsx`（新）：时间线（类型徽标/标题/副标题/时间/未读高亮 + 左侧 primary 条）+ 全部已读；fetch 后写入 steamHubCache（`notifications` + `notificationsUnread`）；SteamHub 新增「通知」Tab + **未读计数徽标**（Tab 上）。
+- **T30** i18n 键（tabNotifications/notifications*）。
+- 验证：`cargo check`（工作区）、steam-sdk 86 passed、`npm run build` 通过。
+- 待用户手测：产生一条降价/新闻/待确认 → 通知 Tab 出现 + 未读计数 → 全部已读 → 徽标消失。
+
 ## Current Workflow Request
 - Topic: Doona Music 独立网易云播放器（插件 → 独立桌面应用）
 - Stage 1 Requirement Exploration: Completed at 2026-08-06（设计经 grill-me 访谈 13 轮逐项确认）
