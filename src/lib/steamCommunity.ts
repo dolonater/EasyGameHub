@@ -97,6 +97,17 @@ export interface PriceHistoryPoint {
   date: string;
 }
 
+/** A persisted price-drop event (from `get_price_drop_events`). */
+export interface PriceDropEventDto {
+  appId: number;
+  prevPrice: number;
+  newPrice: number;
+  discountPercent: number;
+  currency: string;
+  /** Local time "YYYY-MM-DD HH:MM:SS". */
+  date: string;
+}
+
 /** A hit from the Steam store search (from `search_steam_games`). */
 export interface SearchResultDto {
   appId: number;

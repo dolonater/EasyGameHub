@@ -481,6 +481,53 @@ pub fn get_price_thresholds(state: State<'_, AppState>) -> Result<HashMap<u32, u
     Ok(load_price_thresholds(&price_thresholds_path(&state.tool_dir)))
 }
 
+// ── Persisted price-drop events ────────────────────────────
+
+/// A recorded price-drop event, appended whenever a check observes a price
+/// falling below the last baseline. Persisted so the "降价记录" log survives
+/// restarts, the per-app history cap, and games leaving the watchlist.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PriceDropEventDto {
+    pub app_id: u32,
+    pub prev_price: u64,
+    pub new_price: u64,
+    pub discount_pct: u32,
+    pub currency: String,
+    /// Local time "YYYY-MM-DD HH:MM:SS".
+    pub date: String,
+}
+
+fn drop_events_path(tool_dir: &Path) -> std::path::PathBuf {
+    tool_dir.join("steam_price_drop_events.json")
+}
+
+fn load_drop_events(path: &Path) -> Vec<PriceDropEventDto> {
+    if path.exists() {
+        if let Ok(content) = std::fs::read_to_string(path) {
+            if let Ok(events) = serde_json::from_str::<Vec<PriceDropEventDto>>(&content) {
+                return events;
+            }
+        }
+    }
+    Vec::new()
+}
+
+fn save_drop_events(path: &Path, events: &[PriceDropEventDto]) {
+    if let Ok(json) = serde_json::to_string_pretty(events) {
+        let _ = std::fs::write(path, json);
+    }
+}
+
+/// The persisted price-drop log (newest last in the file).
+#[tauri::command]
+pub fn get_price_drop_events(state: State<'_, AppState>) -> Result<Vec<PriceDropEventDto>, String> {
+    Ok(load_drop_events(&drop_events_path(&state.tool_dir)))
+}
+
+/// Max drop events kept per app log (oldest dropped first).
+const MAX_DROP_EVENTS: usize = 300;
+
 /// Fetch live prices for a batch of apps and detect drops against the
 /// recorded baseline. The baseline is updated to the current price so each
 /// price-drop event is only reported once. History is preserved per app and
@@ -494,6 +541,8 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
 
     let baseline_path = price_baseline_path(&state.tool_dir);
     let thresholds = load_price_thresholds(&price_thresholds_path(&state.tool_dir));
+    let events_path = drop_events_path(&state.tool_dir);
+    let mut drop_events = load_drop_events(&events_path);
     let mut baseline = crate::core::steam_prices::load_price_baseline(&baseline_path);
     let now = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
@@ -515,27 +564,42 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
                     None => (None, None, 0, None, None, None),
                 };
 
-            let (dropped, lowest_price, history) = match final_price {
+            let (dropped, prev_price, lowest_price, history) = match final_price {
                 Some(fp) => {
                     let prev = baseline.get(&detail.app_id);
                     let currency = currency.clone().unwrap_or_default();
                     let drop =
                         crate::core::steam_prices::check_price_drop(prev, fp, discount, &currency);
+                    let prev_price = if drop { prev.map(|b| b.final_price) } else { None };
                     let next = crate::core::steam_prices::update_baseline(
                         prev, fp, discount, &currency, &now,
                     );
                     let lowest = crate::core::steam_prices::lowest_recorded(&next);
                     let hist = next.history.clone();
                     baseline.insert(detail.app_id, next);
-                    (drop, lowest, hist)
+                    (drop, prev_price, lowest, hist)
                 }
-                None => (false, None, Vec::new()),
+                None => (false, None, None, Vec::new()),
             };
 
             let threshold_hit = match (final_price, thresholds.get(&detail.app_id)) {
                 (Some(fp), Some(t)) => fp <= *t,
                 _ => false,
             };
+
+            // Persist an event when this check observed a drop.
+            if dropped {
+                if let (Some(prev_price), Some(fp)) = (prev_price, final_price) {
+                    drop_events.push(PriceDropEventDto {
+                        app_id: detail.app_id,
+                        prev_price,
+                        new_price: fp,
+                        discount_pct: discount,
+                        currency: currency.clone().unwrap_or_default(),
+                        date: now.clone(),
+                    });
+                }
+            }
 
             results.push(PriceDto {
                 app_id: detail.app_id,
@@ -561,6 +625,11 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
     }
 
     crate::core::steam_prices::save_price_baseline(&baseline_path, &baseline);
+    if drop_events.len() > MAX_DROP_EVENTS {
+        let excess = drop_events.len() - MAX_DROP_EVENTS;
+        drop_events.drain(0..excess);
+    }
+    save_drop_events(&events_path, &drop_events);
     Ok(results)
 }
 

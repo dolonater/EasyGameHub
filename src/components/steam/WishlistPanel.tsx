@@ -12,6 +12,7 @@ import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
 import { formatPriceCents } from "../../lib/steamCommunity";
 import type {
   MetadataDto,
+  PriceDropEventDto,
   PriceDto,
   PriceHistoryPoint,
   SessionDto,
@@ -166,6 +167,20 @@ export default function WishlistPanel({
     };
   }, []);
 
+  // Load the persisted price-drop log (survives restarts / history cap).
+  const [dropEvents, setDropEvents] = useState<PriceDropEventDto[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    void invoke<PriceDropEventDto[]>("get_price_drop_events")
+      .then((list) => {
+        if (!cancelled) setDropEvents(list);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
@@ -309,6 +324,7 @@ export default function WishlistPanel({
     prevPrice: number;
     newPrice: number;
     discount: number;
+    currency: string | null;
     /** Synthetic event for a sale that is live now but was never observed
      *  dropping (e.g. the game was added while already on sale). */
     isCurrent: boolean;
@@ -320,62 +336,98 @@ export default function WishlistPanel({
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
   }
 
-  /** Replay each app's price history into a list of price-drop events, plus a
-   *  synthetic entry for any game on sale right now. */
+  /** 降价记录 = persisted drop events ∪ observed history drops ∪ live sales. */
   const dropHistory = useMemo<DropEvent[]>(() => {
+    const nameMap = new Map(combined.map((c) => [c.appId, c.name]));
     const events: DropEvent[] = [];
+    const seen = new Set<string>();
+
+    const addEvent = (e: DropEvent) => {
+      const key = `${e.appId}:${e.newPrice}:${e.discount}:${e.date}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      events.push(e);
+    };
+
+    // 1) Persisted drop events (durable log — survives restarts, the history
+    //    cap, and games leaving the watchlist).
+    for (const ev of dropEvents) {
+      addEvent({
+        appId: ev.appId,
+        name: nameMap.get(ev.appId) ?? `App ${ev.appId}`,
+        date: ev.date,
+        prevPrice: ev.prevPrice,
+        newPrice: ev.newPrice,
+        discount: ev.discountPercent,
+        currency: ev.currency,
+        isCurrent: false,
+      });
+    }
+
+    // 2) Observed drops from price history (covers pre-persistence data).
     for (const item of combined) {
       const price = prices[item.appId];
       if (!price) continue;
-
-      // Observed drops: a later point strictly below an earlier one.
       for (let i = 1; i < price.history.length; i++) {
         const prev = price.history[i - 1];
         const cur = price.history[i];
         if (cur.finalPrice < prev.finalPrice) {
-          events.push({
+          addEvent({
             appId: item.appId,
             name: item.name,
             date: cur.date,
             prevPrice: prev.finalPrice,
             newPrice: cur.finalPrice,
             discount: cur.discountPercent,
+            currency: price.currency,
             isCurrent: false,
           });
         }
       }
+    }
 
-      // Live sale that was never observed dropping into its current price
-      // (e.g. the game was added mid-sale): synthesize list price → sale price.
+    // 3) Live sale never recorded (e.g. added mid-sale): synthesize
+    //    list price → sale price.
+    const recordedStates = new Set<string>();
+    for (const ev of dropEvents) {
+      recordedStates.add(`${ev.appId}:${ev.newPrice}:${ev.discountPercent}`);
+    }
+    for (const item of combined) {
+      const price = prices[item.appId];
+      if (!price) continue;
       const final = price.finalPrice;
       const initial = price.initialPrice;
-      const alreadyRecorded = price.history.some(
-        (p) => p.finalPrice === final && p.discountPercent === price.discountPercent,
-      );
       if (
-        final != null &&
-        initial != null &&
-        price.discountPercent > 0 &&
-        final < initial &&
-        !alreadyRecorded
+        final == null ||
+        initial == null ||
+        price.discountPercent <= 0 ||
+        final >= initial
       ) {
-        events.push({
-          appId: item.appId,
-          name: item.name,
-          // Use the last observed date when available so it sorts like history.
-          date: price.history.length > 0 ? price.history[price.history.length - 1].date : fmtNow(),
-          prevPrice: initial,
-          newPrice: final,
-          discount: price.discountPercent,
-          isCurrent: true,
-        });
+        continue;
       }
+      // Already persisted, or a history point already shows this exact sale.
+      if (recordedStates.has(`${item.appId}:${final}:${price.discountPercent}`)) continue;
+      if (price.history.some((p) => p.finalPrice === final && p.discountPercent === price.discountPercent)) {
+        continue;
+      }
+      events.push({
+        appId: item.appId,
+        name: item.name,
+        // Use the last observed date when available so it sorts like history.
+        date: price.history.length > 0 ? price.history[price.history.length - 1].date : fmtNow(),
+        prevPrice: initial,
+        newPrice: final,
+        discount: price.discountPercent,
+        currency: price.currency,
+        isCurrent: true,
+      });
     }
+
     // Date strings are fixed-width "YYYY-MM-DD HH:MM:SS", so lexicographic
     // sorting equals chronological sorting.
     events.sort((a, b) => b.date.localeCompare(a.date));
     return events.slice(0, 30);
-  }, [combined, prices]);
+  }, [combined, prices, dropEvents]);
 
   const fmtPrice = (cents: number, currency: string | null) => formatPriceCents(cents, currency);
 
@@ -509,11 +561,11 @@ export default function WishlistPanel({
                   )}
                   <span className="flex-none text-[11px] text-muted-foreground">{e.date}</span>
                   <span className="flex-none text-xs text-muted-foreground line-through">
-                    {fmtPrice(e.prevPrice, currencyOf(e.appId))}
+                    {fmtPrice(e.prevPrice, e.currency ?? currencyOf(e.appId))}
                   </span>
                   <Icon name="arrowRight" size={11} className="flex-none text-muted-foreground" />
                   <span className="flex-none text-sm font-semibold text-green-600 dark:text-green-400">
-                    {fmtPrice(e.newPrice, currencyOf(e.appId))}
+                    {fmtPrice(e.newPrice, e.currency ?? currencyOf(e.appId))}
                   </span>
                   {e.discount > 0 && (
                     <span className="flex-none rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
