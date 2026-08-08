@@ -25,6 +25,17 @@ interface ProfilePanelProps {
   onSwitchAccount: () => void;
 }
 
+/** Minimal auth-entry shape returned by `get_auth_entries`. */
+interface AuthEntryDto {
+  id: string;
+  issuer: string;
+  accountName: string;
+  code: string;
+  period: number;
+  remainingSeconds: number;
+  steamId?: string | null;
+}
+
 /**
  * 概览 tab: a fuller profile summary card plus account-level library stats
  * (owned games, total playtime, recently played) and quick actions.
@@ -38,6 +49,28 @@ export default function ProfilePanel({
   const { t } = useTranslation();
   const { overviewStats } = useSteamHubCache();
   const [loading, setLoading] = useState(false);
+  const [authEntries, setAuthEntries] = useState<AuthEntryDto[]>([]);
+
+  // Poll authenticator entries while logged in so the overview can surface the
+  // active account's Steam Guard code with a live countdown.
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const list = await invoke<AuthEntryDto[]>("get_auth_entries");
+        if (!cancelled) setAuthEntries(list);
+      } catch {
+        // Store unreadable — ignore; the code block simply stays hidden.
+      }
+    };
+    void tick();
+    const timer = setInterval(tick, 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [session]);
 
   // Load account-level stats once per session (cached across tab switches).
   // Games count + total playtime come from the local library (offline, no API
@@ -123,6 +156,20 @@ export default function ProfilePanel({
     void invoke("open_url", { url: `https://steamcommunity.com/profiles/${session.steamId}` });
   };
 
+  const matchingEntry = authEntries.find(
+    (e) => e.steamId && session && e.steamId === session.steamId,
+  );
+
+  const copyGuardCode = async () => {
+    if (!matchingEntry) return;
+    try {
+      await navigator.clipboard.writeText(matchingEntry.code);
+      showToast("success", t("steam.copied"));
+    } catch {
+      // Ignore clipboard failures in the webview.
+    }
+  };
+
   const statCell = (icon: IconName, label: string, value: string) => (
     <div className="flex items-center gap-3">
       <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-primary/15 text-primary">
@@ -182,6 +229,38 @@ export default function ProfilePanel({
             </div>
           </div>
         </div>
+
+        {/* Steam Guard code for the active account, when an authenticator
+            entry is bound to this session. */}
+        {matchingEntry && (
+          <div className="mt-3 flex items-center gap-3 rounded-lg border border-border/40 bg-secondary/30 p-2.5">
+            <div className="inline-flex flex-none items-center gap-1 rounded bg-[#333] px-3 py-1.5 font-mono text-lg font-bold text-white tracking-wider">
+              {(matchingEntry.code.match(/.{1,3}/g) || [matchingEntry.code]).map((part: string, i: number) => (
+                <span key={i}>{part}</span>
+              ))}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[11px] text-muted-foreground">{t("steam.guardCode", { defaultValue: "Steam Guard" })}</div>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-1000"
+                    style={{ width: `${((matchingEntry.period - matchingEntry.remainingSeconds) / matchingEntry.period) * 100}%` }}
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground tabular-nums">{matchingEntry.remainingSeconds}s</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => void copyGuardCode()}
+              className="inline-flex flex-none items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              title={t("steam.copyGuardCode", { defaultValue: "复制验证码" })}
+            >
+              <Icon name="copy" size={14} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Account-level library stats */}

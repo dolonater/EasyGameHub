@@ -92,6 +92,49 @@ pub struct AppDetail {
     pub release_date_coming_soon: bool,
     pub is_free: bool,
     pub price: Option<AppPrice>,
+    /// Long HTML description (full detail requests only).
+    pub detailed_description: Option<String>,
+    /// "About this game" HTML.
+    pub about_the_game: Option<String>,
+    pub website: Option<String>,
+    pub screenshots: Vec<Screenshot>,
+    pub pc_requirements: Option<Requirements>,
+    /// Comma-joined language names ("English, 简体中文, ..."), when available.
+    pub supported_languages: Option<String>,
+    pub metacritic: Option<Metacritic>,
+    pub recommendations_total: Option<u64>,
+    /// DLC app IDs, when the store exposes them.
+    pub dlc: Vec<u32>,
+}
+
+/// A storefront screenshot (full + thumbnail URLs).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct Screenshot {
+    pub id: u64,
+    pub path_thumbnail: Option<String>,
+    pub path_full: Option<String>,
+}
+
+/// PC requirements block (HTML strings).
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct Requirements {
+    pub minimum: Option<String>,
+    pub recommended: Option<String>,
+}
+
+/// Metacritic score block.
+#[derive(Debug, Clone, Deserialize)]
+pub struct Metacritic {
+    pub score: u64,
+    pub url: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct Recommendations {
+    #[serde(rename = "total")]
+    pub total: Option<u64>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -111,6 +154,15 @@ struct AppDetailData {
     release_date: Option<ReleaseDate>,
     is_free: Option<bool>,
     price_overview: Option<AppPrice>,
+    detailed_description: Option<String>,
+    about_the_game: Option<String>,
+    website: Option<String>,
+    screenshots: Option<Vec<Screenshot>>,
+    pc_requirements: Option<Requirements>,
+    supported_languages: Option<serde_json::Value>,
+    metacritic: Option<Metacritic>,
+    recommendations: Option<Recommendations>,
+    dlc: Option<Vec<u32>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -124,6 +176,49 @@ struct ReleaseDate {
     date: Option<String>,
     #[serde(default)]
     coming_soon: bool,
+}
+
+/// Build an `AppDetail` from a parsed `data` block.
+fn detail_from_data(app_id: u32, data: AppDetailData) -> AppDetail {
+    let supported_languages = data
+        .supported_languages
+        .as_ref()
+        .and_then(|v| v.as_object())
+        .map(|obj| {
+            let mut names: Vec<&String> = obj.keys().collect();
+            names.sort();
+            names.into_iter().cloned().collect::<Vec<_>>().join(", ")
+        });
+    AppDetail {
+        app_id,
+        name: data.name,
+        short_description: data.short_description,
+        header_image: data.header_image,
+        genres: data
+            .genres
+            .unwrap_or_default()
+            .into_iter()
+            .map(|g| g.description)
+            .collect(),
+        developers: data.developers.unwrap_or_default(),
+        release_date: data.release_date.as_ref().and_then(|rd| rd.date.clone()),
+        release_date_coming_soon: data
+            .release_date
+            .as_ref()
+            .map(|rd| rd.coming_soon)
+            .unwrap_or(false),
+        is_free: data.is_free.unwrap_or(false),
+        price: data.price_overview,
+        detailed_description: data.detailed_description,
+        about_the_game: data.about_the_game,
+        website: data.website,
+        screenshots: data.screenshots.unwrap_or_default(),
+        pc_requirements: data.pc_requirements,
+        supported_languages,
+        metacritic: data.metacritic,
+        recommendations_total: data.recommendations.and_then(|r| r.total),
+        dlc: data.dlc.unwrap_or_default(),
+    }
 }
 
 /// Fetch metadata + price for a batch of apps.
@@ -184,27 +279,7 @@ fn fetch_app_detail(
                     {
                         if entry.success {
                             if let Some(data) = entry.data {
-                                return Some(AppDetail {
-                                    app_id,
-                                    name: data.name,
-                                    short_description: data.short_description,
-                                    header_image: data.header_image,
-                                    genres: data
-                                        .genres
-                                        .unwrap_or_default()
-                                        .into_iter()
-                                        .map(|g| g.description)
-                                        .collect(),
-                                    developers: data.developers.unwrap_or_default(),
-                                    release_date: data.release_date.as_ref().and_then(|rd| rd.date.clone()),
-                                    release_date_coming_soon: data
-                                        .release_date
-                                        .as_ref()
-                                        .map(|rd| rd.coming_soon)
-                                        .unwrap_or(false),
-                                    is_free: data.is_free.unwrap_or(false),
-                                    price: data.price_overview,
-                                });
+                                return Some(detail_from_data(app_id, data));
                             }
                         }
                     }
@@ -216,6 +291,70 @@ fn fetch_app_detail(
         }
     }
     None
+}
+
+/// Fetch the full detail for a single app (metadata + price) for an explicit
+/// store region (`cc`). Unlike the batch [`get_app_details`] (pinned to
+/// `cc=cn`), the caller picks the country — used by the store detail page and
+/// multi-region price comparison.
+pub fn get_app_details_full(
+    client: &SteamHttpClient,
+    app_id: u32,
+    language: &str,
+    cc: &str,
+) -> Result<AppDetail> {
+    let url = format!(
+        "{}/api/appdetails?appids={}&l={}&cc={}",
+        STORE_BASE, app_id, language, cc
+    );
+    let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
+    if response.status() != 200 {
+        return Err(SteamError::ApiError {
+            code: response.status() as i32,
+            message: format!("HTTP {}", response.status()),
+        });
+    }
+    let body: HashMap<String, AppDetailResponse> = response.into_json()?;
+    let (_, entry) = body
+        .into_iter()
+        .find(|(key, _)| key.parse::<u32>().ok() == Some(app_id))
+        .ok_or_else(|| SteamError::NotFound(format!("app {} not found", app_id)))?;
+    if !entry.success {
+        return Err(SteamError::NotFound(format!("app {} unavailable", app_id)));
+    }
+    let data = entry
+        .data
+        .ok_or_else(|| SteamError::NotFound(format!("app {} has no data", app_id)))?;
+    Ok(detail_from_data(app_id, data))
+}
+
+/// Fetch just the price block for an app in a given store region (`cc`).
+/// Returns `Ok(None)` when the app is unreleased / free / region-blocked.
+pub fn get_app_price_in_region(
+    client: &SteamHttpClient,
+    app_id: u32,
+    cc: &str,
+) -> Result<Option<AppPrice>> {
+    let url = format!(
+        "{}/api/appdetails?appids={}&l=schinese&cc={}",
+        STORE_BASE, app_id, cc
+    );
+    let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
+    if response.status() != 200 {
+        return Err(SteamError::ApiError {
+            code: response.status() as i32,
+            message: format!("HTTP {}", response.status()),
+        });
+    }
+    let body: HashMap<String, AppDetailResponse> = response.into_json()?;
+    let (_, entry) = body
+        .into_iter()
+        .find(|(key, _)| key.parse::<u32>().ok() == Some(app_id))
+        .ok_or_else(|| SteamError::NotFound(format!("app {} not found", app_id)))?;
+    if !entry.success {
+        return Ok(None);
+    }
+    Ok(entry.data.and_then(|data| data.price_overview))
 }
 
 // ── Store search ────────────────────────────────────────────
@@ -414,7 +553,18 @@ mod tests {
                         "discount_percent": 0,
                         "initial_formatted": "",
                         "final_formatted": ""
-                    }
+                    },
+                    "detailed_description": "<h1>Long HTML</h1>",
+                    "about_the_game": "<b>About</b>",
+                    "website": "https://counter-strike.net",
+                    "screenshots": [
+                        { "id": 730001, "path_thumbnail": "https://x/ss_a_thumb.jpg", "path_full": "https://x/ss_a.jpg" }
+                    ],
+                    "pc_requirements": { "minimum": "<br>OS: Win10", "recommended": "<br>OS: Win11" },
+                    "supported_languages": { "English": { "header": "1", "support": "2" }, "schinese": { "header": "1" } },
+                    "metacritic": { "score": 92, "url": "https://metacritic.com/game/pc/counter-strike-2" },
+                    "recommendations": { "total": 12345 },
+                    "dlc": [730003, 730004]
                 }
             },
             "999999": { "success": false, "data": null }
@@ -424,27 +574,7 @@ mod tests {
         for (key, entry) in body {
             if let (Ok(app_id), Some(data)) = (key.parse::<u32>(), entry.data) {
                 if entry.success {
-                    details.push(AppDetail {
-                        app_id,
-                        name: data.name,
-                        short_description: data.short_description,
-                        header_image: data.header_image,
-                        genres: data
-                            .genres
-                            .unwrap_or_default()
-                            .into_iter()
-                            .map(|g| g.description)
-                            .collect(),
-                        developers: data.developers.unwrap_or_default(),
-                        release_date: data.release_date.as_ref().and_then(|rd| rd.date.clone()),
-                        release_date_coming_soon: data
-                            .release_date
-                            .as_ref()
-                            .map(|rd| rd.coming_soon)
-                            .unwrap_or(false),
-                        is_free: data.is_free.unwrap_or(false),
-                        price: data.price_overview,
-                    });
+                    details.push(detail_from_data(app_id, data));
                 }
             }
         }
@@ -457,5 +587,17 @@ mod tests {
         let price = detail.price.as_ref().unwrap();
         assert_eq!(price.final_price, 0);
         assert_eq!(price.currency, "USD");
+
+        // New full-detail fields.
+        assert_eq!(detail.screenshots.len(), 1);
+        assert_eq!(detail.screenshots[0].id, 730001);
+        assert_eq!(detail.pc_requirements.as_ref().unwrap().minimum.as_deref(), Some("<br>OS: Win10"));
+        assert!(detail.supported_languages.as_deref().unwrap().contains("English"));
+        assert!(detail.supported_languages.as_deref().unwrap().contains("schinese"));
+        assert_eq!(detail.metacritic.as_ref().unwrap().score, 92);
+        assert_eq!(detail.recommendations_total, Some(12345));
+        assert_eq!(detail.dlc, vec![730003, 730004]);
+        assert_eq!(detail.detailed_description.as_deref(), Some("<h1>Long HTML</h1>"));
+        assert_eq!(detail.website.as_deref(), Some("https://counter-strike.net"));
     }
 }

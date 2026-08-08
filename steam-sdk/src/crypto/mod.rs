@@ -5,5 +5,7 @@
 
 pub mod authenticator;
 pub mod authenticator_enroll;
+pub mod fx;
+pub mod mobile_conf;
 pub mod secure_store;
 pub mod totp;

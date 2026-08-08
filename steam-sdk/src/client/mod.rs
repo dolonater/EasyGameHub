@@ -7,7 +7,9 @@ pub mod achievements;
 pub mod cloud;
 pub mod inventory;
 pub mod local_inventory;
+pub mod mobile_conf;
 pub mod news;
+pub mod social;
 pub mod steamworks_web_api;
 pub mod store;
 

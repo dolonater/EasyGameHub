@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import Icon from "../ui/Icon";
 import TextField from "../ui/TextField";
+import StoreDetailDialog from "./StoreDetailDialog";
 import { formatPriceCents } from "../../lib/steamCommunity";
 import type { SearchResultDto } from "../../lib/steamCommunity";
 
@@ -30,6 +31,7 @@ export default function GameSearchBox({
   const [results, setResults] = useState<SearchResultDto[]>([]);
   const [searching, setSearching] = useState(false);
   const [open, setOpen] = useState(false);
+  const [detailAppId, setDetailAppId] = useState<number | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<number | undefined>(undefined);
 
@@ -121,29 +123,43 @@ export default function GameSearchBox({
             </div>
           )}
           {results.map((r) => (
-            <button
+            <div
               key={r.appId}
-              type="button"
-              onClick={() => pick(r)}
-              className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-secondary/50"
+              className="flex w-full items-center gap-1 px-3 py-1.5 transition-colors hover:bg-secondary/50"
             >
-              {r.tinyImage ? (
-                <img src={r.tinyImage} alt="" className="h-7 w-12 flex-none rounded object-cover" />
-              ) : (
-                <div className="flex h-7 w-12 flex-none items-center justify-center rounded bg-secondary/40 text-muted-foreground">
-                  <Icon name="steamInventory" size={13} />
-                </div>
-              )}
-              <span className="min-w-0 flex-1 truncate text-sm">{r.name}</span>
-              {r.finalPrice != null && r.finalPrice > 0 && (
-                <span className="flex-none text-xs text-muted-foreground">
-                  {formatPriceCents(r.finalPrice, r.currency)}
-                </span>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => pick(r)}
+                className="flex min-w-0 flex-1 items-center gap-3 py-0.5 text-left"
+              >
+                {r.tinyImage ? (
+                  <img src={r.tinyImage} alt="" className="h-7 w-12 flex-none rounded object-cover" />
+                ) : (
+                  <div className="flex h-7 w-12 flex-none items-center justify-center rounded bg-secondary/40 text-muted-foreground">
+                    <Icon name="steamInventory" size={13} />
+                  </div>
+                )}
+                <span className="min-w-0 flex-1 truncate text-sm">{r.name}</span>
+                {r.finalPrice != null && r.finalPrice > 0 && (
+                  <span className="flex-none text-xs text-muted-foreground">
+                    {formatPriceCents(r.finalPrice, r.currency)}
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDetailAppId(r.appId)}
+                className="flex-none rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                title={t("steam.storeDetail", { defaultValue: "商店详情" })}
+              >
+                <Icon name="info" size={14} />
+              </button>
+            </div>
           ))}
         </div>
       )}
+
+      <StoreDetailDialog appId={detailAppId} onClose={() => setDetailAppId(null)} />
     </div>
   );
 }

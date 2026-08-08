@@ -1,6 +1,102 @@
 # Development Progress
 
 ## Current Workflow Request
+- Topic: Monica Steam 参考功能增强（A 移动确认 / B Guard 强化 / C 库统计 / D 商城详情+多区价格 / E 好友·聊天·通知）
+- Stage 1 Requirement Exploration: Completed at 2026-08-08（范围经用户确认：E 做完整含群聊/语音/贴纸图片；D 商店详情+多区价格；文档组织为一份总设计+一份总计划）
+- Design doc: docs/superpowers/specs/2026-08-08-monica-steam-features-design.md
+- Stage 2 Implementation Planning: Completed at 2026-08-08
+- Plan doc: docs/superpowers/plans/2026-08-08-monica-steam-features-plan.md
+- Active stage: Stage 3 P5 完成（CM 版社交，待用户手测确认后进入 P6）
+- 阶段划分：P0 基础（AuthEntry 扩展 identity_secret/steam_id）→ P1 A → P2 B → P3 C → P4 D → P5 E1 → P6 E2 → P7 E3 → P8 E4 → P9 E5 语音 spike（go/no-go）
+- 关键约束：Monica-Steam 为 GPL-3.0 Android 项目，仅参考协议不复制代码；A/E 依赖 Steam 非公开接口有失效/风控风险；E5 语音预计砍
+
+### Stage 3 P0 完成情况（2026-08-08，审查先行）
+- **审查发现并修正设计错误**：设计 §3.1 的 `ck` 来源有误——确认/拒绝的 `ck` 参数取 getlist 响应里该条确认的 `key` 字段（不重新派生），主密钥 `k` 始终用 tag `conf`。已修订设计文档。
+- 审查确认可行项：`ring::hmac`（SHA1）无需新依赖；`SteamSession{steam_id, access_token, refresh_token}` 供 P1 命令层读活动会话；AuthEntry 老 JSON 反序列化安全（Option→None / serde skip Vec→空）。
+- T1 `AuthEntry` 扩展完成：新增 `identity_secret_encrypted`（`#[serde(skip)]`，SecureStore `identity_secret_<id>` 存储）、`steam_id`、`revocation_code`；load/save/remove_entry 同步维护；`import_mafile` 解析 identity_secret/steam_id/revocation_code（缺 identity_secret 仍可导入）；`commands/authenticator.rs` AuthEntryDto 增 steam_id/device_id/serial_number、add_auth_entry 字面量补字段。3 个新测试（完整 maFile、缺 identity_secret、老 JSON 兼容）。
+- T2 `steam-sdk/src/crypto/mobile_conf.rs`：`generate_confirmation_key`（HMAC-SHA1 over tag\0+time_le8 → base64+hex）+ getlist/action URL 构造。KAT 向量由独立 Python 参考实现交叉验证（2 个密钥向量 + 2 个 URL 结构 + percent_encode）。
+- T3 `steam-sdk/src/client/mobile_conf.rs`：`get_pending` / `respond`（ureq + sessionid cookie + access_token 查询参数；403 → 会话失效 Auth 错误；success=false → ApiError）。
+- P0 验证：`cargo test authenticator` 5 passed、`cargo test mobile_conf` 5 passed、steam-sdk 全量 `cargo test --lib` 64 passed、工作区 `cargo check`（src-tauri + steam-sdk）通过。
+
+### Stage 3 P1 + P2 完成情况（2026-08-08，用户指示 P1+P2 一起做）
+- **审查发现并修正第二处设计偏差**：`PendingConfirmation` DTO 里的 `risk`/`time`（风险/剩余时间）字段 mobileconf 协议不返回——已改为协议实际数据（id/key/kind/description），风险色由 kind 前端派生、不做倒计时。设计 §3.4、计划 T6 已同步修订。
+- **P1 A 移动确认**：
+  - T4 `commands/steam_guard.rs`（新）：`get_pending_confirmations` / `respond_confirmation`，经活动会话↔AuthEntry（steam_id 匹配）解析 mobileconf 上下文；`steam_auth::session_store_path` / `refresh_session_if_needed` 改 pub(crate)；`authenticator::store_path` 改 pub(crate)；lib.rs 注册 3 命令。`session_id` 由 `device_id` SHA-256 派生（`crypto/mobile_conf::session_id_from_device_id`，避免 ring 依赖进 src-tauri）。
+  - T5 `src/lib/steamGuard.ts`（新）封装 3 命令 + `PendingConfirmation` 类型入 steamCommunity.ts。
+  - T6 Authenticator.tsx 新增「待确认」Tab（TabButtons 切换，轮询 15s，类型徽标 + 描述 + 确认/拒绝，未绑定/未登录错误态 + 重试）。
+  - T7 zh/en i18n 键（tabTokens/tabConfirm/confirm*/kind* 等）。
+- **P2 B Guard 强化**：
+  - T9 `export_mafile` 命令（Steam 条目重组 maFile JSON）+ Authenticator Steam 条目「导出 maFile」图标按钮（save 对话框 + write_theme_file 落盘）。
+  - T10 ProfilePanel 概览显示当前账号 5 位 Steam Guard 码 + 倒计时条 + 点击复制（get_auth_entries 1s 轮询，steam_id 匹配）。
+  - T11 Authenticator Steam 条目状态徽标（已绑定会话/序列号/缺 identity_secret），后端 AuthEntryDto 增 `has_identity_secret`。
+- P1+P2 验证：`cargo check`（工作区）通过、`cargo test mobile_conf` 5 passed、`npm run build`（tsc+vite+sdk）通过。
+- 待用户手测（T8）：真实账号登录 → 导入 maFile → 待确认列表/确认/拒绝；概览验证码；maFile 导出。
+
+### Stage 3 P3 完成情况（2026-08-08，C 游戏库统计）
+- **审查结论**：GetOwnedGames 需 API key + cached steam_id（`get_steam_inventory` 同步命令）；`get_steam_prices` 用 `get_app_details`（无需 key/会话，CNY）可复用于价值计算；本地库 `local_inventory::get_local_games`（无 key）作为无 key 回退。Playtime 页已有 stat 卡 + bar/pie/list，T14 为增量。
+- **T12** `get_library_stats`（async 命令）：web 优先（GetOwnedGames）/本地回退（local_inventory），source 标注；owned/total/avg；价值 = 前 100 游戏 store 现价求和（CNY，`get_app_details` cc=cn）；`distribution` 9 档小时分桶；`top_games` 前 48（热力图网格数据）。
+- **T13** `get_library_completion(limit?)`（async 命令）：web 优先（`get_achievements_with_info`，需 key，串行 + 80ms 节流，限 50）；无 key/无数据回退本机 Steam（`get_achievements_local_first` 进程内，Windows）；均无 → source "none"。**按用户此前指正**：无全球百分比回退。
+- **T14** Playtime.tsx：新增「总价值」stat 卡（¥N，仅当有价格数据）；chartMode 增「热力图」（GitHub 风格网格，色块按小时分档，悬停显游戏名+时长，数据优先 stats.topGames 回退本地）；新增「成就完成度」区块（进度条 + 已解锁/总数 + 百分比，无 key 引导文案）。i18n 键（totalValue/heatmap/completion* 等）。
+- P3 验证：`cargo check`（工作区）通过、`npm run build`（tsc+vite+sdk）通过。
+- 待用户手测：Playtime 页统计卡/热力图/完成度（有/无 API key 两种情形）。
+
+### Stage 3 P4 完成情况（2026-08-08，D 商城详情 + 多区价格）
+- **审查发现并修正**：多区价格列表里香港区 Steam cc 码应为 `hk`（`hkd` 是货币码）——已修正；多区价格需一个按 cc 的轻量价格函数（`get_app_price_in_region`）；FX 表需区分「分/整单位」货币（JPY/KRW 为整单位）。
+- **T15** `store.rs`：`AppDetail` 扩展 screenshots/pc_requirements/supported_languages/metacritic/recommendations_total/dlc/detailed_description/about_the_game/website；`detail_from_data` 统一构造；新增 `get_app_details_full`（单游戏 + 指定 cc）与 `get_app_price_in_region`（多区用）。store 测试 10 passed（fixture 覆盖新字段）。
+- **T16** `crypto/fx.rs`（新）：18 币种静态汇率表（`per_cny` + `base_is_cents`）+ `to_cny`/`currency_info`。fx 测试 4 passed（含 JPY/KRW 整单位换算、未知币种 None）。
+- **T17** `steam_community.rs`：`get_store_detail`（全字段 + DLC 详情限 8，cn 参考价）与 `get_multi_region_price`（8 区并发，`std::thread::scope`，CNY 换算，风控区跳过）；lib.rs 注册。
+- **T18** `StoreDetailDialog.tsx`（新，`size="lg"`）：头图/类型与发行元信息/简介/多区价格对比表（区徽+现价+折后+折扣+≈CNY）/截图（缩略图+大图切换）/DLC 列表/配置要求/支持语言/商店打开按钮。接入 GameSearchBox（结果行加 info 按钮）与 WishlistPanel（卡片加 info 按钮）。DTO + i18n 键（store*）。
+- P4 验证：`cargo check`（工作区）通过、steam-sdk `cargo test --lib` 68 passed、`npm run build` 通过。
+- 待用户手测：愿望单/搜索点 info → 商店详情弹窗（截图/多区价格/DLC/配置）。
+
+### Stage 3 P5 完成情况（2026-08-08，E1 好友 + 私聊）
+- **审查结论**（走 Steam 网页聊天非公开协议 `ISteamWebUserPresenceOAuth`，access_token 认证，无 key 依赖）：
+  - 计划 T19 的 `get_player_summaries(api_key)` 改为 **OAuth 变体**（`ISteamWebUserPresenceOAuth/GetPlayerSummaries/v1`，用 access_token，无需 API key）——与 Steam 网页聊天实际一致。
+  - **计划缺口补上**：聊天无历史加载（仅 PollStatus 增量）→ 补 `GetChatMessageLog`（`get_chat_history`），否则打开会话为空。
+  - PollStatus 长轮询游标（umqid/message）按 steam_id 内存持久化，保证增量。
+- **T19** `steam-sdk/src/client/social.rs`（新）：`get_friends` / `get_player_summaries`（OAuth，100 分块）/ `poll_status`（长轮询）/ `send_message` / `get_chat_message_log`；5 个解析/编码测试通过。
+- **T20** `commands/steam_social.rs`（新）：`get_friends`（好友+presence 合并）/ `get_friend_profile` / `poll_chat`（游标持久化）/ `send_chat_message` / `get_chat_history`；lib.rs 注册 5 命令；`POLL_CURSORS` 用 OnceLock（HashMap 非 const 修复）。
+- **T21** `src/lib/steamSocial.ts`（新）：FriendDto/ChatMessageDto + 5 个命令封装。
+- **T22** `SocialPanel.tsx`（新）：双栏（好友列表含头像/在线状态点/游戏中 + 聊天面板）；选好友加载历史（50 条）；**递归长轮询**（10s，保持游标活跃，只接收当前会话消息，时间戳去重）；发送即时乐观追加 + Enter 快捷发送；未登录引导。接入 SteamHub 新增「社交」Tab。
+- **T23** i18n 键（tabSocial/social*）。
+- P5 验证：`cargo check`（工作区）通过、steam-sdk `cargo test --lib` 73 passed、`npm run build` 通过。
+- 待用户手测：Steam 登录 → 社交 Tab → 好友列表（在线状态）→ 打开会话加载历史 → 收发一条消息。
+
+### Stage 3 P5 修订完成情况（2026-08-08，社交改走 CM 协议）
+- **实测推翻 P5 原方案**：网页聊天 REST（`ISteamWebUserPresenceOAuth/*`）全部 404 已废弃；用户指出 Monica Steam 聊天正常——原因是它实现 **CM（Connection Manager）protobuf 持久连接**。经确认：SDK 已编译全部 111 个 proto（CMsgClientLogon/FriendMsg/FriendsList/PersonaState 等全在），仅缺 websocket 与连接生命周期。用户决策：**全部走 CM**。
+- **协议还原（参考 Monica 源码，非复制代码）**：
+  - bootstrap：`/chat/clientjstoken`（cookie steamLoginSecure=<id>||<token>）拿 webLogonToken；`ISteamDirectory/GetCMListForConnect`（免 key）拿 ws 端点（websockets+steamglobal，仅 443）。
+  - 帧格式：`[u32 eMsg|0x80000000][u32 headerLen][CMsgProtoBufHeader][body]`；CMsgMulti(1) 解包（gzip）。
+  - 登录：EMSG 5514（CMsgClientLogon：protocol 65580 / client_os 4294966596 / ui 4 / chat 2 / 80 "anonymous" / 103 webLogonToken），等 751 响应设 session_id。
+  - 好友：767 CMsgClientFriendsList；在线状态：704 CMsgClientPersonaState（头像 CDN URL 由 avatar_hash 拼）。
+  - 发消息：服务方法 EMSG 151 + target_job_name "FriendMessages.SendMessage#1" + jobId 关联（body：1 partner/fixed64、2 type/1、3 文本（转义 [）、4 contains_bbcode/true），响应 147。
+  - 收消息：EMSG 146/152 + "FriendMessagesClient.IncomingMessage"（body：1 partner、2 type、4 文本、5 ts/fixed32、6 ordinal、7 echo）。
+  - 历史：Web API 服务方法 `IFriendMessagesService/GetRecentMessages/v1`（input_protobuf_encoded，sender 为 accountid 需 +0x110000100000000 转 steamid64）。
+  - 心跳：703 CMsgClientHeartBeat（45s）。
+- **新增 steam-sdk 依赖**：tokio / tokio-tungstenite(native-tls) / futures-util / flate2。
+- **新模块 `steam-sdk/src/cm/`**：`proto_wire`（最小 protobuf 读写）、`frame`（信封编解码+CMsgMulti）、`bootstrap`（token+端点）、`client`（CmClient：登录握手、后台任务、好友/persona/消息共享态、服务方法发送+jobId 关联、心跳、is_alive）。
+- **重写 `client/social.rs`**：移除废弃 OAuth REST；保留 Web API 历史（GetRecentMessages + accountid 转换）。
+- **重写 `commands/steam_social.rs`**：进程级 `ACTIVE_CM`（OnceLock<Mutex<Option<(steam_id, CmClient)>>>），`ensure_cm` 复用/重连；get_friends/poll_chat/send_chat_message/get_chat_history 全部走 CM（历史除外）；poll_chat 改为即时取缓冲消息（回显剔除，UI 乐观追加覆盖）。
+- **前端**：SocialPanel 递归长轮询改 `setInterval`(3s)；steamSocial.ts pollChat 参数可选。
+- 验证：steam-sdk `cargo test --lib` **80 passed**（cm 8 + social 4）、工作区 `cargo check`、`npm run build` 全部通过。
+- 待用户手测：Steam 登录 → 社交 Tab → 好友列表（在线状态/头像）→ 打开会话加载历史 → 收发一条消息；断线后自动重连。
+
+### P5 好友列表改为 REST（参考 Monica `SteamFriendsService`，2026-08-08）
+- **实测发现**：Monica 的好友列表**不走 CM 推送的 CMsgClientFriendsList**，而是 `ISteamUserOAuth/GetFriendList/v1`（access_token，无需 key）+ `ISteamUserOAuth/GetUserSummaries/v1` 拿资料。CM 只用于实时聊天。我们的 CM 推送路径一直空（767 未到/解析偏差），故照 Monica 改为 REST。
+- `client/social.rs`：新增 `FriendRelation` / `UserSummary` + `get_friend_list` / `get_user_summaries`（OAuth 端点，100 分块）；2 个解析测试。social 6 passed。
+- `commands/steam_social.rs`：`get_friends` / `get_friend_profile` 改为 REST 合并（relationship=="friend" 过滤 + GetUserSummaries 资料）；`online_state` 改 i32；`poll_chat`/`send_chat_message` 仍走 CM。
+- 另：`steam-sdk/Cargo.toml` ureq 加 `native-certs`（信任 Windows 系统证书库，解决代理/加速工具对 steamcommunity.com 的 TLS 中间人导致 UnknownIssuer）。
+- 验证：`cargo check`（工作区）、social 6 + cm 8 + login 5 passed、前端构建通过。
+- 待用户手测：好友列表（REST 数据源）、聊天（CM）。
+
+### P5 好友链路修复完成（2026-08-08，用户实测通过）
+- **关键修复**（实据驱动）：`ISteamUserOAuth/GetFriendList` 与 `GetUserSummaries` 的 **OAuth 变体返回裸顶层结构**——`{friends:[...]}` / `{players:[...]}`，无 `friendslist`/`response` 包装。两个接口改为依次接受 `friendslist.friends` / `response.friends` / 顶层 `friends`（及 players 同款），字段手写健壮解析（friend_since/relationship/personastate 数字或字符串均可），结构异常时错误带原始响应片段。
+- 附加：解析不再用 serde 严格反序列化（会因字段类型不匹配静默丢好友）。
+- 验证：social 8 + cm 8 + login 5 passed、steam-sdk 全量 86 passed、工作区 cargo check、前端构建通过。
+- **用户实测通过**：好友列表正常显示（头像/昵称/在线状态）。
+- 待验证：聊天（CM 发/收一条消息）。
+
+## Current Workflow Request
 - Topic: Doona Music 独立网易云播放器（插件 → 独立桌面应用）
 - Stage 1 Requirement Exploration: Completed at 2026-08-06（设计经 grill-me 访谈 13 轮逐项确认）
 - Design doc: docs/superpowers/specs/2026-08-06-doona-music-design.md

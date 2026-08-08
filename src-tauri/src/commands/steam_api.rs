@@ -13,6 +13,7 @@ use std::time::{Duration, Instant};
 use steam_sdk::client::{
     achievements::AchievementInfo,
     inventory::{self, OwnedGame},
+    local_inventory, store,
 };
 use steam_sdk::SteamHttpClient;
 use tauri::State;
@@ -360,6 +361,248 @@ pub fn get_game_achievements_summary(app_id: u32) -> Result<AchievementSummaryDt
         unlocked,
         has_achievements: total > 0,
     })
+}
+
+// ── Library stats & completion ───────────────────────────────
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryStatsDto {
+    pub owned_count: usize,
+    pub total_minutes: u64,
+    pub avg_minutes: u64,
+    /// Sum of current store prices (cents) for owned games; None when no
+    /// priced game could be fetched.
+    pub total_value_cents: Option<u64>,
+    pub value_currency: Option<String>,
+    /// Where the base game list came from: "web" (GetOwnedGames) or "local".
+    pub source: String,
+    /// Playtime distribution across hour buckets (game counts).
+    pub distribution: Vec<DistributionBucketDto>,
+    /// Top games by playtime (for the heatmap grid).
+    pub top_games: Vec<TopGameDto>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DistributionBucketDto {
+    pub label: String,
+    pub games: usize,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TopGameDto {
+    pub appid: u32,
+    pub name: Option<String>,
+    pub minutes: u64,
+    pub icon_url: Option<String>,
+}
+
+/// Resolve the library game list: web inventory when an API key + Steam ID are
+/// configured (covers non-installed games), otherwise local Steam files.
+/// Returns `(source, (appid, name, minutes, icon_url) rows)`.
+fn library_game_rows(state: &AppState) -> (String, Vec<(u32, Option<String>, u64, Option<String>)>) {
+    let client = shared_client();
+    match (get_api_key(state), get_steam_id(state)) {
+        (Ok(key), Ok(steam_id)) => {
+            let owned = inventory::get_owned_games(&client, steam_id, &key, true, true)
+                .unwrap_or_default();
+            let rows = owned
+                .into_iter()
+                .map(|g| (g.appid, g.name, g.playtime_forever, g.img_icon_url))
+                .collect();
+            ("web".to_string(), rows)
+        }
+        _ => {
+            let local = local_inventory::get_local_games().unwrap_or_default();
+            let rows = local
+                .into_iter()
+                .map(|g| (g.app_id, g.name, g.playtime_minutes, None))
+                .collect();
+            ("local".to_string(), rows)
+        }
+    }
+}
+
+const DIST_BOUNDS: [(&str, u64); 9] = [
+    ("<1h", 60),
+    ("1-5h", 300),
+    ("5-10h", 600),
+    ("10-20h", 1200),
+    ("20-50h", 3000),
+    ("50-100h", 6000),
+    ("100-200h", 12000),
+    ("200-500h", 30000),
+    ("500h+", u64::MAX),
+];
+
+/// Account-level library stats: counts, playtime, estimated value and the
+/// playtime distribution.
+#[tauri::command]
+pub async fn get_library_stats(state: State<'_, AppState>) -> Result<LibraryStatsDto, String> {
+    let (source, games) = library_game_rows(&state);
+
+    let owned_count = games.len();
+    let total_minutes: u64 = games.iter().map(|(_, _, m, _)| *m).sum();
+    let avg_minutes = if owned_count > 0 {
+        total_minutes / owned_count as u64
+    } else {
+        0
+    };
+
+    // Value: fetch store prices for the top 100 games by playtime (CNY via the
+    // pinned `cc=cn` store query). Free / unpriced games contribute nothing.
+    let mut sorted = games.clone();
+    sorted.sort_by(|a, b| b.2.cmp(&a.2));
+    let top_apps: Vec<u32> = sorted.iter().take(100).map(|g| g.0).collect();
+    let (total_value_cents, value_currency) = if top_apps.is_empty() {
+        (None, None)
+    } else {
+        let mut sum = 0u64;
+        let mut priced = false;
+        let mut currency: Option<String> = None;
+        if let Ok(details) = store::get_app_details(&shared_client(), &top_apps, "schinese") {
+            for detail in details {
+                if let Some(price) = detail.price {
+                    sum += price.final_price;
+                    priced = true;
+                    currency.get_or_insert_with(|| price.currency.clone());
+                }
+            }
+        }
+        (if priced { Some(sum) } else { None }, currency)
+    };
+
+    let distribution = {
+        let mut counts = vec![0usize; DIST_BOUNDS.len()];
+        for (_, _, minutes, _) in &games {
+            for (i, (_, bound)) in DIST_BOUNDS.iter().enumerate() {
+                if *minutes < *bound {
+                    counts[i] += 1;
+                    break;
+                }
+            }
+        }
+        DIST_BOUNDS
+            .iter()
+            .enumerate()
+            .map(|(i, (label, _))| DistributionBucketDto {
+                label: label.to_string(),
+                games: counts[i],
+            })
+            .collect()
+    };
+
+    let top_games = sorted
+        .iter()
+        .take(48)
+        .map(|(appid, name, minutes, icon_url)| TopGameDto {
+            appid: *appid,
+            name: name.clone(),
+            minutes: *minutes,
+            icon_url: icon_url.clone(),
+        })
+        .collect();
+
+    Ok(LibraryStatsDto {
+        owned_count,
+        total_minutes,
+        avg_minutes,
+        total_value_cents,
+        value_currency,
+        source,
+        distribution,
+        top_games,
+    })
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GameCompletionDto {
+    pub app_id: u32,
+    pub name: Option<String>,
+    pub achieved: usize,
+    pub total: usize,
+    pub percent: f64,
+    /// "web" (GetPlayerAchievements), "local" (local Steam client), "none".
+    pub source: String,
+}
+
+/// Per-game achievement completion for the most-played games.
+///
+/// Uses `GetPlayerAchievements` (Web API, needs a key) first; falls back to
+/// the local Steam client when the key is missing or the game has no visible
+/// achievements; otherwise the game is reported as "none". Serial + throttled
+/// to respect Web API rate limits.
+#[tauri::command]
+pub async fn get_library_completion(
+    state: State<'_, AppState>,
+    limit: Option<u32>,
+) -> Result<Vec<GameCompletionDto>, String> {
+    let cap = (limit.unwrap_or(50) as usize).min(100);
+    let (_, games) = library_game_rows(&state);
+    let mut sorted = games;
+    sorted.sort_by(|a, b| b.2.cmp(&a.2));
+    let targets: Vec<(u32, Option<String>)> = sorted
+        .into_iter()
+        .take(cap)
+        .map(|(appid, name, _, _)| (appid, name))
+        .collect();
+
+    let client = shared_client();
+    let api_key = get_api_key(&state).ok();
+    let steam_id = get_steam_id(&state).ok();
+
+    let mut results = Vec::with_capacity(targets.len());
+    for (app_id, name) in targets {
+        let mut item = GameCompletionDto {
+            app_id,
+            name,
+            achieved: 0,
+            total: 0,
+            percent: 0.0,
+            source: "none".into(),
+        };
+
+        if let (Some(key), Some(sid)) = (&api_key, &steam_id) {
+            if let Ok((_, list)) =
+                steam_sdk::client::achievements::get_achievements_with_info(&client, *sid, app_id, key)
+            {
+                if !list.is_empty() {
+                    let total = list.len();
+                    let achieved = list.iter().filter(|a| a.achieved).count();
+                    item.achieved = achieved;
+                    item.total = total;
+                    item.percent = (achieved as f64 / total as f64) * 100.0;
+                    item.source = "web".into();
+                    results.push(item);
+                    continue;
+                }
+            }
+            // Polite throttle between Web API calls.
+            std::thread::sleep(std::time::Duration::from_millis(80));
+        }
+
+        // Local Steam client fallback (Windows, requires Steam running).
+        if let Ok((_, list, live_available, _)) =
+            steam_sdk::client::achievements::get_achievements_local_first(&client, 0, app_id)
+        {
+            if live_available && !list.is_empty() {
+                let total = list.len();
+                let achieved = list.iter().filter(|a| a.achieved).count();
+                item.achieved = achieved;
+                item.total = total;
+                item.percent = (achieved as f64 / total as f64) * 100.0;
+                item.source = "local".into();
+                results.push(item);
+                continue;
+            }
+        }
+
+        results.push(item);
+    }
+    Ok(results)
 }
 
 #[tauri::command]

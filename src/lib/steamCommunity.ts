@@ -190,6 +190,14 @@ export function formatPlaytimeMinutes(minutes: number): string {
   return hours >= 100 ? `${Math.round(hours)}h` : `${hours.toFixed(1)}h`;
 }
 
+/** A pending Steam mobile confirmation (from `get_pending_confirmations`). */
+export interface PendingConfirmation {
+  id: string;
+  key: string;
+  kind: "trade" | "market" | "guard" | "other";
+  description: string;
+}
+
 /** Cached store metadata for a game (from `get_steam_metadata`). */
 export interface MetadataDto {
   appId: number;
@@ -202,4 +210,74 @@ export interface MetadataDto {
   /** True when the store marks this title as not yet released. */
   comingSoon: boolean;
   isFree: boolean;
+}
+
+// ── Store detail & multi-region prices ───────────────────────
+
+export interface StorePriceDto {
+  currency: string;
+  initial: number;
+  finalPrice: number;
+  discountPercent: number;
+  initialFormatted: string | null;
+  finalFormatted: string | null;
+}
+
+export interface StoreScreenshotDto {
+  id: number;
+  pathThumbnail: string | null;
+  pathFull: string | null;
+}
+
+export interface StoreRequirementsDto {
+  minimum: string | null;
+  recommended: string | null;
+}
+
+export interface StoreMetacriticDto {
+  score: number;
+  url: string | null;
+}
+
+export interface StoreDlcDto {
+  appId: number;
+  name: string | null;
+  finalFormatted: string | null;
+  currency: string | null;
+}
+
+/** Full store detail for a game (from `get_store_detail`). */
+export interface StoreDetailDto {
+  appId: number;
+  name: string | null;
+  shortDescription: string | null;
+  detailedDescription: string | null;
+  aboutTheGame: string | null;
+  headerImage: string | null;
+  website: string | null;
+  genres: string[];
+  developers: string[];
+  releaseDate: string | null;
+  comingSoon: boolean;
+  isFree: boolean;
+  price: StorePriceDto | null;
+  screenshots: StoreScreenshotDto[];
+  pcRequirements: StoreRequirementsDto | null;
+  supportedLanguages: string | null;
+  metacritic: StoreMetacriticDto | null;
+  recommendationsTotal: number | null;
+  dlc: StoreDlcDto[];
+}
+
+/** One region's price for the comparison table (from `get_multi_region_price`). */
+export interface RegionPriceDto {
+  cc: string;
+  currency: string | null;
+  finalCents: number | null;
+  initialCents: number | null;
+  discountPercent: number;
+  finalFormatted: string | null;
+  initialFormatted: string | null;
+  /** Approximate CNY (static FX table), for cross-region comparison. */
+  cnyCents: number | null;
 }

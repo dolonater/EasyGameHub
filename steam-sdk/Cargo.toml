@@ -19,8 +19,17 @@ thiserror = "1"
 # Logging
 log = "0.4"
 
-# HTTP client (sync, already used by src-tauri)
-ureq = "2"
+# HTTP client (sync, already used by src-tauri).
+# native-certs: also trust the OS certificate store — required when Steam
+# community traffic goes through a proxy/accelerator that MITMs with a CA
+# installed in the Windows store (rustls' webpki-roots alone would reject it).
+ureq = { version = "2", features = ["native-certs"] }
+
+# Async CM (Connection Manager) websocket client for Steam chat
+tokio = { version = "1", features = ["rt-multi-thread", "net", "time", "sync", "macros"] }
+tokio-tungstenite = { version = "0.21", features = ["native-tls"] }
+futures-util = "0.3"
+flate2 = "1"
 
 # Crypto
 ring = "0.17"

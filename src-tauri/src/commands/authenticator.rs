@@ -21,6 +21,14 @@ pub struct AuthEntryDto {
     pub is_active: bool,
     pub code: String,
     pub remaining_seconds: u64,
+    /// Steam account ID (maFile), null for non-Steam entries.
+    pub steam_id: Option<String>,
+    /// Steam device ID (maFile), null when unknown.
+    pub device_id: Option<String>,
+    /// Steam authenticator serial number, null when unknown.
+    pub serial_number: Option<String>,
+    /// Whether the entry carries an identity secret (needed for confirmations).
+    pub has_identity_secret: bool,
 }
 
 impl AuthEntryDto {
@@ -39,12 +47,16 @@ impl AuthEntryDto {
             is_active: entry.is_active,
             code,
             remaining_seconds: remaining,
+            steam_id: entry.steam_id.clone(),
+            device_id: entry.device_id.clone(),
+            serial_number: entry.serial_number.clone(),
+            has_identity_secret: !entry.identity_secret_encrypted.is_empty(),
         }
     }
 }
 
 /// Get the path to the authenticator store file.
-fn store_path(tool_dir: &std::path::Path) -> std::path::PathBuf {
+pub(crate) fn store_path(tool_dir: &std::path::Path) -> std::path::PathBuf {
     tool_dir.join("auth_store.enc.json")
 }
 
@@ -107,6 +119,9 @@ pub fn add_auth_entry(
         serial_number: None,
         device_id: None,
         is_active: true,
+        identity_secret_encrypted: Vec::new(),
+        steam_id: None,
+        revocation_code: None,
     };
 
     let entry_id = entry.id.clone();

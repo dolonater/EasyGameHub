@@ -41,6 +41,15 @@ pub struct AuthEntry {
     pub device_id: Option<String>,
     /// Whether this entry is currently active.
     pub is_active: bool,
+    /// Steam identity secret (raw bytes, encrypted at rest via SecureStore).
+    /// Required for mobile confirmations; empty when the maFile lacked it.
+    #[serde(skip)]
+    pub identity_secret_encrypted: Vec<u8>,
+    /// Steam account ID (from maFile `steam_id`), used to bind an entry to a
+    /// logged-in session for confirmations.
+    pub steam_id: Option<String>,
+    /// maFile `revocation_code` (removal code), optional, for maFile export.
+    pub revocation_code: Option<String>,
 }
 
 // Serde-compatible enums
@@ -125,6 +134,10 @@ impl AuthEntryManager {
                     if let Some(secret) = store.get(&secret_key)? {
                         entry.secret_encrypted = secret;
                     }
+                    let identity_key = format!("identity_secret_{}", entry.id);
+                    if let Some(secret) = store.get(&identity_key)? {
+                        entry.identity_secret_encrypted = secret;
+                    }
                     result.push(entry);
                 }
                 Ok(result)
@@ -142,6 +155,8 @@ impl AuthEntryManager {
         for entry in &self.entries {
             let secret_key = format!("secret_{}", entry.id);
             self.store.set(&secret_key, &entry.secret_encrypted)?;
+            let identity_key = format!("identity_secret_{}", entry.id);
+            self.store.set(&identity_key, &entry.identity_secret_encrypted)?;
         }
 
         Ok(())
@@ -156,9 +171,11 @@ impl AuthEntryManager {
     /// Remove an entry by ID.
     pub fn remove_entry(&mut self, id: &str) -> Result<()> {
         self.entries.retain(|e| e.id != id);
-        // Clean up secret
+        // Clean up secrets
         let secret_key = format!("secret_{}", id);
         let _ = self.store.remove(&secret_key);
+        let identity_key = format!("identity_secret_{}", id);
+        let _ = self.store.remove(&identity_key);
         self.save_entries()
     }
 
@@ -212,6 +229,21 @@ impl AuthEntryManager {
             .ok_or_else(|| SteamError::NotFound("shared_secret not found in .maFile".into()))?;
         let serial = parsed.get("serial_number").and_then(|v| v.as_str());
         let device_id = parsed.get("device_id").and_then(|v| v.as_str());
+        // identity_secret is optional: a maFile without it still imports (TOTP
+        // codes work), only mobile confirmations need it. A decode failure is
+        // treated as absent rather than failing the whole import.
+        let identity_secret = parsed
+            .get("identity_secret")
+            .and_then(|v| v.as_str())
+            .and_then(|s| base64_decode(s).ok());
+        let steam_id = parsed
+            .get("steam_id")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+        let revocation_code = parsed
+            .get("revocation_code")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
 
         // Decode the Base64 shared secret (Steam .maFile uses Base64, not Base32)
         let secret = base64_decode(shared_secret)?;
@@ -231,6 +263,9 @@ impl AuthEntryManager {
             serial_number: serial.map(|s| s.to_string()),
             device_id: device_id.map(|s| s.to_string()),
             is_active: true,
+            identity_secret_encrypted: identity_secret.unwrap_or_default(),
+            steam_id,
+            revocation_code,
         };
 
         let id = entry.id.clone();
@@ -320,6 +355,7 @@ fn uuid_v4() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use base64::Engine;
     use std::env;
     use std::fs;
 
@@ -348,6 +384,9 @@ mod tests {
                 serial_number: None,
                 device_id: None,
                 is_active: true,
+                identity_secret_encrypted: Vec::new(),
+                steam_id: None,
+                revocation_code: None,
             };
             mgr.add_entry(entry).unwrap();
         }
@@ -364,5 +403,98 @@ mod tests {
         }
 
         let _ = fs::remove_file(&path);
+    }
+
+    #[test]
+    fn import_mafile_stores_identity_fields() {
+        let dir = env::temp_dir();
+        let path = dir.join("steam_sdk_test_mafile.json");
+        let _ = fs::remove_file(&path);
+
+        // shared_secret + identity_secret are the base64 of the byte string
+        // "0123456789abcdef0123" (20 bytes) and "abcdef0123456789" (16 bytes).
+        let shared = base64::engine::general_purpose::STANDARD.encode(b"0123456789abcdef0123");
+        let identity = base64::engine::general_purpose::STANDARD.encode(b"abcdef0123456789");
+        let ma_file = format!(
+            r#"{{
+                "account_name": "alice",
+                "shared_secret": "{}",
+                "identity_secret": "{}",
+                "serial_number": "S123",
+                "revocation_code": "R456",
+                "device_id": "android:deadbeef",
+                "steam_id": "76561198000000000"
+            }}"#,
+            shared, identity
+        );
+
+        {
+            let mut mgr = AuthEntryManager::open(&path).unwrap();
+            let entry = mgr.import_mafile(&ma_file).unwrap();
+            assert_eq!(entry.issuer, "Steam");
+            assert_eq!(entry.steam_id.as_deref(), Some("76561198000000000"));
+            assert_eq!(entry.device_id.as_deref(), Some("android:deadbeef"));
+            assert_eq!(entry.serial_number.as_deref(), Some("S123"));
+            assert_eq!(entry.revocation_code.as_deref(), Some("R456"));
+            assert_eq!(entry.identity_secret_encrypted, b"abcdef0123456789");
+        }
+
+        // Reload: identity secret round-trips through SecureStore.
+        {
+            let mgr = AuthEntryManager::open(&path).unwrap();
+            let entry = mgr.all_entries().first().unwrap();
+            assert_eq!(entry.identity_secret_encrypted, b"abcdef0123456789");
+            assert_eq!(entry.secret_encrypted, b"0123456789abcdef0123");
+            assert_eq!(entry.steam_id.as_deref(), Some("76561198000000000"));
+        }
+
+        let _ = fs::remove_file(&path);
+    }
+
+    #[test]
+    fn import_mafile_without_identity_secret_still_works() {
+        let dir = env::temp_dir();
+        let path = dir.join("steam_sdk_test_mafile_min.json");
+        let _ = fs::remove_file(&path);
+
+        let shared = base64::engine::general_purpose::STANDARD.encode(b"0123456789abcdef0123");
+        let ma_file = format!(
+            r#"{{ "account_name": "bob", "shared_secret": "{}" }}"#,
+            shared
+        );
+
+        let mut mgr = AuthEntryManager::open(&path).unwrap();
+        let entry = mgr.import_mafile(&ma_file).unwrap();
+        assert!(entry.identity_secret_encrypted.is_empty());
+        assert_eq!(entry.steam_id, None);
+        assert_eq!(entry.serial_number, None);
+
+        let _ = fs::remove_file(&path);
+    }
+
+    #[test]
+    fn old_entry_json_without_new_fields_deserializes() {
+        // Entries persisted before the identity_secret/steam_id fields were
+        // added must still load (Option → None, skipped Vec → empty).
+        let json = r#"{
+            "id": "legacy-1",
+            "issuer": "Steam",
+            "account_name": "legacy",
+            "token_type": "Steam",
+            "algorithm": "Sha1",
+            "digits": 5,
+            "period": 30,
+            "counter": 0,
+            "time_offset": 0,
+            "created_at": "2026-08-04T00:00:00Z",
+            "serial_number": null,
+            "device_id": null,
+            "is_active": true
+        }"#;
+        let entry: AuthEntry = serde_json::from_str(json).unwrap();
+        assert_eq!(entry.steam_id, None);
+        assert_eq!(entry.revocation_code, None);
+        assert!(entry.identity_secret_encrypted.is_empty());
+        assert!(entry.secret_encrypted.is_empty());
     }
 }

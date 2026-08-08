@@ -12,6 +12,7 @@
 
 pub mod auth;
 pub mod client;
+pub mod cm;
 pub mod crypto;
 pub mod error;
 pub mod local;

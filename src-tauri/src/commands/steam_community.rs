@@ -795,3 +795,198 @@ pub async fn get_steam_metadata(state: State<'_, AppState>, app_ids: Vec<u32>) -
     save_metadata_cache(&path, &fresh.into_values().collect::<Vec<_>>());
     Ok(result)
 }
+
+// ── Store detail & multi-region prices ───────────────────────
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreDetailDto {
+    pub app_id: u32,
+    pub name: Option<String>,
+    pub short_description: Option<String>,
+    pub detailed_description: Option<String>,
+    pub about_the_game: Option<String>,
+    pub header_image: Option<String>,
+    pub website: Option<String>,
+    pub genres: Vec<String>,
+    pub developers: Vec<String>,
+    pub release_date: Option<String>,
+    pub coming_soon: bool,
+    pub is_free: bool,
+    pub price: Option<StorePriceDto>,
+    pub screenshots: Vec<StoreScreenshotDto>,
+    pub pc_requirements: Option<StoreRequirementsDto>,
+    pub supported_languages: Option<String>,
+    pub metacritic: Option<StoreMetacriticDto>,
+    pub recommendations_total: Option<u64>,
+    pub dlc: Vec<StoreDlcDto>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StorePriceDto {
+    pub currency: String,
+    pub initial: u64,
+    pub final_price: u64,
+    pub discount_percent: u32,
+    pub initial_formatted: Option<String>,
+    pub final_formatted: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreScreenshotDto {
+    pub id: u64,
+    pub path_thumbnail: Option<String>,
+    pub path_full: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreRequirementsDto {
+    pub minimum: Option<String>,
+    pub recommended: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreMetacriticDto {
+    pub score: u64,
+    pub url: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreDlcDto {
+    pub app_id: u32,
+    pub name: Option<String>,
+    pub final_formatted: Option<String>,
+    pub currency: Option<String>,
+}
+
+/// Full store detail for a game (metadata + screenshots + DLC + requirements),
+/// China store (`cc=cn`) for the reference price.
+#[tauri::command]
+pub async fn get_store_detail(app_id: u32) -> Result<StoreDetailDto, String> {
+    let client = shared_client();
+    let detail = steam_sdk::client::store::get_app_details_full(&client, app_id, "schinese", "cn")
+        .map_err(|e| e.to_string())?;
+
+    // DLC details (bounded to 8) — batched appdetails for name + price.
+    let dlc_ids: Vec<u32> = detail.dlc.iter().take(8).copied().collect();
+    let mut dlc: Vec<StoreDlcDto> = Vec::new();
+    if !dlc_ids.is_empty() {
+        if let Ok(details) = steam_sdk::client::store::get_app_details(&client, &dlc_ids, "schinese") {
+            dlc = details
+                .into_iter()
+                .map(|d| StoreDlcDto {
+                    app_id: d.app_id,
+                    name: d.name,
+                    final_formatted: d.price.as_ref().and_then(|p| p.final_formatted.clone()),
+                    currency: d.price.as_ref().map(|p| p.currency.clone()),
+                })
+                .collect();
+        }
+    }
+
+    Ok(StoreDetailDto {
+        app_id: detail.app_id,
+        name: detail.name,
+        short_description: detail.short_description,
+        detailed_description: detail.detailed_description,
+        about_the_game: detail.about_the_game,
+        header_image: detail.header_image,
+        website: detail.website,
+        genres: detail.genres,
+        developers: detail.developers,
+        release_date: detail.release_date,
+        coming_soon: detail.release_date_coming_soon,
+        is_free: detail.is_free,
+        price: detail.price.map(|p| StorePriceDto {
+            currency: p.currency,
+            initial: p.initial_price,
+            final_price: p.final_price,
+            discount_percent: p.discount_percent,
+            initial_formatted: p.initial_formatted,
+            final_formatted: p.final_formatted,
+        }),
+        screenshots: detail
+            .screenshots
+            .into_iter()
+            .map(|s| StoreScreenshotDto {
+                id: s.id,
+                path_thumbnail: s.path_thumbnail,
+                path_full: s.path_full,
+            })
+            .collect(),
+        pc_requirements: detail.pc_requirements.map(|r| StoreRequirementsDto {
+            minimum: r.minimum,
+            recommended: r.recommended,
+        }),
+        supported_languages: detail.supported_languages,
+        metacritic: detail
+            .metacritic
+            .map(|m| StoreMetacriticDto { score: m.score, url: m.url }),
+        recommendations_total: detail.recommendations_total,
+        dlc,
+    })
+}
+
+/// One region's price for the multi-region comparison table.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RegionPriceDto {
+    pub cc: String,
+    pub currency: Option<String>,
+    pub final_cents: Option<u64>,
+    pub initial_cents: Option<u64>,
+    pub discount_percent: u32,
+    pub final_formatted: Option<String>,
+    pub initial_formatted: Option<String>,
+    /// Approximate CNY (via the static FX table), for cross-region comparison.
+    pub cny_cents: Option<u64>,
+}
+
+/// Regions probed for the price comparison table.
+const MULTI_REGION_CCS: &[&str] = &["cn", "us", "jp", "kr", "de", "gb", "au", "hk"];
+
+/// Compare the current price of a game across several store regions.
+///
+/// Regions that are geo-blocked / have no price (unreleased, free) are skipped
+/// rather than failing the whole request. CNY conversions are approximate.
+#[tauri::command]
+pub async fn get_multi_region_price(app_id: u32) -> Result<Vec<RegionPriceDto>, String> {
+    let client = shared_client();
+    let ccs = MULTI_REGION_CCS;
+    let rows: Vec<RegionPriceDto> = std::thread::scope(|scope| {
+        let handles: Vec<_> = ccs
+            .iter()
+            .map(|cc| {
+                let client = client.clone();
+                scope.spawn(move || {
+                    match steam_sdk::client::store::get_app_price_in_region(&client, app_id, cc) {
+                        Ok(Some(price)) => {
+                            let cny = steam_sdk::crypto::fx::to_cny(price.final_price, &price.currency);
+                            Some(RegionPriceDto {
+                                cc: cc.to_string(),
+                                currency: Some(price.currency.clone()),
+                                final_cents: Some(price.final_price),
+                                initial_cents: Some(price.initial_price),
+                                discount_percent: price.discount_percent,
+                                final_formatted: price.final_formatted,
+                                initial_formatted: price.initial_formatted,
+                                cny_cents: cny,
+                            })
+                        }
+                        _ => None,
+                    }
+                })
+            })
+            .collect();
+        handles
+            .into_iter()
+            .filter_map(|h| h.join().unwrap_or(None))
+            .collect()
+    });
+    Ok(rows)
+}

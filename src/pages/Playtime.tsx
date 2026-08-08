@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { invoke } from "@tauri-apps/api/core";
 import { useAppData, type SteamGame } from "../hooks/useAppData";
 import { useAnimation } from "../hooks/useAnimation";
 import { useActiveTheme } from "../hooks/useThemeData";
@@ -10,6 +11,35 @@ import Button from "../components/ui/Button";
 import GlassCard from "../components/ui/GlassCard";
 import StatCard from "../components/ui/StatCard";
 import Icon from "../components/ui/Icon";
+
+// ── Library stats / completion DTOs (from steam_api commands) ──
+
+interface TopGameDto {
+  appid: number;
+  name: string | null;
+  minutes: number;
+  iconUrl: string | null;
+}
+
+interface LibraryStatsDto {
+  ownedCount: number;
+  totalMinutes: number;
+  avgMinutes: number;
+  totalValueCents: number | null;
+  valueCurrency: string | null;
+  source: string;
+  distribution: { label: string; games: number }[];
+  topGames: TopGameDto[];
+}
+
+interface GameCompletionDto {
+  appId: number;
+  name: string | null;
+  achieved: number;
+  total: number;
+  percent: number;
+  source: "web" | "local" | "none";
+}
 
 // ── Helpers ────────────────────────────────────────────────────
 
@@ -117,11 +147,16 @@ export default function Playtime() {
   const { cssVars } = useActiveTheme();
   const { steamGames: rawSteamGames, steamLoading, steamLoaded, ensureSteamGames } = useAppData();
   const steamGames = useMemo(() => rawSteamGames.filter(g => g.playtimeMinutes > 0), [rawSteamGames]);
-  const [chartMode, setChartMode] = useState<"bar" | "pie" | "list">("bar");
+  const [chartMode, setChartMode] = useState<"bar" | "pie" | "heatmap" | "list">("bar");
   const [sortKey, setSortKey] = useState<"time" | "name">("time");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [mounted, setMounted] = useState(false);
+
+  // Account-level stats (value) + per-game achievement completion.
+  const [stats, setStats] = useState<LibraryStatsDto | null>(null);
+  const [completion, setCompletion] = useState<GameCompletionDto[] | null>(null);
+  const [completionLoading, setCompletionLoading] = useState(false);
 
   const progressPalette = useMemo(
     () => generateChartColors(9, cssVars["--primary"], cssVars["--accent"], cssVars["--muted"]),
@@ -153,6 +188,14 @@ export default function Playtime() {
     void ensureSteamGames();
   }, [ensureSteamGames]);
 
+  useEffect(() => {
+    void invoke<LibraryStatsDto>("get_library_stats").then(setStats).catch(() => setStats(null));
+    setCompletionLoading(true);
+    void invoke<GameCompletionDto[]>("get_library_completion", { limit: 50 })
+      .then((list) => { setCompletion(list); setCompletionLoading(false); })
+      .catch(() => { setCompletion(null); setCompletionLoading(false); });
+  }, []);
+
   useEffect(() => { setPage(1); }, [search]);
 
   const totalSeconds = steamGames.reduce((s, g) => s + g.playtimeMinutes * 60, 0);
@@ -181,11 +224,23 @@ export default function Playtime() {
       color: piePalette[i % piePalette.length],
     }));
 
+  // Heatmap grid: prefer web-backed top games (covers non-installed games),
+  // fall back to the locally known games.
+  const heatmapGames: { appid: number; name: string; minutes: number }[] =
+    stats?.topGames?.length
+      ? stats.topGames.map((g) => ({ appid: g.appid, name: g.name || "", minutes: g.minutes }))
+      : [...steamGames]
+          .sort((a, b) => b.playtimeMinutes - a.playtimeMinutes)
+          .slice(0, 48)
+          .map((g) => ({ appid: g.appId, name: g.name || "", minutes: g.playtimeMinutes }));
+
   // Animated counts
   const animGames = useCountUp(mounted ? steamGames.length : steamGames.length, 600);
   const animHours = useCountUp(mounted ? Math.floor(totalHours) : Math.floor(totalHours), 600);
   const animAvg = useCountUp(mounted ? Math.floor(totalHours / Math.max(steamGames.length, 1)) : 0, 600);
   const animMax = useCountUp(mounted ? Math.floor(maxHours) : Math.floor(maxHours), 600);
+  const valueYuan = stats?.totalValueCents != null ? Math.round(stats.totalValueCents / 100) : null;
+  const animValue = useCountUp(mounted && valueYuan != null ? valueYuan : 0, 600);
 
   if (!steamLoaded || steamLoading) {
     return (
@@ -213,18 +268,21 @@ export default function Playtime() {
       <h1 className="text-2xl font-bold mb-6">{t("playtime.title")}</h1>
 
       {/* Overview cards — stagger + counting */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3 mb-6">
         {[
           { label: t("playtime.total"), value: animHours, format: (v: number) => `${v}h` },
           { label: t("playtime.games"), value: animGames, format: String },
           { label: t("playtime.avgPerGame"), value: animAvg, format: (v: number) => `${v}h` },
           { label: t("playtime.max"), value: animMax, format: (v: number) => `${v}h` },
+          ...(valueYuan != null
+            ? [{ label: t("playtime.totalValue"), value: animValue, format: (v: number) => `¥${v}` }]
+            : []),
         ].map((card, i) => (
           <div key={i}
             className={anim ? "animate-fade-slide-up" : ""}
             style={anim ? { animationDelay: `${i * 80}ms`, animationFillMode: "both" } : undefined}
           >
-            <StatCard label={card.label} value={card.value} format={card.format} accentColor={["primary", "accent", "emerald", "amber"][i]} animated={false} />
+            <StatCard label={card.label} value={card.value} format={card.format} accentColor={["primary", "accent", "emerald", "amber", "blue"][i]} animated={false} />
           </div>
         ))}
       </div>
@@ -237,10 +295,11 @@ export default function Playtime() {
             name="playtime-chart"
             value={chartMode}
             size="sm"
-            onChange={(v) => setChartMode(v as "bar" | "pie" | "list")}
+            onChange={(v) => setChartMode(v as "bar" | "pie" | "heatmap" | "list")}
             options={[
               { value: "bar", label: <Icon name="chartLine" size={16} /> },
               { value: "pie", label: <Icon name="chart" size={16} /> },
+              { value: "heatmap", label: <Icon name="grid" size={16} /> },
               { value: "list", label: <Icon name="list" size={16} /> },
             ]}
           />
@@ -282,6 +341,23 @@ export default function Playtime() {
               </span>
             ))}
           </div>
+        </GlassCard>
+      ) : chartMode === "heatmap" ? (
+        <GlassCard key={chartMode} bordered={false} className={`rounded-lg shadow-sm p-4 mb-6 ${anim ? "animate-fade-in" : ""}`}>
+          <div className="flex flex-wrap gap-1">
+            {heatmapGames.map((g) => {
+              const hrs = g.minutes / 60;
+              return (
+                <div
+                  key={g.appid}
+                  className="h-3 w-3 rounded-[2px] transition-transform duration-150 hover:scale-125 cursor-default"
+                  style={{ background: progressColor(hrs) }}
+                  title={`${g.name || `App ${g.appid}`}: ${fmtMin(g.minutes)}`}
+                />
+              );
+            })}
+          </div>
+          <div className="mt-3 text-[10px] text-muted-foreground">{t("playtime.heatmapHint")}</div>
         </GlassCard>
       ) : (
         /* ── List mode: search + sort + progress bars + pagination ── */
@@ -354,6 +430,43 @@ export default function Playtime() {
           ))}
         </div>
       )}
+
+      {/* Achievement completion */}
+      <GlassCard bordered={false} className="rounded-lg shadow-sm p-4 mb-6 mt-6">
+        <h2 className="text-sm font-medium mb-3">{t("playtime.completionTitle")}</h2>
+        {completionLoading ? (
+          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionLoading")}</div>
+        ) : !completion || completion.length === 0 ? (
+          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionEmpty")}</div>
+        ) : completion.every((c) => c.source === "none") ? (
+          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionNoApiKey")}</div>
+        ) : (
+          <div className="divide-y">
+            {completion.filter((c) => c.source !== "none").slice(0, 30).map((c) => {
+              const pct = Math.round(c.percent);
+              return (
+                <div key={c.appId} className="py-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm truncate max-w-[70%]">{c.name || `App ${c.appId}`}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0 ml-2">
+                      {c.achieved}/{c.total} · {pct}%
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${Math.max(pct, 0.5)}%`,
+                        background: pct >= 100 ? "#22c55e" : "hsl(var(--primary))",
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </GlassCard>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import Icon from "../ui/Icon";
 import ChipDropdown from "../ui/ChipDropdown";
 import GameSearchBox from "./GameSearchBox";
 import PriceChartDialog from "./PriceChartDialog";
+import StoreDetailDialog from "./StoreDetailDialog";
 import { showToast } from "../Notification";
 import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
 import { formatPriceCents } from "../../lib/steamCommunity";
@@ -118,6 +119,7 @@ export default function WishlistPanel({
     points: PriceHistoryPoint[];
     currency: string | null;
   } | null>(null);
+  const [detailAppId, setDetailAppId] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const combined = useMemo<CombinedItem[]>(() => {
@@ -786,21 +788,33 @@ export default function WishlistPanel({
                   )}
                 </div>
 
-                {item.source === "local" && (
+                <div className="flex flex-none flex-col items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => void onRemoveWatch(item.appId)}
-                    className="flex h-7 w-7 flex-none items-center justify-center self-start rounded text-muted-foreground transition-colors hover:bg-secondary hover:text-destructive"
-                    title={t("steam.wishlistRemove")}
+                    onClick={() => setDetailAppId(item.appId)}
+                    className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    title={t("steam.storeDetail", { defaultValue: "商店详情" })}
                   >
-                    <Icon name="close" size={14} />
+                    <Icon name="info" size={14} />
                   </button>
-                )}
+                  {item.source === "local" && (
+                    <button
+                      type="button"
+                      onClick={() => void onRemoveWatch(item.appId)}
+                      className="flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-secondary hover:text-destructive"
+                      title={t("steam.wishlistRemove")}
+                    >
+                      <Icon name="close" size={14} />
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       )}
+
+      <StoreDetailDialog appId={detailAppId} onClose={() => setDetailAppId(null)} />
 
       <PriceChartDialog
         open={chartItem !== null}

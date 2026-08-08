@@ -8,6 +8,7 @@ import WishlistPanel from "../../components/steam/WishlistPanel";
 import AccountSwitch from "./AccountSwitch";
 import Authenticator from "./Authenticator";
 import DownloadManager from "./DownloadManager";
+import SocialPanel from "../../components/steam/SocialPanel";
 import SteamLoginDialog from "../../components/steam/SteamLoginDialog";
 import { useSteamSession } from "../../hooks/useSteamSession";
 import { useSteamWatchlist } from "../../hooks/useSteamWatchlist";
@@ -18,6 +19,7 @@ type SteamTab =
   | "overview"
   | "news"
   | "wishlist"
+  | "social"
   | "accounts"
   | "authenticator"
   | "downloads";
@@ -94,6 +96,7 @@ export default function SteamHub() {
           { value: "overview", label: t("steam.tabOverview") },
           { value: "news", label: t("steam.tabNews") },
           { value: "wishlist", label: t("steam.tabWishlist") },
+          { value: "social", label: t("steam.tabSocial") },
           { value: "accounts", label: t("steam.accountSwitch") },
           { value: "authenticator", label: t("authenticator.title") },
           { value: "downloads", label: t("download.title") },
@@ -130,6 +133,7 @@ export default function SteamHub() {
             onRemoveWatch={watch.remove}
           />
         )}
+        {tab === "social" && <SocialPanel session={session} embedded />}
         {tab === "accounts" && <AccountSwitch embedded />}
         {tab === "authenticator" && <Authenticator embedded />}
         {tab === "downloads" && <DownloadManager embedded />}

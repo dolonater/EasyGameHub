@@ -252,23 +252,47 @@ pub fn poll_auth_session_status(
     let result = CAuthenticationPollAuthSessionStatusResponse::decode(body.as_slice())?;
 
     if let (Some(access_token), Some(refresh_token)) = (result.access_token, result.refresh_token) {
-        // Authentication completed successfully
+        // Authentication completed successfully. The poll response does NOT
+        // carry a SteamID64 (its `new_client_id` is a session id, not the
+        // account), so the authoritative steamid is read from the access
+        // token's JWT `sub` claim — present for both QR and credentials flows.
         let login_result = LoginResult {
-            steam_id: result.new_client_id.unwrap_or(client_id).trailing_zeros() as u64, // Hmm, that's not right. Let me check.
+            steam_id: extract_steam_id_from_jwt(&access_token),
             account_name: result.account_name.unwrap_or_default(),
             access_token,
             refresh_token,
             new_guard_data: result.new_guard_data,
         };
-        // Actually, steam_id from Poll is not the SteamID64.
-        // The steamid comes from the BeginAuthSessionViaCredentials response.
-        // We need to store it from the first step.
         Ok(PollResult::Completed(login_result))
     } else if result.had_remote_interaction.unwrap_or(false) {
         Ok(PollResult::RemoteInteraction)
     } else {
         Ok(PollResult::Pending)
     }
+}
+
+/// Extract the account SteamID64 from an access token JWT's `sub` claim.
+fn extract_steam_id_from_jwt(access_token: &str) -> u64 {
+    let payload = access_token.split('.').nth(1).unwrap_or("");
+    let Some(decoded) = base64url_decode(payload) else {
+        return 0;
+    };
+    serde_json::from_slice::<serde_json::Value>(&decoded)
+        .ok()
+        .and_then(|v| v.get("sub").cloned())
+        .and_then(|s| s.as_str().map(String::from))
+        .and_then(|s| s.parse::<u64>().ok())
+        .unwrap_or(0)
+}
+
+/// Base64url decode (JWT encoding: no padding, `-`/`_` in place of `+`/`/`).
+fn base64url_decode(input: &str) -> Option<Vec<u8>> {
+    use base64::Engine;
+    let mut b64 = input.replace('-', "+").replace('_', "/");
+    while b64.len() % 4 != 0 {
+        b64.push('=');
+    }
+    base64::engine::general_purpose::STANDARD.decode(b64.as_bytes()).ok()
 }
 
 /// Send a SteamGuard code to complete authentication.
@@ -481,6 +505,22 @@ mod tests {
         // Should be non-empty base64
         assert!(!encrypted.is_empty());
         assert!(base64_decode(&encrypted).is_ok());
+    }
+
+    #[test]
+    fn extracts_steam_id_from_access_token() {
+        use base64::Engine;
+        let payload = r#"{"iss":"r:test","sub":"76561198372706082","aud":["web"]}"#;
+        let enc = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(payload);
+        let token = format!("header.{}.sig", enc);
+        assert_eq!(super::extract_steam_id_from_jwt(&token), 76561198372706082);
+    }
+
+    #[test]
+    fn jwt_without_sub_is_zero() {
+        assert_eq!(super::extract_steam_id_from_jwt("not-a-jwt"), 0);
+        assert_eq!(super::extract_steam_id_from_jwt("a.b.c"), 0);
+        assert_eq!(super::extract_steam_id_from_jwt(""), 0);
     }
 
     fn hex_encode(data: &[u8]) -> String {

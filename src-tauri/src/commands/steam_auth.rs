@@ -320,7 +320,7 @@ pub fn active_steam_id(tool_dir: &std::path::Path) -> Option<u64> {
 /// Failures are downgraded to a no-op so a stale-but-present session never
 /// blocks the UI. Only the access token is replaced; the refresh token and
 /// identity are kept, and the expiry clock restarts from now.
-fn refresh_session_if_needed(path: &std::path::Path) -> Result<(), String> {
+pub(crate) fn refresh_session_if_needed(path: &std::path::Path) -> Result<(), String> {
     let mut mgr = SessionManager::open(path).map_err(|e| format!("Session store error: {}", e))?;
     let Some(session) = mgr.active_session().cloned() else {
         return Ok(());
@@ -356,7 +356,7 @@ pub fn logout(app_state: State<AppState>) -> Result<(), String> {
     Ok(())
 }
 
-fn session_store_path(tool_dir: &std::path::Path) -> std::path::PathBuf {
+pub(crate) fn session_store_path(tool_dir: &std::path::Path) -> std::path::PathBuf {
     tool_dir.join("steam_sessions.enc.json")
 }
 
