@@ -206,6 +206,10 @@ const en: Record<string, any> = {
     lastError: "Last error",
     uiSummary: "{{pages}} pages, {{sections}} settings sections",
     navLabel: "Plugins",
+    dropTitle: "Drop to install plugin",
+    dropHint: "Only .zip plugin packages are supported",
+    dragHint: "You can also drag a plugin zip onto this page to install it",
+    dropNotZip: "Only .zip plugin packages are supported",
   },
   playtime: {
     title: "Playtime",

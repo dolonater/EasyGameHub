@@ -22,6 +22,12 @@ pub struct PluginManifest {
     pub entry: String,
     #[serde(default)]
     pub permissions: Vec<String>,
+    /// Optional display icon: an asset path (`assets/xxx`) or an app Icon name.
+    #[serde(default)]
+    pub icon: Option<String>,
+    /// Optional one-line display description.
+    #[serde(default)]
+    pub description: Option<String>,
 }
 
 /// One entry in the global plugin registry (plugins_registry.json).
@@ -37,6 +43,10 @@ pub struct PluginRecord {
     pub installed_at: String,
     pub last_error: Option<String>,
     pub error_count: u32,
+    #[serde(default)]
+    pub icon: Option<String>,
+    #[serde(default)]
+    pub description: Option<String>,
 }
 
 impl PluginRecord {
@@ -52,6 +62,8 @@ impl PluginRecord {
             installed_at: chrono::Local::now().to_rfc3339(),
             last_error: None,
             error_count: 0,
+            icon: manifest.icon.clone(),
+            description: manifest.description.clone(),
         }
     }
 }
@@ -89,6 +101,23 @@ pub fn validate_manifest(m: &PluginManifest) -> Result<(), anyhow::Error> {
     }
     if m.entry != "bundle.js" {
         anyhow::bail!("entry must be bundle.js, got {:?}", m.entry);
+    }
+    if let Some(icon) = &m.icon {
+        if icon.len() > 128
+            || !icon
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_' || c == '/')
+        {
+            anyhow::bail!("Invalid plugin icon: {:?}", icon);
+        }
+    }
+    if let Some(description) = &m.description {
+        if description.chars().count() > 200 {
+            anyhow::bail!(
+                "Invalid plugin description length: {} (max 200)",
+                description.chars().count()
+            );
+        }
     }
     for perm in &m.permissions {
         if !KNOWN_PERMISSIONS.contains(&perm.as_str()) {
@@ -304,6 +333,8 @@ pub fn sync_builtin_plugins(
                         installed_at: existing.installed_at,
                         last_error: existing.last_error,
                         error_count: existing.error_count,
+                        icon: manifest.icon.clone(),
+                        description: manifest.description.clone(),
                     };
                     changed = true;
                 }
@@ -398,7 +429,7 @@ mod tests {
     use zip::write::SimpleFileOptions;
 
     fn sample_manifest() -> Vec<u8> {
-        br#"{"id":"com.example.test","name":"Test","version":"1.0.0","api_version":1,"entry":"bundle.js","permissions":["core.read"]}"#.to_vec()
+        br#"{"id":"com.example.test","name":"Test","version":"1.0.0","api_version":1,"entry":"bundle.js","permissions":["core.read"],"icon":"assets/logo.png","description":"A test plugin"}"#.to_vec()
     }
 
     fn manifest_from_json(json: &str) -> Vec<u8> {
@@ -425,6 +456,32 @@ mod tests {
         assert_eq!(m.id, "com.example.test");
         assert_eq!(m.api_version, 1);
         assert_eq!(m.permissions, vec!["core.read"]);
+        assert_eq!(m.icon.as_deref(), Some("assets/logo.png"));
+        assert_eq!(m.description.as_deref(), Some("A test plugin"));
+    }
+
+    #[test]
+    fn optional_icon_description_default_missing() {
+        let m = parse_manifest(&manifest_from_json(
+            r#"{"id":"com.example.test","name":"Test","version":"1.0.0","api_version":1,"entry":"bundle.js"}"#,
+        ))
+        .unwrap();
+        assert_eq!(m.icon, None);
+        assert_eq!(m.description, None);
+    }
+
+    #[test]
+    fn rejects_bad_icon_and_long_description() {
+        let json = manifest_from_json(
+            r#"{"id":"a.b","name":"T","version":"1.0","api_version":1,"entry":"bundle.js","icon":"bad icon!"}"#,
+        );
+        assert!(parse_manifest(&json).is_err(), "invalid icon must fail");
+        let long = "x".repeat(201);
+        let json = format!(
+            r#"{{"id":"a.b","name":"T","version":"1.0","api_version":1,"entry":"bundle.js","description":"{}"}}"#,
+            long
+        );
+        assert!(parse_manifest(json.as_bytes()).is_err(), "long description must fail");
     }
 
     #[test]
@@ -504,6 +561,8 @@ mod tests {
             installed_at: "2026-08-04T00:00:00+08:00".into(),
             last_error: None,
             error_count: 0,
+            icon: Some("assets/logo.png".into()),
+            description: Some("A test plugin".into()),
         });
         save_registry(&path, &reg).unwrap();
         let loaded = load_registry(&path).unwrap();
@@ -689,6 +748,8 @@ mod tests {
                     installed_at: "2026-08-04T00:00:00+08:00".into(),
                     last_error: None,
                     error_count: 0,
+                    icon: None,
+                    description: None,
                 }],
             },
         )

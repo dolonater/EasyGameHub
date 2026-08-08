@@ -67,8 +67,10 @@ export default function Layout() {
   }, []);
 
   useEffect(() => {
+    let disposed = false;
     let unlisten: (() => void) | undefined;
     getCurrentWindow().onDragDropEvent(async (event: any) => {
+      if (disposed) return;
       if (event.payload.type === "enter" || event.payload.type === "over") {
         setDragOver(true);
       } else if (event.payload.type === "leave") {
@@ -77,6 +79,10 @@ export default function Layout() {
         setDragOver(false);
         const paths: string[] = event.payload.paths || [];
         for (const p of paths) {
+          // Only dropped game folders are meant to reach add_game. Plugin
+          // packages (.zip) are handled by the plugin page, so skip them here
+          // to avoid adding a bogus "game" (and a stray success toast).
+          if (/\.zip$/i.test(p)) continue;
           // Derive game name from folder name
           const parts = p.replace(/\\/g, "/").split("/");
           const name = parts[parts.length - 1] || p;
@@ -88,8 +94,15 @@ export default function Layout() {
           }
         }
       }
-    }).then((fn) => { unlisten = fn; });
-    return () => { unlisten?.(); };
+    }).then((fn) => {
+      // Resolve after cleanup (StrictMode double-mount): unregister at once.
+      if (disposed) fn();
+      else unlisten = fn;
+    });
+    return () => {
+      disposed = true;
+      unlisten?.();
+    };
   }, []);
 
   // ── Sidebar nav button style (animotion 左侧栏菜单/style1.tsx) ──

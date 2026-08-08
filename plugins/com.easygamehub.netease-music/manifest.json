@@ -1,8 +1,10 @@
 {
   "id": "com.easygamehub.netease-music",
   "name": "网易云音乐",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "api_version": 1,
   "entry": "bundle.js",
-  "permissions": ["ui", "music"]
+  "permissions": ["ui", "music"],
+  "icon": "music",
+  "description": "网易云音乐播放器，支持登录、搜索、歌单与在线播放。"
 }

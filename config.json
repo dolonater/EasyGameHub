@@ -58,7 +58,7 @@
     "auto_darken": false,
     "overlay_opacity": 0.35,
     "background_blur": 0.0,
-    "surface_opacity": 0.5,
+    "surface_opacity": 0.9,
     "surface_blur": 3.0,
     "radius": 3.0,
     "font_family": "微软雅黑"

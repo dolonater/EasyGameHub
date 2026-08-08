@@ -205,6 +205,10 @@ const zh = {
     lastError: "上次错误",
     uiSummary: "页面 {{pages}} 个，设置区 {{sections}} 个",
     navLabel: "插件",
+    dropTitle: "松开以安装插件",
+    dropHint: "仅支持 .zip 插件包",
+    dragHint: "也可以将插件 zip 包拖入本页安装",
+    dropNotZip: "仅支持 .zip 插件包",
   },
   wizard: {
     welcome: "欢迎使用 EasyGameHub",

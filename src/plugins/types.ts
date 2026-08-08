@@ -7,6 +7,10 @@ export interface PluginManifest {
   api_version: number;
   entry: string;
   permissions: PluginPermission[];
+  /** Optional display icon: an asset path (`assets/xxx`) or an app Icon name. */
+  icon?: string | null;
+  /** Optional one-line display description. */
+  description?: string | null;
 }
 
 export interface PluginRecord {
@@ -20,6 +24,8 @@ export interface PluginRecord {
   installed_at: string;
   last_error: string | null;
   error_count: number;
+  icon?: string | null;
+  description?: string | null;
 }
 
 export interface PluginRegistry {

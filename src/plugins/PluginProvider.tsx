@@ -16,7 +16,7 @@ interface PluginContextValue {
   refresh: () => Promise<void>;
   setEnabled: (id: string, enabled: boolean) => Promise<void>;
   reload: (id: string) => Promise<void>;
-  install: () => Promise<void>;
+  install: (path?: string) => Promise<void>;
   uninstall: (id: string) => Promise<void>;
 }
 
@@ -103,15 +103,18 @@ export function PluginProvider({ children }: { children: ReactNode }) {
     setVersion((v) => v + 1);
   }, [refresh]);
 
-  const install = useCallback(async () => {
-    const file = await openDialog({
-      multiple: false,
-      filters: [{ name: "Plugin", extensions: ["zip"] }],
-    });
-    if (!file) return;
-    const path = file as string;
+  const install = useCallback(async (path?: string) => {
+    let filePath = path;
+    if (!filePath) {
+      const file = await openDialog({
+        multiple: false,
+        filters: [{ name: "Plugin", extensions: ["zip"] }],
+      });
+      if (!file) return;
+      filePath = file as string;
+    }
     try {
-      const manifest = await installPlugin(path);
+      const manifest = await installPlugin(filePath);
       showToast("success", `插件 ${manifest.name} 已安装`);
       await refresh();
       setVersion((v) => v + 1);

@@ -14,7 +14,9 @@
       "enabled": false,
       "installed_at": "2026-08-04T14:48:01.316989200+08:00",
       "last_error": null,
-      "error_count": 0
+      "error_count": 0,
+      "icon": null,
+      "description": null
     },
     {
       "id": "com.example.stats",
@@ -29,7 +31,9 @@
       "enabled": false,
       "installed_at": "2026-08-04T14:48:11.891067700+08:00",
       "last_error": null,
-      "error_count": 0
+      "error_count": 0,
+      "icon": null,
+      "description": null
     },
     {
       "id": "com.example.template",
@@ -45,12 +49,14 @@
       "enabled": false,
       "installed_at": "2026-08-04T14:53:10.072384800+08:00",
       "last_error": null,
-      "error_count": 0
+      "error_count": 0,
+      "icon": null,
+      "description": null
     },
     {
       "id": "com.easygamehub.netease-music",
-      "name": "网易云播放器",
-      "version": "0.1.0",
+      "name": "网易云音乐",
+      "version": "0.1.1",
       "api_version": 1,
       "entry": "bundle.js",
       "permissions": [
@@ -60,7 +66,9 @@
       "enabled": true,
       "installed_at": "2026-08-04T17:54:43.041330400+08:00",
       "last_error": null,
-      "error_count": 0
+      "error_count": 0,
+      "icon": "music",
+      "description": "网易云音乐播放器，支持登录、搜索、歌单与在线播放。"
     },
     {
       "id": "com.easygamehub.achievement-print",
@@ -75,7 +83,27 @@
       "enabled": false,
       "installed_at": "2026-08-07T16:16:08.105300400+08:00",
       "last_error": null,
-      "error_count": 0
+      "error_count": 0,
+      "icon": null,
+      "description": null
+    },
+    {
+      "id": "com.example.hello",
+      "name": "Hello 测试",
+      "version": "0.1.1",
+      "api_version": 1,
+      "entry": "bundle.js",
+      "permissions": [
+        "ui",
+        "core.read",
+        "events"
+      ],
+      "enabled": false,
+      "installed_at": "2026-08-08T16:17:21.692627400+08:00",
+      "last_error": null,
+      "error_count": 0,
+      "icon": "grid",
+      "description": "示例插件：展示游戏列表与订阅备份事件。"
     }
   ]
 }
