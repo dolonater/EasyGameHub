@@ -599,6 +599,27 @@ pub async fn search_steam_games(term: String) -> Result<Vec<SearchResultDto>, St
         .collect())
 }
 
+// ── In-app article reader ──────────────────────────────────
+
+/// Fetch the full text of a single news article (matched by its URL) for the
+/// in-app reader. Returns `None` when the article can't be found — the
+/// frontend falls back to the feed preview it already has.
+#[tauri::command]
+pub async fn get_news_article(app_id: u32, url: String) -> Result<Option<NewsItemDto>, String> {
+    let item = news::get_news_article(&shared_client(), app_id, &url)
+        .map_err(|e| e.to_string())?;
+    Ok(item.map(|item| NewsItemDto {
+        app_id,
+        title: item.title,
+        url: item.url,
+        author: item.author,
+        contents: news::strip_html_paragraphs(&item.contents),
+        feed_label: item.feed_label,
+        feed_type: item.feed_type,
+        date: item.date,
+    }))
+}
+
 // ── Metadata completion (file cache, 7 days) ────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
