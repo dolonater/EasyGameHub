@@ -21,7 +21,8 @@ use crate::cm::bootstrap;
 use crate::cm::frame::{
     self, Envelope, JOB_ID_NONE, EMSG_CLIENT_FRIENDS_LIST, EMSG_CLIENT_HEARTBEAT, EMSG_CLIENT_LOGON,
     EMSG_CLIENT_LOGON_RESPONSE, EMSG_CLIENT_LOGGED_OFF, EMSG_CLIENT_LOG_OFF, EMSG_CLIENT_PERSONA_STATE,
-    EMSG_SERVICE_METHOD, EMSG_SERVICE_METHOD_RESPONSE, EMSG_SERVICE_METHOD_SEND_TO_CLIENT,
+    EMSG_CLIENT_EMOTICON_LIST, EMSG_CLIENT_GET_EMOTICON_LIST, EMSG_SERVICE_METHOD,
+    EMSG_SERVICE_METHOD_RESPONSE, EMSG_SERVICE_METHOD_SEND_TO_CLIENT,
 };
 use crate::cm::proto_wire::{self, Writer};
 use crate::client::SteamHttpClient;
@@ -69,6 +70,14 @@ pub struct GroupIncoming {
     pub ordinal: u32,
 }
 
+/// One owned Steam sticker (from `CMsgClientEmoticonList`, field 2).
+#[derive(Debug, Clone)]
+pub struct Sticker {
+    pub name: String,
+    /// CDN URL for the sticker asset.
+    pub image_url: String,
+}
+
 #[derive(Default)]
 struct CmData {
     session_id: u32,
@@ -78,6 +87,10 @@ struct CmData {
     group_messages: VecDeque<GroupIncoming>,
     next_job_id: i64,
     pending: HashMap<i64, oneshot::Sender<Result<Vec<u8>, String>>>,
+    /// Pending `ClientEmoticonList` responder. Unlike service methods, client
+    /// EMSGs are sent with `JOB_ID_NONE` and matched by emsg alone — Steam does
+    /// not echo a correlating job id for them (mirrors Monica's CM client).
+    emoticon_pending: Option<oneshot::Sender<Result<Vec<u8>, String>>>,
 }
 
 /// A generic correlated service-method call (`ChatRoom.*`, `FriendMessages.*`, …).
@@ -86,6 +99,10 @@ enum Cmd {
         method: String,
         request: Vec<u8>,
         reply: oneshot::Sender<Result<Vec<u8>, String>>,
+    },
+    /// Fetch the account's owned sticker catalogue via `ClientEmoticonList`.
+    GetEmoticonList {
+        reply: oneshot::Sender<Result<Vec<Sticker>, String>>,
     },
     /// Send `CMsgClientLogOff` and tear the socket down cleanly.
     LogOff,
@@ -187,6 +204,28 @@ impl CmClient {
     pub async fn send_message(&self, partner: u64, text: &str) -> Result<(), String> {
         let body = build_send_message_body(partner, text);
         self.call_service("FriendMessages.SendMessage#1", body).await.map(|_| ())
+    }
+
+    /// Send a sticker to a friend. Steam renders the `/sticker <name>` body
+    /// (chat_entry_type stays "message") as the owned sticker asset, so this is
+    /// just `send_message` with the slash-command body.
+    pub async fn send_sticker(&self, partner: u64, name: &str) -> Result<(), String> {
+        let body = build_send_message_body(partner, &format!("/sticker {}", name));
+        self.call_service("FriendMessages.SendMessage#1", body).await.map(|_| ())
+    }
+
+    /// Fetch the account's owned sticker catalogue (`ClientEmoticonList`).
+    pub async fn get_sticker_catalog(&self) -> Result<Vec<Sticker>, String> {
+        let (reply_tx, reply_rx) = oneshot::channel();
+        self.cmd_tx
+            .send(Cmd::GetEmoticonList { reply: reply_tx })
+            .await
+            .map_err(|_| "Steam CM disconnected".to_string())?;
+        let result = tokio::time::timeout(Duration::from_secs(15), reply_rx)
+            .await
+            .map_err(|_| "Steam CM request timed out".to_string())?
+            .map_err(|_| "Steam CM disconnected".to_string())?;
+        result
     }
 
     /// Whether the background task is still alive.
@@ -355,6 +394,33 @@ async fn run(mut ws: WsStream, mut cmd_rx: mpsc::Receiver<Cmd>, data: Arc<Mutex<
                             });
                         }
                     }
+                    Cmd::GetEmoticonList { reply } => {
+                        let session_id = data.lock().await.session_id;
+                        // Drop a stale slot (a previous request that timed out)
+                        // so a late response can't resolve this one prematurely.
+                        let (resp_tx, resp_rx) = oneshot::channel();
+                        data.lock().await.emoticon_pending = Some(resp_tx);
+                        let wire = frame::encode_envelope(
+                            EMSG_CLIENT_GET_EMOTICON_LIST,
+                            steam_id,
+                            session_id,
+                            JOB_ID_NONE,
+                            None,
+                            &[],
+                        );
+                        if ws.send(Message::Binary(wire.into())).await.is_err() {
+                            data.lock().await.emoticon_pending = None;
+                            let _ = reply.send(Err("Steam CM send failed".into()));
+                        } else {
+                            tokio::spawn(async move {
+                                let result = resp_rx
+                                    .await
+                                    .unwrap_or_else(|_| Err("Steam CM request failed".into()))
+                                    .and_then(|body| parse_sticker_list(&body));
+                                let _ = reply.send(result);
+                            });
+                        }
+                    }
                     Cmd::LogOff => {
                         let session_id = data.lock().await.session_id;
                         let wire = frame::encode_envelope(
@@ -446,6 +512,13 @@ async fn handle_envelope(envelope: Envelope, data: &Arc<Mutex<CmData>>) -> Resul
                 }
             }
         }
+        EMSG_CLIENT_EMOTICON_LIST => {
+            // Client-EMSG response matched by emsg alone (sent with JOB_ID_NONE).
+            let mut d = data.lock().await;
+            if let Some(tx) = d.emoticon_pending.take() {
+                let _ = tx.send(Ok(envelope.body));
+            }
+        }
         _ => {}
     }
     Ok(())
@@ -517,6 +590,55 @@ fn parse_incoming_group_message(body: &[u8]) -> Option<GroupIncoming> {
     })
 }
 
+/// Parse a `CMsgClientEmoticonList` body (field 2 = owned stickers). Each
+/// sticker is a sub-message whose field 1 is the sticker name; the CDN asset is
+/// served from `steamcommunity.com/economy/sticker/<url-encoded name>`.
+fn parse_sticker_list(body: &[u8]) -> Result<Vec<Sticker>, String> {
+    let fields = proto_wire::parse(body).map_err(|e| format!("emoticon list parse: {}", e))?;
+    let mut stickers = Vec::new();
+    for (n, value) in fields {
+        if n != 2 {
+            continue;
+        }
+        let bytes = match value {
+            proto_wire::WireValue::Bytes(b) => b,
+            _ => continue,
+        };
+        let item = proto_wire::parse(&bytes).map_err(|e| format!("sticker parse: {}", e))?;
+        let name = proto_wire::get_string(&item, 1).unwrap_or_default();
+        if name.trim().is_empty() {
+            continue;
+        }
+        stickers.push(Sticker {
+            name: name.clone(),
+            image_url: format!(
+                "https://steamcommunity.com/economy/sticker/{}",
+                percent_encode_path(&name)
+            ),
+        });
+    }
+    Ok(stickers)
+}
+
+/// Percent-encode a value for use as a URL path segment (spaces → %20, etc.).
+fn percent_encode_path(input: &str) -> String {
+    const HEX: &[u8; 16] = b"0123456789ABCDEF";
+    let mut out = String::new();
+    for b in input.bytes() {
+        match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(b as char)
+            }
+            _ => {
+                out.push('%');
+                out.push(HEX[(b >> 4) as usize] as char);
+                out.push(HEX[(b & 0x0F) as usize] as char);
+            }
+        }
+    }
+    out
+}
+
 /// Merge a `CMsgClientPersonaState_Friend` avatar hash into a CDN URL.
 pub fn avatar_url(avatar_hash: &[u8]) -> Option<String> {
     if avatar_hash.is_empty() {
@@ -528,4 +650,53 @@ pub fn avatar_url(avatar_hash: &[u8]) -> Option<String> {
         "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/{}/{}_{}_full.jpg",
         first, first, rest
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_sticker_list() {
+        // CMsgClientEmoticonList: field 2 (bytes) = sticker { name(1) = "cool_dog" }
+        // and a second sticker with a name containing a space.
+        let mut s1 = Writer::new();
+        s1.string(1, "cool_dog");
+        let s1 = s1.finish();
+        let mut s2 = Writer::new();
+        s2.string(1, "party parrot");
+        let s2 = s2.finish();
+
+        let mut resp = Writer::new();
+        resp.bytes(2, &s1);
+        resp.bytes(2, &s2);
+        let body = resp.finish();
+
+        let stickers = parse_sticker_list(&body).unwrap();
+        assert_eq!(stickers.len(), 2);
+        assert_eq!(stickers[0].name, "cool_dog");
+        assert_eq!(stickers[0].image_url, "https://steamcommunity.com/economy/sticker/cool_dog");
+        assert_eq!(
+            stickers[1].image_url,
+            "https://steamcommunity.com/economy/sticker/party%20parrot"
+        );
+    }
+
+    #[test]
+    fn ignores_emoticons_field() {
+        // Field 1 (emoticons) must be ignored; only field 2 (stickers) counts.
+        let mut e = Writer::new();
+        e.string(1, ":steam:");
+        let e = e.finish();
+        let mut resp = Writer::new();
+        resp.bytes(1, &e);
+        assert!(parse_sticker_list(&resp.finish()).unwrap().is_empty());
+    }
+
+    #[test]
+    fn percent_encodes_path() {
+        assert_eq!(percent_encode_path("plain"), "plain");
+        assert_eq!(percent_encode_path("a b"), "a%20b");
+        assert_eq!(percent_encode_path("snow/❄"), "snow%2F%E2%9D%84");
+    }
 }

@@ -130,6 +130,23 @@
 - 验证：`cargo check`（工作区）、steam-sdk 86 passed、`npm run build` 通过。
 - 待用户手测：产生一条降价/新闻/待确认 → 通知 Tab 出现 + 未读计数 → 全部已读 → 徽标消失。
 
+### Stage 3 P8 完成情况（2026-08-09，E4 贴纸 / 图片）
+- **审查结论**（参考 Monica `SteamChatCatalogService` / `SteamChatAttachmentUploader` / `SteamChatRichMediaModels`）：
+  - **图片**：走 Steam 网页聊天三段式上传协议（`beginfileupload` 预约 UGC 槽 + 返回签名 cloud_url/request_headers → PUT 文件 → `commitfileupload` 提交目标会话）。**提交本身即把图片插入会话**（Monica 上传成功后只 `refreshThread()`，从不发第二条消息；commit 的 `friend_steamid`/`chat_group_id`+`chat_id` 字段即目标）。会话 cookie 用 `steamLoginSecure=<steamid>||<access_token>`（与 CM bootstrap 同款，实测可用）。
+  - **贴纸**：目录走 CM `ClientGetEmoticonList`(236)→`ClientEmoticonList`(237)，解析 field 2（贴纸 name=1）；发送就是普通文本消息 `chat_entry_type=1` + body `/sticker <name>`（与 Monica 一致，Steam 端按 slash-command 渲染为贴纸）；渲染识别 `/sticker name` 与历史 BBCode `[img]url[/img]`。
+  - **计划偏差**：计划写 `client/social.rs::send_sticker`，实际贴纸属 CM 通道 → 实现在 `cm/client.rs`（`send_sticker`/`get_sticker_catalog`），`social.rs` 只加 `upload_chat_image`（REST）。
+- **T31** `client/social.rs::upload_chat_image`（begin→PUT→commit，multipart 手工构造 + 逐 header 应用 request_headers，过滤 Host/Cookie/Content-Length/Authorization；30MB 上限；json_success 兼容 int/bool）+ `cm/client.rs` `get_sticker_catalog`（新增 `Cmd::GetEmoticonList` + `EMSG_CLIENT_EMOTICON_LIST` 相关响应 + `parse_sticker_list` + `percent_encode_path`）+ `send_sticker`；`commands/steam_social.rs` 新增 `upload_chat_image`/`upload_group_image`（`image::ImageReader` 取尺寸）/`get_sticker_catalog`/`send_sticker_message`；lib.rs 注册。
+- **T32** `steamSocial.ts` 新增 `StickerDto` + 4 个封装 + `stickerImageUrl`；`SocialPanel.tsx` 图片按钮（plugin-dialog 选图→上传→toast+`refreshTick` 重取历史）+ 贴纸按钮/选择器（懒加载网格）+ 消息渲染 `ChatMessageContent`（`/sticker`→贴纸图、`[img]`→图片、否则文本，好友与群聊共用）；i18n 键（zh/en 各 6）。
+- 验证：`cargo check`（工作区）✅、steam-sdk **92 passed**（+6：sticker 解析×2、percent encode、multipart、mime/header、file name）、`npm run build` ✅。
+- **实测两处协议修正（2026-08-09）**：
+  - **贴纸超时（`Steam CM request timed out`）**：`ClientGetEmoticonList`/`ClientEmoticonList` 的 EMSG 实为 **9330/9331**（我最初写成旧值 236/237，Steam 不认 → 无响应）；且此类客户端消息按 Monica `SteamCmPersistentConnection` 用 **`JOB_ID_NONE` 发送、响应只按 eMsg 匹配**（Steam 不回显 job id）→ 新增 `CmData.emoticon_pending` 槽位按 eMsg 解析。
+  - **图片 rejected（`beginfileupload rejected`）**：真实响应**无顶层 `success`**（以 `{"ugcid":...,"timestamp":...}` 开头），`success` 缺失即成功；且 `ugcid`/`timestamp`/`hmac` 在顶层（Monica 读 `result`）→ 改为 `has_explicit_failure`（仅显式 `success:0` 才算失败）+ 顶层/result 双处读取 + timestamp 兼容字符串数字。
+  - **图片 commit 失败（`commitfailed (HTTP 500): {"success":16,...}`，即「服务器错误 commit 16」）**：对照仓库内**已工作的** WinNative `chat_image.rs` 参考实现发现差异——(a) `file_sha` 必须是**文件内容的真实 SHA1**（commit 校验它，随机值 → 16），(b) commit 表单**缺 `file_size`**，(c) 上传请求应为 **`application/x-www-form-urlencoded`**（非 multipart），(d) cookie 用 `sessionid=` 在前 + `steamLoginSecure=steamid%7C%7Ctoken`（`||` 百分号编码）。全部按参考实现修正，URL 兜底构造 `https://images.steamusercontent.com/ugc/{ugcid}/{sha_upper}/`。
+- 待用户手测：社交 → 好友/群聊 → 图片按钮发图（对方可见 + 历史回读）、贴纸按钮打开选择器 → 点贴纸发送、接收端图片/贴纸渲染。
+- **实测再修复**：发图后前端显示原始 BBCode → Steam 真实图片消息是富标签 `[img src=<url> thumbnail_src=<url> srcset="..." width=.. height=..][url=..]url[/url][/img]`（内层非裸 URL）→ `ChatMessageContent` 改为 `extractImgSrc`：先解富标签（优先 `thumbnail_src` 缩放缩略图），再回退普通 `[img]url[/img]`。`npm run build` ✅。
+- **用户实测通过**：好友能收到图片、贴纸目录与发送正常、前端图片/贴纸渲染正常。**P8 完成**。
+- **P9（E5 语音 spike）用户决定不做（2026-08-09）**——保持 no-go，不进入调研。**Monica Steam 参考功能增强（A–E）至此全部计划阶段收尾**（P0–P8 已实现并验证，P9 明确不做）。
+
 ## Current Workflow Request
 - Topic: Doona Music 独立网易云播放器（插件 → 独立桌面应用）
 - Stage 1 Requirement Exploration: Completed at 2026-08-06（设计经 grill-me 访谈 13 轮逐项确认）

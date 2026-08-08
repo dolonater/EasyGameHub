@@ -10,15 +10,21 @@ import {
   getChatHistory,
   getFriends,
   getGroupHistory,
+  getStickerCatalog,
   pollChat,
   pollGroupMessages,
   sendChatMessage,
   sendGroupMessage,
+  sendStickerMessage,
+  stickerImageUrl,
+  uploadChatImage,
+  uploadGroupImage,
   type ChatGroupDto,
   type ChatMessageDto,
   type FriendDto,
   type GroupMessageDto,
   type OnlineState,
+  type StickerDto,
 } from "../../lib/steamSocial";
 import type { SessionDto } from "../../lib/steamCommunity";
 
@@ -28,10 +34,10 @@ interface SocialPanelProps {
 }
 
 function dedupKey(m: ChatMessageDto): string {
-  return `${m.timestamp}:${m.steamId}:${m.message}`;
+  return `${m.timestamp}:${m.steamId}:$<ChatMessageContent text={m.message} />`;
 }
 function groupDedupKey(m: GroupMessageDto): string {
-  return `${m.timestamp}:${m.senderSteamId}:${m.message}`;
+  return `${m.timestamp}:${m.senderSteamId}:$<ChatMessageContent text={m.message} />`;
 }
 
 /** Online-state label + status dot color. */
@@ -44,6 +50,57 @@ const STATE_STYLES: Record<OnlineState, { labelKey: string; dot: string }> = {
   lookingToPlay: { labelKey: "socialLookingPlay", dot: "bg-blue-500" },
   offline: { labelKey: "socialOffline", dot: "bg-slate-300" },
 };
+
+/** Render a message body: `/sticker <name>` → sticker, `[img]url[/img]` → image, else text. */
+function ChatMessageContent({ text }: { text: string }) {
+  const trimmed = text.trim();
+  const stickerMatch = /^\/sticker\s+(.+?)\s*$/.exec(trimmed);
+  if (stickerMatch) {
+    return (
+      <img
+        src={stickerImageUrl(stickerMatch[1])}
+        alt={stickerMatch[1]}
+        className="max-h-28 max-w-[160px] object-contain"
+        loading="lazy"
+      />
+    );
+  }
+  const imgSrc = extractImgSrc(trimmed);
+  if (imgSrc) {
+    return (
+      <img
+        src={imgSrc}
+        alt=""
+        className="max-h-64 max-w-full rounded-lg object-contain"
+        loading="lazy"
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+        }}
+      />
+    );
+  }
+  return <>{text}</>;
+}
+
+/** Extract the display URL from a Steam image BBCode chat message. */
+function extractImgSrc(text: string): string | null {
+  // Rich form Steam's own clients emit for shared images:
+  //   [img src=<url> thumbnail_src=<url> srcset="..." width=.. height=..]
+  //     [url=<url>]url[/url][/img]
+  const rich = /^\[img\b([^\]]*)\][\s\S]*\[\/img\]$/i.exec(text);
+  if (rich) {
+    const attrs = rich[1];
+    // Prefer the scaled CDN thumbnail (`?imw=512...`) over the full-resolution
+    // original for the in-bubble preview.
+    const thumb = /thumbnail_src=([^\s\]]+)/i.exec(attrs);
+    if (thumb) return thumb[1];
+    const src = /\bsrc=([^\s\]]+)/i.exec(attrs);
+    if (src) return src[1];
+  }
+  // Plain BBCode: [img]url[/img] or [img=WxH]url[/img]
+  const plain = /^\[img[^\]]*\](https?:\/\/[^\[]+)\[\/img\]$/i.exec(text);
+  return plain ? plain[1] : null;
+}
 
 /**
  * 社交 Tab: friend list + private chat (web-chat/CM) AND group chat rooms.
@@ -72,6 +129,14 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [groupHistoryError, setGroupHistoryError] = useState<string | null>(null);
   const [groupInput, setGroupInput] = useState("");
   const [groupSending, setGroupSending] = useState(false);
+
+  // E4 图片 / 贴纸
+  const [uploading, setUploading] = useState(false);
+  const [stickerPickerOpen, setStickerPickerOpen] = useState(false);
+  const [stickers, setStickers] = useState<StickerDto[]>([]);
+  const [stickersLoading, setStickersLoading] = useState(false);
+  const stickersLoadedRef = useRef(false);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const listRef = useRef<HTMLDivElement>(null);
   const groupListRef = useRef<HTMLDivElement>(null);
@@ -146,7 +211,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     return () => {
       cancelled = true;
     };
-  }, [session, selected]);
+  }, [session, selected, refreshTick]);
 
   // Load group chat history when a group is selected.
   useEffect(() => {
@@ -170,7 +235,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     return () => {
       cancelled = true;
     };
-  }, [session, selectedGroup]);
+  }, [session, selectedGroup, refreshTick]);
 
   // Poll the CM friend-message buffer.
   useEffect(() => {
@@ -287,6 +352,84 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     }
   };
 
+  // E4: toggle the sticker picker (loads the catalogue once).
+  const toggleStickerPicker = () => {
+    setStickerPickerOpen((open) => !open);
+    if (stickersLoadedRef.current) return;
+    stickersLoadedRef.current = true;
+    setStickersLoading(true);
+    getStickerCatalog()
+      .then((list) => setStickers(list))
+      .catch((e) => showToast("error", e instanceof Error ? e.message : String(e)))
+      .finally(() => setStickersLoading(false));
+  };
+
+  // E4: pick a local image → upload to the active chat (friend or group).
+  const handlePickImage = async () => {
+    if (uploading) return;
+    const { open } = await import("@tauri-apps/plugin-dialog");
+    const file = await open({
+      multiple: false,
+      filters: [{ name: t("steam.socialImageFilter"), extensions: ["png", "jpg", "jpeg", "gif", "webp"] }],
+    });
+    if (!file || typeof file !== "string") return;
+    setUploading(true);
+    try {
+      if (socialMode === "friends") {
+        if (!selected) throw new Error(t("steam.socialEmptyFriends"));
+        await uploadChatImage(file, selected);
+      } else {
+        const chatId = selectedGroup?.defaultChatId;
+        if (!selectedGroup || !chatId) throw new Error(t("steam.socialGroupsEmpty"));
+        await uploadGroupImage(file, selectedGroup.groupId, chatId);
+      }
+      showToast("success", t("steam.socialImageSent"));
+      // Steam inserts the image server-side — re-fetch history to show it.
+      setRefreshTick((x) => x + 1);
+    } catch (e) {
+      showToast("error", e instanceof Error ? e.message : String(e));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // E4: send a sticker to the active chat (friend or group).
+  const handleSendSticker = async (name: string) => {
+    if (!selfId) return;
+    if (socialMode === "friends") {
+      if (!selected) return;
+      setMessages((prev) => [
+        ...prev,
+        { steamId: selfId, timestamp: Math.floor(Date.now() / 1000), message: `/sticker ${name}`, kind: "saytext" },
+      ]);
+      try {
+        await sendStickerMessage(selected, name);
+      } catch (e) {
+        showToast("error", e instanceof Error ? e.message : String(e));
+      }
+    } else {
+      const chatId = selectedGroup?.defaultChatId;
+      if (!selectedGroup || !chatId) return;
+      setGroupMessages((prev) => [
+        ...prev,
+        {
+          groupId: selectedGroup.groupId,
+          chatId,
+          senderSteamId: selfId,
+          timestamp: Math.floor(Date.now() / 1000),
+          ordinal: 0,
+          message: `/sticker ${name}`,
+        },
+      ]);
+      try {
+        await sendGroupMessage(selectedGroup.groupId, chatId, `/sticker ${name}`);
+      } catch (e) {
+        showToast("error", e instanceof Error ? e.message : String(e));
+      }
+    }
+    setStickerPickerOpen(false);
+  };
+
   if (!session) {
     return (
       <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 py-16 flex flex-col items-center justify-center gap-2 text-muted-foreground">
@@ -310,6 +453,34 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
           ]}
         />
       </div>
+
+      {(stickerPickerOpen || uploading) && (
+        <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 p-2">
+          {uploading && (
+            <div className="mb-2 text-xs text-muted-foreground">{t("steam.socialImageUploading")}</div>
+          )}
+          {stickerPickerOpen &&
+            (stickersLoading ? (
+              <div className="py-4 text-center text-xs text-muted-foreground">{t("common.loading")}</div>
+            ) : stickers.length === 0 ? (
+              <div className="py-4 text-center text-xs text-muted-foreground">{t("steam.socialNoStickers")}</div>
+            ) : (
+              <div className="grid max-h-40 grid-cols-6 gap-2 overflow-y-auto">
+                {stickers.map((s) => (
+                  <button
+                    key={s.name}
+                    type="button"
+                    onClick={() => void handleSendSticker(s.name)}
+                    className="rounded-lg p-1 transition-colors hover:bg-secondary/60"
+                    title={s.name}
+                  >
+                    <img src={s.imageUrl} alt={s.name} className="h-10 w-10 object-contain" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            ))}
+        </div>
+      )}
 
       <div className="app-surface app-glass-card rounded-[var(--radius)] border border-border/40 p-3 flex gap-3" style={{ height: 500 }}>
         {socialMode === "friends" ? (
@@ -386,13 +557,32 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                       return (
                         <div key={dedupKey(m) + i} className={`flex ${self ? "justify-end" : "justify-start"}`}>
                           <div className={`max-w-[75%] rounded-xl px-3 py-1.5 text-sm ${self ? "rounded-br-sm bg-primary/20 text-foreground" : "rounded-bl-sm bg-secondary/60 text-foreground"}`}>
-                            {m.message}
+                            <ChatMessageContent text={m.message} />
                           </div>
                         </div>
                       );
                     })}
                   </div>
                   <div className="mt-2 flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => void handlePickImage()}
+                      disabled={uploading}
+                      title={t("steam.socialSendImage")}
+                      className="flex-none px-2"
+                    >
+                      <Icon name="image" size={16} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleStickerPicker}
+                      title={t("steam.socialSticker")}
+                      className="flex-none px-2"
+                    >
+                      <Icon name="starFilled" size={16} />
+                    </Button>
                     <TextField
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -479,13 +669,32 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                                 {m.senderSteamId === selfId ? "" : m.senderSteamId.slice(-6)}
                               </div>
                             )}
-                            {m.message}
+                            <ChatMessageContent text={m.message} />
                           </div>
                         </div>
                       );
                     })}
                   </div>
                   <div className="mt-2 flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => void handlePickImage()}
+                      disabled={uploading}
+                      title={t("steam.socialSendImage")}
+                      className="flex-none px-2"
+                    >
+                      <Icon name="image" size={16} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleStickerPicker}
+                      title={t("steam.socialSticker")}
+                      className="flex-none px-2"
+                    >
+                      <Icon name="starFilled" size={16} />
+                    </Button>
                     <TextField
                       value={groupInput}
                       onChange={(e) => setGroupInput(e.target.value)}

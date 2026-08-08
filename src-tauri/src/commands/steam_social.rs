@@ -42,6 +42,14 @@ pub struct ChatMessageDto {
     pub kind: String,
 }
 
+/// One owned Steam sticker (from `get_sticker_catalog`).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StickerDto {
+    pub name: String,
+    pub image_url: String,
+}
+
 /// The active CM connection, keyed by account steamid.
 static ACTIVE_CM: OnceLock<Mutex<Option<(u64, cm::CmClient)>>> = OnceLock::new();
 
@@ -436,4 +444,91 @@ pub async fn poll_group_messages(state: State<'_, AppState>) -> Result<Vec<Group
             message: m.message,
         })
         .collect())
+}
+
+// ── E4 图片 / 贴纸 ───────────────────────────────────────────
+
+/// Upload an image into a friend chat and return the CDN URL. Steam's
+/// `commitfileupload` attaches the file to the conversation itself.
+#[tauri::command]
+pub async fn upload_chat_image(
+    state: State<'_, AppState>,
+    path: String,
+    steam_id: String,
+) -> Result<String, String> {
+    let (sid, access_token) = resolve_session(&state.tool_dir)?;
+    let partner = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    let client = shared_client();
+    let (w, h) = image_dimensions(&path)?;
+    social::upload_chat_image(
+        &client,
+        sid,
+        &access_token,
+        Path::new(&path),
+        &social::ChatImageTarget::Friend(partner),
+        w,
+        h,
+    )
+    .map_err(|e| e.to_string())
+}
+
+/// Upload an image into a group channel and return the CDN URL.
+#[tauri::command]
+pub async fn upload_group_image(
+    state: State<'_, AppState>,
+    path: String,
+    group_id: String,
+    chat_id: String,
+) -> Result<String, String> {
+    let (sid, access_token) = resolve_session(&state.tool_dir)?;
+    let client = shared_client();
+    let (w, h) = image_dimensions(&path)?;
+    social::upload_chat_image(
+        &client,
+        sid,
+        &access_token,
+        Path::new(&path),
+        &social::ChatImageTarget::GroupRoom {
+            group_id: group_id.parse::<u64>().map_err(|_| "invalid group id".to_string())?,
+            chat_id: chat_id.parse::<u64>().map_err(|_| "invalid chat id".to_string())?,
+        },
+        w,
+        h,
+    )
+    .map_err(|e| e.to_string())
+}
+
+/// Owned sticker catalogue (CM `ClientEmoticonList`) for the sticker picker.
+#[tauri::command]
+pub async fn get_sticker_catalog(state: State<'_, AppState>) -> Result<Vec<StickerDto>, String> {
+    let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
+    let client = ensure_cm(steam_id, &access_token).await?;
+    let stickers = client.get_sticker_catalog().await?;
+    Ok(stickers
+        .into_iter()
+        .map(|s| StickerDto {
+            name: s.name,
+            image_url: s.image_url,
+        })
+        .collect())
+}
+
+/// Send a sticker to a friend (`/sticker <name>` body, like Steam's web chat).
+#[tauri::command]
+pub async fn send_sticker_message(
+    state: State<'_, AppState>,
+    steam_id: String,
+    name: String,
+) -> Result<(), String> {
+    let (sid, access_token) = resolve_session(&state.tool_dir)?;
+    let client = ensure_cm(sid, &access_token).await?;
+    let id = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    client.send_sticker(id, &name).await
+}
+
+/// Read an image file's pixel dimensions (Steam requires them on upload).
+fn image_dimensions(path: &str) -> Result<(u32, u32), String> {
+    let reader = image::ImageReader::open(path).map_err(|e| format!("无法读取图片: {}", e))?;
+    let (w, h) = reader.into_dimensions().map_err(|e| format!("无法解析图片尺寸: {}", e))?;
+    Ok((w, h))
 }

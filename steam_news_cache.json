@@ -98,42 +98,6 @@
     ]
   },
   {
-    "app_id": 3240220,
-    "fetched_at": 1786184234,
-    "items": [
-      {
-        "appId": 3240220,
-        "title": "Plan the Perfect Getaway During the Summer Heist Event",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055888607",
-        "author": "rockstarintl_steam",
-        "contents": "Bask in two weeks of highly profitable criminal activity in GTA Online, as summer crowds flock to Southern San Andreas and Cayo Perico in search of lucrative treasures across the asphalt jungle and the sun-soaked shores. Capitalize on doubled GTA$ payouts for your first weekly completion of both The...",
-        "feedLabel": "Community Announcements",
-        "feedType": 1,
-        "date": 1785512612
-      },
-      {
-        "appId": 3240220,
-        "title": "Apprehend the New Pegassi Ignus Pursuit Law Enforcement Vehicle",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029758",
-        "author": "rockstarintl_steam",
-        "contents": "Indulge in the wholesome joys of posing as Los Santos’ finest with the new Pegassi Ignus Pursuit Law Enforcement Vehicle in GTA Online. The Ignus Pursuit combines the LSPD’s penchant for high-speed carelessness with Pegassi’s aerodynamic, high-end stylings. Anyone attempting to flee the scene in a h...",
-        "feedLabel": "Community Announcements",
-        "feedType": 1,
-        "date": 1784903921
-      },
-      {
-        "appId": 3240220,
-        "title": "Steam Global Top Sellers for week of 14 Jul — 21 July 2026",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/SteamDB/1838407329269011",
-        "author": "SteamDB",
-        "contents": "* Palworld; * Assassin's Creed Black Flag Resynced; * MECCHA CHAMELEON; * Steam Deck; * Dead by Daylight; * The Mound: Omen of Cthulhu; * Grand Theft Auto V Enhanced; * EA SPORTS FC™ 26; * Forza Horizon 6; * Halo: Campaign Evolved; * excluding free to play games View top 100 on SteamDB",
-        "feedLabel": "SteamDB",
-        "feedType": 0,
-        "date": 1784624400
-      }
-    ]
-  },
-  {
     "app_id": 1091500,
     "fetched_at": 1786193554,
     "items": [
@@ -170,42 +134,6 @@
     ]
   },
   {
-    "app_id": 1245620,
-    "fetched_at": 1786196333,
-    "items": [
-      {
-        "appId": 1245620,
-        "title": "\"Один из главных разработчиков современности\": Отец Tekken Кацухиро Харада похвалил создателя Dark Souls Хидэтаку Миядзаки",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Gamemag.ru/1837955055363607",
-        "author": "Семен Страндов",
-        "contents": "Отец Tekken Кацухиро Харада назвал главу FromSoftware Хидэтаку Миядзаки одним из самых уникальных авторов японской игровой индустрии.",
-        "feedLabel": "Gamemag.ru",
-        "feedType": 0,
-        "date": 1783905960
-      },
-      {
-        "appId": 1245620,
-        "title": "Despite investors moaning that Elden Ring's success hasn't been milked hard enough financially, FromSoftware parent company's CEO has kept his job",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1836506165549769",
-        "author": "",
-        "contents": "Forget anything that happened to twist Elden Ring's Lands Between into the shape the Tarnished finds them in during their wander from boss to boss. All of it pales in drama to the corporate battle currently going on behind-the-scenes at FromSoftware's parent company Kadokawa. Their CEO, Takeshi Nats...",
-        "feedLabel": "Rock, Paper, Shotgun",
-        "feedType": 0,
-        "date": 1782395785
-      },
-      {
-        "appId": 1245620,
-        "title": "Акционеры требуют от FromSoftware больше безопасных проектов и сиквелов — Хидэтака Миядзаки дал ответ",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Gamemag.ru/1835871199300351",
-        "author": "Семен Страндов",
-        "contents": "Акционеры компании Kadokawa Corporation стараются оказать давление на студию FromSoftware в надежде, что разработчики под руководством Хидэтаки Миядзаки станут чаще выпускать игры в уже известных сериях вместо того, чтобы экспериментировать и инвестировать в новую интеллектуальную собственность. Об ...",
-        "feedLabel": "Gamemag.ru",
-        "feedType": 0,
-        "date": 1781664840
-      }
-    ]
-  },
-  {
     "app_id": 2358720,
     "fetched_at": 1786201516,
     "items": [
@@ -228,6 +156,58 @@
         "feedLabel": "PCGamesN",
         "feedType": 0,
         "date": 1772179214
+      }
+    ]
+  },
+  {
+    "app_id": 3240220,
+    "fetched_at": 1786205102,
+    "items": [
+      {
+        "appId": 3240220,
+        "title": "Plan the Perfect Getaway During the Summer Heist Event",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055888607",
+        "author": "rockstarintl_steam",
+        "contents": "Bask in two weeks of highly profitable criminal activity in GTA Online, as summer crowds flock to Southern San Andreas and Cayo Perico in search of lucrative treasures across the asphalt jungle and the sun-soaked shores. Capitalize on doubled GTA$ payouts for your first weekly completion of both The...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1785512612
+      },
+      {
+        "appId": 3240220,
+        "title": "Apprehend the New Pegassi Ignus Pursuit Law Enforcement Vehicle",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029758",
+        "author": "rockstarintl_steam",
+        "contents": "Indulge in the wholesome joys of posing as Los Santos’ finest with the new Pegassi Ignus Pursuit Law Enforcement Vehicle in GTA Online. The Ignus Pursuit combines the LSPD’s penchant for high-speed carelessness with Pegassi’s aerodynamic, high-end stylings. Anyone attempting to flee the scene in a h...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1784903921
+      }
+    ]
+  },
+  {
+    "app_id": 1245620,
+    "fetched_at": 1786207160,
+    "items": [
+      {
+        "appId": 1245620,
+        "title": "\"Один из главных разработчиков современности\": Отец Tekken Кацухиро Харада похвалил создателя Dark Souls Хидэтаку Миядзаки",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Gamemag.ru/1837955055363607",
+        "author": "Семен Страндов",
+        "contents": "Отец Tekken Кацухиро Харада назвал главу FromSoftware Хидэтаку Миядзаки одним из самых уникальных авторов японской игровой индустрии.",
+        "feedLabel": "Gamemag.ru",
+        "feedType": 0,
+        "date": 1783905960
+      },
+      {
+        "appId": 1245620,
+        "title": "Despite investors moaning that Elden Ring's success hasn't been milked hard enough financially, FromSoftware parent company's CEO has kept his job",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1836506165549769",
+        "author": "",
+        "contents": "Forget anything that happened to twist Elden Ring's Lands Between into the shape the Tarnished finds them in during their wander from boss to boss. All of it pales in drama to the corporate battle currently going on behind-the-scenes at FromSoftware's parent company Kadokawa. Their CEO, Takeshi Nats...",
+        "feedLabel": "Rock, Paper, Shotgun",
+        "feedType": 0,
+        "date": 1782395785
       }
     ]
   }

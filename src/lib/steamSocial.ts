@@ -101,3 +101,36 @@ export function sendGroupMessage(groupId: string, chatId: string, text: string):
 export function pollGroupMessages(): Promise<GroupMessageDto[]> {
   return invoke<GroupMessageDto[]>("poll_group_messages");
 }
+
+// ── E4 图片 / 贴纸 ───────────────────────────────────────────
+
+/** One owned Steam sticker (from `get_sticker_catalog`). */
+export interface StickerDto {
+  name: string;
+  imageUrl: string;
+}
+
+/** Upload an image into a friend chat; Steam inserts it as an image message. */
+export function uploadChatImage(path: string, steamId: string): Promise<string> {
+  return invoke<string>("upload_chat_image", { path, steamId });
+}
+
+/** Upload an image into a group channel; Steam inserts it as an image message. */
+export function uploadGroupImage(path: string, groupId: string, chatId: string): Promise<string> {
+  return invoke<string>("upload_group_image", { path, groupId, chatId });
+}
+
+/** Owned sticker catalogue (for the sticker picker). */
+export function getStickerCatalog(): Promise<StickerDto[]> {
+  return invoke<StickerDto[]>("get_sticker_catalog");
+}
+
+/** Send a sticker to a friend (`/sticker <name>` body, like Steam's web chat). */
+export function sendStickerMessage(steamId: string, name: string): Promise<void> {
+  return invoke("send_sticker_message", { steamId, name });
+}
+
+/** CDN URL for a sticker asset, given its name. */
+export function stickerImageUrl(name: string): string {
+  return `https://steamcommunity.com/economy/sticker/${encodeURIComponent(name)}`;
+}

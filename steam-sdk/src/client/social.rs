@@ -11,6 +11,7 @@ use crate::cm::proto_wire::{self, Writer};
 use crate::error::{Result, SteamError};
 use base64::Engine;
 use serde::Deserialize;
+use std::path::Path;
 
 const API_BASE: &str = "https://api.steampowered.com";
 
@@ -348,6 +349,317 @@ fn percent_encode(input: &str) -> String {
     out
 }
 
+// ── Chat image upload (Steam web-chat flow) ──────────────────
+
+/// Destination for a chat image upload — a friend chat or a group room.
+#[derive(Debug, Clone)]
+pub enum ChatImageTarget {
+    Friend(u64),
+    GroupRoom { group_id: u64, chat_id: u64 },
+}
+
+const CHAT_UPLOAD_BEGIN_URL: &str = "https://steamcommunity.com/chat/beginfileupload/";
+const CHAT_UPLOAD_COMMIT_URL: &str = "https://steamcommunity.com/chat/commitfileupload/";
+const MAX_CHAT_IMAGE_BYTES: u64 = 30 * 1024 * 1024;
+
+/// Upload an image into a chat conversation and return its committed CDN URL.
+///
+/// Mirrors Steam's own web chat: `beginfileupload` reserves a UGC slot and
+/// returns a signed cloud URL + headers, the file bytes are `PUT` there, then
+/// `commitfileupload` attaches the file to the target conversation (its form
+/// fields select the friend / group room). The commit itself inserts the image
+/// message — no separate `SendMessage` is needed.
+///
+/// `steam_id` + `access_token` build the `steamLoginSecure` cookie (Steam's web
+/// client sends `||` percent-encoded as `%7C%7C`); `width`/`height` are the
+/// source image's pixel dimensions.
+pub fn upload_chat_image(
+    client: &SteamHttpClient,
+    steam_id: u64,
+    access_token: &str,
+    path: &Path,
+    target: &ChatImageTarget,
+    width: u32,
+    height: u32,
+) -> Result<String> {
+    let mime = mime_from_path(path)
+        .ok_or_else(|| SteamError::General("unsupported image type (use png/jpg/gif/webp)".into()))?;
+    let file_name = upload_file_name(path);
+    let file_bytes = std::fs::read(path)?;
+    if file_bytes.is_empty() {
+        return Err(SteamError::General("empty image file".into()));
+    }
+    if file_bytes.len() as u64 > MAX_CHAT_IMAGE_BYTES {
+        return Err(SteamError::General("Steam chat images must be ≤ 30 MB".into()));
+    }
+
+    let session_id = random_hex(12);
+    // `file_sha` must be the real SHA1 of the uploaded bytes — Steam's commit
+    // step verifies it against the stored file (a random value → commit 16).
+    let sha = sha1_hex(&file_bytes);
+    let sha_upper = sha.to_uppercase();
+    let cookie = format!(
+        "sessionid={}; steamLoginSecure={}%7C%7C{}",
+        session_id, steam_id, access_token
+    );
+
+    // 1. Begin: reserve a UGC slot and get the signed cloud upload target.
+    let file_size = file_bytes.len().to_string();
+    let file_width = width.to_string();
+    let file_height = height.to_string();
+    let begin_fields = vec![
+        ("sessionid", session_id.as_str()),
+        ("l", "schinese"),
+        ("file_size", file_size.as_str()),
+        ("file_name", file_name.as_str()),
+        ("file_sha", sha.as_str()),
+        ("file_image_width", file_width.as_str()),
+        ("file_image_height", file_height.as_str()),
+        ("file_type", mime),
+    ];
+    let begin_text = post_chat_form(client, &cookie, CHAT_UPLOAD_BEGIN_URL, &begin_fields)?;
+    let begin: serde_json::Value = serde_json::from_str(&begin_text)
+        .map_err(|e| SteamError::Http(format!("beginfileupload: invalid JSON: {}", e)))?;
+    // Steam does not always return a top-level `success` here — success is
+    // implied by the presence of the upload credentials below. Only an explicit
+    // `success:0` (or `false`) counts as a rejection.
+    if has_explicit_failure(&begin) {
+        return Err(SteamError::Http(format!(
+            "beginfileupload rejected (body: {})",
+            truncate(&begin_text, 200)
+        )));
+    }
+    let result = begin["result"].as_object().ok_or_else(|| {
+        SteamError::Http("beginfileupload returned no result object".into())
+    })?;
+    let host = result
+        .get("url_host")
+        .and_then(|v| v.as_str())
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| SteamError::Http("beginfileupload returned no upload host".into()))?;
+    let path_seg = result.get("url_path").and_then(|v| v.as_str()).unwrap_or("");
+    let cloud_url = format!(
+        "https://{}{}",
+        host,
+        if path_seg.starts_with('/') {
+            path_seg.to_string()
+        } else {
+            format!("/{}", path_seg)
+        }
+    );
+    // `ugcid` / `timestamp` / `hmac` appear at the top level on live Steam; read
+    // them from either location for robustness.
+    let ugcid = begin["ugcid"]
+        .as_str()
+        .or_else(|| result.get("ugcid").and_then(|v| v.as_str()))
+        .unwrap_or("")
+        .to_string();
+    let timestamp = begin["timestamp"]
+        .as_i64()
+        .or_else(|| {
+            begin["timestamp"]
+                .as_str()
+                .and_then(|s| s.parse::<i64>().ok())
+        })
+        .or_else(|| result.get("timestamp").and_then(|v| v.as_i64()))
+        .unwrap_or(0);
+    let hmac = begin["hmac"]
+        .as_str()
+        .or_else(|| result.get("hmac").and_then(|v| v.as_str()))
+        .unwrap_or("")
+        .to_string();
+    if ugcid.is_empty() || timestamp == 0 || hmac.is_empty() {
+        return Err(SteamError::Http("beginfileupload returned incomplete upload credentials".into()));
+    }
+    let mut upload_headers: Vec<(String, String)> = Vec::new();
+    if let Some(arr) = result.get("request_headers").and_then(|v| v.as_array()) {
+        for header in arr {
+            let name = header.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let value = header.get("value").and_then(|v| v.as_str()).unwrap_or("");
+            if !name.is_empty() && !is_blocked_upload_header(name) {
+                upload_headers.push((name.to_string(), value.to_string()));
+            }
+        }
+    }
+
+    // 2. PUT the file to the signed cloud URL.
+    let agent = client.agent();
+    let mut put = agent.put(&cloud_url);
+    for (name, value) in &upload_headers {
+        put = put.set(name, value);
+    }
+    put = put.set("Content-Type", mime);
+    let put_resp = put
+        .send_bytes(&file_bytes)
+        .map_err(|e| map_ureq_error("cloud upload", e))?;
+    if put_resp.status() != 200 {
+        return Err(SteamError::Http(format!(
+            "cloud upload failed (HTTP {})",
+            put_resp.status()
+        )));
+    }
+
+    // 3. Commit: attach the file to the target conversation.
+    let mut commit_fields: Vec<(String, String)> = vec![
+        ("sessionid".into(), session_id),
+        ("l".into(), "schinese".into()),
+        ("file_name".into(), file_name),
+        ("file_sha".into(), sha),
+        ("file_size".into(), file_size),
+        ("file_image_width".into(), file_width),
+        ("file_image_height".into(), file_height),
+        ("file_type".into(), mime.to_string()),
+        ("success".into(), "1".into()),
+        ("ugcid".into(), ugcid.clone()),
+        ("timestamp".into(), timestamp.to_string()),
+        ("hmac".into(), hmac),
+    ];
+    match target {
+        ChatImageTarget::Friend(steam_id) => {
+            commit_fields.push(("friend_steamid".into(), steam_id.to_string()));
+        }
+        ChatImageTarget::GroupRoom { group_id, chat_id } => {
+            commit_fields.push(("chat_group_id".into(), group_id.to_string()));
+            commit_fields.push(("chat_id".into(), chat_id.to_string()));
+        }
+    }
+    commit_fields.push(("spoiler".into(), "0".into()));
+
+    let commit_pairs: Vec<(&str, &str)> = commit_fields
+        .iter()
+        .map(|(k, v)| (k.as_str(), v.as_str()))
+        .collect();
+    let commit_text = post_chat_form(client, &cookie, CHAT_UPLOAD_COMMIT_URL, &commit_pairs)?;
+    let commit: serde_json::Value = serde_json::from_str(&commit_text)
+        .map_err(|e| SteamError::Http(format!("commitfileupload: invalid JSON: {}", e)))?;
+    if has_explicit_failure(&commit) || has_explicit_failure(&commit["result"]) {
+        return Err(SteamError::Http(format!(
+            "commitfileupload rejected (body: {})",
+            truncate(&commit_text, 200)
+        )));
+    }
+    let url = commit["result"]["details"]["url"]
+        .as_str()
+        .filter(|s| !s.is_empty())
+        .map(String::from)
+        .unwrap_or_else(|| format!("https://images.steamusercontent.com/ugc/{}/{}/", ugcid, sha_upper));
+    Ok(url)
+}
+
+/// POST a URL-encoded form to `steamcommunity.com/chat/*` with the chat headers
+/// (Steam's web client sends these as `application/x-www-form-urlencoded`, not
+/// multipart).
+fn post_chat_form(
+    client: &SteamHttpClient,
+    cookie: &str,
+    url: &str,
+    fields: &[(&str, &str)],
+) -> Result<String> {
+    let response = client
+        .agent()
+        .post(url)
+        .set("Origin", "https://steamcommunity.com")
+        .set("Referer", "https://steamcommunity.com/chat/")
+        .set("X-Requested-With", "com.valvesoftware.android.steam.community")
+        .set("Cookie", cookie)
+        .send_form(fields)
+        .map_err(|e| map_ureq_error(url, e))?;
+    if response.status() != 200 {
+        return Err(SteamError::Http(format!("{} returned HTTP {}", url, response.status())));
+    }
+    response
+        .into_string()
+        .map_err(|e| SteamError::Http(format!("{}: failed to read body: {}", url, e)))
+}
+
+fn sha1_hex(bytes: &[u8]) -> String {
+    let digest = ring::digest::digest(&ring::digest::SHA1_FOR_LEGACY_USE_ONLY, bytes);
+    digest.as_ref().iter().map(|b| format!("{:02x}", b)).collect()
+}
+
+fn upload_file_name(path: &Path) -> String {
+    let base = path
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("image");
+    let sanitized: String = base
+        .chars()
+        .map(|c| if c.is_control() || c == '/' || c == '\\' { '_' } else { c })
+        .take(180)
+        .collect();
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0);
+    format!("{}_{}", ts, sanitized)
+}
+
+fn mime_from_path(path: &Path) -> Option<&'static str> {
+    let ext = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    match ext.as_str() {
+        "jpg" | "jpeg" => Some("image/jpeg"),
+        "png" => Some("image/png"),
+        "gif" => Some("image/gif"),
+        "webp" => Some("image/webp"),
+        "avif" => Some("image/avif"),
+        _ => None,
+    }
+}
+
+fn is_blocked_upload_header(name: &str) -> bool {
+    matches!(
+        name.to_ascii_lowercase().as_str(),
+        "host" | "content-length" | "cookie" | "authorization"
+    )
+}
+
+fn random_hex(bytes: usize) -> String {
+    (0..bytes).map(|_| format!("{:02x}", rand::random::<u8>())).collect()
+}
+
+/// Steam upload responses flag success as `1` (int) or `true` (bool) depending
+/// on endpoint — accept either.
+fn json_success(value: &serde_json::Value) -> bool {
+    match value {
+        serde_json::Value::Number(n) => n.as_i64() == Some(1),
+        serde_json::Value::Bool(b) => *b,
+        serde_json::Value::String(s) => s == "1" || s.eq_ignore_ascii_case("true"),
+        _ => false,
+    }
+}
+
+/// A present `success` field that is explicitly falsy means the upload was
+/// rejected. Absence of the field is NOT a failure — some endpoints (live
+/// `beginfileupload`) omit it entirely and signal success via their payload.
+fn has_explicit_failure(value: &serde_json::Value) -> bool {
+    match value.get("success") {
+        Some(s) => !json_success(s),
+        None => false,
+    }
+}
+
+fn map_ureq_error(what: &str, err: ureq::Error) -> SteamError {
+    match err {
+        ureq::Error::Status(code, response) => {
+            let body = response.into_string().unwrap_or_default();
+            SteamError::Http(format!("{} failed (HTTP {}): {}", what, code, truncate(&body, 300)))
+        }
+        e => SteamError::Http(format!("{} failed: {}", what, e)),
+    }
+}
+
+fn truncate(s: &str, max_len: usize) -> &str {
+    if s.len() <= max_len {
+        s
+    } else {
+        &s[..max_len]
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -501,5 +813,36 @@ mod tests {
         assert_eq!(summary.personastate, Some(1));
         assert_eq!(summary.gameextrainfo.as_deref(), Some("CS2"));
         assert_eq!(summary.lastlogoff, Some(1700000000));
+    }
+
+    #[test]
+    fn sha1_hex_vector() {
+        // RFC 3174 test vector: SHA1("abc").
+        assert_eq!(
+            sha1_hex(b"abc"),
+            "a9993e364706816aba3e25717850c26c9cd0d89d"
+        );
+        assert_eq!(sha1_hex(b""), "da39a3ee5e6b4b0d3255bfef95601890afd80709");
+    }
+
+    #[test]
+    fn mime_and_header_filtering() {
+        assert_eq!(mime_from_path(Path::new("a.JPG")), Some("image/jpeg"));
+        assert_eq!(mime_from_path(Path::new("x.png")), Some("image/png"));
+        assert_eq!(mime_from_path(Path::new("x.gif")), Some("image/gif"));
+        assert_eq!(mime_from_path(Path::new("x.bin")), None);
+        assert!(is_blocked_upload_header("Host"));
+        assert!(is_blocked_upload_header("content-length"));
+        assert!(is_blocked_upload_header("Cookie"));
+        assert!(is_blocked_upload_header("Authorization"));
+        assert!(!is_blocked_upload_header("x-goog-algorithm"));
+    }
+
+    #[test]
+    fn sanitize_upload_name() {
+        let name = upload_file_name(Path::new("C:\\tmp\\my photo.png"));
+        assert!(name.ends_with("_my photo.png"));
+        assert!(name.len() > 30, "has a nano-time prefix");
+        assert!(!name.contains('\\'));
     }
 }

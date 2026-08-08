@@ -175,7 +175,7 @@ interface PendingConfirmation {
 - **在线状态**：`PollStatus`（长轮询，返回在线变化与未读）。
 - **私聊**：`SendMessage`（发送）+ `PollStatus`（增量拉取新消息）。
 - **群聊**：网页群聊接口（`GetChatRoomGroupSummary` / `JoinChatRoom` / `SendChatMessage` 等）。
-- **贴纸/图片**：贴纸走消息 JSON 的 `sticker` 字段；图片经社区聊天上传接口（multipart）→ CDN URL → 作为消息发出。
+- **贴纸/图片**（E4 实测结论，2026-08-09）：贴纸走 **CM `ClientGetEmoticonList`(236)→`ClientEmoticonList`(237)** 拉取已拥有贴纸目录（field 2），发送就是普通文本消息 `chat_entry_type=1` + body `/sticker <name>`（Steam 端按 slash-command 渲染为贴纸，与 Monica 一致）；图片经 **`steamcommunity.com/chat/beginfileupload` → PUT 签名 cloud_url → `commitfileupload`** 三段式上传，**提交本身即把图片插入会话**（commit 的 `friend_steamid`/`chat_group_id`+`chat_id` 指定目标），无需再发消息；历史/入站渲染识别 `/sticker name` 与 BBCode `[img]url[/img]`。
 - **语音**：Steam 语音需 CM + WebRTC 中继（V2 语音服务器），WebView 有 WebRTC 但需 CM 信令——**列为探索性 spike**，单独 go/no-go。
 
 > 风险声明：以上均为 Steam 网页/移动**非公开接口**，Steam 调整即可能失效（Monica README 亦如此声明）。全部走轮询 + 前端 `setInterval`，与现有 Steam Hub 轮询模式一致。
