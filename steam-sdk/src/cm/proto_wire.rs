@@ -93,6 +93,18 @@ pub fn get_varint(fields: &[(u64, WireValue)], number: u64) -> Option<u64> {
         })
 }
 
+/// Read a field as a number regardless of the wire type (varint / fixed64 /
+/// fixed32). Steam encodes the same field with different wire types across
+/// endpoints, so strict `get_varint` can silently miss values.
+pub fn get_number(fields: &[(u64, WireValue)], number: u64) -> Option<u64> {
+    fields.iter().find(|(n, _)| *n == number).and_then(|(_, v)| match v {
+        WireValue::Varint(x) => Some(*x),
+        WireValue::Fixed64(x) => Some(*x),
+        WireValue::Fixed32(x) => Some(*x as u64),
+        _ => None,
+    })
+}
+
 pub fn get_fixed64(fields: &[(u64, WireValue)], number: u64) -> Option<u64> {
     fields
         .iter()

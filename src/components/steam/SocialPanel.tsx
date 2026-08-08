@@ -46,6 +46,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [friendsError, setFriendsError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessageDto[]>([]);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -82,11 +83,16 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     let cancelled = false;
     getChatHistory(selected, 50)
       .then((history) => {
-        if (!cancelled) setMessages(history);
+        if (!cancelled) {
+          setMessages(history);
+          setHistoryError(null);
+        }
       })
-      .catch(() => {
-        // History unavailable — start with an empty conversation.
-        if (!cancelled) setMessages([]);
+      .catch((e) => {
+        if (!cancelled) {
+          setMessages([]);
+          setHistoryError(e instanceof Error ? e.message : String(e));
+        }
       });
     return () => {
       cancelled = true;
@@ -227,9 +233,13 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
             </div>
 
             <div ref={listRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-              {messages.length === 0 && (
+              {messages.length === 0 && historyError ? (
+                <div className="break-words px-2 py-8 text-center text-xs text-red-500">
+                  {t("steam.socialLoadFailed", { error: historyError })}
+                </div>
+              ) : messages.length === 0 ? (
                 <div className="py-8 text-center text-xs text-muted-foreground">{t("steam.socialChatEmpty")}</div>
-              )}
+              ) : null}
               {messages.map((m, i) => {
                 const self = selfId != null && m.steamId === selfId;
                 return (

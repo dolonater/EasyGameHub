@@ -59,7 +59,7 @@ pub fn get_recent_messages(
     let url = format!(
         "{}/IFriendMessagesService/GetRecentMessages/v1/?input_protobuf_encoded={}&access_token={}",
         API_BASE,
-        encoded,
+        percent_encode(&encoded),
         percent_encode(access_token)
     );
     let response = client.get(&url)?;
@@ -67,7 +67,38 @@ pub fn get_recent_messages(
         return Err(status_error(response.status()));
     }
     let body = response.into_vec()?;
-    parse_recent_messages(&body)
+    let parsed = parse_recent_messages(&body)?;
+    // Diagnostic: if the response DID contain message entries (field 1 bytes)
+    // but none parsed into a message, surface the field structure instead of
+    // silently reporting an empty conversation.
+    if parsed.messages.is_empty() {
+        let fields = proto_wire::parse(&body).unwrap_or_default();
+        let has_entries = fields
+            .iter()
+            .any(|(n, v)| *n == 1 && matches!(v, proto_wire::WireValue::Bytes(_)));
+        if has_entries {
+            let summary: Vec<String> = fields
+                .iter()
+                .take(12)
+                .map(|(n, v)| format!("{}:{}", n, wire_kind(v)))
+                .collect();
+            return Err(SteamError::Http(format!(
+                "GetRecentMessages: {} entries failed to parse (fields: {})",
+                fields.iter().filter(|(n, _)| *n == 1).count(),
+                summary.join(", ")
+            )));
+        }
+    }
+    Ok(parsed)
+}
+
+fn wire_kind(v: &proto_wire::WireValue) -> &'static str {
+    match v {
+        proto_wire::WireValue::Varint(_) => "varint",
+        proto_wire::WireValue::Fixed64(_) => "fixed64",
+        proto_wire::WireValue::Fixed32(_) => "fixed32",
+        proto_wire::WireValue::Bytes(_) => "bytes",
+    }
 }
 
 fn parse_recent_messages(body: &[u8]) -> Result<RecentMessages> {
@@ -87,15 +118,15 @@ fn parse_recent_messages(body: &[u8]) -> Result<RecentMessages> {
             }
         };
         if let Ok(msg_fields) = proto_wire::parse(&bytes) {
-            let account_id = proto_wire::get_varint(&msg_fields, 1).unwrap_or(0);
+            let account_id = proto_wire::get_number(&msg_fields, 1).unwrap_or(0);
             if account_id > 0 {
                 let body = proto_wire::get_string(&msg_fields, 3).unwrap_or_default();
                 if !body.trim().is_empty() {
                     messages.push(HistoryMessage {
                         sender_steamid: steamid64_from_account_id(account_id),
-                        timestamp: proto_wire::get_varint(&msg_fields, 2).unwrap_or(0) as u32,
+                        timestamp: proto_wire::get_number(&msg_fields, 2).unwrap_or(0) as u32,
                         body,
-                        ordinal: proto_wire::get_varint(&msg_fields, 4).unwrap_or(0) as u32,
+                        ordinal: proto_wire::get_number(&msg_fields, 4).unwrap_or(0) as u32,
                     });
                 }
             }
