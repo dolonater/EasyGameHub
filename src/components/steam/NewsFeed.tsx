@@ -5,6 +5,7 @@ import Button from "../ui/Button";
 import TextField from "../ui/TextField";
 import Icon from "../ui/Icon";
 import ChipDropdown from "../ui/ChipDropdown";
+import Dialog from "../ui/Dialog";
 import GameSearchBox from "./GameSearchBox";
 import { showToast } from "../Notification";
 import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
@@ -89,6 +90,9 @@ export default function NewsFeed({
   const [newName, setNewName] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [manageOpen, setManageOpen] = useState(false);
+  // In-app article reader (reuses the ui Dialog).
+  const [reading, setReading] = useState<NewsItemDto | null>(null);
+  const [readingLoading, setReadingLoading] = useState(false);
 
   // Filtering / grouping / unread / expand state.
   const [gameFilter, setGameFilter] = useState<string>("all");
@@ -208,7 +212,7 @@ export default function NewsFeed({
     });
   };
 
-  const openLink = (url: string) => {
+  const openOriginal = (url: string) => {
     void invoke("open_url", { url });
   };
 
@@ -239,7 +243,18 @@ export default function NewsFeed({
     const unread = !readKeys.has(key);
     const open = () => {
       markRead(item);
-      openLink(item.url);
+      // Show the feed preview immediately, then upgrade with the full article.
+      setReading(item);
+      setReadingLoading(true);
+      void invoke<NewsItemDto | null>("get_news_article", {
+        appId: item.appId,
+        url: item.url,
+      })
+        .then((full) => {
+          if (full) setReading(full);
+        })
+        .catch(() => {})
+        .finally(() => setReadingLoading(false));
     };
     return (
       <div
@@ -283,7 +298,7 @@ export default function NewsFeed({
               className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary"
             >
               <Icon name="externalLink" size={12} />
-              {t("steam.newsRead", { defaultValue: "阅读原文" })}
+              {t("steam.newsRead", { defaultValue: "阅读全文" })}
             </button>
             {appIds.includes(item.appId) && (
               <button
@@ -570,6 +585,46 @@ export default function NewsFeed({
           <div className="space-y-2">{filtered.map((item) => renderCard(item))}</div>
         )
       )}
+
+      {/* In-app article reader */}
+      <Dialog
+        open={reading !== null}
+        onClose={() => setReading(null)}
+        title={reading?.title}
+        size="lg"
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => reading && openOriginal(reading.url)}
+              ripple={false}
+            >
+              <Icon name="externalLink" size={14} />
+              {t("steam.newsOpenOriginal", { defaultValue: "在浏览器打开原文" })}
+            </Button>
+            <Button variant="primary" onClick={() => setReading(null)} ripple={false}>
+              {t("steam.newsClose", { defaultValue: "关闭" })}
+            </Button>
+          </>
+        }
+      >
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span className="font-semibold">
+            {reading?.appId != null ? appNames[reading.appId] || `App ${reading.appId}` : ""}
+          </span>
+          {reading?.feedLabel && (
+            <span className="rounded-full border border-border/60 bg-secondary/40 px-2 py-0.5">
+              {reading.feedLabel}
+            </span>
+          )}
+          {reading?.date != null && <span>{fmtDate(reading.date)}</span>}
+          {reading?.author && <span>· {reading.author}</span>}
+          {readingLoading && <Icon name="reset" size={12} className="animate-spin" />}
+        </div>
+        <p className="whitespace-pre-line text-sm leading-relaxed text-foreground">
+          {reading?.contents}
+        </p>
+      </Dialog>
     </div>
   );
 }

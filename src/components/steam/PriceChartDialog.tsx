@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "../ui/Icon";
 import { formatPriceCents } from "../../lib/steamCommunity";
@@ -23,7 +23,8 @@ const PAD = { top: 16, right: 12, bottom: 26, left: 12 };
  *
  * Must tolerate an empty `points` array: the parent clears the chart item as
  * soon as the dialog starts closing, so the fade-out animation still renders
- * with no data — guard against that instead of indexing a missing point.
+ * with no data. The last opened data is kept during the fade so the panel
+ * doesn't blank/collapse, and the chart still guards against empty input.
  */
 export default function PriceChartDialog({
   open,
@@ -34,6 +35,9 @@ export default function PriceChartDialog({
 }: PriceChartDialogProps) {
   const [closing, setClosing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // Keep the last opened data while closing, so clearing `chartItem` in the
+  // parent doesn't empty the chart mid-fade-out.
+  const lastRef = useRef({ title, points, currency });
 
   useEffect(() => {
     if (open) {
@@ -48,21 +52,24 @@ export default function PriceChartDialog({
 
   if (!mounted) return null;
 
+  if (open) lastRef.current = { title, points, currency };
+  const { title: displayTitle, points: displayPoints, currency: displayCurrency } = lastRef.current;
+
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
-  const prices = points.map((p) => p.finalPrice);
+  const prices = displayPoints.map((p) => p.finalPrice);
   const max = prices.length ? Math.max(...prices) : 0;
   const min = prices.length ? Math.min(...prices) : 0;
   const range = max - min || 1;
   const mid = min + range / 2;
   const x = (i: number) =>
-    PAD.left + (points.length <= 1 ? innerW / 2 : (i / (points.length - 1)) * innerW);
+    PAD.left + (displayPoints.length <= 1 ? innerW / 2 : (i / (displayPoints.length - 1)) * innerW);
   const y = (p: number) => PAD.top + innerH - ((p - min) / range) * innerH;
-  const line = points
+  const line = displayPoints
     .map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.finalPrice).toFixed(1)}`)
     .join(" ");
-  const last = points.length > 0 ? points[points.length - 1] : null;
-  const lowest = points.reduce(
+  const last = displayPoints.length > 0 ? displayPoints[displayPoints.length - 1] : null;
+  const lowest = displayPoints.reduce(
     (acc, p, i) => (p.finalPrice < acc.price ? { price: p.finalPrice, index: i } : acc),
     { price: Number.POSITIVE_INFINITY, index: 0 },
   );
@@ -92,16 +99,16 @@ export default function PriceChartDialog({
         </button>
 
         <div className="pr-8">
-          <div className="truncate text-sm font-bold">{title}</div>
+          <div className="truncate text-sm font-bold">{displayTitle}</div>
           <div className="mt-0.5 text-xs text-muted-foreground">
-            {last && formatPriceCents(last.finalPrice, currency)}
+            {last && formatPriceCents(last.finalPrice, displayCurrency)}
             {last && atLow && (
               <span className="ml-1 text-green-600 dark:text-green-400">历史最低</span>
             )}
           </div>
         </div>
 
-        {points.length > 0 ? (
+        {displayPoints.length > 0 ? (
           <svg
             viewBox={`0 0 ${W} ${H}`}
             className="mt-3 w-full"
@@ -126,7 +133,7 @@ export default function PriceChartDialog({
                   textAnchor="end"
                   className="fill-muted-foreground text-[9px]"
                 >
-                  {formatPriceCents(v, currency)}
+                  {formatPriceCents(v, displayCurrency)}
                 </text>
               </g>
             ))}
@@ -150,7 +157,7 @@ export default function PriceChartDialog({
             />
 
             {/* Points with native tooltip */}
-            {points.map((p, i) => (
+            {displayPoints.map((p, i) => (
               <circle
                 key={i}
                 cx={x(i)}
@@ -162,7 +169,7 @@ export default function PriceChartDialog({
                 <title>
                   {p.date}
                   {"\n"}
-                  {formatPriceCents(p.finalPrice, currency)}
+                  {formatPriceCents(p.finalPrice, displayCurrency)}
                   {p.discountPercent > 0 ? ` (-${p.discountPercent}%)` : ""}
                 </title>
               </circle>
@@ -170,7 +177,7 @@ export default function PriceChartDialog({
 
             {/* Date labels */}
             <text x={PAD.left} y={H - 8} className="fill-muted-foreground text-[9px]">
-              {points[0].date}
+              {displayPoints[0].date}
             </text>
             <text x={W - PAD.right} y={H - 8} textAnchor="end" className="fill-muted-foreground text-[9px]">
               {last?.date ?? ""}

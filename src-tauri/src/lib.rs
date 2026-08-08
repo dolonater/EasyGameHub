@@ -452,6 +452,7 @@ pub fn run() {
             commands::steam_community::search_steam_games,
             commands::steam_community::set_price_threshold,
             commands::steam_community::get_price_thresholds,
+            commands::steam_community::get_news_article,
             commands::authenticator::get_auth_entries,
             commands::authenticator::add_auth_entry,
             commands::authenticator::delete_auth_entry,
