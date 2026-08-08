@@ -14,9 +14,6 @@ const VISIBILITY_KEY = "doona-sidebar-visibility-v1";
 const VISIBILITY_EVENT = "doona-sidebar-visibility-change";
 const ALWAYS_VISIBLE_KEYS = new Set(["settings"]);
 
-/** Core sidebar items — anything else in a saved order is a plugin entry. */
-const CORE_SIDEBAR_KEYS = new Set(["library", "playtime", "screenshots", "games", "steam", "settings"]);
-
 export const DEFAULT_SIDEBAR_ORDER: SidebarOrderState = {
   all: ["library", "playtime", "screenshots", "games", "steam", "settings"],
   games: ["library", "playtime", "screenshots", "games"],
@@ -68,24 +65,6 @@ function normalizeGroup(values: unknown, fallback: string[]) {
   return next;
 }
 
-/**
- * Keep the Steam hub group directly above the plugins group.
- *
- * Orders saved before Steam existed append it to the very end (after the
- * plugins), so without this the Steam nav item renders below "插件". Move it
- * up to sit right before the first plugin entry whenever it has drifted below.
- */
-function ensureSteamAbovePlugins(all: string[]): string[] {
-  const steamIdx = all.indexOf("steam");
-  if (steamIdx < 0) return all;
-  const firstPluginIdx = all.findIndex((key) => !CORE_SIDEBAR_KEYS.has(key));
-  if (firstPluginIdx < 0 || steamIdx < firstPluginIdx) return all;
-  const next = [...all];
-  next.splice(steamIdx, 1);
-  next.splice(firstPluginIdx, 0, "steam");
-  return next;
-}
-
 export function getSidebarOrder(): SidebarOrderState {
   const stored = readJson();
   const games = normalizeGroup(stored?.games, DEFAULT_SIDEBAR_ORDER.games);
@@ -99,7 +78,7 @@ export function getSidebarOrder(): SidebarOrderState {
   const fallbackAll = [...games, ...steam, ...plugins, ...system];
 
   return {
-    all: ensureSteamAbovePlugins(normalizeGroup(stored?.all, fallbackAll)),
+    all: normalizeGroup(stored?.all, fallbackAll),
     games,
     steam,
     system,
