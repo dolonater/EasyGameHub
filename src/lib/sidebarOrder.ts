@@ -94,7 +94,9 @@ export function getSidebarOrder(): SidebarOrderState {
   const plugins = Array.isArray(stored?.plugins)
     ? stored!.plugins.filter((item): item is string => typeof item === "string" && item.length > 0)
     : [];
-  const fallbackAll = [...games, ...steam, ...system, ...plugins];
+  // Default group order: 游戏 → Steam → 插件 → 系统. Plugin keys go above
+  // settings so a fresh install renders the system group last.
+  const fallbackAll = [...games, ...steam, ...plugins, ...system];
 
   return {
     all: ensureSteamAbovePlugins(normalizeGroup(stored?.all, fallbackAll)),
