@@ -520,3 +520,24 @@
   2. 切回社交页签每次显示加载中 → 根因：SteamHub 条件渲染 `{tab==="social" && <SocialPanel/>}`，切走卸载/切回重挂，React 状态全丢。修复：SocialPanel 保持挂载（CSS hidden 切换），聊天状态/滚动/选中跨 Tab 保留；CM 轮询后台持续计未读。附带：账号切换时重置 selected/messages/groups/sessions（keep-mounted 不再重挂导致旧账号选中残留）；好友在线状态补 60s 静默周期刷新（原先靠重挂刷新）。
   - 验证：npm run build 通过。
 - 撤销（2026-08-09）：「切回社交页显示加载中」的 keep-mounted 修复被撤销（用户要求），恢复 SteamHub 条件渲染 + 移除连带改动（好友/群/会话 effect 的账号切换重置、60s 好友周期刷新）。**保留**未读徽标即时清零修复（chat-open effect 的 refreshSessionsList()）。
+- 全面 Review 第 1 轮（2026-08-09，对照设计/计划文档）—— 修复 7 项：
+  1. merge 误标失败：refresh_chat 会把刚发出还在途的 Pending 错标 FailedRetryable（服务器历史未及时含它）→ 加 now_ts 年龄门槛，仅超窗（60s）才标失败
+  2. merge 重复：同秒发两条相同内容会同时认领同一服务器孪生 → twins 消费式匹配（每服务器消息只被认领一次）
+  3. echo 自愈缺失：correlate_friend_echo 只匹配 Pending，误标 FailedRetryable 后 echo 救不回 → 改匹配任意非 Sent
+  4. 未读竞态：refresh_chat/refresh_group_chat 强制写 unread=0，可能覆盖刷新在途新到达的未读 → 改保留缓存未读，清零仅由 open_* 负责
+  5. 空文本守卫：send_chat_message/send_group_message 裸调可发空消息 → 补 Err 守卫
+  6. 计划遗漏：T21 要求的群行未读徽标当时未实现 → ChatGroupRoomDto.unread_count 由群线程快照派生（load/refresh_groups），前端群行徽标 + open 后/非活跃新消息时重读列表
+  7. 前端重复：跨秒发送时乐观气泡（本地 ts）与服务器确认版（服务器 ts）去重键不同，永久重复 → unionMessages/unionGroupMessages 对自己消息按正文去重
+  - 新增测试：merge_keeps_recent_unmatched_pending_pending、merge_consumes_twins_for_identical_sends、echo_self_heals_failed_retryable
+  - 验证：cargo test --workspace（src-tauri 84 + steam-sdk 95）、cargo check --workspace、npm run build 全绿
+- 全面 Review 第 2 轮（2026-08-09，命令层并发/错误路径/前端竞态）—— 修复 2 项：
+  1. poll_group_messages 写穿会 append 自己发的群消息（CM 回显自己的发送）→ 缓存重复 + 非活跃时给自己计未读 → 写穿循环跳过 self（send_group_message 已写 Sent）
+  2. 群行徽标/预览用 rooms[0]，但 UI 打开的是 defaultChatId → defaultChatId 非首个 room 时打开群清错未读 → 前端改优先用 defaultChatId 对应 room
+  - 核对无问题：命令层 SOCIAL_CACHE_LOCK 串行无锁序死锁；18 命令全部注册；refresh_* 保留未读（round1 修复）流程正确；SecureStore 每命令 open 一次、get 走内存条目（无 N 次文件读）；空闲 poll 早退不打开缓存；失败路径保留缓存+陈旧标记；贴纸/图片不走实时写穿由历史兜底（E4 范围）
+  - 验证：cargo test --workspace（src-tauri 84 + steam-sdk 95）、cargo check --workspace、npm run build 全绿
+- 全面 Review 第 3 轮（2026-08-09，CM/存储边界/前端交互）—— 修复 3 项：
+  1. SecureStore::save() 非原子写：fs::write 全量覆盖，进程崩溃/断电中途写入会损坏整个 store（社交缓存频繁写 + auth_store 密钥同路径）→ 改为临时文件 + rename 原子写（readers 只见旧或新，绝无半写）
+  2. ChatSessionEntry.unread_count 缺 serde(default) → 防御性补齐（与线程快照一致）
+  3. active 会话标记未按 socialMode 门控：切到 friends 模式后 selectedGroup 仍旧值，群轮询仍视其为"当前会话"不计未读；image 上传 refreshTick 在 friends 模式会误跑群 effect 清掉旧群未读（反向同理）→ chat-open effect 按 socialMode 门控 + deps 加入 socialMode；poll active 参数按 socialMode 门控
+  - 核对无问题：steamSocial.ts 全部契约与 Rust 一致（camelCase/元组/Option 参数）；CM 重连 seed 与写穿只处理一次不重复；群自消息跳过（round2）正确；round1 merge/echo 修复在流程重读下成立；i18n 键齐全
+  - 验证：cargo test --workspace（src-tauri 84 + steam-sdk 95 含 secure_store 原子写）、cargo check --workspace、npm run build 全绿

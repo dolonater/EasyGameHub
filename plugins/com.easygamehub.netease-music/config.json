@@ -1798,10 +1798,10 @@
       }
     ],
     "discoverPlaylists": {
-      "loadedAt": 1786241576951,
+      "loadedAt": 1786252624167,
       "value": [
         {
-          "cover": "https://p3.music.126.net/pDF3y4J_-Lumz944OBqrwA==/109951170734895594.jpg",
+          "cover": "https://p4.music.126.net/pDF3y4J_-Lumz944OBqrwA==/109951170734895594.jpg",
           "creator": "",
           "id": "3136952023",
           "name": "今天从《吹梦到西洲》听起|私人雷达",
@@ -1810,8 +1810,8 @@
           "track_count": 35
         },
         {
-          "cover": "https://p4.music.126.net/ygPpyhaqNmV4tOcWhnXBSg==/109951173254105721.jpg",
-          "creator": "你可能感兴趣",
+          "cover": "https://p3.music.126.net/ygPpyhaqNmV4tOcWhnXBSg==/109951173254105721.jpg",
+          "creator": "有你喜欢的歌",
           "id": "13806175847",
           "name": "群星璀璨的年代 华语经典之声",
           "provider": "netease",
@@ -1819,7 +1819,7 @@
           "track_count": 112
         },
         {
-          "cover": "https://p4.music.126.net/WZh15-vdpgIAQRoYg5Uq8w==/109951170405698035.jpg",
+          "cover": "https://p3.music.126.net/WZh15-vdpgIAQRoYg5Uq8w==/109951170405698035.jpg",
           "creator": "",
           "id": "13171699238",
           "name": "一人一首成名曲 火爆华语乐坛经典怀旧金曲",
@@ -1846,7 +1846,7 @@
           "track_count": 35
         },
         {
-          "cover": "https://p4.music.126.net/PpIg6uCrlZD4nay7WFMQdQ==/109951171310605352.jpg",
+          "cover": "https://p3.music.126.net/PpIg6uCrlZD4nay7WFMQdQ==/109951171310605352.jpg",
           "creator": "",
           "id": "13830114616",
           "name": "那些一开口就惊艳的古风歌曲",
@@ -1855,13 +1855,13 @@
           "track_count": 52
         },
         {
-          "cover": "https://p3.music.126.net/q8PjG8q6Nlkyn8XfMkHVXw==/109951172753525998.jpg",
+          "cover": "https://p4.music.126.net/q8PjG8q6Nlkyn8XfMkHVXw==/109951172753525998.jpg",
           "creator": "",
           "id": "17747877380",
           "name": "戏腔古风 | 好听的古风国风歌曲",
           "provider": "netease",
           "subscribed": false,
-          "track_count": 64
+          "track_count": 65
         },
         {
           "cover": "https://p3.music.126.net/gOZdYQUmxg6Mm7COQxvXJA==/109951172134070942.jpg",
@@ -1882,7 +1882,7 @@
           "track_count": 148
         },
         {
-          "cover": "https://p3.music.126.net/NtJpXO4OcXrgKgmQMBaV4Q==/109951171972039932.jpg",
+          "cover": "https://p4.music.126.net/NtJpXO4OcXrgKgmQMBaV4Q==/109951171972039932.jpg",
           "creator": "",
           "id": "13862845996",
           "name": "小酒馆经典民谣歌单|将往事吟成曲",
@@ -1891,7 +1891,7 @@
           "track_count": 30
         },
         {
-          "cover": "https://p3.music.126.net/U40Fqh12JUUJ7U8Smw0cbQ==/109951168624559903.jpg",
+          "cover": "https://p4.music.126.net/U40Fqh12JUUJ7U8Smw0cbQ==/109951168624559903.jpg",
           "creator": "",
           "id": "8426476642",
           "name": "民谣不止安和桥",
@@ -1919,7 +1919,7 @@
         },
         {
           "cover": "https://p4.music.126.net/OTZ7izmTCziHI19UNogcLQ==/109951163050828782.jpg",
-          "creator": "根据收藏推荐",
+          "creator": "",
           "id": "919939187",
           "name": "想开家茶馆，放首民谣给从前",
           "provider": "netease",
@@ -1954,13 +1954,22 @@
           "track_count": 56
         },
         {
-          "cover": "https://p3.music.126.net/o3szvK_PTUVPYTSDaKgo-w==/109951171972069227.jpg",
+          "cover": "https://p4.music.126.net/o3szvK_PTUVPYTSDaKgo-w==/109951171972069227.jpg",
           "creator": "",
           "id": "14060779785",
           "name": "刘若英、莫文蔚、王菲、孙燕姿、梁静茹",
           "provider": "netease",
           "subscribed": false,
           "track_count": 195
+        },
+        {
+          "cover": "https://p3.music.126.net/M45zAyySITqDp5YQKeaQUA==/109951168484711316.jpg",
+          "creator": "",
+          "id": "4907709209",
+          "name": "民谣｜音乐中娓娓道来你的故事",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 47
         },
         {
           "cover": "https://p4.music.126.net/ZUpv9LyJZOapkQPznV2cKg==/109951167465110966.jpg",
@@ -1972,7 +1981,7 @@
           "track_count": 84
         },
         {
-          "cover": "https://p4.music.126.net/I38Zg_XwaJkIzB9ncc_k_g==/109951172660204438.jpg",
+          "cover": "https://p3.music.126.net/I38Zg_XwaJkIzB9ncc_k_g==/109951172660204438.jpg",
           "creator": "",
           "id": "17692380447",
           "name": "净化情绪 | 牛马专享歌单",
@@ -1990,7 +1999,7 @@
           "track_count": 26
         },
         {
-          "cover": "https://p4.music.126.net/rSCUNFVIawaYJ_d2FZbRxA==/109951172289699423.jpg",
+          "cover": "https://p3.music.126.net/rSCUNFVIawaYJ_d2FZbRxA==/109951172289699423.jpg",
           "creator": "",
           "id": "17439516783",
           "name": "那些听不腻的经典民谣",
@@ -1999,7 +2008,7 @@
           "track_count": 211
         },
         {
-          "cover": "https://p4.music.126.net/uH1QA14vQUIAMg1pUzFJAg==/109951170653055981.jpg",
+          "cover": "https://p3.music.126.net/uH1QA14vQUIAMg1pUzFJAg==/109951170653055981.jpg",
           "creator": "",
           "id": "13478202720",
           "name": "民谣 | 民谣始终在时代的褶皱处生长",
@@ -2017,58 +2026,49 @@
           "track_count": 208
         },
         {
-          "cover": "https://p3.music.126.net/spPoMJp9zB7la3lPM0KKnw==/3265549538482844.jpg",
+          "cover": "https://p4.music.126.net/3hsz2obFXTdfR-XihDxQ-w==/109951165952053706.jpg",
           "creator": "热门歌单推荐",
-          "id": "374687888",
-          "name": "钢琴摇滚 I 浪子赠予诗人的一纸情书",
+          "id": "5157273379",
+          "name": "古风纯音乐，酣畅淋漓，静谧悠远",
           "provider": "netease",
           "subscribed": false,
-          "track_count": 82
+          "track_count": 111
         },
         {
-          "cover": "https://p3.music.126.net/f4rq2vrd2AQ1i8KDazRHhQ==/109951163421407852.jpg",
-          "creator": "欢迎加入失落少年孤独心俱乐部",
-          "id": "2323596120",
-          "name": "失落少年孤独心俱乐部",
+          "cover": "https://p3.music.126.net/r3M_tlMTxKMXLzz7Ux16zw==/109951166716807701.jpg",
+          "creator": "缝纫机已就位，请开始你的表演",
+          "id": "690304267",
+          "name": "春风沉醉的晚上跳曲迪斯科",
           "provider": "netease",
           "subscribed": false,
-          "track_count": 28
+          "track_count": 60
         },
         {
-          "cover": "https://p4.music.126.net/0xEEoCAvuhAv6IZ4TCA7AQ==/109951165617158046.jpg",
+          "cover": "https://p3.music.126.net/C7svbRY2G92Dz4a1cnnHqw==/109951171969651054.jpg",
           "creator": "热门歌单推荐",
-          "id": "2534894259",
-          "name": "『人间至宝』ヨルシカ|夜鹿 曲集",
+          "id": "14163302354",
+          "name": "超绝氛围感｜经典韩剧OST",
           "provider": "netease",
           "subscribed": false,
-          "track_count": 117
+          "track_count": 84
         },
         {
-          "cover": "https://p4.music.126.net/KS7kCUfX3ydJ5bSwCMXC_w==/3417282145777733.jpg",
-          "creator": "夏天结束了，我们在霓虹灯下跳最后一支舞吧",
-          "id": "414617187",
-          "name": "日式夜晚°霓虹街灯下",
+          "cover": "https://p3.music.126.net/uLuYZaxANzXoTYiAKhFB7g==/18975371672701341.jpg",
+          "creator": "来吧，跟随音律一起在太空中遨游",
+          "id": "2092321859",
+          "name": "华语歌里的宇宙丨我们飞向太空",
           "provider": "netease",
           "subscribed": false,
-          "track_count": 56
+          "track_count": 38
         },
         {
-          "cover": "https://p4.music.126.net/y0YiFqtOMqUaFNrVvxVbBg==/109951168223663443.jpg",
+          "cover": "https://p3.music.126.net/jac18nY21r2XpA5KA1GMLQ==/109951171967096561.jpg",
           "creator": "热门歌单推荐",
-          "id": "7677219191",
-          "name": "『后朋克』| 阴郁的摇滚美学",
+          "id": "14235484326",
+          "name": "Afro/Afrobeats｜非洲节奏律动 自由松弛",
           "provider": "netease",
           "subscribed": false,
-          "track_count": 124
-        },
-        {
-          "cover": "https://p3.music.126.net/kvZ6IG6vvutC5dThu9ZulQ==/109951163147322004.jpg",
-          "creator": "望着天花板，做个天马行空的梦吧",
-          "id": "2099228567",
-          "name": "Bedroom-pop丨天马行空的绮梦",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 101
+          "track_count": 95
         }
       ]
     },
@@ -7260,7 +7260,7 @@
       }
     ],
     "recommendSongs": {
-      "loadedAt": 1786241577255,
+      "loadedAt": 1786253093154,
       "value": [
         {
           "album": "须尽欢",
@@ -7291,7 +7291,7 @@
               "name": "Jannik"
             }
           ],
-          "cover": "http://p3.music.126.net/c55oo6_xrGMZP8vIrSGTZg==/109951164401545279.jpg",
+          "cover": "http://p4.music.126.net/c55oo6_xrGMZP8vIrSGTZg==/109951164401545279.jpg",
           "duration": 258000,
           "fee": 8,
           "id": "1394601255",
@@ -7310,7 +7310,7 @@
               "name": "Roman Nagel"
             }
           ],
-          "cover": "http://p4.music.126.net/rJA7qhQbboATgJe4rPof_Q==/109951165703587693.jpg",
+          "cover": "http://p3.music.126.net/rJA7qhQbboATgJe4rPof_Q==/109951165703587693.jpg",
           "duration": 141879,
           "fee": 8,
           "id": "1818439744",
@@ -7391,7 +7391,7 @@
               "name": "灼夭"
             }
           ],
-          "cover": "http://p3.music.126.net/f-7BlDFDFUJ1SdElj4KbWg==/109951170662682718.jpg",
+          "cover": "http://p4.music.126.net/f-7BlDFDFUJ1SdElj4KbWg==/109951170662682718.jpg",
           "duration": 198750,
           "fee": 8,
           "id": "2690353112",
@@ -7505,7 +7505,7 @@
               "name": "久石譲"
             }
           ],
-          "cover": "http://p3.music.126.net/ka2WKnfMs6x4dzWMtuYyxg==/23089744208454.jpg",
+          "cover": "http://p4.music.126.net/ka2WKnfMs6x4dzWMtuYyxg==/23089744208454.jpg",
           "duration": 180333,
           "fee": 8,
           "id": "4879116",
@@ -7562,7 +7562,7 @@
               "name": "刘若英"
             }
           ],
-          "cover": "http://p3.music.126.net/eBF7bHnJYBUfOFrJ_7SUfw==/109951163351825356.jpg",
+          "cover": "http://p4.music.126.net/eBF7bHnJYBUfOFrJ_7SUfw==/109951163351825356.jpg",
           "duration": 341400,
           "fee": 1,
           "id": "254574",
@@ -7581,7 +7581,7 @@
               "name": "齐豫"
             }
           ],
-          "cover": "http://p3.music.126.net/_3vmKQOutdukdrBoLpktvQ==/109951165687498845.jpg",
+          "cover": "http://p4.music.126.net/_3vmKQOutdukdrBoLpktvQ==/109951165687498845.jpg",
           "duration": 224333,
           "fee": 1,
           "id": "285005",
@@ -7619,7 +7619,7 @@
               "name": "南征北战NZBZ"
             }
           ],
-          "cover": "http://p3.music.126.net/v0LaYOX44ZiJjC1bzZbKOg==/109951163884032084.jpg",
+          "cover": "http://p4.music.126.net/v0LaYOX44ZiJjC1bzZbKOg==/109951163884032084.jpg",
           "duration": 233795,
           "fee": 1,
           "id": "28892408",
@@ -7657,7 +7657,7 @@
               "name": "周传雄"
             }
           ],
-          "cover": "http://p4.music.126.net/Phcgzvm2I3aiTdKMX0mTzw==/109951169493340540.jpg",
+          "cover": "http://p3.music.126.net/Phcgzvm2I3aiTdKMX0mTzw==/109951169493340540.jpg",
           "duration": 277385,
           "fee": 1,
           "id": "189688",
@@ -7681,7 +7681,7 @@
               "name": "韩红"
             }
           ],
-          "cover": "http://p4.music.126.net/Kk3pdyIaCSLy1cCUWK7fSw==/19064432114028522.jpg",
+          "cover": "http://p3.music.126.net/Kk3pdyIaCSLy1cCUWK7fSw==/19064432114028522.jpg",
           "duration": 292000,
           "fee": 1,
           "id": "4875144",
@@ -7700,7 +7700,7 @@
               "name": "逃跑计划"
             }
           ],
-          "cover": "http://p4.music.126.net/625-tE8OzdM-rWO37PgqlQ==/109951168111472442.jpg",
+          "cover": "http://p3.music.126.net/625-tE8OzdM-rWO37PgqlQ==/109951168111472442.jpg",
           "duration": 255489,
           "fee": 1,
           "id": "25706279",
@@ -7719,7 +7719,7 @@
               "name": "丢火车"
             }
           ],
-          "cover": "http://p3.music.126.net/9FmB6yl8yVDuWpSBOcNHdw==/109951165250073123.jpg",
+          "cover": "http://p4.music.126.net/9FmB6yl8yVDuWpSBOcNHdw==/109951165250073123.jpg",
           "duration": 347288,
           "fee": 1,
           "id": "473940941",
@@ -7738,7 +7738,7 @@
               "name": "谭维维"
             }
           ],
-          "cover": "http://p3.music.126.net/DprdNIWpRWYZJak4Q-cS-Q==/2891715582273535.jpg",
+          "cover": "http://p4.music.126.net/DprdNIWpRWYZJak4Q-cS-Q==/2891715582273535.jpg",
           "duration": 312769,
           "fee": 1,
           "id": "31877470",
@@ -7776,7 +7776,7 @@
               "name": "告五人"
             }
           ],
-          "cover": "http://p3.music.126.net/5URIeP6GjMFg_hKhGloNTA==/109951165585701063.jpg",
+          "cover": "http://p4.music.126.net/5URIeP6GjMFg_hKhGloNTA==/109951165585701063.jpg",
           "duration": 270760,
           "fee": 1,
           "id": "1807799505",
@@ -7814,7 +7814,7 @@
               "name": "中国人民解放军合唱团"
             }
           ],
-          "cover": "http://p4.music.126.net/c-ysm0ldxCEIGab_mUv9sQ==/109951168598799319.jpg",
+          "cover": "http://p3.music.126.net/c-ysm0ldxCEIGab_mUv9sQ==/109951168598799319.jpg",
           "duration": 140826,
           "fee": 8,
           "id": "1307601291",
@@ -7833,7 +7833,7 @@
               "name": "黄雅莉"
             }
           ],
-          "cover": "http://p4.music.126.net/yyMuGVix7sQMejkZhFrwPg==/109951163077718442.jpg",
+          "cover": "http://p3.music.126.net/yyMuGVix7sQMejkZhFrwPg==/109951163077718442.jpg",
           "duration": 245185,
           "fee": 8,
           "id": "239682",
@@ -7846,10 +7846,10 @@
     },
     "schemaVersion": 1,
     "topPlaylists": {
-      "loadedAt": 1786241577094,
+      "loadedAt": 1786252624263,
       "value": [
         {
-          "cover": "https://p3.music.126.net/DrRIg6CrgDfVLEph9SNh7w==/18696095720518497.jpg",
+          "cover": "https://p4.music.126.net/DrRIg6CrgDfVLEph9SNh7w==/18696095720518497.jpg",
           "creator": "",
           "id": "19723756",
           "name": "飙升榜",
@@ -7858,7 +7858,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/N2HO5xfYEqyQ8q6oxCw8IQ==/18713687906568048.jpg",
+          "cover": "https://p3.music.126.net/N2HO5xfYEqyQ8q6oxCw8IQ==/18713687906568048.jpg",
           "creator": "",
           "id": "3779629",
           "name": "新歌榜",
@@ -7885,7 +7885,7 @@
           "track_count": 200
         },
         {
-          "cover": "https://p3.music.126.net/urByD_AmfBDBrs7fA9-O8A==/109951167976973225.jpg",
+          "cover": "https://p4.music.126.net/urByD_AmfBDBrs7fA9-O8A==/109951167976973225.jpg",
           "creator": "",
           "id": "71384707",
           "name": "网易云古典榜",
@@ -7894,7 +7894,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/hXGObvXfsGtFjFvRhOYAkA==/109951170091888741.jpg",
+          "cover": "https://p4.music.126.net/hXGObvXfsGtFjFvRhOYAkA==/109951170091888741.jpg",
           "creator": "",
           "id": "1978921795",
           "name": "网易云电音榜",
@@ -7903,7 +7903,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/GgHbgDfGXHpE2YTchU7IvA==/109951171510498108.jpg",
+          "cover": "https://p4.music.126.net/GgHbgDfGXHpE2YTchU7IvA==/109951171510498108.jpg",
           "creator": "",
           "id": "991319590",
           "name": "网易云中文说唱榜",
@@ -7912,7 +7912,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p4.music.126.net/b2-_Xw-6DwDXWIn7RNuCYQ==/109951173652479140.jpg",
+          "cover": "https://p3.music.126.net/b2-_Xw-6DwDXWIn7RNuCYQ==/109951173652479140.jpg",
           "creator": "",
           "id": "18176153161",
           "name": "实时分享榜",
@@ -7930,7 +7930,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p4.music.126.net/dIKA5e7jCncz2Br1Toxgaw==/109951170621574552.jpg",
+          "cover": "https://p3.music.126.net/dIKA5e7jCncz2Br1Toxgaw==/109951170621574552.jpg",
           "creator": "",
           "id": "13372522766",
           "name": "潮流风向榜",
@@ -7948,7 +7948,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/RgYxQmB-ZUjkMRo2N1jWnQ==/109951170187823494.jpg",
+          "cover": "https://p3.music.126.net/RgYxQmB-ZUjkMRo2N1jWnQ==/109951170187823494.jpg",
           "creator": "",
           "id": "12911589513",
           "name": "音乐合伙人热歌榜",
@@ -7957,7 +7957,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/aJJzGIxhkVaD7dX0XBNUnw==/109951170187831145.jpg",
+          "cover": "https://p3.music.126.net/aJJzGIxhkVaD7dX0XBNUnw==/109951170187831145.jpg",
           "creator": "",
           "id": "12911619970",
           "name": "音乐合伙人留名榜",
@@ -7966,7 +7966,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/bfk15bvanhdPFU7yjPFgWA==/109951170187832038.jpg",
+          "cover": "https://p4.music.126.net/bfk15bvanhdPFU7yjPFgWA==/109951170187832038.jpg",
           "creator": "",
           "id": "12911379734",
           "name": "音乐合伙人高分新歌榜",
@@ -7975,7 +7975,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/fPP5T0Z8Ac15qNvRTcHa6g==/109951170074028970.jpg",
+          "cover": "https://p3.music.126.net/fPP5T0Z8Ac15qNvRTcHa6g==/109951170074028970.jpg",
           "creator": "",
           "id": "12768855486",
           "name": "音乐合伙人高分榜",
@@ -8002,7 +8002,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/5oN9YaFznwNGXkmi8i2Ytw==/109951167430864741.jpg",
+          "cover": "https://p4.music.126.net/5oN9YaFznwNGXkmi8i2Ytw==/109951167430864741.jpg",
           "creator": "",
           "id": "745956260",
           "name": "网易云韩语榜",
@@ -8074,7 +8074,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/-fyzrPWd06FfWl_0JDAxMQ==/109951165613108584.jpg",
+          "cover": "https://p4.music.126.net/-fyzrPWd06FfWl_0JDAxMQ==/109951165613108584.jpg",
           "creator": "",
           "id": "27135204",
           "name": "法国 NRJ Vos Hits 周榜",
@@ -8101,7 +8101,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/Ag7RyRCYiINcd9EtRXf6xA==/109951164432303690.jpg",
+          "cover": "https://p4.music.126.net/Ag7RyRCYiINcd9EtRXf6xA==/109951164432303690.jpg",
           "creator": "",
           "id": "3001890046",
           "name": "网易云ACG VOCALOID榜",
@@ -8137,7 +8137,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p4.music.126.net/Mi4QPklg1mtbWAfq74tEqQ==/109951165498334721.jpg",
+          "cover": "https://p3.music.126.net/Mi4QPklg1mtbWAfq74tEqQ==/109951165498334721.jpg",
           "creator": "",
           "id": "5338990334",
           "name": "潜力爆款榜",
@@ -8182,7 +8182,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p4.music.126.net/N-Y5maLGWgrowt3TE6RtSg==/109951167430857045.jpg",
+          "cover": "https://p3.music.126.net/N-Y5maLGWgrowt3TE6RtSg==/109951167430857045.jpg",
           "creator": "",
           "id": "6732014811",
           "name": "越南语榜",
@@ -8209,7 +8209,7 @@
           "track_count": 97
         },
         {
-          "cover": "https://p3.music.126.net/4W0WBHBgwYlYfRniuyL47A==/109951167430843284.jpg",
+          "cover": "https://p4.music.126.net/4W0WBHBgwYlYfRniuyL47A==/109951167430843284.jpg",
           "creator": "",
           "id": "7095271308",
           "name": "泰语榜",
@@ -8218,7 +8218,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/yhzlQJCJ9NcT4MvJBG_HgQ==/109951167977014958.jpg",
+          "cover": "https://p4.music.126.net/yhzlQJCJ9NcT4MvJBG_HgQ==/109951167977014958.jpg",
           "creator": "",
           "id": "7356827205",
           "name": "BEAT排行榜",
@@ -8227,7 +8227,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/m9HWYdcz9xH-7SSito3-3A==/109951172864859483.jpg",
+          "cover": "https://p4.music.126.net/m9HWYdcz9xH-7SSito3-3A==/109951172864859483.jpg",
           "creator": "",
           "id": "7325478166",
           "name": "星云榜VOL.31 翁杰新专来袭，愿我们拥有广阔的天地！",
@@ -8236,7 +8236,7 @@
           "track_count": 10
         },
         {
-          "cover": "https://p3.music.126.net/u-RQC-LyY0aoeseRumJ14A==/109951167977730469.jpg",
+          "cover": "https://p4.music.126.net/u-RQC-LyY0aoeseRumJ14A==/109951167977730469.jpg",
           "creator": "",
           "id": "7603212484",
           "name": "LOOK直播歌曲榜",
@@ -8245,16 +8245,16 @@
           "track_count": 48
         },
         {
-          "cover": "https://p3.music.126.net/m9hQzC-d5wefBipedNPaHg==/109951168178601971.jpg",
+          "cover": "https://p4.music.126.net/m9hQzC-d5wefBipedNPaHg==/109951168178601971.jpg",
           "creator": "",
           "id": "7775163417",
           "name": "赏音榜",
           "provider": "netease",
           "subscribed": false,
-          "track_count": 99
+          "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/vjitpkT9nXBCth6tvdDMWg==/109951169743115266.jpg",
+          "cover": "https://p4.music.126.net/vjitpkT9nXBCth6tvdDMWg==/109951169743115266.jpg",
           "creator": "",
           "id": "7785123708",
           "name": "黑胶VIP新歌榜",
@@ -8263,7 +8263,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/Ay3mLgQ9weG_c8JjYrD-Bw==/109951169743106495.jpg",
+          "cover": "https://p4.music.126.net/Ay3mLgQ9weG_c8JjYrD-Bw==/109951169743106495.jpg",
           "creator": "",
           "id": "7785066739",
           "name": "黑胶VIP热歌榜",
@@ -8290,7 +8290,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/HVu2hGYvzN5XBuvFc_4Bgg==/109951168730309120.jpg",
+          "cover": "https://p4.music.126.net/HVu2hGYvzN5XBuvFc_4Bgg==/109951168730309120.jpg",
           "creator": "",
           "id": "8537588450",
           "name": "喜力®星电音派对潮音榜",
@@ -8317,7 +8317,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/U--PWdWupY1ER5cVSjr1jQ==/109951168928365496.jpg",
+          "cover": "https://p4.music.126.net/U--PWdWupY1ER5cVSjr1jQ==/109951168928365496.jpg",
           "creator": "",
           "id": "8703052295",
           "name": "理想车友爱听榜",
@@ -8326,7 +8326,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/S1OG-OLTaofa3HfrHW48kA==/109951168924393585.jpg",
+          "cover": "https://p4.music.126.net/S1OG-OLTaofa3HfrHW48kA==/109951168924393585.jpg",
           "creator": "",
           "id": "8702582160",
           "name": "比亚迪车友爱听榜",
@@ -8335,7 +8335,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/r9kBQNsOro1EAB82Ol51WQ==/109951168924380971.jpg",
+          "cover": "https://p3.music.126.net/r9kBQNsOro1EAB82Ol51WQ==/109951168924380971.jpg",
           "creator": "",
           "id": "8703220480",
           "name": "蔚来车友爱听榜",
@@ -8362,7 +8362,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p4.music.126.net/M0m6GeZ1Y8Osz9jqxaW8Wg==/109951169462048035.jpg",
+          "cover": "https://p3.music.126.net/M0m6GeZ1Y8Osz9jqxaW8Wg==/109951169462048035.jpg",
           "creator": "",
           "id": "9651277674",
           "name": "AI歌曲榜",
@@ -8380,7 +8380,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/FcP1U6Bck0wPKqd0XgBwSQ==/109951169679731241.jpg",
+          "cover": "https://p3.music.126.net/FcP1U6Bck0wPKqd0XgBwSQ==/109951169679731241.jpg",
           "creator": "",
           "id": "10162841534",
           "name": "埃安车友爱听榜",
@@ -8389,7 +8389,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/0E6MzYzyA5uvQ4CSoIG2mw==/109951169739660034.jpg",
+          "cover": "https://p3.music.126.net/0E6MzYzyA5uvQ4CSoIG2mw==/109951169739660034.jpg",
           "creator": "",
           "id": "12225155968",
           "name": "欧美R&B榜",
@@ -8407,7 +8407,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/XVmZb3JSyrwMgqu9WVz61A==/109951170037568570.jpg",
+          "cover": "https://p4.music.126.net/XVmZb3JSyrwMgqu9WVz61A==/109951170037568570.jpg",
           "creator": "",
           "id": "12717025277",
           "name": "吉利车友爱听榜",
@@ -8419,7 +8419,7 @@
     },
     "userId": "402535554",
     "userPlaylists": {
-      "loadedAt": 1786241577021,
+      "loadedAt": 1786252624166,
       "value": [
         {
           "cover": "http://p1.music.126.net/xHPVP__ALVG8xDQWicRmXQ==/109951165745063436.jpg",

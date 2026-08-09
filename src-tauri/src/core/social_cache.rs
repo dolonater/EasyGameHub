@@ -162,6 +162,7 @@ pub struct ChatSessionEntry {
     pub partner_steam_id: String,
     pub last_message: String,
     pub last_timestamp: u64,
+    #[serde(default)]
     pub unread_count: u32,
 }
 
@@ -261,15 +262,19 @@ pub fn recover_group_states(messages: &[CachedMessage]) -> Vec<CachedMessage> {
 /// - Local self-messages (pending, or self-sent with a local identity) that
 ///   lack a verbatim server identity are twin-matched against history by
 ///   `sender == self`, same body, and a timestamp within `RECONCILE_WINDOW_SECS`;
-///   a match adopts the server identity and marks `Sent`, otherwise the message
-///   becomes `FailedRetryable`.
+///   a match adopts the server identity and marks `Sent`.
+/// - An unmatched self message only becomes `FailedRetryable` once it is older
+///   than `RECONCILE_WINDOW_SECS` (`now_ts`): a recent send may still be in
+///   flight (its echo or history entry has not surfaced yet) and must not be
+///   falsely failed.
 /// - Result is sorted by `(timestamp, ordinal)`.
 pub fn merge_friend_thread(
     cached: Vec<CachedMessage>,
     server: Vec<ServerMsg>,
     self_id: &str,
+    now_ts: u64,
 ) -> Vec<CachedMessage> {
-    merge_thread(cached, server, self_id, |m, sm| {
+    merge_thread(cached, server, self_id, now_ts, |m, sm| {
         m.timestamp == sm.timestamp && m.sender_steam_id == sm.sender_steam_id && m.body == sm.body
     })
 }
@@ -279,8 +284,9 @@ pub fn merge_group_thread(
     cached: Vec<CachedMessage>,
     server: Vec<ServerMsg>,
     self_id: &str,
+    now_ts: u64,
 ) -> Vec<CachedMessage> {
-    merge_thread(cached, server, self_id, |m, sm| {
+    merge_thread(cached, server, self_id, now_ts, |m, sm| {
         m.timestamp == sm.timestamp && m.ordinal == sm.ordinal && m.sender_steam_id == sm.sender_steam_id
     })
 }
@@ -289,37 +295,45 @@ fn merge_thread<F>(
     cached: Vec<CachedMessage>,
     server: Vec<ServerMsg>,
     self_id: &str,
+    now_ts: u64,
     matches_identity: F,
 ) -> Vec<CachedMessage>
 where
     F: Fn(&CachedMessage, &ServerMsg) -> bool,
 {
     let mut merged: Vec<CachedMessage> = Vec::with_capacity(cached.len() + server.len());
+    // Unconsumed server messages. A consumed twin is removed so two identical
+    // local sends (same body) cannot both adopt the same server identity.
+    let mut available: Vec<ServerMsg> = server.clone();
 
     for mut m in cached {
         let local_self = m.sender_steam_id == self_id
             && !server.iter().any(|sm| matches_identity(&m, sm));
         if local_self {
-            if let Some(twin) = find_self_twin(&server, self_id, &m.body, m.timestamp) {
+            if let Some(idx) = find_self_twin(&available, self_id, &m.body, m.timestamp) {
+                let twin = available.remove(idx);
                 m.timestamp = twin.timestamp;
                 m.ordinal = twin.ordinal;
                 m.local_id = None;
                 m.delivery_state = DeliveryState::Sent;
-            } else if m.delivery_state != DeliveryState::Sent {
+            } else if m.delivery_state != DeliveryState::Sent
+                && now_ts.saturating_sub(m.timestamp) > RECONCILE_WINDOW_SECS
+            {
+                // Old enough that the echo / history had time to surface it.
                 m.delivery_state = DeliveryState::FailedRetryable;
             }
         }
         merged.push(m);
     }
 
-    for sm in server {
-        if !merged.iter().any(|m| matches_identity(m, &sm)) {
+    for sm in &server {
+        if !merged.iter().any(|m| matches_identity(m, sm)) {
             merged.push(CachedMessage {
                 local_id: None,
                 timestamp: sm.timestamp,
                 ordinal: sm.ordinal,
-                sender_steam_id: sm.sender_steam_id,
-                body: sm.body,
+                sender_steam_id: sm.sender_steam_id.clone(),
+                body: sm.body.clone(),
                 delivery_state: DeliveryState::Sent,
             });
         }
@@ -329,15 +343,12 @@ where
     merged
 }
 
-/// Find a history message that is the server twin of a local optimistic send:
-/// sent by `self_id`, same body, timestamp within the reconcile window.
-fn find_self_twin<'a>(
-    server: &'a [ServerMsg],
-    self_id: &str,
-    body: &str,
-    local_ts: u64,
-) -> Option<&'a ServerMsg> {
-    server.iter().find(|sm| {
+/// Find the index of a history message that is the server twin of a local
+/// optimistic send: sent by `self_id`, same body, timestamp within the
+/// reconcile window. Returns the index so the caller can consume it (preventing
+/// two identical local sends from adopting the same server twin).
+fn find_self_twin(server: &[ServerMsg], self_id: &str, body: &str, local_ts: u64) -> Option<usize> {
+    server.iter().position(|sm| {
         sm.sender_steam_id == self_id
             && sm.body == body
             && sm.timestamp.abs_diff(local_ts) <= RECONCILE_WINDOW_SECS
@@ -346,10 +357,11 @@ fn find_self_twin<'a>(
 
 // ── Write-through helpers (CM poll path) ─────────────────────
 
-/// Correlate a CM echo of our own friend send to the pending cache entry:
-/// adopt the server `(timestamp, ordinal)` and mark it `Sent`. Matches the
-/// oldest pending entry with the same body (FIFO). Returns whether an entry
-/// was matched; the caller persists.
+/// Correlate a CM echo of our own friend send to the local cache entry: adopt
+/// the server `(timestamp, ordinal)` and mark it `Sent`. Matches the oldest
+/// non-`Sent` entry with the same body (FIFO) — including a message previously
+/// (perhaps wrongly) marked `FailedRetryable`, so an echo is always able to
+/// confirm delivery. Returns whether an entry was matched; the caller persists.
 pub fn correlate_friend_echo(
     thread: &mut FriendThreadSnapshot,
     body: &str,
@@ -359,7 +371,7 @@ pub fn correlate_friend_echo(
     if let Some(m) = thread
         .messages
         .iter_mut()
-        .find(|m| m.delivery_state == DeliveryState::Pending && m.body == body)
+        .find(|m| m.delivery_state != DeliveryState::Sent && m.body == body)
     {
         m.timestamp = server_ts;
         m.ordinal = server_ordinal;
@@ -625,7 +637,7 @@ mod tests {
     fn merge_dedupes_by_friend_identity() {
         let cached = vec![msg(1, 0, "f", "hi")];
         let server = vec![server_msg(1, 0, "f", "hi"), server_msg(2, 0, "f", "yo")];
-        let merged = merge_friend_thread(cached, server, "me");
+        let merged = merge_friend_thread(cached, server, "me", 1000);
         assert_eq!(merged.len(), 2);
     }
 
@@ -637,7 +649,7 @@ mod tests {
             server_msg(100, 0, "f", "hello back"),
             server_msg(130, 0, "me", "hello"),
         ];
-        let merged = merge_friend_thread(cached, server, "me");
+        let merged = merge_friend_thread(cached, server, "me", 1000);
         assert_eq!(merged.len(), 2);
         let self_msg = merged.iter().find(|m| m.sender_steam_id == "me").unwrap();
         assert_eq!(self_msg.timestamp, 130);
@@ -646,14 +658,39 @@ mod tests {
     }
 
     #[test]
-    fn merge_marks_unmatched_pending_failed() {
+    fn merge_marks_old_unmatched_pending_failed() {
         let cached = vec![pending(100, "me", "never-delivered")];
         let server = vec![server_msg(200, 0, "f", "other")];
-        let merged = merge_friend_thread(cached, server, "me");
+        // now_ts far enough that the send is older than the reconcile window.
+        let merged = merge_friend_thread(cached, server, "me", 1000);
         let self_msg = merged.iter().find(|m| m.sender_steam_id == "me").unwrap();
         assert_eq!(self_msg.delivery_state, DeliveryState::FailedRetryable);
-        // The far-away own message is not twin-matched.
         assert!(merged.iter().all(|m| m.sender_steam_id != "me" || m.timestamp == 100));
+    }
+
+    #[test]
+    fn merge_keeps_recent_unmatched_pending_pending() {
+        // A message sent moments ago whose echo/history has not surfaced yet
+        // must NOT be falsely failed — it may still be in flight.
+        let cached = vec![pending(995, "me", "in-flight")];
+        let server = vec![server_msg(998, 0, "f", "other")];
+        let merged = merge_friend_thread(cached, server, "me", 1000);
+        let self_msg = merged.iter().find(|m| m.sender_steam_id == "me").unwrap();
+        assert_eq!(self_msg.delivery_state, DeliveryState::Pending);
+    }
+
+    #[test]
+    fn merge_consumes_twins_for_identical_sends() {
+        // Two identical local sends (same body) must each adopt a distinct
+        // server twin, not both claim the first one (no duplicate).
+        let cached = vec![pending(100, "me", "hi"), pending(102, "me", "hi")];
+        let server = vec![server_msg(130, 0, "me", "hi"), server_msg(133, 0, "me", "hi")];
+        let merged = merge_friend_thread(cached, server, "me", 1000);
+        let self_msgs: Vec<_> = merged.iter().filter(|m| m.sender_steam_id == "me").collect();
+        assert_eq!(self_msgs.len(), 2);
+        assert_eq!(self_msgs[0].timestamp, 130);
+        assert_eq!(self_msgs[1].timestamp, 133);
+        assert_eq!(merged.len(), 2);
     }
 
     #[test]
@@ -664,7 +701,7 @@ mod tests {
             server_msg(5, 1, "f", "one"),
             server_msg(5, 2, "f", "two"),
         ];
-        let merged = merge_group_thread(cached, server, "me");
+        let merged = merge_group_thread(cached, server, "me", 1000);
         assert_eq!(merged.len(), 2);
         assert_eq!(merged[0].ordinal, 1);
         assert_eq!(merged[1].ordinal, 2);
@@ -678,7 +715,7 @@ mod tests {
         self_local.local_id = Some("g-local".into());
         let cached = vec![self_local];
         let server = vec![server_msg(12, 7, "me", "group hi"), server_msg(11, 1, "f", "other")];
-        let merged = merge_group_thread(cached, server, "me");
+        let merged = merge_group_thread(cached, server, "me", 1000);
         let self_msg = merged.iter().find(|m| m.sender_steam_id == "me").unwrap();
         assert_eq!((self_msg.timestamp, self_msg.ordinal), (12, 7));
         assert_eq!(self_msg.delivery_state, DeliveryState::Sent);
@@ -784,6 +821,25 @@ mod tests {
         assert_eq!(thread.messages[0].local_id, None);
         // Second echo for "a" is a no-op (already correlated).
         assert!(!correlate_friend_echo(&mut thread, "a", 101, 6));
+    }
+
+    #[test]
+    fn echo_self_heals_failed_retryable() {
+        // A message wrongly marked failed (e.g. a stale reconcile) must still
+        // be confirmable by its echo — delivery proof wins.
+        let mut thread = friend_thread("222");
+        let mut m = pending(5, "111", "rescued");
+        m.delivery_state = DeliveryState::FailedRetryable;
+        thread.messages.push(m);
+        assert!(correlate_friend_echo(&mut thread, "rescued", 50, 3));
+        let rescued = thread
+            .messages
+            .iter()
+            .find(|m| m.body == "rescued")
+            .unwrap();
+        assert_eq!(rescued.delivery_state, DeliveryState::Sent);
+        assert_eq!(rescued.timestamp, 50);
+        assert_eq!(rescued.local_id, None);
     }
 
     #[test]

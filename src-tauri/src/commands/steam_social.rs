@@ -219,9 +219,28 @@ fn cache_entry_to_chat_group_dto(e: GroupCacheEntry) -> ChatGroupDto {
                 last_message: r.last_message,
                 last_message_timestamp: r.last_message_timestamp,
                 last_sender_steam_id: r.last_sender_steam_id,
+                unread_count: 0, // filled in by `augment_group_unread`
             })
             .collect(),
     }
+}
+
+/// Fill each room's `unread_count` from its cached group-thread snapshot (the
+/// CM group summary carries no unread). The caller must hold the cache lock.
+fn augment_group_unread(
+    cache: &SocialCache,
+    account: &str,
+    mut groups: Vec<ChatGroupDto>,
+) -> Vec<ChatGroupDto> {
+    for g in &mut groups {
+        for room in &mut g.rooms {
+            room.unread_count = cache
+                .load_group_thread(account, &g.group_id, &room.chat_id)
+                .map(|t| t.unread_count)
+                .unwrap_or(0);
+        }
+    }
+    groups
 }
 
 /// Snapshot of the current connection slot, if any.
@@ -510,6 +529,9 @@ pub async fn send_chat_message(
     let client = ensure_cm(sid, &access_token).await?;
     let account = sid.to_string();
     let body = text.trim().to_string();
+    if body.is_empty() {
+        return Err("消息不能为空".to_string());
+    }
     let local = CachedMessage {
         local_id: Some(new_local_id()),
         timestamp: now_unix(),
@@ -624,8 +646,12 @@ pub async fn refresh_chat(
     };
     let cached = cache.load_friend_thread(&account, &steam_id);
     let prev_more = cached.as_ref().map(|s| s.more_available).unwrap_or(false);
+    // Preserve the cached unread: only `open_chat` (the explicit "user opened
+    // this") clears it. Forcing 0 here could wipe an unread bump that arrived
+    // while this refresh was in flight.
+    let prev_unread = cached.as_ref().map(|s| s.unread_count).unwrap_or(0);
     let cached_msgs = cached.map(|s| s.messages).unwrap_or_default();
-    let merged = merge_friend_thread(cached_msgs, server, &account);
+    let merged = merge_friend_thread(cached_msgs, server, &account, now_unix());
     let (bounded, trimmed) = bound_thread(merged);
     let snapshot = FriendThreadSnapshot {
         account_steam_id: account.clone(),
@@ -633,7 +659,7 @@ pub async fn refresh_chat(
         messages: bounded,
         more_available: prev_more || trimmed,
         fetched_at: now_unix(),
-        unread_count: 0, // the conversation is open — any unread is consumed
+        unread_count: prev_unread,
     };
     cache.save_friend_thread(&snapshot);
     Ok(ChatThreadDto {
@@ -731,6 +757,8 @@ pub struct ChatGroupRoomDto {
     pub last_message: String,
     pub last_message_timestamp: u64,
     pub last_sender_steam_id: String,
+    /// Unread messages in this channel (from its cached thread snapshot).
+    pub unread_count: u32,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -829,6 +857,7 @@ fn parse_group_room(bytes: &[u8]) -> Option<ChatGroupRoomDto> {
         } else {
             String::new()
         },
+        unread_count: 0, // filled in by `augment_group_unread`
     })
 }
 
@@ -877,9 +906,10 @@ pub async fn load_groups(state: State<'_, AppState>) -> Result<Vec<ChatGroupDto>
         return Ok(Vec::new());
     };
     let snapshot = cache.load_groups(&account);
-    Ok(snapshot
+    let dtos: Vec<ChatGroupDto> = snapshot
         .map(|s| s.groups.into_iter().map(cache_entry_to_chat_group_dto).collect())
-        .unwrap_or_default())
+        .unwrap_or_default();
+    Ok(augment_group_unread(&cache, &account, dtos))
 }
 
 /// Fresh list of the chat room groups the account belongs to (CM service
@@ -894,15 +924,19 @@ pub async fn refresh_groups(state: State<'_, AppState>) -> Result<Vec<ChatGroupD
     let dtos = parse_chat_groups(&body);
     let account = steam_id.to_string();
     let snapshot = GroupsSnapshot {
-        account_steam_id: account,
+        account_steam_id: account.clone(),
         groups: dtos.iter().map(chat_group_dto_to_cache_entry).collect(),
         fetched_at: now_unix(),
     };
     let _guard = social_cache_lock().lock().await;
-    if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
-        cache.save_groups(&snapshot);
-    }
-    Ok(dtos)
+    let augmented = match open_cache(&state.tool_dir, steam_id) {
+        Some(mut cache) => {
+            cache.save_groups(&snapshot);
+            augment_group_unread(&cache, &account, dtos)
+        }
+        None => dtos,
+    };
+    Ok(augmented)
 }
 
 /// Read a group-channel thread from the cache (instant, offline-safe) and mark
@@ -985,8 +1019,10 @@ pub async fn refresh_group_chat(
     };
     let cached = cache.load_group_thread(&account, &group_id, &chat_id);
     let prev_more = cached.as_ref().map(|s| s.more_available).unwrap_or(false);
+    // Preserve unread — only `open_group_chat` clears it (see refresh_chat).
+    let prev_unread = cached.as_ref().map(|s| s.unread_count).unwrap_or(0);
     let cached_msgs = cached.map(|s| s.messages).unwrap_or_default();
-    let merged = merge_group_thread(cached_msgs, server, &account);
+    let merged = merge_group_thread(cached_msgs, server, &account, now_unix());
     let (bounded, trimmed) = bound_thread(merged);
     let snapshot = GroupThreadSnapshot {
         account_steam_id: account.clone(),
@@ -995,7 +1031,7 @@ pub async fn refresh_group_chat(
         messages: bounded,
         more_available: prev_more || trimmed,
         fetched_at: now_unix(),
-        unread_count: 0,
+        unread_count: prev_unread,
     };
     cache.save_group_thread(&snapshot);
     Ok(GroupThreadDto {
@@ -1027,6 +1063,9 @@ pub async fn send_group_message(
     req.bool(4, true);
     let account = sid.to_string();
     let body = text.trim().to_string();
+    if body.is_empty() {
+        return Err("消息不能为空".to_string());
+    }
     let local = CachedMessage {
         local_id: Some(new_local_id()),
         timestamp: now_unix(),
@@ -1093,6 +1132,12 @@ pub async fn poll_group_messages(
         let _guard = social_cache_lock().lock().await;
         if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
             for m in &items {
+                if m.sender_steam_id.to_string() == self_id {
+                    // Our own send was already persisted by `send_group_message`
+                    // (with the local identity); appending the echoed copy would
+                    // duplicate it and could even count as unread for ourselves.
+                    continue;
+                }
                 let gid = m.group_id.to_string();
                 let cid = m.chat_id.to_string();
                 let mut thread = cache

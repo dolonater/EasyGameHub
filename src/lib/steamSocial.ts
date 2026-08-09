@@ -103,6 +103,7 @@ export interface ChatGroupRoomDto {
   lastMessage: string;
   lastMessageTimestamp: number;
   lastSenderSteamId: string;
+  unreadCount: number;
 }
 
 /** A Steam chat room group (from `load_groups` / `refresh_groups`). */

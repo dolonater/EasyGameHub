@@ -57,16 +57,46 @@ function groupDedupKey(m: GroupMessageDto): string {
   return `${m.timestamp}:${m.ordinal}:${m.senderSteamId}`;
 }
 
-/** Prefer `a` (server truth), then append `b`'s messages not already in `a`. */
-function unionMessages(a: ChatMessageDto[], b: ChatMessageDto[]): ChatMessageDto[] {
+/**
+ * Prefer `a` (server truth), then append `b`'s messages not already in `a`.
+ * Our own sends are additionally deduplicated by body: the optimistic bubble
+ * (local timestamp) and the confirmed server copy (server timestamp) are the
+ * same message even when the second boundary crossed, so the bubble is dropped
+ * in favour of the server copy.
+ */
+function unionMessages(a: ChatMessageDto[], b: ChatMessageDto[], selfId?: string): ChatMessageDto[] {
   const seen = new Set(a.map(dedupKey));
-  return [...a, ...b.filter((m) => !seen.has(dedupKey(m)))];
+  const selfBodies = new Set(
+    selfId ? a.filter((m) => m.steamId === selfId).map((m) => m.message) : [],
+  );
+  return [
+    ...a,
+    ...b.filter((m) => {
+      if (seen.has(dedupKey(m))) return false;
+      if (selfId && m.steamId === selfId && selfBodies.has(m.message)) return false;
+      return true;
+    }),
+  ];
 }
 
 /** Group-thread variant of `unionMessages`. */
-function unionGroupMessages(a: GroupMessageDto[], b: GroupMessageDto[]): GroupMessageDto[] {
+function unionGroupMessages(
+  a: GroupMessageDto[],
+  b: GroupMessageDto[],
+  selfId?: string,
+): GroupMessageDto[] {
   const seen = new Set(a.map(groupDedupKey));
-  return [...a, ...b.filter((m) => !seen.has(groupDedupKey(m)))];
+  const selfBodies = new Set(
+    selfId ? a.filter((m) => m.senderSteamId === selfId).map((m) => m.message) : [],
+  );
+  return [
+    ...a,
+    ...b.filter((m) => {
+      if (seen.has(groupDedupKey(m))) return false;
+      if (selfId && m.senderSteamId === selfId && selfBodies.has(m.message)) return false;
+      return true;
+    }),
+  ];
 }
 
 /** Online-state label + status dot color. */
@@ -292,14 +322,15 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   }, [sessions]);
 
   // Open a friend thread: cached history first (instant), then a silent
-  // refresh that merges server history with the cache.
+  // refresh that merges server history with the cache. Runs only in friends
+  // mode so a stale `selected` can't act on the group tab.
   useEffect(() => {
-    if (!session || !selected) return;
+    if (!session || !selected || socialMode !== "friends") return;
     let cancelled = false;
     openChat(selected)
       .then((t) => {
         if (cancelled) return;
-        setMessages(unionMessages(t.messages, []));
+        setMessages(unionMessages(t.messages, [], selfId ?? undefined));
         setHistoryError(null);
         // openChat clears the conversation's unread in the cache — re-derive
         // sessions so the badge clears immediately (not on the next page load).
@@ -311,7 +342,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     refreshChat(selected)
       .then((t) => {
         if (cancelled) return;
-        setMessages((prev) => unionMessages(t.messages, prev));
+        setMessages((prev) => unionMessages(t.messages, prev, selfId ?? undefined));
         setHistoryError(null);
       })
       .catch((e) => {
@@ -321,20 +352,26 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     return () => {
       cancelled = true;
     };
-  }, [session, selected, refreshTick]);
+  }, [session, selected, socialMode, refreshTick]);
 
   // Open a group channel: cached thread first (instant), then a silent refresh
-  // that merges server history with the cache.
+  // that merges server history with the cache. Runs only in groups mode.
   useEffect(() => {
-    if (!session || !selectedGroup) return;
+    if (!session || !selectedGroup || socialMode !== "groups") return;
     const chatId = selectedGroup.defaultChatId;
     if (!chatId) return;
     let cancelled = false;
     openGroupChat(selectedGroup.groupId, chatId)
       .then((t) => {
         if (cancelled) return;
-        setGroupMessages(unionGroupMessages(t.messages, []));
+        setGroupMessages(unionGroupMessages(t.messages, [], selfId ?? undefined));
         setGroupHistoryError(null);
+        // openGroupChat clears this channel's unread — refresh the list badges.
+        loadGroups()
+          .then((list) => {
+            if (!cancelled) setGroups(list);
+          })
+          .catch(() => {});
       })
       .catch(() => {
         if (!cancelled) setGroupMessages([]);
@@ -342,7 +379,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     refreshGroupChat(selectedGroup.groupId, chatId)
       .then((t) => {
         if (cancelled) return;
-        setGroupMessages((prev) => unionGroupMessages(t.messages, prev));
+        setGroupMessages((prev) => unionGroupMessages(t.messages, prev, selfId ?? undefined));
         setGroupHistoryError(null);
       })
       .catch((e) => {
@@ -352,7 +389,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     return () => {
       cancelled = true;
     };
-  }, [session, selectedGroup, refreshTick]);
+  }, [session, selectedGroup, socialMode, refreshTick]);
 
   // Poll the CM friend-message buffer.
   useEffect(() => {
@@ -360,7 +397,9 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     let cancelled = false;
     const tick = async () => {
       try {
-        const incoming = await pollChat(selected ?? undefined);
+        const incoming = await pollChat(
+          socialMode === "friends" ? (selected ?? undefined) : undefined,
+        );
         if (cancelled) return;
         if (incoming.length) refreshSessionsList();
         if (incoming.length && selected) {
@@ -380,7 +419,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
       cancelled = true;
       clearInterval(timer);
     };
-  }, [session, selected]);
+  }, [session, selected, socialMode]);
 
   // Poll the CM group-message buffer.
   useEffect(() => {
@@ -389,21 +428,32 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     const tick = async () => {
       try {
         const activeGroup =
-          selectedGroup && selectedGroup.defaultChatId
+          socialMode === "groups" && selectedGroup && selectedGroup.defaultChatId
             ? ([selectedGroup.groupId, selectedGroup.defaultChatId] as [string, string])
             : undefined;
         const incoming = await pollGroupMessages(activeGroup);
-        if (!cancelled && incoming.length && selectedGroup) {
-          setGroupMessages((prev) => {
-            const seen = new Set(prev.map(groupDedupKey));
-            const fresh = incoming.filter(
-              (m) =>
-                m.groupId === selectedGroup.groupId &&
-                m.chatId === selectedGroup.defaultChatId &&
-                !seen.has(groupDedupKey(m)),
-            );
-            return fresh.length ? [...prev, ...fresh] : prev;
-          });
+        if (!cancelled && incoming.length) {
+          // Incoming for a non-active channel bumped its unread — refresh the
+          // list badges (friend sessions too, for parity).
+          if (incoming.some((m) => !selectedGroup || m.groupId !== selectedGroup.groupId)) {
+            loadGroups()
+              .then((list) => {
+                if (!cancelled) setGroups(list);
+              })
+              .catch(() => {});
+          }
+          if (selectedGroup) {
+            setGroupMessages((prev) => {
+              const seen = new Set(prev.map(groupDedupKey));
+              const fresh = incoming.filter(
+                (m) =>
+                  m.groupId === selectedGroup.groupId &&
+                  m.chatId === selectedGroup.defaultChatId &&
+                  !seen.has(groupDedupKey(m)),
+              );
+              return fresh.length ? [...prev, ...fresh] : prev;
+            });
+          }
         }
       } catch {
         // ignore
@@ -415,7 +465,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
       cancelled = true;
       clearInterval(timer);
     };
-  }, [session, selectedGroup]);
+  }, [session, selectedGroup, socialMode]);
 
   // Auto-scroll to the newest message.
   useEffect(() => {
@@ -855,18 +905,27 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
               )}
               {groups.map((g) => {
                 const active = selectedGroup?.groupId === g.groupId;
-                const room = g.rooms[0];
+                // The UI opens `defaultChatId` — preview/badge must follow it,
+                // not blindly `rooms[0]` (the default chat may not be first).
+                const room =
+                  g.rooms.find((r) => r.chatId === g.defaultChatId) ?? g.rooms[0];
+                const unread = room?.unreadCount ?? 0;
                 return (
                   <button
                     key={g.groupId}
                     type="button"
                     onClick={() => setSelectedGroup(g)}
-                    className={`mb-1 w-full rounded-lg px-2 py-1.5 text-left transition-colors ${active ? "bg-primary/15" : "hover:bg-secondary/50"}`}
+                    className={`relative mb-1 w-full rounded-lg px-2 py-1.5 text-left transition-colors ${active ? "bg-primary/15" : "hover:bg-secondary/50"}`}
                   >
                     <div className="truncate text-sm font-medium">{g.name}</div>
                     <div className="truncate text-[11px] text-muted-foreground">
                       {room?.lastMessage || (room ? room.name : "")}
                     </div>
+                    {unread > 0 ? (
+                      <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                        {unread > 99 ? "99+" : unread}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}

@@ -195,7 +195,13 @@ impl SecureStore {
             entries: self.entries.clone(),
         };
         let content = serde_json::to_string_pretty(&store_file)?;
-        fs::write(&self.path, content).map_err(SteamError::Io)
+        // Atomic write: write a temp file then rename over the target, so a
+        // crash or power loss mid-write can never leave the store half-written
+        // (which would corrupt every entry). Readers see either the old or the
+        // new file, never a partial one.
+        let tmp = self.path.with_extension("tmp");
+        fs::write(&tmp, content).map_err(SteamError::Io)?;
+        fs::rename(&tmp, &self.path).map_err(SteamError::Io)
     }
 }
 
