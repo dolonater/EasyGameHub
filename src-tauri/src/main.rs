@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    doona_gamesave_backup_lib::run()
+    easy_game_hub_lib::run()
 }

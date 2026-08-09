@@ -4,7 +4,7 @@
 
 ## 项目概览
 
-`doona-gamesave-backup` 是一个 Windows 优先的桌面应用，产品名为 EasyGameHub。主体是 React + Vite 前端和 Tauri 2 / Rust 后端，用于游戏存档备份、恢复、运行状态监控、Steam 本地数据集成、截图/游玩时长管理、主题/外观配置和插件扩展。
+`EasyGameHub` 是一个 Windows 优先的桌面应用。主体是 React + Vite 前端和 Tauri 2 / Rust 后端，用于游戏存档备份、恢复、运行状态监控、Steam 本地数据集成、截图/游玩时长管理、主题/外观配置和插件扩展。
 
 主要技术栈：
 

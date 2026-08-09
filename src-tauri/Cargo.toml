@@ -1,12 +1,12 @@
 [package]
-name = "doona-gamesave-backup"
+name = "EasyGameHub"
 version = "0.1.0"
-description = "Doona GameSave Backup - Automatic game save backup tool"
+description = "EasyGameHub - Automatic game save backup tool"
 authors = ["Doona"]
 edition = "2021"
 
 [lib]
-name = "doona_gamesave_backup_lib"
+name = "easy_game_hub_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
