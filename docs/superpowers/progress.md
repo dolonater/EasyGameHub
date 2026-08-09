@@ -166,6 +166,12 @@
   3. **记录（潜在）**：`formatPriceCents` 对所有货币 ÷100，JPY/KRW（整币制）会显示错——当前所有调用路径都传 CNY（cc=cn 固定），仅潜在。
   - 复核无恙：login.rs（JWT sub 提取、checkdevice 触发邮件码、RSA 随机填充）、totp RFC 向量、lib.rs 全命令注册、steam_helper 子进程桥接（helper 模式窗口前短路）、useSteamSession、steamCommunity 工具函数。
   - 验证：steam-sdk 93 passed、`cargo check` ✅、`npm run build` ✅。
+- **第三轮遗留项落地（2026-08-09）**：
+  1. **secure_store → Windows DPAPI 托管密钥**：新增 `master_key` 字段（DPAPI user-scope 加密的 32 字节密钥 blob，base64 存盘）。密钥材料不变，**旧存储首次打开时自动迁移**（把现有密钥 DPAPI 保护后落盘，条目无需重加密，零数据风险）；新存储立即 DPAPI 绑定。非 Windows 保留 hostname PBKDF2 回退。DPAPI 用 windows-sys `CryptProtectData/UnprotectData`（0.59 的 `CRYPT_INTEGER_BLOB`，`LocalFree` 手动 extern 声明）。**修复：懂主机名即可解密的静态混淆 → 真·用户级 at-rest 加密**。
+  2. **`formatPriceCents` 整币制感知**：JPY/KRW 为整币制（1980 → ¥1980，而非 ÷100 → ¥19.80），新增 `WHOLE_UNIT_CURRENCIES` 集。
+  - 验证：steam-sdk **95 passed**（+2：`store_is_keyed_per_platform`/`legacy_store_migrates_on_open`）、`cargo check` ✅、`npm run build` ✅。
+- **货币换算单位不一致修复（2026-08-09）**：多区价格 `≈ ¥0.30`（应为 ¥29.80）——`fx::to_cny` 返回**元**（29.8→30），但字段名 `cny_cents`/前端 `formatPriceCents` 按**分**处理，被除了两次。修复：`to_cny` 改为返回 **CNY 分**（`×100`），与字段名和格式化器一致。验证：fx 4 passed、steam-sdk 95 passed。
+- **JPY/KRW 换算 100 倍偏高修复（2026-08-09）**：多区价格 JP ≈ ¥5361.60 / KR ≈ ¥3619.20（应为 ¥53.62 / ¥36.19）——**Steam 实际把 JPY/KRW 的 `final`/`initial` 数值字段也存成 100 分之一**（¥1,117 存为 111700），只是 `final_formatted` 显示时去掉小数。之前 fx.rs 把 JPY/KRW 标成 `base_is_cents: false`（整币制）→ 未除 100 → 恰好 100 倍偏高。修复：fx.rs JPY/KRW 改 `base_is_cents: true` + 文档更正；前端 `formatPriceCents` 撤销整币制分支（所有货币统一 /100，GameSearchBox/PriceChartDialog 的 JPY/KRW 显示也随之正确）。验证：fx 4 passed、steam-sdk 95 passed、`npm run build` ✅。
 
 ## Current Workflow Request
 - Topic: Doona Music 独立网易云播放器（插件 → 独立桌面应用）

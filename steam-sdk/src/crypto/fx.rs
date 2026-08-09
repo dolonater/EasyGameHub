@@ -8,10 +8,12 @@
 /// FX info for a currency.
 #[derive(Debug)]
 pub struct FxInfo {
-    /// Units of this currency per 1 CNY (approximate).
+    /// CNY value of one unit of this currency (approximate).
     pub per_cny: f64,
-    /// Steam reports this currency in hundredths ("cents") vs whole units.
-    /// JPY / KRW have no decimal places and are reported as whole units.
+    /// Whether Steam reports this currency's `final`/`initial` fields in
+    /// hundredths ("cents"). This is true for every currency — including
+    /// JPY/KRW, whose *formatted* prices omit the decimals (¥1,117 is reported
+    /// numerically as 111700).
     pub base_is_cents: bool,
 }
 
@@ -22,8 +24,8 @@ fn table() -> &'static [(&'static str, FxInfo)] {
         ("USD", FxInfo { per_cny: 7.20, base_is_cents: true }),
         ("EUR", FxInfo { per_cny: 7.80, base_is_cents: true }),
         ("GBP", FxInfo { per_cny: 9.10, base_is_cents: true }),
-        ("JPY", FxInfo { per_cny: 0.048, base_is_cents: false }),
-        ("KRW", FxInfo { per_cny: 0.0052, base_is_cents: false }),
+        ("JPY", FxInfo { per_cny: 0.048, base_is_cents: true }),
+        ("KRW", FxInfo { per_cny: 0.0052, base_is_cents: true }),
         ("RUB", FxInfo { per_cny: 0.078, base_is_cents: true }),
         ("CAD", FxInfo { per_cny: 5.25, base_is_cents: true }),
         ("AUD", FxInfo { per_cny: 4.70, base_is_cents: true }),
@@ -45,8 +47,10 @@ pub fn currency_info(currency: &str) -> Option<&'static FxInfo> {
 }
 
 /// Convert a Steam price amount (in the given currency's reported base unit)
-/// to CNY cents, using the static table. Returns `None` for unknown currencies
-/// or when the amount would overflow.
+/// to **CNY cents**, using the static table. Returns `None` for unknown
+/// currencies or when the amount would overflow. The result is cents so it can
+/// be fed straight into a cents-based formatter (`¥29.80` → `2980`), matching
+/// the `cny_cents` DTO field.
 pub fn to_cny(amount: u64, currency: &str) -> Option<u64> {
     let info = currency_info(currency)?;
     let units = if info.base_is_cents {
@@ -54,7 +58,7 @@ pub fn to_cny(amount: u64, currency: &str) -> Option<u64> {
     } else {
         amount as f64
     };
-    let cny = (units * info.per_cny).round();
+    let cny = (units * info.per_cny * 100.0).round();
     if cny.is_finite() && cny >= 0.0 && cny <= (u64::MAX as f64) {
         Some(cny as u64)
     } else {
@@ -68,20 +72,24 @@ mod tests {
 
     #[test]
     fn converts_known_currencies() {
-        // USD 10.00 (1000 cents) × 7.20 → ¥72.00.
-        assert_eq!(to_cny(1000, "USD"), Some(72));
-        // CNY 10.00 → ¥10.00.
-        assert_eq!(to_cny(1000, "CNY"), Some(10));
-        // EUR 5.00 × 7.80 → ¥39.00.
-        assert_eq!(to_cny(500, "EUR"), Some(39));
+        // USD 10.00 (1000 cents) × 7.20 → ¥72.00 → 7200 cents.
+        assert_eq!(to_cny(1000, "USD"), Some(7200));
+        // CNY 10.00 → ¥10.00 → 1000 cents.
+        assert_eq!(to_cny(1000, "CNY"), Some(1000));
+        // EUR 5.00 × 7.80 → ¥39.00 → 3900 cents.
+        assert_eq!(to_cny(500, "EUR"), Some(3900));
     }
 
     #[test]
-    fn whole_unit_currencies() {
-        // JPY is whole units (not cents): 1980 yen × 0.048 → ¥95.04 → 95.
-        assert_eq!(to_cny(1980, "JPY"), Some(95));
-        // KRW whole units: 5000 won × 0.0052 → ¥26.00.
-        assert_eq!(to_cny(5000, "KRW"), Some(26));
+    fn jpy_krw_are_hundredths() {
+        // JPY/KRW are reported in hundredths too (¥1,117 = 111700, even though
+        // the formatted price omits decimals). The amounts below are arbitrary
+        // *sample inputs* to verify the conversion formula — at runtime Steam's
+        // per-game price is passed in, so any amount converts the same way.
+        // ¥1,117.00 × 0.048 → ¥53.62 → 5362 cents.
+        assert_eq!(to_cny(111700, "JPY"), Some(5362));
+        // ₩6,960.00 × 0.0052 → ¥36.19 → 3619 cents.
+        assert_eq!(to_cny(696000, "KRW"), Some(3619));
     }
 
     #[test]

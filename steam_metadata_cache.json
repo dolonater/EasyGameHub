@@ -1,5 +1,24 @@
 [
   {
+    "appId": 4673900,
+    "name": "完蛋！我被男同学包围了",
+    "shortDescription": "校园日常题材的视觉小说游戏——玩家将扮演一位高中的小透明，经历突然被男同学包围的校园爆笑故事，享受一段青春有趣的时光。 研学篇中添加更多玩法，大份游戏内容等你品尝~ 声明：本游戏所有剧情内容都为开心和搞笑服务！！！！！一定要玩的开心呀！",
+    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4673900/cafe8eba43375f6ddcd87b9d098c167fc69cfae0/header_schinese.jpg?t=1786166743",
+    "genres": [
+      "休闲",
+      "独立",
+      "角色扮演",
+      "免费开玩"
+    ],
+    "developers": [
+      "GameSociety"
+    ],
+    "releaseDate": "2026 年 8 月 1 日",
+    "comingSoon": false,
+    "isFree": true,
+    "fetchedAt": 1786196333
+  },
+  {
     "appId": 1245620,
     "name": "艾尔登法环",
     "shortDescription": "艾尔登法环是以正统黑暗奇幻世界为舞台的动作RPG游戏。 走进辽阔的场景与地下迷宫探索未知，挑战困难重重的险境，享受克服困境时的成就感吧。 不仅如此，登场角色之间的利害关系谱成的群像剧，更是不容错过。",
@@ -12,24 +31,6 @@
       "FromSoftware, Inc."
     ],
     "releaseDate": "2022 年 2 月 24 日",
-    "comingSoon": false,
-    "isFree": false,
-    "fetchedAt": 1786196333
-  },
-  {
-    "appId": 2358720,
-    "name": "黑神话：悟空",
-    "shortDescription": "《黑神话：悟空》是一款以中国神话为背景的动作角色扮演游戏。你将扮演一位“天命人”，为了探寻昔日传说的真相，踏上一条充满危险与惊奇的西游之路。",
-    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/header_schinese.jpg?t=1760601605",
-    "genres": [
-      "动作",
-      "冒险",
-      "角色扮演"
-    ],
-    "developers": [
-      "Game Science"
-    ],
-    "releaseDate": "2024 年 8 月 19 日",
     "comingSoon": false,
     "isFree": false,
     "fetchedAt": 1786196333
@@ -51,19 +52,19 @@
     "fetchedAt": 1786196333
   },
   {
-    "appId": 3240220,
-    "name": "Grand Theft Auto V 增强版",
-    "shortDescription": "体验娱乐业轰动一时的 Grand Theft Auto V 和 Grand Theft Auto 在线模式：现已更新换代，拥有震撼的视觉效果、更快的加载速度、3D 音效及更多内容，另有为 GTA 在线模式玩家提供的独家内容。",
-    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3240220/header_schinese.jpg?t=1781187782",
+    "appId": 2358720,
+    "name": "黑神话：悟空",
+    "shortDescription": "《黑神话：悟空》是一款以中国神话为背景的动作角色扮演游戏。你将扮演一位“天命人”，为了探寻昔日传说的真相，踏上一条充满危险与惊奇的西游之路。",
+    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/header_schinese.jpg?t=1760601605",
     "genres": [
       "动作",
       "冒险",
-      "竞速"
+      "角色扮演"
     ],
     "developers": [
-      "Rockstar North"
+      "Game Science"
     ],
-    "releaseDate": "2025 年 3 月 4 日",
+    "releaseDate": "2024 年 8 月 19 日",
     "comingSoon": false,
     "isFree": false,
     "fetchedAt": 1786196333
@@ -103,22 +104,21 @@
     "fetchedAt": 1786196333
   },
   {
-    "appId": 4673900,
-    "name": "完蛋！我被男同学包围了",
-    "shortDescription": "校园日常题材的视觉小说游戏——玩家将扮演一位高中的小透明，经历突然被男同学包围的校园爆笑故事，享受一段青春有趣的时光。 研学篇中添加更多玩法，大份游戏内容等你品尝~ 声明：本游戏所有剧情内容都为开心和搞笑服务！！！！！一定要玩的开心呀！",
-    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4673900/cafe8eba43375f6ddcd87b9d098c167fc69cfae0/header_schinese.jpg?t=1786166743",
+    "appId": 3240220,
+    "name": "Grand Theft Auto V 增强版",
+    "shortDescription": "体验娱乐业轰动一时的 Grand Theft Auto V 和 Grand Theft Auto 在线模式：现已更新换代，拥有震撼的视觉效果、更快的加载速度、3D 音效及更多内容，另有为 GTA 在线模式玩家提供的独家内容。",
+    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3240220/header_schinese.jpg?t=1781187782",
     "genres": [
-      "休闲",
-      "独立",
-      "角色扮演",
-      "免费开玩"
+      "动作",
+      "冒险",
+      "竞速"
     ],
     "developers": [
-      "GameSociety"
+      "Rockstar North"
     ],
-    "releaseDate": "2026 年 8 月 1 日",
+    "releaseDate": "2025 年 3 月 4 日",
     "comingSoon": false,
-    "isFree": true,
+    "isFree": false,
     "fetchedAt": 1786196333
   }
 ]

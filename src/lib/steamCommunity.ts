@@ -177,7 +177,12 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   TWD: "NT$",
 };
 
-/** Format a base-unit price (cents) into a readable string, e.g. 6800 → "¥68.00". */
+/**
+ * Format a Steam price amount into a readable string. Steam reports every
+ * currency's `final`/`initial` fields in hundredths ("cents") — including
+ * JPY/KRW, whose formatted prices merely omit the decimals (¥1,117 is reported
+ * numerically as 111700) — so the value is always divided by 100.
+ */
 export function formatPriceCents(cents: number, currency: string | null): string {
   const symbol = currency ? CURRENCY_SYMBOLS[currency] || `${currency} ` : "";
   return `${symbol}${(cents / 100).toFixed(2)}`;
