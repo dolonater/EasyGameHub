@@ -34,8 +34,14 @@ pub fn get_wishlist(client: &SteamHttpClient, steam_id64: u64) -> Result<Vec<Wis
             message: format!("HTTP {}", response.status()),
         });
     }
-    let body: serde_json::Value = response.into_json()?;
-
+    let raw = response.into_string()?;
+    // A private/invalid wishlist 302s to the storefront (an HTML page, which is
+    // often rate-limited too) rather than JSON — surface that as "private" so
+    // the caller falls back to the local watchlist instead of a parse error.
+    let body: serde_json::Value = match serde_json::from_str(&raw) {
+        Ok(v) => v,
+        Err(_) => return Err(SteamError::NotFound("wishlist_private".into())),
+    };
     // A private/invalid wishlist returns `{"success": 2}` rather than the map.
     if body.get("success").is_some() {
         return Err(SteamError::NotFound("wishlist_private".into()));

@@ -120,6 +120,18 @@ pub struct CmClient {
 /// Connect to Steam CM and log on. `access_token` must be a fresh session
 /// token for `steam_id`.
 pub async fn connect(access_token: &str, steam_id: u64) -> Result<CmClient, String> {
+    connect_with_seed(access_token, steam_id, Vec::new(), Vec::new()).await
+}
+
+/// Like [`connect`], but seeds the replacement session with messages drained
+/// from a previous same-account connection, so nothing is lost during a
+/// reconnect — Steam does not replay chat on a fresh logon.
+pub async fn connect_with_seed(
+    access_token: &str,
+    steam_id: u64,
+    seed_messages: Vec<IncomingChat>,
+    seed_group_messages: Vec<GroupIncoming>,
+) -> Result<CmClient, String> {
     let http = SteamHttpClient::new();
     let token = bootstrap::fetch_web_logon_token(&http, access_token, steam_id)
         .map_err(|e| format!("CM bootstrap failed: {}", e))?;
@@ -134,7 +146,16 @@ pub async fn connect(access_token: &str, steam_id: u64) -> Result<CmClient, Stri
         let mut last_err: Option<String> = None;
         for host in &endpoints {
             match open_logged_on(host, &token, steam_id).await {
-                Ok((ws, session_id, pre)) => return Ok(spawn_task(ws, session_id, steam_id, pre)),
+                Ok((ws, session_id, pre)) => {
+                    return Ok(spawn_task(
+                        ws,
+                        session_id,
+                        steam_id,
+                        pre,
+                        seed_messages,
+                        seed_group_messages,
+                    ))
+                }
                 Err(e) => last_err = Some(e),
             }
         }
@@ -318,10 +339,19 @@ async fn open_logged_on(
     Ok((ws, logon.0, logon.1))
 }
 
-fn spawn_task(ws: WsStream, session_id: u32, steam_id: u64, pre: Vec<Envelope>) -> CmClient {
+fn spawn_task(
+    ws: WsStream,
+    session_id: u32,
+    steam_id: u64,
+    pre: Vec<Envelope>,
+    seed_messages: Vec<IncomingChat>,
+    seed_group_messages: Vec<GroupIncoming>,
+) -> CmClient {
     let (cmd_tx, cmd_rx) = mpsc::channel(64);
     let data = Arc::new(Mutex::new(CmData {
         session_id,
+        messages: seed_messages.into(),
+        group_messages: seed_group_messages.into(),
         ..Default::default()
     }));
     let data_for_task = data.clone();

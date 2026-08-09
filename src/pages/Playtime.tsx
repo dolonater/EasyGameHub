@@ -439,7 +439,7 @@ export default function Playtime() {
         ) : !completion || completion.length === 0 ? (
           <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionEmpty")}</div>
         ) : completion.every((c) => c.source === "none") ? (
-          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionNoApiKey")}</div>
+          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionUnavailable")}</div>
         ) : (
           <div className="divide-y">
             {completion.filter((c) => c.source !== "none").slice(0, 30).map((c) => {

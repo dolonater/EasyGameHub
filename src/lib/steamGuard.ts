@@ -23,3 +23,8 @@ export function respondConfirmation(
 export function exportMaFile(entryId: string): Promise<string> {
   return invoke<string>("export_mafile", { entryId });
 }
+
+/** Persist exported maFile content to a user-selected path. */
+export function saveMaFile(path: string, content: string): Promise<void> {
+  return invoke("save_mafile", { path, content });
+}

@@ -466,6 +466,7 @@ pub fn run() {
             commands::steam_guard::get_pending_confirmations,
             commands::steam_guard::respond_confirmation,
             commands::steam_guard::export_mafile,
+            commands::steam_guard::save_mafile,
             commands::steam_social::get_friends,
             commands::steam_social::get_friend_profile,
             commands::steam_social::poll_chat,

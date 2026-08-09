@@ -146,6 +146,14 @@
 - **实测再修复**：发图后前端显示原始 BBCode → Steam 真实图片消息是富标签 `[img src=<url> thumbnail_src=<url> srcset="..." width=.. height=..][url=..]url[/url][/img]`（内层非裸 URL）→ `ChatMessageContent` 改为 `extractImgSrc`：先解富标签（优先 `thumbnail_src` 缩放缩略图），再回退普通 `[img]url[/img]`。`npm run build` ✅。
 - **用户实测通过**：好友能收到图片、贴纸目录与发送正常、前端图片/贴纸渲染正常。**P8 完成**。
 - **P9（E5 语音 spike）用户决定不做（2026-08-09）**——保持 no-go，不进入调研。**Monica Steam 参考功能增强（A–E）至此全部计划阶段收尾**（P0–P8 已实现并验证，P9 明确不做）。
+- **全量代码 review 修复（2026-08-09）**：对照设计/计划审查 A–E 全部实现，修复 6 项——
+  1. `ensure_cm` 连接失败叠加重试（N 个 3s 轮询 × 90s 退避）→ 新增 **CM 连接冷却**（失败后 30s 内快速失败，不再排队叠加）+ `connect_with_seed` 把旧连接缓冲消息**接续到新会话**（重连不丢消息，Steam 重连不重放）。
+  2. `AuthEntry::uuid_v4()` 时钟纳秒熵 → 改用 `rand::thread_rng` 随机 UUID v4。
+  3. `mobile_conf::request()` 字符串 `contains("403")` → 新增 `get_with_headers_ureq` 保留 ureq 状态，直接 `match Error::Status(403, _)`。
+  4. `get_wishlist` 重定向到 HTML 时返回 JSON 解析错误 → 非 JSON 体统一映射 `NotFound("wishlist_private")`，前端干净回退本地关注列表。
+  5. CM 重连旧缓冲丢消息 → 见 1（`connect_with_seed`）。
+  6. (a) maFile 导出复用 `write_theme_file` → 新增 `save_mafile` 命令；(b) 贴纸目录首载失败不重试 → 仅成功才标记已加载；(c) Playtime 无完成度文案误导 → `completionNoApiKey` 改 `completionUnavailable` 文案更准确。
+  - 验证：steam-sdk 92 passed、`cargo check` ✅、`npm run build` ✅。
 
 ## Current Workflow Request
 - Topic: Doona Music 独立网易云播放器（插件 → 独立桌面应用）

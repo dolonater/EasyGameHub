@@ -160,32 +160,6 @@
     ]
   },
   {
-    "app_id": 3240220,
-    "fetched_at": 1786205102,
-    "items": [
-      {
-        "appId": 3240220,
-        "title": "Plan the Perfect Getaway During the Summer Heist Event",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055888607",
-        "author": "rockstarintl_steam",
-        "contents": "Bask in two weeks of highly profitable criminal activity in GTA Online, as summer crowds flock to Southern San Andreas and Cayo Perico in search of lucrative treasures across the asphalt jungle and the sun-soaked shores. Capitalize on doubled GTA$ payouts for your first weekly completion of both The...",
-        "feedLabel": "Community Announcements",
-        "feedType": 1,
-        "date": 1785512612
-      },
-      {
-        "appId": 3240220,
-        "title": "Apprehend the New Pegassi Ignus Pursuit Law Enforcement Vehicle",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029758",
-        "author": "rockstarintl_steam",
-        "contents": "Indulge in the wholesome joys of posing as Los Santos’ finest with the new Pegassi Ignus Pursuit Law Enforcement Vehicle in GTA Online. The Ignus Pursuit combines the LSPD’s penchant for high-speed carelessness with Pegassi’s aerodynamic, high-end stylings. Anyone attempting to flee the scene in a h...",
-        "feedLabel": "Community Announcements",
-        "feedType": 1,
-        "date": 1784903921
-      }
-    ]
-  },
-  {
     "app_id": 1245620,
     "fetched_at": 1786207160,
     "items": [
@@ -208,6 +182,42 @@
         "feedLabel": "Rock, Paper, Shotgun",
         "feedType": 0,
         "date": 1782395785
+      }
+    ]
+  },
+  {
+    "app_id": 3240220,
+    "fetched_at": 1786237864,
+    "items": [
+      {
+        "appId": 3240220,
+        "title": "Plan the Perfect Getaway During the Summer Heist Event",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839676055888607",
+        "author": "rockstarintl_steam",
+        "contents": "Bask in two weeks of highly profitable criminal activity in GTA Online, as summer crowds flock to Southern San Andreas and Cayo Perico in search of lucrative treasures across the asphalt jungle and the sun-soaked shores. Capitalize on doubled GTA$ payouts for your first weekly completion of both The...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1785512612
+      },
+      {
+        "appId": 3240220,
+        "title": "Apprehend the New Pegassi Ignus Pursuit Law Enforcement Vehicle",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029758",
+        "author": "rockstarintl_steam",
+        "contents": "Indulge in the wholesome joys of posing as Los Santos’ finest with the new Pegassi Ignus Pursuit Law Enforcement Vehicle in GTA Online. The Ignus Pursuit combines the LSPD’s penchant for high-speed carelessness with Pegassi’s aerodynamic, high-end stylings. Anyone attempting to flee the scene in a h...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1784903921
+      },
+      {
+        "appId": 3240220,
+        "title": "Steam Global Top Sellers for week of 14 Jul — 21 July 2026",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/SteamDB/1838407329269011",
+        "author": "SteamDB",
+        "contents": "* Palworld; * Assassin's Creed Black Flag Resynced; * MECCHA CHAMELEON; * Steam Deck; * Dead by Daylight; * The Mound: Omen of Cthulhu; * Grand Theft Auto V Enhanced; * EA SPORTS FC™ 26; * Forza Horizon 6; * Halo: Campaign Evolved; * excluding free to play games View top 100 on SteamDB",
+        "feedLabel": "SteamDB",
+        "feedType": 0,
+        "date": 1784624400
       }
     ]
   }

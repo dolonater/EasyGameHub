@@ -229,7 +229,7 @@ const en: Record<string, any> = {
     completionTitle: "Achievement Completion",
     completionLoading: "Loading completion…",
     completionEmpty: "No completion data",
-    completionNoApiKey: "No Steam Web API Key configured — only locally-readable completion is shown. Set a key in Settings for full completion.",
+    completionUnavailable: "No completion data (requires a Steam Web API Key, or a running local Steam client for locally-readable completion).",
     noData: "No data",
     heatmapHint: "Darker = more playtime",
   },

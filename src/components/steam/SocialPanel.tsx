@@ -352,14 +352,17 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     }
   };
 
-  // E4: toggle the sticker picker (loads the catalogue once).
+  // E4: toggle the sticker picker (loads the catalogue once; a failed load
+  // leaves the flag unset so the next open retries).
   const toggleStickerPicker = () => {
     setStickerPickerOpen((open) => !open);
     if (stickersLoadedRef.current) return;
-    stickersLoadedRef.current = true;
     setStickersLoading(true);
     getStickerCatalog()
-      .then((list) => setStickers(list))
+      .then((list) => {
+        stickersLoadedRef.current = true;
+        setStickers(list);
+      })
       .catch((e) => showToast("error", e instanceof Error ? e.message : String(e)))
       .finally(() => setStickersLoading(false));
   };

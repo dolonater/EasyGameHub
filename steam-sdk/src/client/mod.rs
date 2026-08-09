@@ -61,15 +61,23 @@ impl SteamHttpClient {
 
     /// Make a GET request with extra headers (e.g. `Referer` for store APIs).
     pub fn get_with_headers(&self, url: &str, headers: &[(&str, &str)]) -> Result<SteamResponse> {
+        self.get_with_headers_ureq(url, headers)
+            .map_err(|e| SteamError::Http(format!("GET {} failed: {}", url, e)))
+    }
+
+    /// GET with extra headers, returning the raw `ureq` result so callers can
+    /// distinguish HTTP status codes (e.g. a 403 session expiry) instead of
+    /// matching error strings.
+    pub fn get_with_headers_ureq(
+        &self,
+        url: &str,
+        headers: &[(&str, &str)],
+    ) -> std::result::Result<SteamResponse, ureq::Error> {
         let mut request = self.agent.get(url);
         for (name, value) in headers {
             request = request.set(name, value);
         }
-        let response = request
-            .call()
-            .map_err(|e| SteamError::Http(format!("GET {} failed: {}", url, e)))?;
-
-        Ok(SteamResponse { inner: response })
+        request.call().map(|inner| SteamResponse { inner })
     }
 
     /// Make a POST request with a JSON body.

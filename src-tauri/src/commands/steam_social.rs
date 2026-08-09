@@ -10,6 +10,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
 use steam_sdk::auth::session::SessionManager;
 use steam_sdk::cm::client as cm;
 use steam_sdk::cm::proto_wire;
@@ -77,34 +78,97 @@ fn connect_lock() -> &'static tokio::sync::Mutex<()> {
     CONNECT_LOCK.get_or_init(|| tokio::sync::Mutex::new(()))
 }
 
+/// Cooldown after a failed connect: while Steam is releasing a stale session
+/// (eresult=5, exponential backoff up to ~90s), every 3s poll would otherwise
+/// queue behind the lock and each queue its own reconnect (N polls × 90s).
+/// Within the window we fail fast instead, then allow one retry.
+static CM_CONNECT_COOLDOWN: OnceLock<Mutex<Option<Instant>>> = OnceLock::new();
+const CM_CONNECT_COOLDOWN_SECS: u64 = 30;
+const CM_COOLDOWN_MESSAGE: &str =
+    "Steam CM 连接暂不可用（旧会话尚未释放），请稍后再试";
+
+fn cm_in_cooldown() -> bool {
+    cm_connect_cooldown()
+        .lock()
+        .unwrap()
+        .as_ref()
+        .map(|failed_at| failed_at.elapsed() < Duration::from_secs(CM_CONNECT_COOLDOWN_SECS))
+        .unwrap_or(false)
+}
+
+fn cm_connect_cooldown() -> &'static Mutex<Option<Instant>> {
+    CM_CONNECT_COOLDOWN.get_or_init(|| Mutex::new(None))
+}
+
+/// Snapshot of the current connection slot, if any.
+fn active_client() -> Option<(u64, cm::CmClient)> {
+    let guard = active_cm().lock().unwrap();
+    guard.as_ref().map(|(sid, client)| (*sid, client.clone()))
+}
+
 /// Reuse the live connection for this account or open a fresh one.
 async fn ensure_cm(steam_id: u64, access_token: &str) -> Result<cm::CmClient, String> {
+    // Fail fast while a recent connect failure is cooling down (no lock) —
+    // otherwise every 3s poll piles a new reconnect attempt behind the slow
+    // eresult=5 backoff.
+    if cm_in_cooldown() {
+        return Err(CM_COOLDOWN_MESSAGE.into());
+    }
+
     // Fast path: reuse a live connection (no lock).
-    let cached = {
-        let guard = active_cm().lock().unwrap();
-        guard.as_ref().map(|(sid, client)| (*sid, client.clone()))
-    };
-    if let Some((sid, client)) = cached {
+    if let Some((sid, client)) = active_client() {
         if sid == steam_id && client.is_alive().await {
             return Ok(client);
         }
-        client.close().await;
     }
 
     // Serialize reconnects, then re-check (another caller may have connected).
     let _guard = connect_lock().lock().await;
-    let cached = {
-        let guard = active_cm().lock().unwrap();
-        guard.as_ref().map(|(sid, client)| (*sid, client.clone()))
-    };
-    if let Some((sid, client)) = cached {
+    if let Some((sid, client)) = active_client() {
         if sid == steam_id && client.is_alive().await {
             return Ok(client);
         }
-        client.close().await;
+    }
+    if cm_in_cooldown() {
+        return Err(CM_COOLDOWN_MESSAGE.into());
     }
 
-    let client = cm::connect(access_token, steam_id).await?;
+    // Drain the stale same-account connection's buffered messages so the
+    // replacement session doesn't lose messages that arrived since the last
+    // poll (Steam doesn't replay chat after a reconnect). Account switches
+    // never carry messages over. Either way the stale connection is closed.
+    let (seed_messages, seed_group_messages) = match active_client() {
+        Some((sid, client)) if sid == steam_id => {
+            let seed = (client.take_messages().await, client.take_group_messages().await);
+            client.close().await;
+            seed
+        }
+        Some((_, client)) => {
+            client.close().await;
+            (Vec::new(), Vec::new())
+        }
+        None => (Vec::new(), Vec::new()),
+    };
+
+    let result = cm::connect_with_seed(
+        access_token,
+        steam_id,
+        seed_messages,
+        seed_group_messages,
+    )
+    .await;
+    let client = match result {
+        Ok(client) => {
+            *cm_connect_cooldown().lock().unwrap() = None;
+            client
+        }
+        Err(e) => {
+            *cm_connect_cooldown().lock().unwrap() = Some(Instant::now());
+            let mut guard = active_cm().lock().unwrap();
+            *guard = None;
+            return Err(e);
+        }
+    };
     let mut guard = active_cm().lock().unwrap();
     *guard = Some((steam_id, client.clone()));
     Ok(client)

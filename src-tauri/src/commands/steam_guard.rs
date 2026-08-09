@@ -137,6 +137,12 @@ pub fn export_mafile(state: State<AppState>, entry_id: String) -> Result<String,
     serde_json::to_string_pretty(&json).map_err(|e| e.to_string())
 }
 
+/// Persist `.maFile` content to a user-selected path (from the export flow).
+#[tauri::command]
+pub fn save_mafile(path: String, content: String) -> Result<(), String> {
+    std::fs::write(&path, content).map_err(|e| format!("写入 maFile 失败: {}", e))
+}
+
 // ── Helpers ──────────────────────────────────────────────────
 
 /// Steam mobile confirmation type → UI kind.

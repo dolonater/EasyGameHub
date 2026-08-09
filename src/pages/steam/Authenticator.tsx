@@ -11,7 +11,7 @@ import Icon from "../../components/ui/Icon";
 import TextField from "../../components/ui/TextField";
 import { createRouteSessionCache, routeCacheKey } from "../../lib/routeSessionCache";
 import { useRouteCachedLoader } from "../../hooks/useRouteCachedLoader";
-import { exportMaFile, getPendingConfirmations, respondConfirmation } from "../../lib/steamGuard";
+import { exportMaFile, getPendingConfirmations, respondConfirmation, saveMaFile } from "../../lib/steamGuard";
 import type { PendingConfirmation, SessionDto } from "../../lib/steamCommunity";
 
 interface AuthEntry {
@@ -152,7 +152,7 @@ export default function Authenticator({ embedded = false }: { embedded?: boolean
         filters: [{ name: "maFile", extensions: ["json"] }],
       });
       if (!filePath) return;
-      await invoke("write_theme_file", { path: filePath, content });
+      await saveMaFile(filePath, content);
       showToast("success", t("authenticator.exportOk"));
     } catch (e: any) {
       showToast("error", t("authenticator.exportFailed", { error: String(e) }));

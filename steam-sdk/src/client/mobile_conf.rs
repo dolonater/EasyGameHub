@@ -117,16 +117,11 @@ pub fn respond(
 /// Perform the GET with the session cookie; map a 403 (expired session) to a
 /// clearer error.
 fn request(client: &SteamHttpClient, url: &str, cookie: &str) -> Result<crate::client::SteamResponse> {
-    match client.get_with_headers(url, &[("Cookie", cookie)]) {
+    match client.get_with_headers_ureq(url, &[("Cookie", cookie)]) {
         Ok(resp) => Ok(resp),
-        Err(e) => {
-            let msg = e.to_string();
-            if msg.contains("403") {
-                return Err(SteamError::Auth(
-                    "Steam session expired, please log in again".into(),
-                ));
-            }
-            Err(e)
-        }
+        Err(ureq::Error::Status(403, _)) => Err(SteamError::Auth(
+            "Steam session expired, please log in again".into(),
+        )),
+        Err(e) => Err(SteamError::Http(format!("GET {} failed: {}", url, e))),
     }
 }

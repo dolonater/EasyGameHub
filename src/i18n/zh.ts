@@ -345,7 +345,7 @@ const zh = {
     completionTitle: "成就完成度",
     completionLoading: "计算完成度中…",
     completionEmpty: "暂无完成度数据",
-    completionNoApiKey: "未配置 Steam Web API Key，仅显示本机 Steam 可读的完成度；在设置中配置 Key 可获取完整完成度。",
+    completionUnavailable: "暂无完成度数据（需配置 Steam Web API Key，或运行本机 Steam 客户端读取本地完成度）。",
     noData: "无数据",
     heatmapHint: "颜色越深，游玩时间越长",
   },

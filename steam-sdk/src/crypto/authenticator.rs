@@ -332,14 +332,9 @@ fn base64_decode(s: &str) -> Result<Vec<u8>> {
 }
 
 fn uuid_v4() -> String {
+    use rand::RngCore;
     let mut bytes = [0u8; 16];
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_nanos();
-    for (i, byte) in bytes.iter_mut().enumerate() {
-        *byte = ((now >> (i * 8)) & 0xff) as u8;
-    }
+    rand::thread_rng().fill_bytes(&mut bytes);
     bytes[6] = (bytes[6] & 0x0f) | 0x40;
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
     format!(
