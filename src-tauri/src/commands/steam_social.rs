@@ -108,18 +108,19 @@ fn active_client() -> Option<(u64, cm::CmClient)> {
 
 /// Reuse the live connection for this account or open a fresh one.
 async fn ensure_cm(steam_id: u64, access_token: &str) -> Result<cm::CmClient, String> {
+    // Fast path: reuse a live connection (no lock) — always wins, even if a
+    // stale cooldown flag is set.
+    if let Some((sid, client)) = active_client() {
+        if sid == steam_id && client.is_alive().await {
+            return Ok(client);
+        }
+    }
+
     // Fail fast while a recent connect failure is cooling down (no lock) —
     // otherwise every 3s poll piles a new reconnect attempt behind the slow
     // eresult=5 backoff.
     if cm_in_cooldown() {
         return Err(CM_COOLDOWN_MESSAGE.into());
-    }
-
-    // Fast path: reuse a live connection (no lock).
-    if let Some((sid, client)) = active_client() {
-        if sid == steam_id && client.is_alive().await {
-            return Ok(client);
-        }
     }
 
     // Serialize reconnects, then re-check (another caller may have connected).

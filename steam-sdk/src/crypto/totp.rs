@@ -138,14 +138,16 @@ pub fn generate_steam_totp(secret: &[u8], time_offset: i64) -> Result<String, St
 
 /// Get remaining seconds until the next TOTP interval.
 pub fn totp_remaining_seconds(time_step: u64, time_offset: i64) -> u64 {
+    let step = time_step.max(1) as i64;
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0) as i64;
 
-    let adjusted = now + time_offset;
-    let elapsed = adjusted as u64 % time_step;
-    time_step - elapsed
+    // `rem_euclid` keeps the phase in [0, step) even when the adjusted time is
+    // negative (large clock offset), so `step - elapsed` can't underflow.
+    let elapsed = (now + time_offset).rem_euclid(step) as u64;
+    (step as u64) - elapsed
 }
 
 // ── Secret encoding ─────────────────────────────────────────

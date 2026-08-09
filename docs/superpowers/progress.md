@@ -154,6 +154,18 @@
   5. CM 重连旧缓冲丢消息 → 见 1（`connect_with_seed`）。
   6. (a) maFile 导出复用 `write_theme_file` → 新增 `save_mafile` 命令；(b) 贴纸目录首载失败不重试 → 仅成功才标记已加载；(c) Playtime 无完成度文案误导 → `completionNoApiKey` 改 `completionUnavailable` 文案更准确。
   - 验证：steam-sdk 92 passed、`cargo check` ✅、`npm run build` ✅。
+- **第二轮 review 修复（2026-08-09）**：补查会话/价格核心 + 全部命令层 + 前端 hooks/组件，再修 4 项——
+  1. **`upsert_session` 换账号登录不停用旧账号** → `active_session()` 返回最旧活动会话，聊天/确认/愿望单全用错账号 → 改为**登录即停用所有其他会话**（+ 回归测试 `test_second_login_deactivates_previous`）。
+  2. **src-tauri `authenticator.rs` 还有一处时钟纳秒 `uuid_v4()`**（第一轮只修了 steam-sdk 版）→ 同样改用 `rand`。
+  3. **`is_expired()` 时钟回拨时 `num_seconds() as u64` 回绕巨大值 → `elapsed + grace` 溢出（debug 崩溃）** → `max(0)` 防御。
+  4. **`ensure_cm` 冷却检查在快路径之前** → 理论上可用连接会被 stale cooldown 误拒 → 调为**快路径优先**。
+  - 验证：steam-sdk **93 passed**（+1 会话回归）、`cargo check` ✅、`npm run build` ✅。
+- **第三轮 review（2026-08-09）**：补查认证核心（login/totp/secure_store）+ lib.rs 全量装配 + steam_helper 桥接 + 前端 hooks/DTO，修复 1 项、记录 2 项——
+  1. **`totp_remaining_seconds` 负 time_offset（时钟偏移大）时 `time_step - elapsed` u64 下溢（debug 崩溃）** → 改用 `rem_euclid`。
+  2. **记录（不改）**：`secure_store` 密钥仅由 `COMPUTERNAME`+固定常量经 PBKDF2 派生 → 属**可破解的静态混淆**而非真加密（懂主机名即可解密全部会话/maFile）。建议改用 Windows DPAPI 做密钥托管（会破坏既有存储，需迁移流程，超出 A–E 范围）。
+  3. **记录（潜在）**：`formatPriceCents` 对所有货币 ÷100，JPY/KRW（整币制）会显示错——当前所有调用路径都传 CNY（cc=cn 固定），仅潜在。
+  - 复核无恙：login.rs（JWT sub 提取、checkdevice 触发邮件码、RSA 随机填充）、totp RFC 向量、lib.rs 全命令注册、steam_helper 子进程桥接（helper 模式窗口前短路）、useSteamSession、steamCommunity 工具函数。
+  - 验证：steam-sdk 93 passed、`cargo check` ✅、`npm run build` ✅。
 
 ## Current Workflow Request
 - Topic: Doona Music 独立网易云播放器（插件 → 独立桌面应用）

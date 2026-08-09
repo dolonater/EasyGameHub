@@ -31,9 +31,13 @@ impl SteamSession {
     /// Check if the access token is expired or about to expire within
     /// the given grace period (default: 5 minutes).
     pub fn is_expired(&self) -> bool {
+        // Clamp to 0: if the system clock moves backward after login the
+        // duration is negative, and `num_seconds() as u64` would wrap to a huge
+        // value that overflows the addition below.
         let elapsed = chrono::Utc::now()
             .signed_duration_since(self.obtained_at)
-            .num_seconds() as u64;
+            .num_seconds()
+            .max(0) as u64;
         let grace = 300; // 5 minutes
         elapsed + grace >= self.expires_in_seconds
     }
@@ -72,13 +76,13 @@ impl SessionManager {
     }
 
     /// Add or update a session. If a session with the same steam_id exists,
-    /// it is replaced.
+    /// it is replaced. Logging in is an explicit switch to this account, so it
+    /// becomes the *only* active session — every other stored session is
+    /// deactivated, otherwise `active_session()` would keep returning the
+    /// oldest active entry after a second account logs in.
     pub fn upsert_session(&mut self, session: SteamSession) -> Result<()> {
-        // Deactivate other sessions for the same account
         for existing in &mut self.sessions {
-            if existing.steam_id == session.steam_id {
-                existing.is_active = false;
-            }
+            existing.is_active = false;
         }
 
         self.sessions.retain(|s| s.steam_id != session.steam_id);
@@ -217,6 +221,46 @@ mod tests {
 
             mgr.set_active(222).unwrap();
             assert_eq!(mgr.active_session().unwrap().steam_id, 222);
+        }
+
+        let _ = fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_second_login_deactivates_previous() {
+        // Logging into a new account without logging out must make the new one
+        // the single active session — otherwise `active_session()` would keep
+        // returning the older account and chat/confirmations would use it.
+        let path = test_path("second_login");
+        let _ = fs::remove_file(&path);
+
+        {
+            let mut mgr = SessionManager::open(&path).unwrap();
+            mgr.upsert_session(SteamSession {
+                steam_id: 111,
+                account_name: "user1".into(),
+                access_token: "tok1".into(),
+                refresh_token: "ref1".into(),
+                obtained_at: chrono::Utc::now(),
+                expires_in_seconds: 3600,
+                is_active: true,
+            })
+            .unwrap();
+            mgr.upsert_session(SteamSession {
+                steam_id: 222,
+                account_name: "user2".into(),
+                access_token: "tok2".into(),
+                refresh_token: "ref2".into(),
+                obtained_at: chrono::Utc::now(),
+                expires_in_seconds: 3600,
+                is_active: true,
+            })
+            .unwrap();
+
+            assert_eq!(mgr.session_count(), 2);
+            let active = mgr.active_session().unwrap();
+            assert_eq!(active.steam_id, 222, "second login must become active");
+            assert_eq!(active.account_name, "user2");
         }
 
         let _ = fs::remove_file(&path);

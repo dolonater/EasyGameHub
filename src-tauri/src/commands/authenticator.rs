@@ -144,18 +144,9 @@ pub fn delete_auth_entry(state: State<AppState>, id: String) -> Result<(), Strin
 
 /// Generate a simple UUID v4 for entry IDs.
 fn uuid_v4() -> String {
-    // Simple UUID v4 generation using random bytes
+    use rand::RngCore;
     let mut bytes = [0u8; 16];
-    // Use system time + process ID as entropy (not cryptographically secure
-    // but sufficient for local entry IDs)
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_nanos();
-    for (i, byte) in bytes.iter_mut().enumerate() {
-        *byte = ((now >> (i * 8)) & 0xff) as u8;
-    }
-    // Set version 4 bits
+    rand::thread_rng().fill_bytes(&mut bytes);
     bytes[6] = (bytes[6] & 0x0f) | 0x40;
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
