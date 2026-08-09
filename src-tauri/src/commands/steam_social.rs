@@ -10,7 +10,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Mutex, OnceLock};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use steam_sdk::auth::session::SessionManager;
 use steam_sdk::cm::client as cm;
 use steam_sdk::cm::proto_wire;
@@ -18,6 +18,13 @@ use steam_sdk::client::social;
 use steam_sdk::client::social::steamid64_from_account_id;
 use tauri::State;
 
+use crate::core::social_cache::{
+    append_friend_incoming, append_group_incoming, bound_thread, correlate_friend_echo,
+    new_local_id, merge_friend_thread, merge_group_thread, recover_friend_states,
+    recover_group_states, CachedMessage, ChatSessionEntry, ChatSessionsSnapshot, DeliveryState,
+    FriendCacheEntry, FriendThreadSnapshot, FriendsSnapshot, GroupCacheEntry, GroupRoomCacheEntry,
+    GroupsSnapshot, GroupThreadSnapshot, ServerMsg, SocialCache,
+};
 use crate::commands::steam_api::shared_client;
 use crate::commands::steam_auth::{refresh_session_if_needed, session_store_path};
 use crate::AppState;
@@ -41,6 +48,26 @@ pub struct ChatMessageDto {
     pub timestamp: u64,
     pub message: String,
     pub kind: String,
+    /// `sent` / `pending` / `verifying` / `failedRetryable` (see `DeliveryState`).
+    pub delivery_state: String,
+}
+
+/// A private-chat thread returned by `open_chat` / `refresh_chat`.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChatThreadDto {
+    pub messages: Vec<ChatMessageDto>,
+    pub more_available: bool,
+}
+
+/// One recent-conversation summary (from `load_sessions` / `refresh_sessions`).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChatSessionDto {
+    pub partner_steam_id: String,
+    pub last_message: String,
+    pub last_timestamp: u64,
+    pub unread_count: u32,
 }
 
 /// One owned Steam sticker (from `get_sticker_catalog`).
@@ -98,6 +125,103 @@ fn cm_in_cooldown() -> bool {
 
 fn cm_connect_cooldown() -> &'static Mutex<Option<Instant>> {
     CM_CONNECT_COOLDOWN.get_or_init(|| Mutex::new(None))
+}
+
+/// Serialize cache read-modify-write: several commands (friend + group polls,
+/// open/refresh, sends) run every few seconds and reopen the per-account
+/// SecureStore file on each call.
+static SOCIAL_CACHE_LOCK: OnceLock<tokio::sync::Mutex<()>> = OnceLock::new();
+
+fn social_cache_lock() -> &'static tokio::sync::Mutex<()> {
+    SOCIAL_CACHE_LOCK.get_or_init(|| tokio::sync::Mutex::new(()))
+}
+
+fn now_unix() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0)
+}
+
+/// Best-effort per-account cache open: any store problem (tampered file, a
+/// store written by a different user) just means "no cache".
+fn open_cache(tool_dir: &Path, steam_id: u64) -> Option<SocialCache> {
+    SocialCache::open(tool_dir, steam_id).ok()
+}
+
+/// Open the cache with a per-account file path (helper to keep the many
+/// `thread|<partner>` constructions in one place).
+fn empty_friend_thread(account: &str, partner: &str) -> FriendThreadSnapshot {
+    FriendThreadSnapshot {
+        account_steam_id: account.to_string(),
+        partner_steam_id: partner.to_string(),
+        messages: Vec::new(),
+        more_available: false,
+        fetched_at: 0,
+        unread_count: 0,
+    }
+}
+
+fn empty_group_thread(account: &str, group_id: &str, chat_id: &str) -> GroupThreadSnapshot {
+    GroupThreadSnapshot {
+        account_steam_id: account.to_string(),
+        group_id: group_id.to_string(),
+        chat_id: chat_id.to_string(),
+        messages: Vec::new(),
+        more_available: false,
+        fetched_at: 0,
+        unread_count: 0,
+    }
+}
+
+fn cached_msg_to_group_dto(group_id: &str, chat_id: &str, m: &CachedMessage) -> GroupMessageDto {
+    GroupMessageDto {
+        group_id: group_id.to_string(),
+        chat_id: chat_id.to_string(),
+        sender_steam_id: m.sender_steam_id.clone(),
+        timestamp: m.timestamp,
+        ordinal: m.ordinal,
+        message: m.body.clone(),
+        delivery_state: m.delivery_state.to_dto_str().to_string(),
+    }
+}
+
+fn chat_group_dto_to_cache_entry(d: &ChatGroupDto) -> GroupCacheEntry {
+    GroupCacheEntry {
+        group_id: d.group_id.clone(),
+        name: d.name.clone(),
+        default_chat_id: d.default_chat_id.clone(),
+        rooms: d
+            .rooms
+            .iter()
+            .map(|r| GroupRoomCacheEntry {
+                chat_id: r.chat_id.clone(),
+                name: r.name.clone(),
+                last_message: r.last_message.clone(),
+                last_message_timestamp: r.last_message_timestamp,
+                last_sender_steam_id: r.last_sender_steam_id.clone(),
+            })
+            .collect(),
+    }
+}
+
+fn cache_entry_to_chat_group_dto(e: GroupCacheEntry) -> ChatGroupDto {
+    ChatGroupDto {
+        group_id: e.group_id,
+        name: e.name,
+        default_chat_id: e.default_chat_id,
+        rooms: e
+            .rooms
+            .into_iter()
+            .map(|r| ChatGroupRoomDto {
+                chat_id: r.chat_id,
+                name: r.name,
+                last_message: r.last_message,
+                last_message_timestamp: r.last_message_timestamp,
+                last_sender_steam_id: r.last_sender_steam_id,
+            })
+            .collect(),
+    }
 }
 
 /// Snapshot of the current connection slot, if any.
@@ -198,11 +322,58 @@ fn friend_dto(rel: &social::FriendRelation, s: Option<&social::UserSummary>) -> 
     }
 }
 
-/// Friend list + live persona/online-state, fetched via the OAuth Web API
-/// (`ISteamUserOAuth/GetFriendList` + `GetUserSummaries`) — the same reliable
-/// path Steam's own web chat uses (the CM pushed list is not relied upon).
+fn friend_dto_to_cache_entry(d: &FriendDto) -> FriendCacheEntry {
+    FriendCacheEntry {
+        steam_id: d.steam_id.clone(),
+        persona_name: d.persona_name.clone(),
+        avatar_url: d.avatar_url.clone(),
+        online_state: d.online_state.clone(),
+        in_game_name: d.in_game_name.clone(),
+        last_logoff: d.last_logoff,
+    }
+}
+
+fn cache_entry_to_friend_dto(e: FriendCacheEntry) -> FriendDto {
+    FriendDto {
+        steam_id: e.steam_id,
+        persona_name: e.persona_name,
+        avatar_url: e.avatar_url,
+        online_state: e.online_state,
+        in_game_name: e.in_game_name,
+        last_logoff: e.last_logoff,
+    }
+}
+
+fn cached_msg_to_chat_dto(m: &CachedMessage) -> ChatMessageDto {
+    ChatMessageDto {
+        steam_id: m.sender_steam_id.clone(),
+        timestamp: m.timestamp,
+        message: m.body.clone(),
+        kind: "saytext".into(),
+        delivery_state: m.delivery_state.to_dto_str().to_string(),
+    }
+}
+
+/// Load the friends snapshot from the per-account cache (instant; empty when
+/// absent). Network refresh is a separate `refresh_friends` call.
 #[tauri::command]
-pub async fn get_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, String> {
+pub async fn load_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, String> {
+    let (steam_id, _) = resolve_session(&state.tool_dir)?;
+    let account = steam_id.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(cache) = open_cache(&state.tool_dir, steam_id) else {
+        return Ok(Vec::new());
+    };
+    let snapshot = cache.load_friends(&account);
+    Ok(snapshot
+        .map(|s| s.friends.into_iter().map(cache_entry_to_friend_dto).collect())
+        .unwrap_or_default())
+}
+
+/// Fetch the friend list + live persona/online-state (OAuth Web API — the same
+/// reliable path Steam's own web chat uses) and persist it to the cache.
+#[tauri::command]
+pub async fn refresh_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, String> {
     let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
     let client = shared_client();
     let relations = social::get_friend_list(&client, &access_token, steam_id)
@@ -212,21 +383,31 @@ pub async fn get_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, S
         .filter(|r| r.relationship == "friend")
         .map(|r| r.steamid.clone())
         .collect();
-    if friend_ids.is_empty() {
-        return Ok(Vec::new());
-    }
-    let summaries = social::get_user_summaries(&client, &access_token, &friend_ids)
-        .map_err(|e| e.to_string())?;
-    let by_id: HashMap<String, social::UserSummary> = summaries
-        .into_iter()
-        .map(|s| (s.steamid.clone(), s))
-        .collect();
+    let by_id: HashMap<String, social::UserSummary> = if friend_ids.is_empty() {
+        HashMap::new()
+    } else {
+        let summaries = social::get_user_summaries(&client, &access_token, &friend_ids)
+            .map_err(|e| e.to_string())?;
+        summaries.into_iter().map(|s| (s.steamid.clone(), s)).collect()
+    };
 
-    Ok(relations
+    let dtos: Vec<FriendDto> = relations
         .into_iter()
         .filter(|r| r.relationship == "friend")
         .map(|r| friend_dto(&r, by_id.get(&r.steamid)))
-        .collect())
+        .collect();
+
+    let account = steam_id.to_string();
+    let snapshot = FriendsSnapshot {
+        account_steam_id: account,
+        friends: dtos.iter().map(friend_dto_to_cache_entry).collect(),
+        fetched_at: now_unix(),
+    };
+    let _guard = social_cache_lock().lock().await;
+    if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
+        cache.save_friends(&snapshot);
+    }
+    Ok(dtos)
 }
 
 /// Single friend's persona summary.
@@ -248,15 +429,59 @@ pub async fn get_friend_profile(state: State<'_, AppState>, steam_id: String) ->
 }
 
 /// Drain chat messages buffered by the CM connection since the last poll.
-/// Echoes of our own sends are skipped (the UI appends those optimistically).
+///
+/// Real incoming messages are appended to the per-partner thread cache (and
+/// counted as unread unless this is the active conversation); echoes of our
+/// own sends correlate the pending cache entry to its server identity. Echoes
+/// are not returned — the UI appends its own optimistic bubbles.
 #[tauri::command]
 pub async fn poll_chat(
     state: State<'_, AppState>,
-    _timeout_ms: Option<u64>,
+    active_partner: Option<String>,
 ) -> Result<Vec<ChatMessageDto>, String> {
     let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
     let client = ensure_cm(steam_id, &access_token).await?;
     let messages = client.take_messages().await;
+
+    if !messages.is_empty() {
+        let account = steam_id.to_string();
+        let active = active_partner.unwrap_or_default();
+        let _guard = social_cache_lock().lock().await;
+        if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
+            for m in &messages {
+                if m.local_echo {
+                    let partner = m.partner_steam_id.to_string();
+                    if let Some(mut thread) = cache.load_friend_thread(&account, &partner) {
+                        if correlate_friend_echo(&mut thread, &m.message, m.timestamp as u64, m.ordinal)
+                        {
+                            let (bounded, _) = bound_thread(thread.messages);
+                            thread.messages = bounded;
+                            cache.save_friend_thread(&thread);
+                        }
+                    }
+                } else {
+                    let partner = m.partner_steam_id.to_string();
+                    let mut thread = cache
+                        .load_friend_thread(&account, &partner)
+                        .unwrap_or_else(|| empty_friend_thread(&account, &partner));
+                    append_friend_incoming(
+                        &mut thread,
+                        ServerMsg {
+                            timestamp: m.timestamp as u64,
+                            ordinal: m.ordinal,
+                            sender_steam_id: partner.clone(),
+                            body: m.message.clone(),
+                        },
+                        &active,
+                    );
+                    let (bounded, _) = bound_thread(thread.messages);
+                    thread.messages = bounded;
+                    cache.save_friend_thread(&thread);
+                }
+            }
+        }
+    }
+
     Ok(messages
         .into_iter()
         .filter(|m| !m.local_echo)
@@ -265,44 +490,234 @@ pub async fn poll_chat(
             timestamp: m.timestamp as u64,
             message: m.message,
             kind: "saytext".into(),
+            delivery_state: "sent".into(),
         })
         .collect())
 }
 
-/// Send a text message to a friend (CM service method).
+/// Send a text message to a friend (CM service method). The message is
+/// persisted to the thread cache as `pending` on success (the CM echo later
+/// correlates it to its server identity) or `failedRetryable` on failure, so
+/// it survives a restart and can be retried.
 #[tauri::command]
 pub async fn send_chat_message(
     state: State<'_, AppState>,
     steam_id: String,
     text: String,
-) -> Result<(), String> {
-    let (sid, access_token) = resolve_session(&state.tool_dir)?;
-    let client = ensure_cm(sid, &access_token).await?;
-    let id = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
-    client.send_message(id, &text).await
-}
-
-/// Last `count` messages exchanged with a friend (Web API service method).
-#[tauri::command]
-pub async fn get_chat_history(
-    state: State<'_, AppState>,
-    steam_id: String,
-    count: Option<u32>,
-) -> Result<Vec<ChatMessageDto>, String> {
+) -> Result<ChatMessageDto, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
     let partner = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    let client = ensure_cm(sid, &access_token).await?;
+    let account = sid.to_string();
+    let body = text.trim().to_string();
+    let local = CachedMessage {
+        local_id: Some(new_local_id()),
+        timestamp: now_unix(),
+        ordinal: 0,
+        sender_steam_id: account.clone(),
+        body: body.clone(),
+        delivery_state: DeliveryState::Pending,
+    };
+
+    match client.send_message(partner, &body).await {
+        Ok(()) => {
+            let dto = cached_msg_to_chat_dto(&local);
+            let _guard = social_cache_lock().lock().await;
+            if let Some(mut cache) = open_cache(&state.tool_dir, sid) {
+                let mut thread = cache
+                    .load_friend_thread(&account, &steam_id)
+                    .unwrap_or_else(|| empty_friend_thread(&account, &steam_id));
+                thread.messages.push(local);
+                let (bounded, _) = bound_thread(thread.messages);
+                thread.messages = bounded;
+                cache.save_friend_thread(&thread);
+            }
+            Ok(dto)
+        }
+        Err(e) => {
+            let mut failed = local;
+            failed.delivery_state = DeliveryState::FailedRetryable;
+            let _guard = social_cache_lock().lock().await;
+            if let Some(mut cache) = open_cache(&state.tool_dir, sid) {
+                let mut thread = cache
+                    .load_friend_thread(&account, &steam_id)
+                    .unwrap_or_else(|| empty_friend_thread(&account, &steam_id));
+                thread.messages.push(failed);
+                let (bounded, _) = bound_thread(thread.messages);
+                thread.messages = bounded;
+                cache.save_friend_thread(&thread);
+            }
+            Err(e)
+        }
+    }
+}
+
+/// Read a friend thread from the cache (instant, offline-safe) and mark the
+/// conversation read. Stored `pending` messages are reported as `verifying`
+/// (the app re-checks them against server history via `refresh_chat`).
+#[tauri::command]
+pub async fn open_chat(
+    state: State<'_, AppState>,
+    steam_id: String,
+) -> Result<ChatThreadDto, String> {
+    let (sid, _) = resolve_session(&state.tool_dir)?;
+    let account = sid.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(mut cache) = open_cache(&state.tool_dir, sid) else {
+        return Ok(ChatThreadDto { messages: Vec::new(), more_available: false });
+    };
+    let (messages, more_available) = match cache.load_friend_thread(&account, &steam_id) {
+        Some(mut snap) => {
+            if snap.unread_count != 0 {
+                snap.unread_count = 0;
+                cache.save_friend_thread(&snap);
+            }
+            (recover_friend_states(&snap.messages), snap.more_available)
+        }
+        None => (Vec::new(), false),
+    };
+    Ok(ChatThreadDto {
+        messages: messages.iter().map(cached_msg_to_chat_dto).collect(),
+        more_available,
+    })
+}
+
+/// Fetch recent friend-chat history (Web API service method), merge it with the
+/// cached thread (dedupe by identity + reconcile optimistic sends), bound and
+/// persist it, then return the reconciled thread.
+#[tauri::command]
+pub async fn refresh_chat(
+    state: State<'_, AppState>,
+    steam_id: String,
+) -> Result<ChatThreadDto, String> {
+    let (sid, access_token) = resolve_session(&state.tool_dir)?;
+    let partner = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    let account = sid.to_string();
     let client = shared_client();
-    let result = social::get_recent_messages(&client, &access_token, sid, partner, count.unwrap_or(50))
+    let result = social::get_recent_messages(&client, &access_token, sid, partner, 50)
         .map_err(|e| e.to_string())?;
-    Ok(result
+    let server: Vec<ServerMsg> = result
         .messages
         .into_iter()
-        .map(|m| ChatMessageDto {
-            steam_id: m.sender_steamid.to_string(),
+        .map(|m| ServerMsg {
             timestamp: m.timestamp as u64,
-            message: m.body,
-            kind: "saytext".into(),
+            ordinal: 0,
+            sender_steam_id: m.sender_steamid.to_string(),
+            body: m.body,
         })
+        .collect();
+
+    let _guard = social_cache_lock().lock().await;
+    let Some(mut cache) = open_cache(&state.tool_dir, sid) else {
+        // No cache store — still return the fresh server history.
+        let msgs: Vec<ChatMessageDto> = server
+            .iter()
+            .map(|m| ChatMessageDto {
+                steam_id: m.sender_steam_id.clone(),
+                timestamp: m.timestamp,
+                message: m.body.clone(),
+                kind: "saytext".into(),
+                delivery_state: "sent".into(),
+            })
+            .collect();
+        return Ok(ChatThreadDto { messages: msgs, more_available: false });
+    };
+    let cached = cache.load_friend_thread(&account, &steam_id);
+    let prev_more = cached.as_ref().map(|s| s.more_available).unwrap_or(false);
+    let cached_msgs = cached.map(|s| s.messages).unwrap_or_default();
+    let merged = merge_friend_thread(cached_msgs, server, &account);
+    let (bounded, trimmed) = bound_thread(merged);
+    let snapshot = FriendThreadSnapshot {
+        account_steam_id: account.clone(),
+        partner_steam_id: steam_id.clone(),
+        messages: bounded,
+        more_available: prev_more || trimmed,
+        fetched_at: now_unix(),
+        unread_count: 0, // the conversation is open — any unread is consumed
+    };
+    cache.save_friend_thread(&snapshot);
+    Ok(ChatThreadDto {
+        messages: recover_friend_states(&snapshot.messages)
+            .iter()
+            .map(cached_msg_to_chat_dto)
+            .collect(),
+        more_available: snapshot.more_available,
+    })
+}
+
+// ── Sessions (recent conversations + unread) ──────────────────
+
+fn cache_entry_to_session_dto(e: ChatSessionEntry) -> ChatSessionDto {
+    ChatSessionDto {
+        partner_steam_id: e.partner_steam_id,
+        last_message: e.last_message,
+        last_timestamp: e.last_timestamp,
+        unread_count: e.unread_count,
+    }
+}
+
+/// Cached recent-conversation summaries (instant; empty when nothing cached).
+#[tauri::command]
+pub async fn load_sessions(state: State<'_, AppState>) -> Result<Vec<ChatSessionDto>, String> {
+    let (steam_id, _) = resolve_session(&state.tool_dir)?;
+    let account = steam_id.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(cache) = open_cache(&state.tool_dir, steam_id) else {
+        return Ok(Vec::new());
+    };
+    let snapshot = cache.load_sessions(&account);
+    Ok(snapshot
+        .map(|s| s.sessions.into_iter().map(cache_entry_to_session_dto).collect())
+        .unwrap_or_default())
+}
+
+/// Derive the recent-conversation list from the cached friends snapshot + each
+/// friend thread (last message preview + unread count), newest-activity first,
+/// and persist it.
+#[tauri::command]
+pub async fn refresh_sessions(state: State<'_, AppState>) -> Result<Vec<ChatSessionDto>, String> {
+    let (steam_id, _) = resolve_session(&state.tool_dir)?;
+    let account = steam_id.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(mut cache) = open_cache(&state.tool_dir, steam_id) else {
+        return Ok(Vec::new());
+    };
+    let friends = cache
+        .load_friends(&account)
+        .map(|s| s.friends)
+        .unwrap_or_default();
+    let mut sessions: Vec<ChatSessionEntry> = Vec::with_capacity(friends.len());
+    for f in &friends {
+        let thread = cache.load_friend_thread(&account, &f.steam_id);
+        let (last_message, last_timestamp, unread_count) = match &thread {
+            Some(t) => {
+                let tail = t.messages.last();
+                (
+                    tail.map(|m| m.body.clone()).unwrap_or_default(),
+                    tail.map(|m| m.timestamp).unwrap_or(0),
+                    t.unread_count,
+                )
+            }
+            None => (String::new(), 0, 0),
+        };
+        sessions.push(ChatSessionEntry {
+            partner_steam_id: f.steam_id.clone(),
+            last_message,
+            last_timestamp,
+            unread_count,
+        });
+    }
+    sessions.sort_by_key(|s| std::cmp::Reverse(s.last_timestamp));
+    let snapshot = ChatSessionsSnapshot {
+        account_steam_id: account,
+        sessions,
+        fetched_at: now_unix(),
+    };
+    cache.save_sessions(&snapshot);
+    Ok(snapshot
+        .sessions
+        .into_iter()
+        .map(cache_entry_to_session_dto)
         .collect())
 }
 
@@ -336,6 +751,16 @@ pub struct GroupMessageDto {
     pub timestamp: u64,
     pub ordinal: u32,
     pub message: String,
+    /// `sent` / `pending` / `verifying` / `failedRetryable` (see `DeliveryState`).
+    pub delivery_state: String,
+}
+
+/// A group-channel thread returned by `open_group_chat` / `refresh_group_chat`.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GroupThreadDto {
+    pub messages: Vec<GroupMessageDto>,
+    pub more_available: bool,
 }
 
 /// Parse the `ChatRoom.GetMyChatRoomGroups` response into group summaries.
@@ -435,48 +860,164 @@ fn parse_group_messages(group_id: &str, chat_id: &str, body: &[u8]) -> Vec<Group
             timestamp: proto_wire::get_number(&mf, 2).unwrap_or(0),
             ordinal: proto_wire::get_number(&mf, 4).unwrap_or(0) as u32,
             message,
+            delivery_state: "sent".into(),
         });
     }
     messages.sort_by_key(|m| (m.timestamp, m.ordinal));
     messages
 }
 
-/// List the chat room groups the account belongs to.
+/// Cached chat room groups (instant; empty when nothing cached yet).
 #[tauri::command]
-pub async fn get_chat_groups(state: State<'_, AppState>) -> Result<Vec<ChatGroupDto>, String> {
+pub async fn load_groups(state: State<'_, AppState>) -> Result<Vec<ChatGroupDto>, String> {
+    let (steam_id, _) = resolve_session(&state.tool_dir)?;
+    let account = steam_id.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(cache) = open_cache(&state.tool_dir, steam_id) else {
+        return Ok(Vec::new());
+    };
+    let snapshot = cache.load_groups(&account);
+    Ok(snapshot
+        .map(|s| s.groups.into_iter().map(cache_entry_to_chat_group_dto).collect())
+        .unwrap_or_default())
+}
+
+/// Fresh list of the chat room groups the account belongs to (CM service
+/// method), persisted to the cache.
+#[tauri::command]
+pub async fn refresh_groups(state: State<'_, AppState>) -> Result<Vec<ChatGroupDto>, String> {
     let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
     let client = ensure_cm(steam_id, &access_token).await?;
     let body = client
         .call_service("ChatRoom.GetMyChatRoomGroups#1", Vec::new())
         .await?;
-    Ok(parse_chat_groups(&body))
+    let dtos = parse_chat_groups(&body);
+    let account = steam_id.to_string();
+    let snapshot = GroupsSnapshot {
+        account_steam_id: account,
+        groups: dtos.iter().map(chat_group_dto_to_cache_entry).collect(),
+        fetched_at: now_unix(),
+    };
+    let _guard = social_cache_lock().lock().await;
+    if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
+        cache.save_groups(&snapshot);
+    }
+    Ok(dtos)
 }
 
-/// Last messages in a group channel.
+/// Read a group-channel thread from the cache (instant, offline-safe) and mark
+/// the channel read. Stored non-`sent` messages are reported as
+/// `failedRetryable` (they can be re-sent).
 #[tauri::command]
-pub async fn get_group_history(
+pub async fn open_group_chat(
     state: State<'_, AppState>,
     group_id: String,
     chat_id: String,
-) -> Result<Vec<GroupMessageDto>, String> {
+) -> Result<GroupThreadDto, String> {
+    let (sid, _) = resolve_session(&state.tool_dir)?;
+    let account = sid.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(mut cache) = open_cache(&state.tool_dir, sid) else {
+        return Ok(GroupThreadDto { messages: Vec::new(), more_available: false });
+    };
+    let (messages, more_available) = match cache.load_group_thread(&account, &group_id, &chat_id) {
+        Some(mut snap) => {
+            if snap.unread_count != 0 {
+                snap.unread_count = 0;
+                cache.save_group_thread(&snap);
+            }
+            (recover_group_states(&snap.messages), snap.more_available)
+        }
+        None => (Vec::new(), false),
+    };
+    Ok(GroupThreadDto {
+        messages: messages
+            .iter()
+            .map(|m| cached_msg_to_group_dto(&group_id, &chat_id, m))
+            .collect(),
+        more_available,
+    })
+}
+
+/// Fetch recent group-channel history (CM service method), merge it with the
+/// cached thread, bound and persist it, then return the reconciled thread.
+#[tauri::command]
+pub async fn refresh_group_chat(
+    state: State<'_, AppState>,
+    group_id: String,
+    chat_id: String,
+) -> Result<GroupThreadDto, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
     let client = ensure_cm(sid, &access_token).await?;
     let mut req = proto_wire::Writer::new();
     req.varint(1, group_id.parse::<u64>().map_err(|_| "invalid group id")?);
     req.varint(2, chat_id.parse::<u64>().map_err(|_| "invalid chat id")?);
     req.varint(7, 50);
-    let body = client.call_service("ChatRoom.GetMessageHistory#1", req.finish()).await?;
-    Ok(parse_group_messages(&group_id, &chat_id, &body))
+    let body = client
+        .call_service("ChatRoom.GetMessageHistory#1", req.finish())
+        .await?;
+    let server: Vec<ServerMsg> = parse_group_messages(&group_id, &chat_id, &body)
+        .into_iter()
+        .map(|m| ServerMsg {
+            timestamp: m.timestamp,
+            ordinal: m.ordinal,
+            sender_steam_id: m.sender_steam_id,
+            body: m.message,
+        })
+        .collect();
+
+    let account = sid.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(mut cache) = open_cache(&state.tool_dir, sid) else {
+        let msgs: Vec<GroupMessageDto> = server
+            .iter()
+            .map(|m| GroupMessageDto {
+                group_id: group_id.clone(),
+                chat_id: chat_id.clone(),
+                sender_steam_id: m.sender_steam_id.clone(),
+                timestamp: m.timestamp,
+                ordinal: m.ordinal,
+                message: m.body.clone(),
+                delivery_state: "sent".into(),
+            })
+            .collect();
+        return Ok(GroupThreadDto { messages: msgs, more_available: false });
+    };
+    let cached = cache.load_group_thread(&account, &group_id, &chat_id);
+    let prev_more = cached.as_ref().map(|s| s.more_available).unwrap_or(false);
+    let cached_msgs = cached.map(|s| s.messages).unwrap_or_default();
+    let merged = merge_group_thread(cached_msgs, server, &account);
+    let (bounded, trimmed) = bound_thread(merged);
+    let snapshot = GroupThreadSnapshot {
+        account_steam_id: account.clone(),
+        group_id: group_id.clone(),
+        chat_id: chat_id.clone(),
+        messages: bounded,
+        more_available: prev_more || trimmed,
+        fetched_at: now_unix(),
+        unread_count: 0,
+    };
+    cache.save_group_thread(&snapshot);
+    Ok(GroupThreadDto {
+        messages: recover_group_states(&snapshot.messages)
+            .iter()
+            .map(|m| cached_msg_to_group_dto(&group_id, &chat_id, m))
+            .collect(),
+        more_available: snapshot.more_available,
+    })
 }
 
-/// Send a text message to a group channel.
+/// Send a text message to a group channel (CM service method). The message is
+/// persisted to the thread cache as `sent` on success (group sends have no
+/// echo; `refresh_group_chat` reconciles the server identity) or
+/// `failedRetryable` on failure.
 #[tauri::command]
 pub async fn send_group_message(
     state: State<'_, AppState>,
     group_id: String,
     chat_id: String,
     text: String,
-) -> Result<(), String> {
+) -> Result<GroupMessageDto, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
     let client = ensure_cm(sid, &access_token).await?;
     let mut req = proto_wire::Writer::new();
@@ -484,19 +1025,96 @@ pub async fn send_group_message(
     req.varint(2, chat_id.parse::<u64>().map_err(|_| "invalid chat id")?);
     req.string(3, text.trim());
     req.bool(4, true);
-    client.call_service("ChatRoom.SendChatMessage#1", req.finish()).await?;
-    Ok(())
+    let account = sid.to_string();
+    let body = text.trim().to_string();
+    let local = CachedMessage {
+        local_id: Some(new_local_id()),
+        timestamp: now_unix(),
+        ordinal: 0,
+        sender_steam_id: account.clone(),
+        body: body.clone(),
+        delivery_state: DeliveryState::Sent,
+    };
+    match client
+        .call_service("ChatRoom.SendChatMessage#1", req.finish())
+        .await
+    {
+        Ok(_) => {
+            let dto = cached_msg_to_group_dto(&group_id, &chat_id, &local);
+            let _guard = social_cache_lock().lock().await;
+            if let Some(mut cache) = open_cache(&state.tool_dir, sid) {
+                let mut thread = cache
+                    .load_group_thread(&account, &group_id, &chat_id)
+                    .unwrap_or_else(|| empty_group_thread(&account, &group_id, &chat_id));
+                thread.messages.push(local);
+                let (bounded, _) = bound_thread(thread.messages);
+                thread.messages = bounded;
+                cache.save_group_thread(&thread);
+            }
+            Ok(dto)
+        }
+        Err(e) => {
+            let mut failed = local;
+            failed.delivery_state = DeliveryState::FailedRetryable;
+            let _guard = social_cache_lock().lock().await;
+            if let Some(mut cache) = open_cache(&state.tool_dir, sid) {
+                let mut thread = cache
+                    .load_group_thread(&account, &group_id, &chat_id)
+                    .unwrap_or_else(|| empty_group_thread(&account, &group_id, &chat_id));
+                thread.messages.push(failed);
+                let (bounded, _) = bound_thread(thread.messages);
+                thread.messages = bounded;
+                cache.save_group_thread(&thread);
+            }
+            Err(e)
+        }
+    }
 }
 
-/// Drain group chat messages buffered by the CM connection since the last poll.
-/// Echoes of our own sends are dropped — the UI appends those optimistically
-/// (group chat has no `local_echo` flag like private chat).
+/// Drain group chat messages buffered by the CM connection since the last poll,
+/// appending them to the per-channel thread cache (unread unless this is the
+/// active channel). Our own sends are dropped from the return — the UI appends
+/// those optimistically.
 #[tauri::command]
-pub async fn poll_group_messages(state: State<'_, AppState>) -> Result<Vec<GroupMessageDto>, String> {
+pub async fn poll_group_messages(
+    state: State<'_, AppState>,
+    active_group: Option<(String, String)>,
+) -> Result<Vec<GroupMessageDto>, String> {
     let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
     let client = ensure_cm(steam_id, &access_token).await?;
     let self_id = steam_id.to_string();
     let items = client.take_group_messages().await;
+
+    if !items.is_empty() {
+        let account = steam_id.to_string();
+        let active = active_group
+            .as_ref()
+            .map(|(g, c)| (g.as_str(), c.as_str()));
+        let _guard = social_cache_lock().lock().await;
+        if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
+            for m in &items {
+                let gid = m.group_id.to_string();
+                let cid = m.chat_id.to_string();
+                let mut thread = cache
+                    .load_group_thread(&account, &gid, &cid)
+                    .unwrap_or_else(|| empty_group_thread(&account, &gid, &cid));
+                append_group_incoming(
+                    &mut thread,
+                    ServerMsg {
+                        timestamp: m.timestamp as u64,
+                        ordinal: m.ordinal,
+                        sender_steam_id: m.sender_steam_id.to_string(),
+                        body: m.message.clone(),
+                    },
+                    active,
+                );
+                let (bounded, _) = bound_thread(thread.messages);
+                thread.messages = bounded;
+                cache.save_group_thread(&thread);
+            }
+        }
+    }
+
     Ok(items
         .into_iter()
         .filter(|m| m.sender_steam_id.to_string() != self_id)
@@ -507,6 +1125,7 @@ pub async fn poll_group_messages(state: State<'_, AppState>) -> Result<Vec<Group
             timestamp: m.timestamp as u64,
             ordinal: m.ordinal,
             message: m.message,
+            delivery_state: "sent".into(),
         })
         .collect())
 }

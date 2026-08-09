@@ -9,6 +9,7 @@ pub mod process;
 pub mod restore;
 pub mod scanner;
 pub mod scheduler;
+pub mod social_cache;
 pub mod steam_cloud;
 pub mod steam_prices;
 pub mod steam_sync;

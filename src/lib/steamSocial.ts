@@ -9,7 +9,10 @@ export type OnlineState =
   | "lookingToPlay"
   | "offline";
 
-/** A friend with live persona / online-state (from `get_friends`). */
+/** Delivery lifecycle of a chat message (mirrors `DeliveryState` in Rust). */
+export type DeliveryState = "sent" | "pending" | "verifying" | "failedRetryable";
+
+/** A friend with live persona / online-state (from `load/refresh_friends`). */
 export interface FriendDto {
   steamId: string;
   personaName: string | null;
@@ -19,17 +22,29 @@ export interface FriendDto {
   lastLogoff: number | null;
 }
 
-/** One chat message (sender steamid, text, unix seconds). */
+/** One chat message (sender steamid, text, unix seconds, delivery state). */
 export interface ChatMessageDto {
   steamId: string;
   timestamp: number;
   message: string;
   kind: string;
+  deliveryState?: DeliveryState;
 }
 
-/** Friend list with live presence (needs an active Steam session). */
-export function getFriends(): Promise<FriendDto[]> {
-  return invoke<FriendDto[]>("get_friends");
+/** A private-chat thread (from `open_chat` / `refresh_chat`). */
+export interface ChatThreadDto {
+  messages: ChatMessageDto[];
+  moreAvailable: boolean;
+}
+
+/** Cached friend list (instant; empty when nothing cached yet). */
+export function loadFriends(): Promise<FriendDto[]> {
+  return invoke<FriendDto[]>("load_friends");
+}
+
+/** Fresh friend list + presence (network), persisted to the cache. */
+export function refreshFriends(): Promise<FriendDto[]> {
+  return invoke<FriendDto[]>("refresh_friends");
 }
 
 /** Single friend's persona summary. */
@@ -37,20 +52,46 @@ export function getFriendProfile(steamId: string): Promise<FriendDto> {
   return invoke<FriendDto>("get_friend_profile", { steamId });
 }
 
-/** Drain chat messages buffered by the CM connection since the last poll. */
-export function pollChat(timeoutMs?: number): Promise<ChatMessageDto[]> {
-  const args = timeoutMs != null ? { timeoutMs } : {};
+/**
+ * Drain chat messages buffered by the CM connection since the last poll.
+ * `activePartner` suppresses the unread count for that conversation.
+ */
+export function pollChat(activePartner?: string): Promise<ChatMessageDto[]> {
+  const args = activePartner ? { activePartner } : {};
   return invoke<ChatMessageDto[]>("poll_chat", args);
 }
 
-/** Send a text message to a friend. */
-export function sendChatMessage(steamId: string, text: string): Promise<void> {
-  return invoke("send_chat_message", { steamId, text });
+/** Send a text message to a friend; returns the persisted local message. */
+export function sendChatMessage(steamId: string, text: string): Promise<ChatMessageDto> {
+  return invoke<ChatMessageDto>("send_chat_message", { steamId, text });
 }
 
-/** Last `count` messages exchanged with a friend (both directions). */
-export function getChatHistory(steamId: string, count?: number): Promise<ChatMessageDto[]> {
-  return invoke<ChatMessageDto[]>("get_chat_history", { steamId, count });
+/** Cached friend thread (instant, offline-safe); marks the conversation read. */
+export function openChat(steamId: string): Promise<ChatThreadDto> {
+  return invoke<ChatThreadDto>("open_chat", { steamId });
+}
+
+/** Fresh friend thread (network history merged with the cache). */
+export function refreshChat(steamId: string): Promise<ChatThreadDto> {
+  return invoke<ChatThreadDto>("refresh_chat", { steamId });
+}
+
+/** One recent-conversation summary (from `load_sessions` / `refresh_sessions`). */
+export interface ChatSessionDto {
+  partnerSteamId: string;
+  lastMessage: string;
+  lastTimestamp: number;
+  unreadCount: number;
+}
+
+/** Cached recent-conversation summaries (instant; empty when nothing cached). */
+export function loadSessions(): Promise<ChatSessionDto[]> {
+  return invoke<ChatSessionDto[]>("load_sessions");
+}
+
+/** Fresh recent-conversation summaries (derived from friends + threads). */
+export function refreshSessions(): Promise<ChatSessionDto[]> {
+  return invoke<ChatSessionDto[]>("refresh_sessions");
 }
 
 // ── Group chat ───────────────────────────────────────────────
@@ -64,7 +105,7 @@ export interface ChatGroupRoomDto {
   lastSenderSteamId: string;
 }
 
-/** A Steam chat room group (from `get_chat_groups`). */
+/** A Steam chat room group (from `load_groups` / `refresh_groups`). */
 export interface ChatGroupDto {
   groupId: string;
   name: string;
@@ -80,26 +121,51 @@ export interface GroupMessageDto {
   timestamp: number;
   ordinal: number;
   message: string;
+  deliveryState?: DeliveryState;
 }
 
-/** List the chat room groups the account belongs to. */
-export function getChatGroups(): Promise<ChatGroupDto[]> {
-  return invoke<ChatGroupDto[]>("get_chat_groups");
+/** A group-channel thread (from `open_group_chat` / `refresh_group_chat`). */
+export interface GroupThreadDto {
+  messages: GroupMessageDto[];
+  moreAvailable: boolean;
 }
 
-/** Last messages in a group channel. */
-export function getGroupHistory(groupId: string, chatId: string): Promise<GroupMessageDto[]> {
-  return invoke<GroupMessageDto[]>("get_group_history", { groupId, chatId });
+/** Cached chat room groups (instant; empty when nothing cached yet). */
+export function loadGroups(): Promise<ChatGroupDto[]> {
+  return invoke<ChatGroupDto[]>("load_groups");
 }
 
-/** Send a text message to a group channel. */
-export function sendGroupMessage(groupId: string, chatId: string, text: string): Promise<void> {
-  return invoke("send_group_message", { groupId, chatId, text });
+/** Fresh chat room groups (network), persisted to the cache. */
+export function refreshGroups(): Promise<ChatGroupDto[]> {
+  return invoke<ChatGroupDto[]>("refresh_groups");
 }
 
-/** Drain group chat messages buffered by the CM connection. */
-export function pollGroupMessages(): Promise<GroupMessageDto[]> {
-  return invoke<GroupMessageDto[]>("poll_group_messages");
+/** Cached group-channel thread (instant, offline-safe); marks the channel read. */
+export function openGroupChat(groupId: string, chatId: string): Promise<GroupThreadDto> {
+  return invoke<GroupThreadDto>("open_group_chat", { groupId, chatId });
+}
+
+/** Fresh group-channel thread (network history merged with the cache). */
+export function refreshGroupChat(groupId: string, chatId: string): Promise<GroupThreadDto> {
+  return invoke<GroupThreadDto>("refresh_group_chat", { groupId, chatId });
+}
+
+/** Send a text message to a group channel; returns the persisted local message. */
+export function sendGroupMessage(
+  groupId: string,
+  chatId: string,
+  text: string,
+): Promise<GroupMessageDto> {
+  return invoke<GroupMessageDto>("send_group_message", { groupId, chatId, text });
+}
+
+/**
+ * Drain group chat messages buffered by the CM connection.
+ * `activeGroup` (`[groupId, chatId]`) suppresses the unread count for that channel.
+ */
+export function pollGroupMessages(activeGroup?: [string, string]): Promise<GroupMessageDto[]> {
+  const args = activeGroup ? { activeGroup } : {};
+  return invoke<GroupMessageDto[]>("poll_group_messages", args);
 }
 
 // ── E4 图片 / 贴纸 ───────────────────────────────────────────

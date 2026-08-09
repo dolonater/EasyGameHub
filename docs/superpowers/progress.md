@@ -496,3 +496,27 @@
 - Group D status: partially started, then stopped at user request after the user reverted their version
 - Additional fix applied during Group A verification: updated existing `src-tauri/src/core/scanner.rs` test fixtures to include the required `popular` field so the planned Rust test command could run
 - Current state: development paused by user request; do not continue unless explicitly resumed
+
+## Current Workflow Request
+- Topic: 社交缓存（好友 / 私聊 / 群聊）—— 参考 Monica Steam 缓存分层，为已完成 E1/E2 的社交模块补缓存优化
+- Stage 1 Requirement Exploration: In progress（2026-08-09）
+- Design doc: docs/superpowers/specs/2026-08-09-social-cache-design.md
+- 关键决策：缓存落 Rust `core/social_cache.rs` + per-account SecureStore（加密）；cache-first 双阶段（load 快读 + refresh 慢刷）；投递状态（Sent/Pending/FailedRetryable）+ 合并去重 + 裁剪（500 Sent / 64 非 Sent）
+- 阶段划分：S1 缓存内核（纯 Rust+单测）→ S2 好友+私聊接入 → S3 群聊接入 → S4 会话快照+未读（可砍）
+- 待用户批准设计后进入 Stage 2 计划文档
+- Stage 2 Implementation Planning: Completed at 2026-08-09
+- Plan doc: docs/superpowers/plans/2026-08-09-social-cache-plan.md
+- 用户已确认：S4 会话列表纳入；好友/群列表走双阶段；群聊过期未确认→FailedRetryable、私聊→Verifying
+- 待用户批准计划后进入 Stage 3 执行（S1→S2→S3→S4）
+- Stage 3 Plan Execution: Completed 2026-08-09（S1–S4 全部任务实现并验证）
+  - S1 缓存内核：`core/social_cache.rs`（类型/bound 500+64/recover 私聊→verifying·群聊→failedRetryable/merge 身份键+60s对账/SecureStore per-account 封装+归属守卫+写穿辅助）；18 单测
+  - S2 好友+私聊：load/refresh_friends、open/refresh_chat、send_chat_message 返回 DTO+持久化 Pending/FailedRetryable、poll_chat 写穿+correlate_friend_echo；前端 SocialPanel 缓存先行+气泡状态/重试+dedupKey 修复（原 dedupKey 模板串内嵌组件调用是坏键）
+  - S3 群聊：load/refresh_groups、open/refresh_group_chat、send_group_message 写 Sent（群无 echo）、poll_group_messages 写穿；前端群缓存先行
+  - S4 会话+未读：append_* bump 未读（非活跃）+open_* 清零+poll 参数 active_partner/active_group、load/refresh_sessions（friends+threads 派生）、前端好友行未读徽标+末条预览
+  - 验证：`cargo test --workspace`（src-tauri 81 + steam-sdk 95 passed）、`cargo check --workspace`、`npm run build` 全绿
+- 待手测（Stage 4 清单）：离线缓存秒开+陈旧提示；重启后离线消息合并补回；发送失败→重试；多账号缓存隔离；未读徽标+清零
+- 手测修复（2026-08-09）：
+  1. 未读徽标只在刷新后清零 → 根因：open_chat 在 Rust 侧清零未读，但前端打开会话后未重读 sessions。修复：chat-open effect 在 openChat 解析后调用 refreshSessionsList()，徽标即时清零。
+  2. 切回社交页签每次显示加载中 → 根因：SteamHub 条件渲染 `{tab==="social" && <SocialPanel/>}`，切走卸载/切回重挂，React 状态全丢。修复：SocialPanel 保持挂载（CSS hidden 切换），聊天状态/滚动/选中跨 Tab 保留；CM 轮询后台持续计未读。附带：账号切换时重置 selected/messages/groups/sessions（keep-mounted 不再重挂导致旧账号选中残留）；好友在线状态补 60s 静默周期刷新（原先靠重挂刷新）。
+  - 验证：npm run build 通过。
+- 撤销（2026-08-09）：「切回社交页显示加载中」的 keep-mounted 修复被撤销（用户要求），恢复 SteamHub 条件渲染 + 移除连带改动（好友/群/会话 effect 的账号切换重置、60s 好友周期刷新）。**保留**未读徽标即时清零修复（chat-open effect 的 refreshSessionsList()）。

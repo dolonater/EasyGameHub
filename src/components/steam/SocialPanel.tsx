@@ -6,13 +6,19 @@ import Button from "../ui/Button";
 import TabButtons from "../ui/TabButtons";
 import { showToast } from "../Notification";
 import {
-  getChatGroups,
-  getChatHistory,
-  getFriends,
-  getGroupHistory,
   getStickerCatalog,
+  loadFriends,
+  loadGroups,
+  loadSessions,
+  openChat,
+  openGroupChat,
   pollChat,
   pollGroupMessages,
+  refreshChat,
+  refreshFriends,
+  refreshGroupChat,
+  refreshGroups,
+  refreshSessions,
   sendChatMessage,
   sendGroupMessage,
   sendStickerMessage,
@@ -21,8 +27,12 @@ import {
   uploadGroupImage,
   type ChatGroupDto,
   type ChatMessageDto,
+  type ChatSessionDto,
+  type ChatThreadDto,
+  type DeliveryState,
   type FriendDto,
   type GroupMessageDto,
+  type GroupThreadDto,
   type OnlineState,
   type StickerDto,
 } from "../../lib/steamSocial";
@@ -33,11 +43,30 @@ interface SocialPanelProps {
   embedded?: boolean;
 }
 
+/** A chat message with an optional UI-only id for tracking optimistic bubbles. */
+type UiChatMessage = ChatMessageDto & { localId?: string };
+/** A group message with an optional UI-only id for tracking optimistic bubbles. */
+type UiGroupMessage = GroupMessageDto & { localId?: string };
+
+/** Friend-thread identity: `timestamp:sender:body` (Web-API history has no ordinal). */
 function dedupKey(m: ChatMessageDto): string {
-  return `${m.timestamp}:${m.steamId}:$<ChatMessageContent text={m.message} />`;
+  return `${m.timestamp}:${m.steamId}:${m.message}`;
 }
+/** Group-thread identity: `timestamp:ordinal:sender`. */
 function groupDedupKey(m: GroupMessageDto): string {
-  return `${m.timestamp}:${m.senderSteamId}:$<ChatMessageContent text={m.message} />`;
+  return `${m.timestamp}:${m.ordinal}:${m.senderSteamId}`;
+}
+
+/** Prefer `a` (server truth), then append `b`'s messages not already in `a`. */
+function unionMessages(a: ChatMessageDto[], b: ChatMessageDto[]): ChatMessageDto[] {
+  const seen = new Set(a.map(dedupKey));
+  return [...a, ...b.filter((m) => !seen.has(dedupKey(m)))];
+}
+
+/** Group-thread variant of `unionMessages`. */
+function unionGroupMessages(a: GroupMessageDto[], b: GroupMessageDto[]): GroupMessageDto[] {
+  const seen = new Set(a.map(groupDedupKey));
+  return [...a, ...b.filter((m) => !seen.has(groupDedupKey(m)))];
 }
 
 /** Online-state label + status dot color. */
@@ -114,8 +143,10 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [friends, setFriends] = useState<FriendDto[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
   const [friendsError, setFriendsError] = useState<string | null>(null);
+  const [friendsStale, setFriendsStale] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
-  const [messages, setMessages] = useState<ChatMessageDto[]>([]);
+  const [messages, setMessages] = useState<UiChatMessage[]>([]);
+  const [sessions, setSessions] = useState<ChatSessionDto[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -124,8 +155,10 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [groups, setGroups] = useState<ChatGroupDto[]>([]);
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [groupsError, setGroupsError] = useState<string | null>(null);
+  const [groupsStale, setGroupsStale] = useState(false);
+  const hasCachedGroups = useRef(false);
   const [selectedGroup, setSelectedGroup] = useState<ChatGroupDto | null>(null);
-  const [groupMessages, setGroupMessages] = useState<GroupMessageDto[]>([]);
+  const [groupMessages, setGroupMessages] = useState<UiGroupMessage[]>([]);
   const [groupHistoryError, setGroupHistoryError] = useState<string | null>(null);
   const [groupInput, setGroupInput] = useState("");
   const [groupSending, setGroupSending] = useState(false);
@@ -137,100 +170,184 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [stickersLoading, setStickersLoading] = useState(false);
   const stickersLoadedRef = useRef(false);
   const [refreshTick, setRefreshTick] = useState(0);
+  const hasCachedFriends = useRef(false);
 
   const listRef = useRef<HTMLDivElement>(null);
   const groupListRef = useRef<HTMLDivElement>(null);
 
   const selfId = session?.steamId ?? null;
 
-  // Load friends once per session.
+  // Load friends: cached list first (instant), then a silent network refresh.
+  // A failed refresh keeps the cache and flags it stale instead of blanking.
   useEffect(() => {
     if (!session) return;
     let cancelled = false;
     setFriendsLoading(true);
     setFriendsError(null);
-    getFriends()
+    setFriendsStale(false);
+    loadFriends()
       .then((list) => {
-        if (!cancelled) {
-          setFriends(list);
-          setSelected((prev) => prev ?? list[0]?.steamId ?? null);
-        }
+        if (cancelled) return;
+        hasCachedFriends.current = list.length > 0;
+        setFriends(list);
+        setSelected((prev) => prev ?? list[0]?.steamId ?? null);
       })
-      .catch((e) => {
-        if (!cancelled) setFriendsError(e instanceof Error ? e.message : String(e));
+      .catch(() => {
+        // No cache — the refresh below is the source of truth.
       })
       .finally(() => {
         if (!cancelled) setFriendsLoading(false);
+      });
+    refreshFriends()
+      .then((list) => {
+        if (cancelled) return;
+        hasCachedFriends.current = false;
+        setFriends(list);
+        setFriendsStale(false);
+        setFriendsError(null);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        if (hasCachedFriends.current) {
+          // Cached list is on screen; refresh just failed → stale hint.
+          setFriendsStale(true);
+        } else {
+          setFriendsError(msg);
+        }
       });
     return () => {
       cancelled = true;
     };
   }, [session]);
 
-  // Load groups once per session.
+  // Load groups: cached list first (instant), then a silent network refresh.
   useEffect(() => {
     if (!session) return;
     let cancelled = false;
     setGroupsLoading(true);
     setGroupsError(null);
-    getChatGroups()
+    setGroupsStale(false);
+    loadGroups()
       .then((list) => {
-        if (!cancelled) {
-          setGroups(list);
-          setSelectedGroup((prev) => prev ?? list[0] ?? null);
-        }
+        if (cancelled) return;
+        hasCachedGroups.current = list.length > 0;
+        setGroups(list);
+        setSelectedGroup((prev) => prev ?? list[0] ?? null);
       })
-      .catch((e) => {
-        if (!cancelled) setGroupsError(e instanceof Error ? e.message : String(e));
+      .catch(() => {
+        // No cache — the refresh below is the source of truth.
       })
       .finally(() => {
         if (!cancelled) setGroupsLoading(false);
+      });
+    refreshGroups()
+      .then((list) => {
+        if (cancelled) return;
+        hasCachedGroups.current = false;
+        setGroups(list);
+        setGroupsStale(false);
+        setGroupsError(null);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        if (hasCachedGroups.current) setGroupsStale(true);
+        else setGroupsError(msg);
       });
     return () => {
       cancelled = true;
     };
   }, [session]);
 
-  // Load friend chat history when a friend is selected.
+  // Sessions: cached recent-conversation summaries first, then a derived
+  // refresh (picks up unread increments made by the CM poll write-through).
+  const refreshSessionsList = () => {
+    refreshSessions()
+      .then((list) => setSessions(list))
+      .catch(() => {
+        // Keep the cached list; the next poll tick retries.
+      });
+  };
+
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    loadSessions()
+      .then((list) => {
+        if (!cancelled) setSessions(list);
+      })
+      .catch(() => {});
+    refreshSessionsList();
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
+
+  // Re-derive sessions when new messages arrive (unread badges stay live).
+  const sessionPreview = useMemo(() => {
+    const m: Record<string, ChatSessionDto> = {};
+    for (const s of sessions) m[s.partnerSteamId] = s;
+    return m;
+  }, [sessions]);
+
+  // Open a friend thread: cached history first (instant), then a silent
+  // refresh that merges server history with the cache.
   useEffect(() => {
     if (!session || !selected) return;
     let cancelled = false;
-    getChatHistory(selected, 50)
-      .then((history) => {
-        if (!cancelled) {
-          setMessages(history);
-          setHistoryError(null);
-        }
+    openChat(selected)
+      .then((t) => {
+        if (cancelled) return;
+        setMessages(unionMessages(t.messages, []));
+        setHistoryError(null);
+        // openChat clears the conversation's unread in the cache — re-derive
+        // sessions so the badge clears immediately (not on the next page load).
+        refreshSessionsList();
+      })
+      .catch(() => {
+        if (!cancelled) setMessages([]);
+      });
+    refreshChat(selected)
+      .then((t) => {
+        if (cancelled) return;
+        setMessages((prev) => unionMessages(t.messages, prev));
+        setHistoryError(null);
       })
       .catch((e) => {
-        if (!cancelled) {
-          setMessages([]);
-          setHistoryError(e instanceof Error ? e.message : String(e));
-        }
+        if (cancelled) return;
+        setHistoryError(e instanceof Error ? e.message : String(e));
       });
     return () => {
       cancelled = true;
     };
   }, [session, selected, refreshTick]);
 
-  // Load group chat history when a group is selected.
+  // Open a group channel: cached thread first (instant), then a silent refresh
+  // that merges server history with the cache.
   useEffect(() => {
     if (!session || !selectedGroup) return;
     const chatId = selectedGroup.defaultChatId;
     if (!chatId) return;
     let cancelled = false;
-    getGroupHistory(selectedGroup.groupId, chatId)
-      .then((history) => {
-        if (!cancelled) {
-          setGroupMessages(history);
-          setGroupHistoryError(null);
-        }
+    openGroupChat(selectedGroup.groupId, chatId)
+      .then((t) => {
+        if (cancelled) return;
+        setGroupMessages(unionGroupMessages(t.messages, []));
+        setGroupHistoryError(null);
+      })
+      .catch(() => {
+        if (!cancelled) setGroupMessages([]);
+      });
+    refreshGroupChat(selectedGroup.groupId, chatId)
+      .then((t) => {
+        if (cancelled) return;
+        setGroupMessages((prev) => unionGroupMessages(t.messages, prev));
+        setGroupHistoryError(null);
       })
       .catch((e) => {
-        if (!cancelled) {
-          setGroupMessages([]);
-          setGroupHistoryError(e instanceof Error ? e.message : String(e));
-        }
+        if (cancelled) return;
+        setGroupHistoryError(e instanceof Error ? e.message : String(e));
       });
     return () => {
       cancelled = true;
@@ -243,8 +360,10 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     let cancelled = false;
     const tick = async () => {
       try {
-        const incoming = await pollChat();
-        if (!cancelled && incoming.length && selected) {
+        const incoming = await pollChat(selected ?? undefined);
+        if (cancelled) return;
+        if (incoming.length) refreshSessionsList();
+        if (incoming.length && selected) {
           setMessages((prev) => {
             const seen = new Set(prev.map(dedupKey));
             const fresh = incoming.filter((m) => m.steamId === selected && !seen.has(dedupKey(m)));
@@ -269,7 +388,11 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     let cancelled = false;
     const tick = async () => {
       try {
-        const incoming = await pollGroupMessages();
+        const activeGroup =
+          selectedGroup && selectedGroup.defaultChatId
+            ? ([selectedGroup.groupId, selectedGroup.defaultChatId] as [string, string])
+            : undefined;
+        const incoming = await pollGroupMessages(activeGroup);
         if (!cancelled && incoming.length && selectedGroup) {
           setGroupMessages((prev) => {
             const seen = new Set(prev.map(groupDedupKey));
@@ -311,14 +434,52 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     const text = input.trim();
     if (!text || !selected || !selfId) return;
     setInput("");
+    const localId = `s${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setMessages((prev) => [
       ...prev,
-      { steamId: selfId, timestamp: Math.floor(Date.now() / 1000), message: text, kind: "saytext" },
+      { steamId: selfId, timestamp: Math.floor(Date.now() / 1000), message: text, kind: "saytext", deliveryState: "pending", localId },
     ]);
     setSending(true);
     try {
       await sendChatMessage(selected, text);
+      setMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "sent" } : m)));
     } catch (e) {
+      setMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "failedRetryable" } : m)));
+      showToast("error", e instanceof Error ? e.message : String(e));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  /** Re-send a failed message, reusing its bubble (matched by content). */
+  const handleRetry = async (m: UiChatMessage) => {
+    const text = m.message;
+    if (!selected || !selfId) return;
+    setMessages((prev) =>
+      prev.map((x) =>
+        x.steamId === selfId && x.message === text && x.deliveryState === "failedRetryable"
+          ? { ...x, deliveryState: "pending" }
+          : x,
+      ),
+    );
+    setSending(true);
+    try {
+      await sendChatMessage(selected, text);
+      setMessages((prev) =>
+        prev.map((x) =>
+          x.steamId === selfId && x.message === text && x.deliveryState === "pending"
+            ? { ...x, deliveryState: "sent" }
+            : x,
+        ),
+      );
+    } catch (e) {
+      setMessages((prev) =>
+        prev.map((x) =>
+          x.steamId === selfId && x.message === text && x.deliveryState === "pending"
+            ? { ...x, deliveryState: "failedRetryable" }
+            : x,
+        ),
+      );
       showToast("error", e instanceof Error ? e.message : String(e));
     } finally {
       setSending(false);
@@ -331,6 +492,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     const chatId = selectedGroup.defaultChatId;
     if (!chatId) return;
     setGroupInput("");
+    const localId = `g${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setGroupMessages((prev) => [
       ...prev,
       {
@@ -340,12 +502,53 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
         timestamp: Math.floor(Date.now() / 1000),
         ordinal: 0,
         message: text,
+        deliveryState: "pending",
+        localId,
       },
     ]);
     setGroupSending(true);
     try {
       await sendGroupMessage(selectedGroup.groupId, chatId, text);
+      setGroupMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "sent" } : m)));
     } catch (e) {
+      setGroupMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "failedRetryable" } : m)));
+      showToast("error", e instanceof Error ? e.message : String(e));
+    } finally {
+      setGroupSending(false);
+    }
+  };
+
+  /** Re-send a failed group message, reusing its bubble (matched by content). */
+  const handleGroupRetry = async (m: UiGroupMessage) => {
+    const text = m.message;
+    if (!selectedGroup || !selfId) return;
+    const chatId = selectedGroup.defaultChatId;
+    if (!chatId) return;
+    setGroupMessages((prev) =>
+      prev.map((x) =>
+        x.senderSteamId === selfId && x.message === text && x.deliveryState === "failedRetryable"
+          ? { ...x, deliveryState: "pending" }
+          : x,
+      ),
+    );
+    setGroupSending(true);
+    try {
+      await sendGroupMessage(selectedGroup.groupId, chatId, text);
+      setGroupMessages((prev) =>
+        prev.map((x) =>
+          x.senderSteamId === selfId && x.message === text && x.deliveryState === "pending"
+            ? { ...x, deliveryState: "sent" }
+            : x,
+        ),
+      );
+    } catch (e) {
+      setGroupMessages((prev) =>
+        prev.map((x) =>
+          x.senderSteamId === selfId && x.message === text && x.deliveryState === "pending"
+            ? { ...x, deliveryState: "failedRetryable" }
+            : x,
+        ),
+      );
       showToast("error", e instanceof Error ? e.message : String(e));
     } finally {
       setGroupSending(false);
@@ -496,6 +699,9 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
               {friendsError && !friendsLoading && (
                 <div className="py-4 px-1 text-xs text-red-500">{t("steam.socialLoadFailed", { error: friendsError })}</div>
               )}
+              {friendsStale && !friendsLoading && !friendsError && (
+                <div className="py-1 px-1 text-[10px] text-amber-500">{t("steam.socialCacheStale")}</div>
+              )}
               {!friendsLoading && !friendsError && friends.length === 0 && (
                 <div className="py-6 text-center text-xs text-muted-foreground">{t("steam.socialEmptyFriends")}</div>
               )}
@@ -507,7 +713,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                     key={f.steamId}
                     type="button"
                     onClick={() => setSelected(f.steamId)}
-                    className={`mb-1 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${
+                    className={`relative mb-1 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${
                       active ? "bg-primary/15" : "hover:bg-secondary/50"
                     }`}
                   >
@@ -523,12 +729,19 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                       <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                         <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
                         <span className="truncate">
-                          {f.inGameName
-                            ? t("steam.socialInGame", { defaultValue: "游戏中" })
-                            : t(style.labelKey, { defaultValue: style.labelKey })}
+                          {sessionPreview[f.steamId]?.lastMessage
+                            ? sessionPreview[f.steamId]!.lastMessage
+                            : f.inGameName
+                              ? t("steam.socialInGame", { defaultValue: "游戏中" })
+                              : t(style.labelKey, { defaultValue: style.labelKey })}
                         </span>
                       </div>
                     </div>
+                    {sessionPreview[f.steamId]?.unreadCount ? (
+                      <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+                        {sessionPreview[f.steamId]!.unreadCount > 99 ? "99+" : sessionPreview[f.steamId]!.unreadCount}
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
@@ -561,6 +774,19 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                         <div key={dedupKey(m) + i} className={`flex ${self ? "justify-end" : "justify-start"}`}>
                           <div className={`max-w-[75%] rounded-xl px-3 py-1.5 text-sm ${self ? "rounded-br-sm bg-primary/20 text-foreground" : "rounded-bl-sm bg-secondary/60 text-foreground"}`}>
                             <ChatMessageContent text={m.message} />
+                            {self && m.deliveryState === "pending" && (
+                              <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
+                                <span>{t("steam.socialSending")}</span>
+                              </div>
+                            )}
+                            {self && m.deliveryState === "failedRetryable" && (
+                              <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px]">
+                                <span className="text-red-500">{t("steam.socialFailed")}</span>
+                                <button type="button" onClick={() => void handleRetry(m)} className="text-primary underline">
+                                  {t("steam.socialRetry")}
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -621,6 +847,9 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
               {groupsError && !groupsLoading && (
                 <div className="py-4 px-1 text-xs text-red-500">{t("steam.socialLoadFailed", { error: groupsError })}</div>
               )}
+              {groupsStale && !groupsLoading && !groupsError && (
+                <div className="py-1 px-1 text-[10px] text-amber-500">{t("steam.socialCacheStale")}</div>
+              )}
               {!groupsLoading && !groupsError && groups.length === 0 && (
                 <div className="py-6 text-center text-xs text-muted-foreground">{t("steam.socialGroupsEmpty")}</div>
               )}
@@ -673,6 +902,19 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                               </div>
                             )}
                             <ChatMessageContent text={m.message} />
+                            {self && m.deliveryState === "pending" && (
+                              <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
+                                <span>{t("steam.socialSending")}</span>
+                              </div>
+                            )}
+                            {self && m.deliveryState === "failedRetryable" && (
+                              <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px]">
+                                <span className="text-red-500">{t("steam.socialFailed")}</span>
+                                <button type="button" onClick={() => void handleGroupRetry(m)} className="text-primary underline">
+                                  {t("steam.socialRetry")}
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
