@@ -3,7 +3,9 @@
 //! Bridges `steam-sdk::auth` to the frontend for password + QR login flows.
 
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
+use std::path::Path;
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
 use steam_sdk::auth::login;
 use steam_sdk::auth::session::{SessionManager, SteamSession};
 use steam_sdk::auth::token::{jwt_timestamps, refresh_access_token};
@@ -267,6 +269,7 @@ pub fn login_poll(app_state: State<AppState>) -> Result<PollResultDto, String> {
 
             // Clear login state
             *state_guard = None;
+            clear_session_token_cache();
 
             Ok(PollResultDto {
                 status: "completed".into(),
@@ -351,6 +354,7 @@ pub(crate) fn refresh_session_if_needed(path: &std::path::Path) -> Result<(), St
 /// Log out: remove the active session.
 #[tauri::command]
 pub fn logout(app_state: State<AppState>) -> Result<(), String> {
+    clear_session_token_cache();
     let path = session_store_path(&app_state.tool_dir);
     let mut mgr = SessionManager::open(&path).map_err(|e| format!("Session store error: {}", e))?;
     if let Some(session) = mgr.active_session() {
@@ -363,6 +367,64 @@ pub fn logout(app_state: State<AppState>) -> Result<(), String> {
 
 pub(crate) fn session_store_path(tool_dir: &std::path::Path) -> std::path::PathBuf {
     tool_dir.join("steam_sessions.enc.json")
+}
+
+// ── Session token memory cache ────────────────────────────────
+//
+// `resolve_session` decrypts the whole SecureStore file (DPAPI + AES-GCM) on
+// every call. The background social poller fires once a second and chat actions
+// hit it too, so a stale-but-valid token is served from memory instead. A cached
+// token is only reused if it was fetched < 30s ago AND its JWT `exp` is more
+// than 5 minutes out — otherwise the full refresh path runs.
+
+static SESSION_TOKEN_CACHE: OnceLock<Mutex<Option<(u64, String, Instant)>>> = OnceLock::new();
+const SESSION_TOKEN_TTL_SECS: u64 = 30;
+
+fn session_token_cache() -> &'static Mutex<Option<(u64, String, Instant)>> {
+    SESSION_TOKEN_CACHE.get_or_init(|| Mutex::new(None))
+}
+
+fn clear_session_token_cache() {
+    *session_token_cache().lock().unwrap() = None;
+}
+
+/// Resolve the active session, serving a cached `(steam_id, access_token)` when
+/// fresh and not about to expire. Falls back to the full open + refresh path on
+/// a miss, then repopulates the cache.
+pub(crate) fn resolve_session_cached(tool_dir: &Path) -> Result<(u64, String), String> {
+    {
+        let guard = session_token_cache().lock().unwrap();
+        if let Some((steam_id, access_token, fetched_at)) = guard.as_ref() {
+            if fetched_at.elapsed() < Duration::from_secs(SESSION_TOKEN_TTL_SECS) {
+                if let Some((_, exp)) = jwt_timestamps(access_token) {
+                    let now = chrono::Utc::now().timestamp().max(0) as u64;
+                    if now.saturating_add(300) < exp {
+                        return Ok((*steam_id, access_token.clone()));
+                    }
+                }
+            }
+        }
+    }
+
+    let session_path = session_store_path(tool_dir);
+    if let Err(e) = refresh_session_if_needed(&session_path) {
+        log::warn!("Steam access token refresh failed: {}", e);
+    }
+    let mgr = SessionManager::open(&session_path)
+        .map_err(|e| format!("会话存储错误: {}", e))?;
+    let session = mgr
+        .active_session()
+        .ok_or_else(|| "未登录 Steam，请先在 Steam 页面登录".to_string())?;
+    if session.is_expired() {
+        // `is_expired` uses the token's own `exp` claim; a refresh was needed
+        // and did not succeed, so the session can't be salvaged without a
+        // fresh login.
+        return Err("Steam 登录已过期，请重新登录".to_string());
+    }
+    let token = session.access_token.clone();
+    *session_token_cache().lock().unwrap() =
+        Some((session.steam_id, token.clone(), Instant::now()));
+    Ok((session.steam_id, token))
 }
 
 /// Delegate to steam-sdk's encrypt_password.

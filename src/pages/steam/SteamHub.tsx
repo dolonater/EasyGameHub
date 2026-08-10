@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TabButtons from "../../components/ui/TabButtons";
 import AccountMenu from "../../components/steam/AccountMenu";
@@ -15,6 +15,13 @@ import { useSteamSession } from "../../hooks/useSteamSession";
 import { useSteamWatchlist } from "../../hooks/useSteamWatchlist";
 import { useSteamWishlist } from "../../hooks/useSteamWishlist";
 import { patchSteamHubCache, useSteamHubCache } from "../../lib/steamHubCache";
+import { loadGroups, refreshSessions } from "../../lib/steamSocial";
+import {
+  resetSocialEvents,
+  seedSocialFriends,
+  seedSocialGroupsFromGroups,
+  useSocialState,
+} from "../../lib/socialEvents";
 
 type SteamTab =
   | "overview"
@@ -46,6 +53,35 @@ export default function SteamHub() {
   } = useSteamSession();
   const watch = useSteamWatchlist();
   const { activeTab, notificationsUnread } = useSteamHubCache();
+  const social = useSocialState();
+  // Logging out must clear the live social store too, otherwise a lingering CM
+  // connection keeps feeding events and the badge never empties.
+  const handleLogout = useCallback(() => {
+    resetSocialEvents();
+    void logout();
+  }, [logout]);
+
+  // Seed the live social store from persisted unread (friends via the fresh
+  // sessions derivation, groups via the cached room summaries). Runs whenever
+  // the Steam page is open — not just the social sub-tab — so the social tab's
+  // unread badge is correct before SocialPanel ever mounts (P0-2 / P1-8).
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    refreshSessions()
+      .then((list) => {
+        if (!cancelled) seedSocialFriends(list);
+      })
+      .catch(() => {});
+    loadGroups()
+      .then((list) => {
+        if (!cancelled) seedSocialGroupsFromGroups(list);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
   // Restore the last sub-tab after a route switch, so returning to the Steam
   // page does not bounce you back to Overview.
   const [tab, setTab] = useState<SteamTab>(() => (activeTab as SteamTab) || "overview");
@@ -81,7 +117,7 @@ export default function SteamHub() {
           profile={profile}
           loading={loading}
           onLogin={() => setLoginOpen(true)}
-          onLogout={logout}
+          onLogout={handleLogout}
           onSwitchAccount={() => setTab("accounts")}
         />
       </div>
@@ -111,7 +147,19 @@ export default function SteamHub() {
               </span>
             ),
           },
-          { value: "social", label: t("steam.tabSocial") },
+          {
+            value: "social",
+            label: (
+              <span className="inline-flex items-center gap-1">
+                {t("steam.tabSocial")}
+                {social.totalUnread > 0 && (
+                  <span className="rounded-full bg-primary px-1.5 text-[10px] font-bold leading-4 text-primary-foreground">
+                    {social.totalUnread > 99 ? "99+" : social.totalUnread}
+                  </span>
+                )}
+              </span>
+            ),
+          },
           { value: "accounts", label: t("steam.accountSwitch") },
           { value: "authenticator", label: t("authenticator.title") },
           { value: "downloads", label: t("download.title") },
@@ -123,7 +171,7 @@ export default function SteamHub() {
           <ProfilePanel
             session={session}
             profile={profile}
-            onLogout={logout}
+            onLogout={handleLogout}
             onSwitchAccount={() => setTab("accounts")}
           />
         )}

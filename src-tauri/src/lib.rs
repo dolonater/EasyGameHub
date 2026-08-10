@@ -347,6 +347,11 @@ pub fn run() {
 
             app.manage(state);
 
+            // Background social poller: drains the live CM connection's message
+            // buffers once a second, writes them through to the social cache and
+            // emits social:chat / social:group events (event-driven chat push).
+            commands::steam_social::start_social_poller(&app.handle());
+
             if let Some(steam_id64) = cli_switch_steam_account_request() {
                 let _ = commands::steam_account::switch_steam_account(steam_id64);
                 app.handle().exit(0);
@@ -486,6 +491,7 @@ pub fn run() {
             commands::steam_social::upload_group_image,
             commands::steam_social::get_sticker_catalog,
             commands::steam_social::send_sticker_message,
+            commands::steam_social::set_active_thread,
             commands::steam_notifications::get_notifications,
             commands::steam_notifications::mark_notifications_read,
             commands::files::write_binary_file,

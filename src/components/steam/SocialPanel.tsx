@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { listen } from "@tauri-apps/api/event";
 import Icon from "../ui/Icon";
 import TextField from "../ui/TextField";
 import Button from "../ui/Button";
@@ -9,16 +10,12 @@ import {
   getStickerCatalog,
   loadFriends,
   loadGroups,
-  loadSessions,
   openChat,
   openGroupChat,
-  pollChat,
-  pollGroupMessages,
   refreshChat,
   refreshFriends,
   refreshGroupChat,
   refreshGroups,
-  refreshSessions,
   sendChatMessage,
   sendGroupMessage,
   sendStickerMessage,
@@ -27,7 +24,6 @@ import {
   uploadGroupImage,
   type ChatGroupDto,
   type ChatMessageDto,
-  type ChatSessionDto,
   type ChatThreadDto,
   type DeliveryState,
   type FriendDto,
@@ -36,6 +32,12 @@ import {
   type OnlineState,
   type StickerDto,
 } from "../../lib/steamSocial";
+import {
+  clearFriendUnread,
+  clearGroupUnread,
+  registerActiveThread,
+  useSocialState,
+} from "../../lib/socialEvents";
 import type { SessionDto } from "../../lib/steamCommunity";
 
 interface SocialPanelProps {
@@ -177,7 +179,6 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [friendsStaleError, setFriendsStaleError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [messages, setMessages] = useState<UiChatMessage[]>([]);
-  const [sessions, setSessions] = useState<ChatSessionDto[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -298,36 +299,10 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     };
   }, [session]);
 
-  // Sessions: cached recent-conversation summaries first, then a derived
-  // refresh (picks up unread increments made by the CM poll write-through).
-  const refreshSessionsList = () => {
-    refreshSessions()
-      .then((list) => setSessions(list))
-      .catch(() => {
-        // Keep the cached list; the next poll tick retries.
-      });
-  };
-
-  useEffect(() => {
-    if (!session) return;
-    let cancelled = false;
-    loadSessions()
-      .then((list) => {
-        if (!cancelled) setSessions(list);
-      })
-      .catch(() => {});
-    refreshSessionsList();
-    return () => {
-      cancelled = true;
-    };
-  }, [session]);
-
-  // Re-derive sessions when new messages arrive (unread badges stay live).
-  const sessionPreview = useMemo(() => {
-    const m: Record<string, ChatSessionDto> = {};
-    for (const s of sessions) m[s.partnerSteamId] = s;
-    return m;
-  }, [sessions]);
+  // Live unread + previews come from the module store (`socialEvents`), seeded
+  // by SteamHub on mount and incremented by live events — no O(friends)
+  // recompute per message (P1-8).
+  const social = useSocialState();
 
   // Open a friend thread: cached history first (instant), then a silent
   // refresh that merges server history with the cache. Runs only in friends
@@ -340,9 +315,9 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
         if (cancelled) return;
         setMessages(unionMessages(t.messages, [], selfId ?? undefined));
         setHistoryError(null);
-        // openChat clears the conversation's unread in the cache — re-derive
-        // sessions so the badge clears immediately (not on the next page load).
-        refreshSessionsList();
+        // openChat clears the conversation's unread in the cache; clear the live
+        // store counter too so the badge empties immediately.
+        clearFriendUnread(selected);
       })
       .catch(() => {
         if (!cancelled) setMessages([]);
@@ -374,7 +349,9 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
         if (cancelled) return;
         setGroupMessages(unionGroupMessages(t.messages, [], selfId ?? undefined));
         setGroupHistoryError(null);
-        // openGroupChat clears this channel's unread — refresh the list badges.
+        // openGroupChat clears this channel's unread — refresh the list badges
+        // and the live store counter.
+        clearGroupUnread(selectedGroup.groupId, selectedGroup.defaultChatId);
         loadGroups()
           .then((list) => {
             if (!cancelled) setGroups(list);
@@ -399,81 +376,59 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     };
   }, [session, selectedGroup, socialMode, refreshTick]);
 
-  // Poll the CM friend-message buffer.
+  // Live incoming: the App-level `useSocialEvents` hook updates the store
+  // (global unread + previews). This listener only appends messages for the
+  // currently-open thread — the store skips the active thread, so there is no
+  // double counting. Replaces the old 3s polling.
   useEffect(() => {
     if (!session) return;
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const incoming = await pollChat(
-          socialMode === "friends" ? (selected ?? undefined) : undefined,
-        );
-        if (cancelled) return;
-        if (incoming.length) refreshSessionsList();
-        if (incoming.length && selected) {
-          setMessages((prev) => {
-            const seen = new Set(prev.map(dedupKey));
-            const fresh = incoming.filter((m) => m.steamId === selected && !seen.has(dedupKey(m)));
-            return fresh.length ? [...prev, ...fresh] : prev;
-          });
-        }
-      } catch {
-        // Transient poll failure — keep the loop going.
-      }
-    };
-    void tick();
-    const timer = setInterval(tick, 3000);
+    const unlistenChat = listen<ChatMessageDto[]>("social:chat", (event) => {
+      if (socialMode !== "friends" || !selected) return;
+      const fresh = event.payload.filter((m) => m.steamId === selected);
+      if (!fresh.length) return;
+      setMessages((prev) => {
+        const seen = new Set(prev.map(dedupKey));
+        const newOnes = fresh.filter((m) => !seen.has(dedupKey(m)));
+        return newOnes.length ? [...prev, ...newOnes] : prev;
+      });
+    });
+    const unlistenGroup = listen<GroupMessageDto[]>("social:group", (event) => {
+      if (socialMode !== "groups" || !selectedGroup || !selectedGroup.defaultChatId) return;
+      const chatId = selectedGroup.defaultChatId;
+      const fresh = event.payload.filter(
+        (m) => m.groupId === selectedGroup.groupId && m.chatId === chatId,
+      );
+      if (!fresh.length) return;
+      setGroupMessages((prev) => {
+        const seen = new Set(prev.map(groupDedupKey));
+        const newOnes = fresh.filter((m) => !seen.has(groupDedupKey(m)));
+        return newOnes.length ? [...prev, ...newOnes] : prev;
+      });
+    });
     return () => {
-      cancelled = true;
-      clearInterval(timer);
+      unlistenChat.then((fn) => fn());
+      unlistenGroup.then((fn) => fn());
     };
-  }, [session, selected, socialMode]);
+  }, [session, socialMode, selected, selectedGroup]);
 
-  // Poll the CM group-message buffer.
+  // Report the open thread so the store and the backend poller suppress its
+  // unread. Clearing on unmount leaves the app open to counting again.
   useEffect(() => {
-    if (!session) return;
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const activeGroup =
-          socialMode === "groups" && selectedGroup && selectedGroup.defaultChatId
-            ? ([selectedGroup.groupId, selectedGroup.defaultChatId] as [string, string])
-            : undefined;
-        const incoming = await pollGroupMessages(activeGroup);
-        if (!cancelled && incoming.length) {
-          // Incoming for a non-active channel bumped its unread — refresh the
-          // list badges (friend sessions too, for parity).
-          if (incoming.some((m) => !selectedGroup || m.groupId !== selectedGroup.groupId)) {
-            loadGroups()
-              .then((list) => {
-                if (!cancelled) setGroups(list);
-              })
-              .catch(() => {});
-          }
-          if (selectedGroup) {
-            setGroupMessages((prev) => {
-              const seen = new Set(prev.map(groupDedupKey));
-              const fresh = incoming.filter(
-                (m) =>
-                  m.groupId === selectedGroup.groupId &&
-                  m.chatId === selectedGroup.defaultChatId &&
-                  !seen.has(groupDedupKey(m)),
-              );
-              return fresh.length ? [...prev, ...fresh] : prev;
-            });
-          }
-        }
-      } catch {
-        // ignore
-      }
-    };
-    void tick();
-    const timer = setInterval(tick, 3000);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
-  }, [session, selectedGroup, socialMode]);
+    if (!session) {
+      registerActiveThread({});
+      return;
+    }
+    if (socialMode === "friends") {
+      registerActiveThread({ partner: selected ?? null });
+    } else {
+      registerActiveThread({
+        group: selectedGroup?.defaultChatId
+          ? [selectedGroup.groupId, selectedGroup.defaultChatId]
+          : null,
+      });
+    }
+    return () => registerActiveThread({});
+  }, [session, socialMode, selected, selectedGroup]);
 
   // Auto-scroll to the newest message.
   useEffect(() => {
@@ -792,17 +747,17 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                       <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                         <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
                         <span className="truncate">
-                          {sessionPreview[f.steamId]?.lastMessage
-                            ? sessionPreview[f.steamId]!.lastMessage
+                          {social.friendPreviews[f.steamId]?.lastMessage
+                            ? social.friendPreviews[f.steamId]!.lastMessage
                             : f.inGameName
                               ? t("steam.socialInGame", { defaultValue: "游戏中" })
                               : t(style.labelKey, { defaultValue: style.labelKey })}
                         </span>
                       </div>
                     </div>
-                    {sessionPreview[f.steamId]?.unreadCount ? (
+                    {social.friendUnread[f.steamId] ? (
                       <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
-                        {sessionPreview[f.steamId]!.unreadCount > 99 ? "99+" : sessionPreview[f.steamId]!.unreadCount}
+                        {social.friendUnread[f.steamId]! > 99 ? "99+" : social.friendUnread[f.steamId]}
                       </span>
                     ) : null}
                   </button>
@@ -927,7 +882,12 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                 // not blindly `rooms[0]` (the default chat may not be first).
                 const room =
                   g.rooms.find((r) => r.chatId === g.defaultChatId) ?? g.rooms[0];
-                const unread = room?.unreadCount ?? 0;
+                const roomKey = room ? `${g.groupId}:${room.chatId}` : "";
+                // Live store value wins; fall back to the backend-augmented
+                // room summary before the store has been seeded for this room.
+                const unread = room
+                  ? (social.groupUnread[roomKey] ?? room.unreadCount)
+                  : 0;
                 return (
                   <button
                     key={g.groupId}
@@ -937,7 +897,8 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                   >
                     <div className="truncate text-sm font-medium">{g.name}</div>
                     <div className="truncate text-[11px] text-muted-foreground">
-                      {room?.lastMessage || (room ? room.name : "")}
+                      {social.groupPreviews[roomKey]?.lastMessage ??
+                        (room?.lastMessage || (room ? room.name : ""))}
                     </div>
                     {unread > 0 ? (
                       <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">

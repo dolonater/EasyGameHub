@@ -201,3 +201,17 @@ export function sendStickerMessage(steamId: string, name: string): Promise<void>
 export function stickerImageUrl(name: string): string {
   return `https://steamcommunity.com/economy/sticker/${encodeURIComponent(name)}`;
 }
+
+/**
+ * Report the currently-open chat thread so the background poller suppresses
+ * its unread (both `partner` and `group` null = no active thread).
+ */
+export function setActiveThread(
+  partner?: string | null,
+  group?: [string, string] | null,
+): Promise<null> {
+  return invoke<null>("set_active_thread", {
+    partner: partner ?? null,
+    group: group ?? null,
+  });
+}

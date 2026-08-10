@@ -8,6 +8,7 @@ import { ScrollActivityProvider } from "./hooks/useScrollActivity";
 import { AppDataProvider } from "./hooks/useAppData";
 import { PluginProvider, usePlugins } from "./plugins/PluginProvider";
 import PluginErrorBoundary from "./plugins/ErrorBoundary";
+import { useSocialEvents } from "./hooks/useSocialEvents";
 import Layout from "./components/Layout";
 import GameList from "./pages/GameList";
 import GameDetail from "./pages/GameDetail";
@@ -80,6 +81,9 @@ function AppRoutes() {
 
 function App() {
   const animEnabled = useAnimationProvider();
+  // App-level social event listener: lives for the whole session so chat
+  // messages keep flowing (and unread keeps counting) on any page.
+  useSocialEvents();
   return (
     <AnimationContext.Provider value={animEnabled}>
       <ThemeModeProvider>

@@ -442,6 +442,7 @@ const zh = {
     socialImageSent: "图片已发送",
     socialSticker: "贴纸",
     socialNoStickers: "暂无贴纸",
+    socialNewMessage: "收到 {{count}} 条新消息",
     overviewNoSession: "登录后查看个人资料概览",
     accountName: "账号名",
     level: "等级",
