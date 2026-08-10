@@ -107,36 +107,40 @@ export function useChatThread<T extends ChatThreadMessage>(
   const lastThreadKeyRef = useRef("");
   const savedScrollRef = useRef<Record<string, { top: number; height: number }>>({});
   const pendingAnchorRef = useRef<{ height: number; top: number } | null>(null);
+  // Set by the initial network `refresh()` (which merges MORE history than the
+  // cached `open()`), so the settle scroll lands at the bottom of the FULL
+  // thread — not the bottom of the cache, which is mid-thread after the merge.
+  const pendingBottomRef = useRef(false);
   const activeScrollKeyRef = useRef("");
 
-  // Open cycle: cached thread first (instant), then a silent network refresh
-  // that merges server history with the cache.
+  // Open cycle: fetch the cached thread AND the network history together, then
+  // render the FULL merged thread once. Rendering the cache first would land the
+  // settle scroll at the cache-only bottom — mid-thread after the network merge —
+  // and then visibly jump to the real bottom. Single render = no jump.
   useEffect(() => {
     if (!active) return;
     let cancelled = false;
     setMoreAvailable(false);
     setLoadingOlder(false);
-    open()
-      .then((t) => {
-        if (cancelled) return;
-        setMessages(t.messages);
-        setHistoryError(null);
-        onOpened?.();
-      })
-      .catch(() => {
-        if (!cancelled) setMessages([]);
-      });
-    refresh()
-      .then((t) => {
-        if (cancelled) return;
-        setMessages((prev) => merge(t.messages, prev));
-        setHistoryError(null);
-        setMoreAvailable(t.moreAvailable);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setHistoryError(e instanceof Error ? e.message : String(e));
-      });
+    const cacheP = open().catch(() => ({ messages: [] as T[], moreAvailable: false }));
+    const freshP = refresh().then(
+      (t) => t,
+      (e) => {
+        if (!cancelled) setHistoryError(e instanceof Error ? e.message : String(e));
+        return null;
+      },
+    );
+    Promise.all([cacheP, freshP]).then(([cached, fresh]) => {
+      if (cancelled) return;
+      const combined = fresh ? merge(fresh.messages, cached.messages) : cached.messages;
+      // Merge with the current list too, so optimistic bubbles sent during this
+      // open (e.g. after an image-upload refreshKey re-run) are preserved.
+      setMessages((prev) => merge(combined, prev));
+      setHistoryError(null);
+      setMoreAvailable(fresh?.moreAvailable ?? cached.moreAvailable);
+      pendingBottomRef.current = true;
+      onOpened?.();
+    });
     return () => {
       cancelled = true;
     };
@@ -256,6 +260,9 @@ export function useChatThread<T extends ChatThreadMessage>(
     const stale = messages.length > 0 && !messages.every(isThreadMessage);
     if (!stale && messages.length > 0 && scrollKey !== lastThreadKeyRef.current) {
       lastThreadKeyRef.current = scrollKey;
+      // The settle already lands at the bottom of the full thread — don't let
+      // the stale pendingBottom re-scroll on the next poll/message.
+      pendingBottomRef.current = false;
       const saved = savedScrollRef.current[scrollKey];
       if (saved && saved.height > 0 && el.scrollHeight > 0) {
         el.scrollTop = (saved.top / saved.height) * el.scrollHeight;
@@ -268,6 +275,11 @@ export function useChatThread<T extends ChatThreadMessage>(
       const a = pendingAnchorRef.current;
       pendingAnchorRef.current = null;
       el.scrollTop = el.scrollHeight - a.height + a.top;
+      return;
+    }
+    if (pendingBottomRef.current) {
+      pendingBottomRef.current = false;
+      el.scrollTop = el.scrollHeight;
       return;
     }
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {

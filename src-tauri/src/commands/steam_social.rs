@@ -184,13 +184,27 @@ pub async fn open_chat_window(
         return Ok(());
     }
 
-    WebviewWindowBuilder::new(&app, &label, WebviewUrl::App("chat".into()))
+    let window = WebviewWindowBuilder::new(&app, &label, WebviewUrl::App("chat".into()))
         .title(&name)
         .inner_size(420.0, 620.0)
         .min_inner_size(360.0, 480.0)
         .resizable(true)
         .build()
         .map_err(|e| e.to_string())?;
+    // Reliably clear the active thread when the chat window closes. The
+    // webview's own JS `set_active_thread(null)` is an async invoke that may not
+    // complete before the window is destroyed, leaving the main window
+    // suppressing unread for this thread forever. Rust-side, this always runs.
+    let app_for_close = app.clone();
+    window.on_window_event(move |event| {
+        if let tauri::WindowEvent::CloseRequested { .. } = event {
+            *active_thread().lock().unwrap() = None;
+            let _ = app_for_close.emit(
+                "social:active-thread",
+                serde_json::json!({ "partner": null, "group": null }),
+            );
+        }
+    });
     Ok(())
 }
 
