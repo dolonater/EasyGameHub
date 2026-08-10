@@ -37,7 +37,12 @@ pub struct RecentMessages {
     pub more_available: bool,
 }
 
-/// Fetch the last `count` messages exchanged with a friend.
+/// Fetch chat history exchanged with a friend.
+///
+/// `older_than` (`(rtime32_start_time, start_ordinal)`) pages **backward**: when
+/// set, Steam returns the `count` messages ending just before that boundary
+/// (used to load older history) instead of the most recent `count`. `None`
+/// keeps the current "most recent" behavior.
 ///
 /// GET `IFriendMessagesService/GetRecentMessages/v1` with the request encoded
 /// as `input_protobuf_encoded`. Requires a valid session `access_token`.
@@ -47,14 +52,9 @@ pub fn get_recent_messages(
     account_steamid: u64,
     partner: u64,
     count: u32,
+    older_than: Option<(u32, u32)>,
 ) -> Result<RecentMessages> {
-    let mut request = Writer::new();
-    request.fixed64(1, account_steamid);
-    request.fixed64(2, partner);
-    request.varint(3, count as u64);
-    request.bool(4, true); // start_from_most_recent
-    request.bool(6, true); // request_bbcode
-    let request_bytes = request.finish();
+    let request_bytes = build_recent_messages_request(account_steamid, partner, count, older_than);
     let encoded = base64::engine::general_purpose::STANDARD.encode(&request_bytes);
 
     let url = format!(
@@ -91,6 +91,27 @@ pub fn get_recent_messages(
         }
     }
     Ok(parsed)
+}
+
+/// Build the `GetRecentMessages` request protobuf. Extracted so the pagination
+/// encoding is unit-testable without an HTTP call.
+fn build_recent_messages_request(
+    account_steamid: u64,
+    partner: u64,
+    count: u32,
+    older_than: Option<(u32, u32)>,
+) -> Vec<u8> {
+    let mut request = Writer::new();
+    request.fixed64(1, account_steamid);
+    request.fixed64(2, partner);
+    request.varint(3, count as u64);
+    request.bool(4, true); // start_from_most_recent
+    if let Some((ts, ordinal)) = older_than {
+        request.fixed32(5, ts); // rtime32_start_time
+        request.varint(7, ordinal as u64); // start_ordinal
+    }
+    request.bool(6, true); // request_bbcode
+    request.finish()
 }
 
 fn wire_kind(v: &proto_wire::WireValue) -> &'static str {
@@ -707,6 +728,36 @@ mod tests {
         let parsed = parse_recent_messages(&resp.finish()).unwrap();
         assert!(parsed.messages.is_empty());
         assert!(!parsed.more_available);
+    }
+
+    #[test]
+    fn recent_messages_request_no_older_than() {
+        let buf = build_recent_messages_request(76561198000000001, 76561198000000002, 50, None);
+        let fields = proto_wire::parse(&buf).unwrap();
+        assert_eq!(proto_wire::get_fixed64(&fields, 1), Some(76561198000000001));
+        assert_eq!(proto_wire::get_fixed64(&fields, 2), Some(76561198000000002));
+        assert_eq!(proto_wire::get_varint(&fields, 3), Some(50));
+        assert_eq!(proto_wire::get_bool(&fields, 4), Some(true));
+        assert_eq!(proto_wire::get_bool(&fields, 6), Some(true));
+        // No pagination fields when not requested.
+        assert!(proto_wire::get_fixed32(&fields, 5).is_none());
+        assert!(proto_wire::get_varint(&fields, 7).is_none());
+    }
+
+    #[test]
+    fn recent_messages_request_with_older_than() {
+        let buf = build_recent_messages_request(
+            76561198000000001,
+            76561198000000002,
+            50,
+            Some((1700000000, 3)),
+        );
+        let fields = proto_wire::parse(&buf).unwrap();
+        // rtime32_start_time (field 5, fixed32) + start_ordinal (field 7, varint).
+        assert_eq!(proto_wire::get_fixed32(&fields, 5), Some(1700000000));
+        assert_eq!(proto_wire::get_varint(&fields, 7), Some(3));
+        assert_eq!(proto_wire::get_bool(&fields, 4), Some(true));
+        assert_eq!(proto_wire::get_bool(&fields, 6), Some(true));
     }
 
     #[test]

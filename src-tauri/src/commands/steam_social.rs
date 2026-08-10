@@ -773,17 +773,32 @@ pub async fn open_chat(
 /// Fetch recent friend-chat history (Web API service method), merge it with the
 /// cached thread (dedupe by identity + reconcile optimistic sends), bound and
 /// persist it, then return the reconciled thread.
+///
+/// `older_than` (a unix timestamp) pages **backward**: Steam returns the 50
+/// messages ending just before it, so scrolling up can load history older than
+/// the cached thread. The frontend passes its oldest displayed message's time.
 #[tauri::command]
 pub async fn refresh_chat(
     state: State<'_, AppState>,
     steam_id: String,
+    older_than: Option<u64>,
 ) -> Result<ChatThreadDto, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
     let partner = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
     let account = sid.to_string();
     let client = shared_client();
-    let result = social::get_recent_messages(&client, &access_token, sid, partner, 50)
-        .map_err(|e| e.to_string())?;
+    let result = social::get_recent_messages(
+        &client,
+        &access_token,
+        sid,
+        partner,
+        50,
+        older_than.map(|ts| (ts as u32, 0)),
+    )
+    .map_err(|e| e.to_string())?;
+    // Server-authoritative "more history" flag (response field 4) plus the
+    // full-page heuristic drive the "load older" affordance.
+    let server_more = result.more_available;
     let server: Vec<ServerMsg> = result
         .messages
         .into_iter()
@@ -794,6 +809,7 @@ pub async fn refresh_chat(
             body: m.body,
         })
         .collect();
+    let server_full_page = server.len() >= 50;
 
     let _guard = social_cache_lock().lock().await;
     let Some(mut cache) = open_cache(&state.tool_dir, sid) else {
@@ -811,7 +827,6 @@ pub async fn refresh_chat(
         return Ok(ChatThreadDto { messages: msgs, more_available: false });
     };
     let cached = cache.load_friend_thread(&account, &steam_id);
-    let prev_more = cached.as_ref().map(|s| s.more_available).unwrap_or(false);
     // Preserve the cached unread: only `open_chat` (the explicit "user opened
     // this") clears it. Forcing 0 here could wipe an unread bump that arrived
     // while this refresh was in flight.
@@ -823,7 +838,9 @@ pub async fn refresh_chat(
         account_steam_id: account.clone(),
         partner_steam_id: steam_id.clone(),
         messages: bounded,
-        more_available: prev_more || trimmed,
+        // More history when the server says so, we trimmed the cache bound, or
+        // the fetch returned a full page (so an older page likely exists).
+        more_available: trimmed || server_more || server_full_page,
         fetched_at: now_unix(),
         unread_count: prev_unread,
     };
@@ -1141,22 +1158,35 @@ pub async fn open_group_chat(
 
 /// Fetch recent group-channel history (CM service method), merge it with the
 /// cached thread, bound and persist it, then return the reconciled thread.
+///
+/// `older_than` (a unix timestamp) pages backward: `GetMessageHistory` field 5
+/// (`start_time`) returns messages at/before it, so scrolling up can load older
+/// history. The frontend passes its oldest displayed message's time.
 #[tauri::command]
 pub async fn refresh_group_chat(
     state: State<'_, AppState>,
     group_id: String,
     chat_id: String,
+    older_than: Option<u64>,
 ) -> Result<GroupThreadDto, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
     let client = ensure_cm(sid, &access_token).await?;
     let mut req = proto_wire::Writer::new();
     req.varint(1, group_id.parse::<u64>().map_err(|_| "invalid group id")?);
     req.varint(2, chat_id.parse::<u64>().map_err(|_| "invalid chat id")?);
-    req.varint(7, 50);
+    if let Some(ts) = older_than {
+        req.varint(5, ts); // start_time (backward-paging boundary)
+    }
+    req.varint(7, 50); // max_count
     let body = client
         .call_service("ChatRoom.GetMessageHistory#1", req.finish())
         .await?;
-    let server: Vec<ServerMsg> = parse_group_messages(&group_id, &chat_id, &body)
+    let parsed_msgs = parse_group_messages(&group_id, &chat_id, &body);
+    let server_full_page = parsed_msgs.len() >= 50;
+    // Server-authoritative "more history" flag (response field 4).
+    let server_more = proto_wire::get_bool(&proto_wire::parse(&body).unwrap_or_default(), 4)
+        .unwrap_or(false);
+    let server: Vec<ServerMsg> = parsed_msgs
         .into_iter()
         .map(|m| ServerMsg {
             timestamp: m.timestamp,
@@ -1184,7 +1214,6 @@ pub async fn refresh_group_chat(
         return Ok(GroupThreadDto { messages: msgs, more_available: false });
     };
     let cached = cache.load_group_thread(&account, &group_id, &chat_id);
-    let prev_more = cached.as_ref().map(|s| s.more_available).unwrap_or(false);
     // Preserve unread — only `open_group_chat` clears it (see refresh_chat).
     let prev_unread = cached.as_ref().map(|s| s.unread_count).unwrap_or(0);
     let cached_msgs = cached.map(|s| s.messages).unwrap_or_default();
@@ -1195,7 +1224,7 @@ pub async fn refresh_group_chat(
         group_id: group_id.clone(),
         chat_id: chat_id.clone(),
         messages: bounded,
-        more_available: prev_more || trimmed,
+        more_available: trimmed || server_more || server_full_page,
         fetched_at: now_unix(),
         unread_count: prev_unread,
     };

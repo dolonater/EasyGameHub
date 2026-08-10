@@ -72,8 +72,8 @@ export function openChat(steamId: string): Promise<ChatThreadDto> {
 }
 
 /** Fresh friend thread (network history merged with the cache). */
-export function refreshChat(steamId: string): Promise<ChatThreadDto> {
-  return invoke<ChatThreadDto>("refresh_chat", { steamId });
+export function refreshChat(steamId: string, olderThan?: number): Promise<ChatThreadDto> {
+  return invoke<ChatThreadDto>("refresh_chat", { steamId, olderThan: olderThan ?? null });
 }
 
 /** One recent-conversation summary (from `load_sessions` / `refresh_sessions`). */
@@ -147,8 +147,16 @@ export function openGroupChat(groupId: string, chatId: string): Promise<GroupThr
 }
 
 /** Fresh group-channel thread (network history merged with the cache). */
-export function refreshGroupChat(groupId: string, chatId: string): Promise<GroupThreadDto> {
-  return invoke<GroupThreadDto>("refresh_group_chat", { groupId, chatId });
+export function refreshGroupChat(
+  groupId: string,
+  chatId: string,
+  olderThan?: number,
+): Promise<GroupThreadDto> {
+  return invoke<GroupThreadDto>("refresh_group_chat", {
+    groupId,
+    chatId,
+    olderThan: olderThan ?? null,
+  });
 }
 
 /** Send a text message to a group channel; returns the persisted local message. */

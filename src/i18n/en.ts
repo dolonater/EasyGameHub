@@ -457,6 +457,7 @@ const en: Record<string, any> = {
     socialSticker: "Stickers",
     socialNoStickers: "No stickers",
     socialNewMessage: "{{count}} new message(s)",
+    socialLoadingOlder: "Loading older messages…",
     overviewNoSession: "Sign in to view your profile overview",
     accountName: "Account",
     level: "Level",
