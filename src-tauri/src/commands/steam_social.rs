@@ -15,7 +15,7 @@ use steam_sdk::cm::client as cm;
 use steam_sdk::cm::proto_wire;
 use steam_sdk::client::social;
 use steam_sdk::client::social::steamid64_from_account_id;
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder};
 
 use crate::core::social_cache::{
     append_friend_incoming, append_group_incoming, bound_thread, correlate_friend_echo,
@@ -101,13 +101,155 @@ fn active_thread() -> &'static Mutex<Option<ActiveThread>> {
 
 /// Report which thread is currently open in the UI. Both `partner` and `group`
 /// cleared = no active thread (every incoming message counts as unread).
+///
+/// Broadcasts `social:active-thread` to all windows so every webview's
+/// `socialEvents` store stays in sync (module stores are per-webview; a chat
+/// sub-window sets this and the main window must mirror it for unread
+/// suppression). The poller reads the process-wide `ACTIVE_THREAD` to suppress
+/// cache unread.
 #[tauri::command]
 pub fn set_active_thread(
+    app: AppHandle,
     partner: Option<String>,
     group: Option<(String, String)>,
 ) -> Result<(), String> {
-    *active_thread().lock().unwrap() = Some(ActiveThread { partner, group });
+    *active_thread().lock().unwrap() = Some(ActiveThread {
+        partner: partner.clone(),
+        group: group.clone(),
+    });
+    let _ = app.emit(
+        "social:active-thread",
+        serde_json::json!({ "partner": partner, "group": group }),
+    );
     Ok(())
+}
+
+// ── Chat sub-windows (Steam-style popup) ─────────────────────
+//
+// Each chat opens in its own OS window. The thread identity + display info are
+// NOT passed through the URL (a `PathBuf` would mangle the query string) but
+// through this process-wide table, keyed by the window label. The ChatWindow
+// page calls `get_chat_window_params` and the injected `Webview` tells it which
+// entry to read.
+
+/// Parameters for one chat sub-window (label → params).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChatWindowParams {
+    pub kind: String, // "friend" | "group"
+    pub id: String,
+    pub chat_id: Option<String>,
+    pub name: String,
+    pub avatar: Option<String>,
+}
+
+static CHAT_WINDOW_PARAMS: OnceLock<Mutex<HashMap<String, ChatWindowParams>>> = OnceLock::new();
+
+fn chat_window_params() -> &'static Mutex<HashMap<String, ChatWindowParams>> {
+    CHAT_WINDOW_PARAMS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// Open (or focus) the chat sub-window for a friend or group channel. One window
+/// per thread — the label is derived from the thread identity, so re-clicking
+/// the same conversation focuses the existing window instead of opening a new
+/// one (Steam-like).
+#[tauri::command]
+pub async fn open_chat_window(
+    app: AppHandle,
+    kind: String,
+    id: String,
+    chat_id: Option<String>,
+    name: String,
+    avatar: Option<String>,
+) -> Result<(), String> {
+    let label = match kind.as_str() {
+        "group" => format!("chat-g-{}-{}", id, chat_id.clone().unwrap_or_default()),
+        _ => format!("chat-f-{}", id),
+    };
+    // Record the params before reuse/create so a just-focused window can read them.
+    chat_window_params()
+        .lock()
+        .unwrap()
+        .insert(label.clone(), ChatWindowParams {
+            kind: kind.clone(),
+            id: id.clone(),
+            chat_id: chat_id.clone(),
+            name: name.clone(),
+            avatar: avatar.clone(),
+        });
+
+    if let Some(window) = app.get_webview_window(&label) {
+        let _ = window.show();
+        let _ = window.set_focus();
+        return Ok(());
+    }
+
+    WebviewWindowBuilder::new(&app, &label, WebviewUrl::App("chat".into()))
+        .title(&name)
+        .inner_size(420.0, 620.0)
+        .min_inner_size(360.0, 480.0)
+        .resizable(true)
+        .build()
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+/// Return the current chat window's parameters (read by the `/chat` page). The
+/// invoking webview's label keys the lookup. `None` when called from the main
+/// window or an unknown label.
+#[tauri::command]
+pub fn get_chat_window_params(webview: tauri::Webview) -> Result<Option<ChatWindowParams>, String> {
+    Ok(chat_window_params()
+        .lock()
+        .unwrap()
+        .get(webview.label())
+        .cloned())
+}
+
+/// Read a thread from the cache with no side effects (no unread clearing, no
+/// `social:read` broadcast). Chat sub-windows poll this as a reliable fallback
+/// for live messages — the background poller writes incoming messages to the
+/// cache, so polling it picks them up even when cross-window event delivery to
+/// the sub-window is unavailable. Returns a JSON array (friend or group DTOs);
+/// the frontend knows the shape from its thread kind.
+#[tauri::command]
+pub async fn poll_thread(
+    state: State<'_, AppState>,
+    kind: String,
+    id: String,
+    chat_id: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let (steam_id, _) = resolve_session(&state.tool_dir)?;
+    let account = steam_id.to_string();
+    let _guard = social_cache_lock().lock().await;
+    let Some(cache) = open_cache(&state.tool_dir, steam_id) else {
+        return Ok(serde_json::Value::Array(Vec::new()));
+    };
+    let empty = serde_json::Value::Array(Vec::new());
+    if kind == "group" {
+        let cid = chat_id.unwrap_or_default();
+        let msgs: Vec<GroupMessageDto> = cache
+            .load_group_thread(&account, &id, &cid)
+            .map(|t| {
+                recover_group_states(&t.messages)
+                    .iter()
+                    .map(|m| cached_msg_to_group_dto(&id, &cid, m))
+                    .collect()
+            })
+            .unwrap_or_default();
+        Ok(serde_json::to_value(msgs).unwrap_or(empty))
+    } else {
+        let msgs: Vec<ChatMessageDto> = cache
+            .load_friend_thread(&account, &id)
+            .map(|t| {
+                recover_friend_states(&t.messages)
+                    .iter()
+                    .map(cached_msg_to_chat_dto)
+                    .collect()
+            })
+            .unwrap_or_default();
+        Ok(serde_json::to_value(msgs).unwrap_or(empty))
+    }
 }
 
 // ── Background poller (event-driven push) ────────────────────
@@ -712,8 +854,12 @@ pub async fn send_chat_message(
 /// Read a friend thread from the cache (instant, offline-safe) and mark the
 /// conversation read. Stored `pending` messages are reported as `verifying`
 /// (the app re-checks them against server history via `refresh_chat`).
+///
+/// Broadcasts `social:read` so the main window's badge clears when a chat
+/// sub-window opens the thread (its store is a separate webview instance).
 #[tauri::command]
 pub async fn open_chat(
+    app: AppHandle,
     state: State<'_, AppState>,
     steam_id: String,
 ) -> Result<ChatThreadDto, String> {
@@ -733,6 +879,7 @@ pub async fn open_chat(
         }
         None => (Vec::new(), false),
     };
+    let _ = app.emit("social:read", serde_json::json!({ "kind": "friend", "id": steam_id }));
     Ok(ChatThreadDto {
         messages: messages.iter().map(cached_msg_to_chat_dto).collect(),
         more_available,
@@ -1094,8 +1241,12 @@ pub async fn refresh_groups(state: State<'_, AppState>) -> Result<Vec<ChatGroupD
 /// Read a group-channel thread from the cache (instant, offline-safe) and mark
 /// the channel read. Stored non-`sent` messages are reported as
 /// `failedRetryable` (they can be re-sent).
+///
+/// Broadcasts `social:read` so the main window's badge clears when a chat
+/// sub-window opens the channel.
 #[tauri::command]
 pub async fn open_group_chat(
+    app: AppHandle,
     state: State<'_, AppState>,
     group_id: String,
     chat_id: String,
@@ -1116,6 +1267,10 @@ pub async fn open_group_chat(
         }
         None => (Vec::new(), false),
     };
+    let _ = app.emit(
+        "social:read",
+        serde_json::json!({ "kind": "group", "id": group_id, "groupId": group_id, "chatId": chat_id }),
+    );
     Ok(GroupThreadDto {
         messages: messages
             .iter()

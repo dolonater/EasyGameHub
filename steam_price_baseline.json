@@ -1,21 +1,44 @@
 {
-  "2358720": {
-    "finalPrice": 26800,
+  "1158310": {
+    "finalPrice": 19800,
     "discountPct": 0,
-    "checkedAt": "2026-08-10 10:47:27",
+    "checkedAt": "2026-08-10 14:12:15",
     "currency": "CNY",
     "history": [
       {
-        "finalPrice": 26800,
+        "finalPrice": 19800,
         "discountPct": 0,
-        "date": "2026-08-08 01:05:25"
+        "date": "2026-08-08 00:58:42"
+      },
+      {
+        "finalPrice": 19800,
+        "discountPct": 0,
+        "date": "2026-08-08 01:56:10"
+      }
+    ]
+  },
+  "1091500": {
+    "finalPrice": 8940,
+    "discountPct": 70,
+    "checkedAt": "2026-08-10 14:12:15",
+    "currency": "CNY",
+    "history": [
+      {
+        "finalPrice": 8940,
+        "discountPct": 70,
+        "date": "2026-08-08 00:58:42"
+      },
+      {
+        "finalPrice": 8940,
+        "discountPct": 70,
+        "date": "2026-08-08 01:56:10"
       }
     ]
   },
   "1245620": {
     "finalPrice": 29800,
     "discountPct": 0,
-    "checkedAt": "2026-08-10 10:47:27",
+    "checkedAt": "2026-08-10 14:12:15",
     "currency": "CNY",
     "history": [
       {
@@ -25,28 +48,10 @@
       }
     ]
   },
-  "1158310": {
-    "finalPrice": 19800,
-    "discountPct": 0,
-    "checkedAt": "2026-08-10 10:47:27",
-    "currency": "CNY",
-    "history": [
-      {
-        "finalPrice": 19800,
-        "discountPct": 0,
-        "date": "2026-08-08 00:58:42"
-      },
-      {
-        "finalPrice": 19800,
-        "discountPct": 0,
-        "date": "2026-08-08 01:56:10"
-      }
-    ]
-  },
   "292030": {
     "finalPrice": 2980,
     "discountPct": 80,
-    "checkedAt": "2026-08-10 10:47:27",
+    "checkedAt": "2026-08-10 14:12:15",
     "currency": "CNY",
     "history": [
       {
@@ -56,34 +61,29 @@
       }
     ]
   },
+  "2358720": {
+    "finalPrice": 26800,
+    "discountPct": 0,
+    "checkedAt": "2026-08-10 14:12:15",
+    "currency": "CNY",
+    "history": [
+      {
+        "finalPrice": 26800,
+        "discountPct": 0,
+        "date": "2026-08-08 01:05:25"
+      }
+    ]
+  },
   "3240220": {
     "finalPrice": 14900,
     "discountPct": 0,
-    "checkedAt": "2026-08-10 10:47:27",
+    "checkedAt": "2026-08-10 14:12:15",
     "currency": "CNY",
     "history": [
       {
         "finalPrice": 14900,
         "discountPct": 0,
         "date": "2026-08-08 02:17:20"
-      }
-    ]
-  },
-  "1091500": {
-    "finalPrice": 8940,
-    "discountPct": 70,
-    "checkedAt": "2026-08-10 10:47:27",
-    "currency": "CNY",
-    "history": [
-      {
-        "finalPrice": 8940,
-        "discountPct": 70,
-        "date": "2026-08-08 00:58:42"
-      },
-      {
-        "finalPrice": 8940,
-        "discountPct": 70,
-        "date": "2026-08-08 01:56:10"
       }
     ]
   }

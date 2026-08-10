@@ -1,6 +1,15 @@
 # Development Progress
 
 ## Current Workflow Request
+- Topic: Bilibili 内置视频插件（参考 wiliwili 产品能力，接入 bpi-rs，内置 DASH 播放）
+- Stage 1 Requirement Exploration: Design draft completed at 2026-08-10
+- Design doc: docs/superpowers/specs/2026-08-10-bilibili-plugin-design.md
+- 用户已确认的关键范围：内置插件；直接打通 SDK 和专用代理；首页/播放页分离；普通投稿视频优先；二维码登录；DASH 内置播放；默认 ABR；播放中无缝清晰度切换；写回并读取 B 站观看进度；历史/稍后再看/收藏夹；评论读写；普通文本弹幕发送；快捷键、倍速、截图、外部打开、轻量缓存。
+- Stage 2 Implementation Planning: Completed at 2026-08-10
+- Plan doc: docs/superpowers/plans/2026-08-10-bilibili-plugin-plan.md
+- Active stage: Stage 2 gate，等待用户批准计划后进入 Stage 3 Plan Execution
+
+## Current Workflow Request
 - Topic: Monica Steam 参考功能增强（A 移动确认 / B Guard 强化 / C 库统计 / D 商城详情+多区价格 / E 好友·聊天·通知）
 - Stage 1 Requirement Exploration: Completed at 2026-08-08（范围经用户确认：E 做完整含群聊/语音/贴纸图片；D 商店详情+多区价格；文档组织为一份总设计+一份总计划）
 - Design doc: docs/superpowers/specs/2026-08-08-monica-steam-features-design.md

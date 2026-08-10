@@ -202,3 +202,33 @@ export function resetSocialEvents(): void {
   emitChange();
   void setActiveThread(null, null).catch(() => {});
 }
+
+/**
+ * Apply an `social:active-thread` event from a chat sub-window (the main window
+ * and the chat window run in separate webviews, so their module stores don't
+ * share state — the chat window broadcasts its active thread here). Unlike
+ * `registerActiveThread`, this does NOT touch the backend: the chat window
+ * already called `set_active_thread` itself.
+ */
+export function applyActiveThread(opts: {
+  partner?: string | null;
+  group?: [string, string] | null;
+}): void {
+  const activePartner = opts.partner ?? null;
+  const activeGroup = opts.group ? `${opts.group[0]}:${opts.group[1]}` : null;
+  patch({ ...state, activePartner, activeGroup });
+}
+
+/** Apply an `social:read` event from a chat sub-window (thread was opened/read). */
+export function applyReadThread(payload: {
+  kind: "friend" | "group";
+  id: string;
+  groupId?: string;
+  chatId?: string;
+}): void {
+  if (payload.kind === "friend") {
+    clearFriendUnread(payload.id);
+  } else if (payload.groupId && payload.chatId) {
+    clearGroupUnread(payload.groupId, payload.chatId);
+  }
+}

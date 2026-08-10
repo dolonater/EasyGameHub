@@ -205,3 +205,32 @@ export function setActiveThread(
     group: group ?? null,
   });
 }
+
+// ── Chat sub-windows (Steam-style popup) ─────────────────────
+
+/** Params for one chat sub-window (from the backend static table). */
+export interface ChatWindowParamsDto {
+  kind: "friend" | "group";
+  id: string;
+  chatId?: string | null;
+  name: string;
+  avatar?: string | null;
+}
+
+/** Read this window's chat params (called from the `/chat` page). */
+export function getChatWindowParams(): Promise<ChatWindowParamsDto | null> {
+  return invoke<ChatWindowParamsDto | null>("get_chat_window_params");
+}
+
+/**
+ * Read the current thread from the cache (no side effects). Chat sub-windows
+ * poll this for live messages as a fallback to cross-window events. Returns
+ * `ChatMessageDto[]` for friends, `GroupMessageDto[]` for groups.
+ */
+export function pollThread(
+  kind: "friend" | "group",
+  id: string,
+  chatId?: string | null,
+): Promise<Array<ChatMessageDto | GroupMessageDto>> {
+  return invoke("poll_thread", { kind, id, chatId: chatId ?? null });
+}

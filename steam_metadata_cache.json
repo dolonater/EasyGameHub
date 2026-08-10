@@ -16,22 +16,20 @@
     "fetchedAt": 1786196333
   },
   {
-    "appId": 4673900,
-    "name": "完蛋！我被男同学包围了",
-    "shortDescription": "校园日常题材的视觉小说游戏——玩家将扮演一位高中的小透明，经历突然被男同学包围的校园爆笑故事，享受一段青春有趣的时光。 研学篇中添加更多玩法，大份游戏内容等你品尝~ 声明：本游戏所有剧情内容都为开心和搞笑服务！！！！！一定要玩的开心呀！",
-    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4673900/cafe8eba43375f6ddcd87b9d098c167fc69cfae0/header_schinese.jpg?t=1786166743",
+    "appId": 1245620,
+    "name": "艾尔登法环",
+    "shortDescription": "艾尔登法环是以正统黑暗奇幻世界为舞台的动作RPG游戏。 走进辽阔的场景与地下迷宫探索未知，挑战困难重重的险境，享受克服困境时的成就感吧。 不仅如此，登场角色之间的利害关系谱成的群像剧，更是不容错过。",
+    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1784684281",
     "genres": [
-      "休闲",
-      "独立",
-      "角色扮演",
-      "免费开玩"
+      "动作",
+      "角色扮演"
     ],
     "developers": [
-      "GameSociety"
+      "FromSoftware, Inc."
     ],
-    "releaseDate": "2026 年 8 月 1 日",
+    "releaseDate": "2022 年 2 月 24 日",
     "comingSoon": false,
-    "isFree": true,
+    "isFree": false,
     "fetchedAt": 1786196333
   },
   {
@@ -71,36 +69,22 @@
     "fetchedAt": 1786196333
   },
   {
-    "appId": 1245620,
-    "name": "艾尔登法环",
-    "shortDescription": "艾尔登法环是以正统黑暗奇幻世界为舞台的动作RPG游戏。 走进辽阔的场景与地下迷宫探索未知，挑战困难重重的险境，享受克服困境时的成就感吧。 不仅如此，登场角色之间的利害关系谱成的群像剧，更是不容错过。",
-    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1784684281",
+    "appId": 4673900,
+    "name": "完蛋！我被男同学包围了",
+    "shortDescription": "校园日常题材的视觉小说游戏——玩家将扮演一位高中的小透明，经历突然被男同学包围的校园爆笑故事，享受一段青春有趣的时光。 研学篇中添加更多玩法，大份游戏内容等你品尝~ 声明：本游戏所有剧情内容都为开心和搞笑服务！！！！！一定要玩的开心呀！",
+    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4673900/cafe8eba43375f6ddcd87b9d098c167fc69cfae0/header_schinese.jpg?t=1786166743",
     "genres": [
-      "动作",
-      "角色扮演"
+      "休闲",
+      "独立",
+      "角色扮演",
+      "免费开玩"
     ],
     "developers": [
-      "FromSoftware, Inc."
+      "GameSociety"
     ],
-    "releaseDate": "2022 年 2 月 24 日",
+    "releaseDate": "2026 年 8 月 1 日",
     "comingSoon": false,
-    "isFree": false,
-    "fetchedAt": 1786196333
-  },
-  {
-    "appId": 292030,
-    "name": "巫师 3：狂猎",
-    "shortDescription": "您是利维亚的杰洛特，收钱办事的怪物杀手。您可以在眼前这片怪物横行、饱受战火摧残的土地上尽情探索。您手上的委托？追踪预言之子——希里，一件足以改变世界面貌的活生生的武器。",
-    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/292030/eb2f071040ff86119feb2bd97e2cd283cc40b7e5/header_schinese.jpg?t=1768303991",
-    "genres": [
-      "角色扮演"
-    ],
-    "developers": [
-      "CD PROJEKT RED"
-    ],
-    "releaseDate": "2015 年 5 月 18 日",
-    "comingSoon": false,
-    "isFree": false,
+    "isFree": true,
     "fetchedAt": 1786196333
   },
   {
@@ -117,6 +101,22 @@
       "Game Science"
     ],
     "releaseDate": "2024 年 8 月 19 日",
+    "comingSoon": false,
+    "isFree": false,
+    "fetchedAt": 1786196333
+  },
+  {
+    "appId": 292030,
+    "name": "巫师 3：狂猎",
+    "shortDescription": "您是利维亚的杰洛特，收钱办事的怪物杀手。您可以在眼前这片怪物横行、饱受战火摧残的土地上尽情探索。您手上的委托？追踪预言之子——希里，一件足以改变世界面貌的活生生的武器。",
+    "headerImage": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/292030/eb2f071040ff86119feb2bd97e2cd283cc40b7e5/header_schinese.jpg?t=1768303991",
+    "genres": [
+      "角色扮演"
+    ],
+    "developers": [
+      "CD PROJEKT RED"
+    ],
+    "releaseDate": "2015 年 5 月 18 日",
     "comingSoon": false,
     "isFree": false,
     "fetchedAt": 1786196333

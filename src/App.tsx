@@ -20,6 +20,7 @@ import AccountSwitch from "./pages/steam/AccountSwitch";
 import Authenticator from "./pages/steam/Authenticator";
 import DownloadManager from "./pages/steam/DownloadManager";
 import SteamHub from "./pages/steam/SteamHub";
+import ChatWindow from "./pages/steam/ChatWindow";
 import Inventory from "./pages/steam/Inventory";
 import Wizard from "./pages/Wizard";
 
@@ -66,6 +67,7 @@ function AppRoutes() {
         ],
       },
       { path: "/wizard", element: <Wizard /> },
+      { path: "/chat", element: <ChatWindow /> },
     ],
     [pluginRoutes]
   );
