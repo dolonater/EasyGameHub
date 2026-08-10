@@ -1,7 +1,6 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import Icon from "../ui/Icon";
-import TextField from "../ui/TextField";
 import Button from "../ui/Button";
 import { stickerImageUrl } from "../../lib/steamSocial";
 import type { ChatThreadApi, ChatThreadMessage } from "../../hooks/useChatThread";
@@ -126,6 +125,15 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
   const { t } = useTranslation();
   const { messages, historyError } = api;
 
+  // Multi-line input: auto-grow the textarea up to a cap, reset when cleared.
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }, [api.input]);
+
   return (
     <>
       <div
@@ -143,7 +151,10 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
             {t("steam.socialLoadFailed", { error: historyError })}
           </div>
         ) : messages.length === 0 ? (
-          <div className="py-8 text-center text-xs text-muted-foreground">{t(emptyKey)}</div>
+          <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+            <Icon name="user" size={28} />
+            <div className="text-xs">{t(emptyKey)}</div>
+          </div>
         ) : null}
         {messages.map((m, i) => {
           const self = api.isSelf(m);
@@ -235,7 +246,8 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
         >
           <Icon name="starFilled" size={16} />
         </Button>
-        <TextField
+        <textarea
+          ref={textareaRef}
           value={api.input}
           onChange={(e) => api.setInput(e.target.value)}
           onKeyDown={(e) => {
@@ -245,8 +257,8 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
             }
           }}
           placeholder={placeholder}
-          className="flex-1"
-          density="compact"
+          rows={1}
+          className="max-h-[120px] flex-1 resize-none overflow-y-auto rounded-lg bg-secondary/30 px-2 py-1.5 text-sm outline-none focus:ring-1 focus:ring-primary/50"
         />
         <Button
           variant="primary"

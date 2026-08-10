@@ -221,8 +221,11 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
               </div>
             )}
             {!friendsLoading && !friendsError && friendSections.length === 0 && (
-              <div className="py-6 text-center text-xs text-muted-foreground">
-                {query ? t("steam.socialNoResults") : t("steam.socialEmptyFriends")}
+              <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+                <Icon name={query ? "search" : "user"} size={28} />
+                <div className="text-xs">
+                  {query ? t("steam.socialNoResults") : t("steam.socialEmptyFriends")}
+                </div>
               </div>
             )}
             {friendSections.map((section) => (
@@ -300,8 +303,11 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
               </div>
             )}
             {!groupsLoading && !groupsError && sortedGroups.length === 0 && (
-              <div className="py-6 text-center text-xs text-muted-foreground">
-                {query ? t("steam.socialNoResults") : t("steam.socialGroupsEmpty")}
+              <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+                <Icon name={query ? "search" : "steamAccounts"} size={28} />
+                <div className="text-xs">
+                  {query ? t("steam.socialNoResults") : t("steam.socialGroupsEmpty")}
+                </div>
               </div>
             )}
             {sortedGroups.map((g) => {

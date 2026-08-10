@@ -17,6 +17,7 @@ import {
 } from "../../lib/chatThread";
 import {
   getChatWindowParams,
+  getFriendProfile,
   getStickerCatalog,
   openChat,
   openGroupChat,
@@ -29,9 +30,32 @@ import {
   uploadChatImage,
   uploadGroupImage,
   type ChatWindowParamsDto,
+  type FriendDto,
   type StickerDto,
 } from "../../lib/steamSocial";
 import type { SessionDto } from "../../lib/steamCommunity";
+
+/** Online-state dot color for the header (friend chats). */
+const FRIEND_DOT: Record<string, string> = {
+  online: "bg-green-500",
+  busy: "bg-red-500",
+  away: "bg-amber-500",
+  snooze: "bg-slate-400",
+  lookingToTrade: "bg-purple-500",
+  lookingToPlay: "bg-blue-500",
+  offline: "bg-slate-300",
+};
+
+/** Online-state i18n label key (falls back to "online"). */
+const FRIEND_LABEL: Record<string, string> = {
+  online: "socialOnline",
+  busy: "socialBusy",
+  away: "socialAway",
+  snooze: "socialSnooze",
+  lookingToTrade: "socialLookingTrade",
+  lookingToPlay: "socialLookingPlay",
+  offline: "socialOffline",
+};
 
 /**
  * The `/chat` route — a Steam-style popup chat window. Loaded in its own OS
@@ -67,6 +91,21 @@ export default function ChatWindow() {
       .then(setSession)
       .finally(() => setSessionLoaded(true));
   }, []);
+
+  // Live friend persona (status dot + in-game) for the header — best-effort.
+  const [friendProfile, setFriendProfile] = useState<FriendDto | null>(null);
+  useEffect(() => {
+    if (params?.kind !== "friend" || !params.id) return;
+    let cancelled = false;
+    getFriendProfile(params.id)
+      .then((p) => {
+        if (!cancelled) setFriendProfile(p);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [params?.kind, params?.id]);
 
   const selfId = session?.steamId ?? null;
   const isFriend = params?.kind === "friend";
@@ -287,7 +326,7 @@ export default function ChatWindow() {
 
   return (
     <div className="flex h-screen flex-col p-3">
-      {/* Header: avatar + name + (friend) profile link */}
+      {/* Header: avatar + name + (friend) status + profile link */}
       <div className="mb-2 flex items-center gap-2 border-b border-border/40 pb-2">
         {params.avatar ? (
           <img src={params.avatar} alt="" className="h-8 w-8 flex-none rounded-full" />
@@ -295,6 +334,16 @@ export default function ChatWindow() {
           <Icon name="user" size={16} className="flex-none text-muted-foreground" />
         )}
         <span className="truncate text-sm font-semibold">{params.name}</span>
+        {isFriend && friendProfile && (
+          <span className="flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground">
+            <span className={`h-2 w-2 flex-none rounded-full ${FRIEND_DOT[friendProfile.onlineState] ?? "bg-slate-300"}`} />
+            <span className="truncate">
+              {friendProfile.inGameName
+                ? `${t("steam.socialInGame", { defaultValue: "游戏中" })} ${friendProfile.inGameName}`
+                : t(FRIEND_LABEL[friendProfile.onlineState] ?? "socialOnline", { defaultValue: "" })}
+            </span>
+          </span>
+        )}
         {isFriend && (
           <button
             type="button"
