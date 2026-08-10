@@ -86,12 +86,14 @@ struct RefreshTokenInner {
 /// Refresh an expired access token.
 ///
 /// From SteamTools `RefreshAccessToken(ulong steamId, string refreshToken)`.
-/// Calls `IAuthenticationService/GenerateAccessTokenForApp/v1`.
+/// Calls `IAuthenticationService/GenerateAccessTokenForApp/v1`. Any failure
+/// (non-200, missing token) is a hard `Err` — the caller must not silently
+/// keep using a stale access token.
 pub fn refresh_access_token(
     client: &SteamHttpClient,
     steam_id: u64,
     refresh_token: &str,
-) -> Result<Option<String>> {
+) -> Result<String> {
     let url = "https://api.steampowered.com/IAuthenticationService/GenerateAccessTokenForApp/v1/";
 
     let response = client
@@ -103,54 +105,68 @@ pub fn refresh_access_token(
         ])
         .map_err(|e| SteamError::Http(format!("RefreshAccessToken failed: {}", e)))?;
 
-    if response.status() != 200 {
-        return Ok(None);
-    }
-
+    let status = response.status();
     let body = response
         .into_string()
         .map_err(|e| SteamError::Http(format!("RefreshAccessToken read: {}", e)))?;
 
+    if status != 200 {
+        let snippet: String = body.chars().take(300).collect();
+        return Err(SteamError::Http(format!(
+            "RefreshAccessToken failed (status={}): {}",
+            status, snippet
+        )));
+    }
+
     let parsed: RefreshTokenResponse = serde_json::from_str(&body)?;
-    Ok(parsed.response.and_then(|r| r.access_token))
+    parsed
+        .response
+        .and_then(|r| r.access_token)
+        .filter(|t| !t.is_empty())
+        .ok_or_else(|| SteamError::Http("RefreshAccessToken returned no access_token".into()))
 }
 
 // ── IsAccessTokenValid ───────────────────────────────────────
 
-/// Check if a Steam access token is still valid by decoding its JWT payload.
-///
-/// From SteamTools `IsAccessTokenValid(string accessToken)`.
-/// Steam access tokens are JWTs. This function decodes the payload and
-/// checks the `exp` (expiration) claim.
-pub fn is_access_token_valid(access_token: &str) -> bool {
-    if access_token.is_empty() {
-        return false;
-    }
+// ── JWT helpers ───────────────────────────────────────────────
 
+/// Decode a Steam access token JWT's payload (the second segment).
+///
+/// Steam access tokens are JWTs. Returns the JSON payload, or `None` if the
+/// token isn't a JWT / can't be decoded.
+fn decode_jwt_payload(access_token: &str) -> Option<serde_json::Value> {
+    if access_token.is_empty() {
+        return None;
+    }
     let parts: Vec<&str> = access_token.split('.').collect();
     if parts.len() < 3 {
-        return false;
+        return None;
     }
-
-    // Decode the JWT payload (second segment)
     let payload_b64 = parts[1].replace('-', "+").replace('_', "/");
     let padded = match payload_b64.len() % 4 {
         2 => format!("{}==", payload_b64),
         3 => format!("{}=", payload_b64),
         _ => payload_b64,
     };
+    let payload_bytes = base64_decode(&padded).ok()?;
+    serde_json::from_slice(&payload_bytes).ok()
+}
 
-    let payload_bytes = match base64_decode(&padded) {
-        Ok(b) => b,
-        Err(_) => return false,
+/// Extract a Steam access token's `(iat, exp)` claims (both required).
+pub fn jwt_timestamps(access_token: &str) -> Option<(u64, u64)> {
+    let payload = decode_jwt_payload(access_token)?;
+    let iat = payload.get("iat")?.as_u64()?;
+    let exp = payload.get("exp")?.as_u64()?;
+    Some((iat, exp))
+}
+
+/// Check if a Steam access token is still valid by decoding its JWT payload.
+///
+/// From SteamTools `IsAccessTokenValid(string accessToken)`.
+pub fn is_access_token_valid(access_token: &str) -> bool {
+    let Some(payload) = decode_jwt_payload(access_token) else {
+        return false;
     };
-
-    let payload: serde_json::Value = match serde_json::from_slice(&payload_bytes) {
-        Ok(v) => v,
-        Err(_) => return false,
-    };
-
-    // Check exp claim
     if let Some(exp) = payload.get("exp").and_then(|v| v.as_i64()) {
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -158,7 +174,6 @@ pub fn is_access_token_valid(access_token: &str) -> bool {
             .as_secs() as i64;
         return exp > now;
     }
-
     false
 }
 
@@ -205,6 +220,15 @@ mod tests {
     fn test_is_access_token_valid_malformed() {
         assert!(!is_access_token_valid("not-a-jwt"));
         assert!(!is_access_token_valid("a.b"));
+    }
+
+    #[test]
+    fn test_jwt_timestamps() {
+        // base64url payload {"iat":100,"exp":200} → 100 & 200.
+        let payload = "eyJpYXQiOjEwMCwiZXhwIjoyMDB9";
+        let token = format!("header.{}.sig", payload);
+        assert_eq!(jwt_timestamps(&token), Some((100, 200)));
+        assert_eq!(jwt_timestamps("not-a-jwt"), None);
     }
 
     fn base64_encode(s: &str) -> String {

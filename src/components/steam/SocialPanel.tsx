@@ -174,6 +174,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [friendsLoading, setFriendsLoading] = useState(false);
   const [friendsError, setFriendsError] = useState<string | null>(null);
   const [friendsStale, setFriendsStale] = useState(false);
+  const [friendsStaleError, setFriendsStaleError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [messages, setMessages] = useState<UiChatMessage[]>([]);
   const [sessions, setSessions] = useState<ChatSessionDto[]>([]);
@@ -186,6 +187,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [groupsError, setGroupsError] = useState<string | null>(null);
   const [groupsStale, setGroupsStale] = useState(false);
+  const [groupsStaleError, setGroupsStaleError] = useState<string | null>(null);
   const hasCachedGroups = useRef(false);
   const [selectedGroup, setSelectedGroup] = useState<ChatGroupDto | null>(null);
   const [groupMessages, setGroupMessages] = useState<UiGroupMessage[]>([]);
@@ -219,6 +221,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
       .then((list) => {
         if (cancelled) return;
         hasCachedFriends.current = list.length > 0;
+        setFriendsStaleError(null);
         setFriends(list);
         setSelected((prev) => prev ?? list[0]?.steamId ?? null);
       })
@@ -234,6 +237,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
         hasCachedFriends.current = false;
         setFriends(list);
         setFriendsStale(false);
+        setFriendsStaleError(null);
         setFriendsError(null);
       })
       .catch((e) => {
@@ -241,6 +245,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
         const msg = e instanceof Error ? e.message : String(e);
         if (hasCachedFriends.current) {
           // Cached list is on screen; refresh just failed → stale hint.
+          setFriendsStaleError(msg);
           setFriendsStale(true);
         } else {
           setFriendsError(msg);
@@ -262,6 +267,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
       .then((list) => {
         if (cancelled) return;
         hasCachedGroups.current = list.length > 0;
+        setGroupsStaleError(null);
         setGroups(list);
         setSelectedGroup((prev) => prev ?? list[0] ?? null);
       })
@@ -277,13 +283,15 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
         hasCachedGroups.current = false;
         setGroups(list);
         setGroupsStale(false);
+        setGroupsStaleError(null);
         setGroupsError(null);
       })
       .catch((e) => {
         if (cancelled) return;
         const msg = e instanceof Error ? e.message : String(e);
-        if (hasCachedGroups.current) setGroupsStale(true);
-        else setGroupsError(msg);
+        if (hasCachedGroups.current) setGroupsStaleError(msg);
+        setGroupsStale(hasCachedGroups.current);
+        if (!hasCachedGroups.current) setGroupsError(msg);
       });
     return () => {
       cancelled = true;
@@ -750,7 +758,12 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                 <div className="py-4 px-1 text-xs text-red-500">{t("steam.socialLoadFailed", { error: friendsError })}</div>
               )}
               {friendsStale && !friendsLoading && !friendsError && (
-                <div className="py-1 px-1 text-[10px] text-amber-500">{t("steam.socialCacheStale")}</div>
+                <div className="py-1 px-1 text-[10px] text-amber-500">
+                  {t("steam.socialCacheStale")}
+                  {friendsStaleError && (
+                    <span className="block break-all text-[9px] opacity-75">{friendsStaleError}</span>
+                  )}
+                </div>
               )}
               {!friendsLoading && !friendsError && friends.length === 0 && (
                 <div className="py-6 text-center text-xs text-muted-foreground">{t("steam.socialEmptyFriends")}</div>
@@ -898,7 +911,12 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                 <div className="py-4 px-1 text-xs text-red-500">{t("steam.socialLoadFailed", { error: groupsError })}</div>
               )}
               {groupsStale && !groupsLoading && !groupsError && (
-                <div className="py-1 px-1 text-[10px] text-amber-500">{t("steam.socialCacheStale")}</div>
+                <div className="py-1 px-1 text-[10px] text-amber-500">
+                  {t("steam.socialCacheStale")}
+                  {groupsStaleError && (
+                    <span className="block break-all text-[9px] opacity-75">{groupsStaleError}</span>
+                  )}
+                </div>
               )}
               {!groupsLoading && !groupsError && groups.length === 0 && (
                 <div className="py-6 text-center text-xs text-muted-foreground">{t("steam.socialGroupsEmpty")}</div>

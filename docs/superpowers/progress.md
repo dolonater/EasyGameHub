@@ -541,3 +541,10 @@
   3. active 会话标记未按 socialMode 门控：切到 friends 模式后 selectedGroup 仍旧值，群轮询仍视其为"当前会话"不计未读；image 上传 refreshTick 在 friends 模式会误跑群 effect 清掉旧群未读（反向同理）→ chat-open effect 按 socialMode 门控 + deps 加入 socialMode；poll active 参数按 socialMode 门控
   - 核对无问题：steamSocial.ts 全部契约与 Rust 一致（camelCase/元组/Option 参数）；CM 重连 seed 与写穿只处理一次不重复；群自消息跳过（round2）正确；round1 merge/echo 修复在流程重读下成立；i18n 键齐全
   - 验证：cargo test --workspace（src-tauri 84 + steam-sdk 95 含 secure_store 原子写）、cargo check --workspace、npm run build 全绿
+- Token 过期修复（2026-08-10，用户报告"离线缓存"+CM 不可用）：
+  - 根因：access token 过期（JWT exp 08-09）但 refresh token 有效；自动刷新静默失败（refresh_access_token 非200→Ok(None) 且调用方 let _ 吞错）→ 旧 token 一直用 → GetFriendList 401 + CM 拒绝
+  - 修复1：refresh_access_token 非200/无token 改返回 Err（带 status+响应片段），签名 Result<Option<String>>→Result<String>
+  - 修复2：resolve_session 记录刷新失败 + is_expired() 时返回"Steam 登录已过期，请重新登录"；CM_COOLDOWN_MESSAGE 去猜测化
+  - 修复3：新增 jwt_timestamps()；is_expired() 优先用 JWT exp（不再依赖可能错误的硬编码 expires_in_seconds）；登录/刷新写入真实 exp-iat 到 expires_in_seconds（原硬编码3600）
+  - 事故：用户补 steam-sdk 缺失文件时覆盖了未提交的 token.rs/cm/client.rs（connect_with_seed 丢失）→ 已恢复 HEAD 版 cm/client.rs + 重新应用 token/session 修复
+  - 验证：cargo test --workspace（src-tauri 84 + steam-sdk 96 含 test_jwt_timestamps）、cargo check、npm run build 全绿

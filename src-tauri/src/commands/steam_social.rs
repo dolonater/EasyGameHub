@@ -87,12 +87,21 @@ fn active_cm() -> &'static Mutex<Option<(u64, cm::CmClient)>> {
 
 fn resolve_session(tool_dir: &Path) -> Result<(u64, String), String> {
     let session_path = session_store_path(tool_dir);
-    let _ = refresh_session_if_needed(&session_path);
+    if let Err(e) = refresh_session_if_needed(&session_path) {
+        log::warn!("Steam access token refresh failed: {}", e);
+    }
     let mgr = SessionManager::open(&session_path)
         .map_err(|e| format!("会话存储错误: {}", e))?;
     let session = mgr
         .active_session()
         .ok_or_else(|| "未登录 Steam，请先在 Steam 页面登录".to_string())?;
+    if session.is_expired() {
+        // `is_expired` uses the token's own `exp` claim; a refresh was needed
+        // and did not succeed, so the session can't be salvaged without a
+        // fresh login. Surface this instead of letting every request fail with
+        // a cryptic 401 / CM rejection.
+        return Err("Steam 登录已过期，请重新登录".to_string());
+    }
     Ok((session.steam_id, session.access_token.clone()))
 }
 
@@ -111,8 +120,7 @@ fn connect_lock() -> &'static tokio::sync::Mutex<()> {
 /// Within the window we fail fast instead, then allow one retry.
 static CM_CONNECT_COOLDOWN: OnceLock<Mutex<Option<Instant>>> = OnceLock::new();
 const CM_CONNECT_COOLDOWN_SECS: u64 = 30;
-const CM_COOLDOWN_MESSAGE: &str =
-    "Steam CM 连接暂不可用（旧会话尚未释放），请稍后再试";
+const CM_COOLDOWN_MESSAGE: &str = "Steam CM 连接暂不可用，请稍后再试";
 
 fn cm_in_cooldown() -> bool {
     cm_connect_cooldown()

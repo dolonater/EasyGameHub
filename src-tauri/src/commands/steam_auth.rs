@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use steam_sdk::auth::login;
 use steam_sdk::auth::session::{SessionManager, SteamSession};
-use steam_sdk::auth::token::refresh_access_token;
+use steam_sdk::auth::token::{jwt_timestamps, refresh_access_token};
 use tauri::State;
 
 use crate::commands::steam_api::shared_client;
@@ -229,14 +229,18 @@ pub fn login_poll(app_state: State<AppState>) -> Result<PollResultDto, String> {
             }
             login_result.account_name = state.account_name.clone();
 
-            // Save session
+            // Save session. `expires_in_seconds` comes from the token's own
+            // `exp - iat` (Steam access tokens live ~24h), not a hardcoded 3600.
+            let expires_in_seconds = jwt_timestamps(&login_result.access_token)
+                .map(|(iat, exp)| exp.saturating_sub(iat).max(1))
+                .unwrap_or(3600);
             let session = SteamSession {
                 steam_id: login_result.steam_id,
                 account_name: login_result.account_name.clone(),
                 access_token: login_result.access_token.clone(),
                 refresh_token: login_result.refresh_token.clone(),
                 obtained_at: chrono::Utc::now(),
-                expires_in_seconds: 3600,
+                expires_in_seconds,
                 is_active: true,
             };
 
@@ -333,13 +337,14 @@ pub(crate) fn refresh_session_if_needed(path: &std::path::Path) -> Result<(), St
     let new_token = refresh_access_token(&client, session.steam_id, &session.refresh_token)
         .map_err(|e| format!("Token refresh failed: {}", e))?;
 
-    if let Some(access_token) = new_token {
-        let mut refreshed = session;
-        refreshed.access_token = access_token;
-        refreshed.obtained_at = chrono::Utc::now();
-        mgr.upsert_session(refreshed)
-            .map_err(|e| format!("Save session error: {}", e))?;
+    let mut refreshed = session;
+    refreshed.access_token = new_token.clone();
+    refreshed.obtained_at = chrono::Utc::now();
+    if let Some((iat, exp)) = jwt_timestamps(&new_token) {
+        refreshed.expires_in_seconds = exp.saturating_sub(iat).max(1);
     }
+    mgr.upsert_session(refreshed)
+        .map_err(|e| format!("Save session error: {}", e))?;
     Ok(())
 }
 

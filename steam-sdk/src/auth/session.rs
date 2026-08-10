@@ -31,14 +31,20 @@ impl SteamSession {
     /// Check if the access token is expired or about to expire within
     /// the given grace period (default: 5 minutes).
     pub fn is_expired(&self) -> bool {
-        // Clamp to 0: if the system clock moves backward after login the
-        // duration is negative, and `num_seconds() as u64` would wrap to a huge
-        // value that overflows the addition below.
+        let grace = 300; // 5 minutes
+        // The token's own `exp` claim is authoritative — Steam access-token
+        // lifetimes drift, and sessions written by older builds may carry a
+        // stale `expires_in_seconds` estimate (e.g. a hardcoded 3600).
+        if let Some((_, exp)) = crate::auth::token::jwt_timestamps(&self.access_token) {
+            let now = chrono::Utc::now().timestamp().max(0) as u64;
+            return now.saturating_add(grace) >= exp;
+        }
+        // Fallback for non-JWT tokens: estimate from `obtained_at`. Clamp to 0
+        // so a backward system clock can't wrap the duration into a huge value.
         let elapsed = chrono::Utc::now()
             .signed_duration_since(self.obtained_at)
             .num_seconds()
             .max(0) as u64;
-        let grace = 300; // 5 minutes
         elapsed + grace >= self.expires_in_seconds
     }
 }
