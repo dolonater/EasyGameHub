@@ -2,6 +2,111 @@
   "dataCache": {
     "coverEntries": [
       {
+        "loadedAt": 1786340439082,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FeRqsIxfu7_aIlciMlDUU1g%3D%3D%2F109951169484870712.jpg",
+        "rawUrl": "https://p3.music.126.net/eRqsIxfu7_aIlciMlDUU1g==/109951169484870712.jpg"
+      },
+      {
+        "loadedAt": 1786340439032,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FqW4DazOfXLGmMDN_yuTKxA%3D%3D%2F109951169060402330.jpg",
+        "rawUrl": "https://p3.music.126.net/qW4DazOfXLGmMDN_yuTKxA==/109951169060402330.jpg"
+      },
+      {
+        "loadedAt": 1786340438982,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp4.music.126.net%2FMZ1KYMkmAr-lDkE-ZaMaQg%3D%3D%2F109951169026406813.jpg",
+        "rawUrl": "https://p4.music.126.net/MZ1KYMkmAr-lDkE-ZaMaQg==/109951169026406813.jpg"
+      },
+      {
+        "loadedAt": 1786340436550,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp4.music.126.net%2FKkrcSwKbRsd8GuaOHILlxA%3D%3D%2F109951166077317301.jpg",
+        "rawUrl": "https://p4.music.126.net/KkrcSwKbRsd8GuaOHILlxA==/109951166077317301.jpg"
+      },
+      {
+        "loadedAt": 1786340436470,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FqKHK5D3Jj1MJ7CiFyRy7fg%3D%3D%2F109951163934298206.jpg",
+        "rawUrl": "https://p3.music.126.net/qKHK5D3Jj1MJ7CiFyRy7fg==/109951163934298206.jpg"
+      },
+      {
+        "loadedAt": 1786340436309,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp4.music.126.net%2Fgs9xF0rGLnUmsBr26ju73Q%3D%3D%2F109951163190161411.jpg",
+        "rawUrl": "https://p4.music.126.net/gs9xF0rGLnUmsBr26ju73Q==/109951163190161411.jpg"
+      },
+      {
+        "loadedAt": 1786340432118,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FbtBocL7KKvl0sRZY62_BIA%3D%3D%2F109951169213244790.jpg",
+        "rawUrl": "https://p3.music.126.net/btBocL7KKvl0sRZY62_BIA==/109951169213244790.jpg"
+      },
+      {
+        "loadedAt": 1786340432116,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2Fw4ve3fd97ql6f34biizbGg%3D%3D%2F109951171437356440.jpg",
+        "rawUrl": "https://p3.music.126.net/w4ve3fd97ql6f34biizbGg==/109951171437356440.jpg"
+      },
+      {
+        "loadedAt": 1786340432109,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp4.music.126.net%2FpwcUlwh9MFZ_V3hGBOPaCQ%3D%3D%2F109951169213425474.jpg",
+        "rawUrl": "https://p4.music.126.net/pwcUlwh9MFZ_V3hGBOPaCQ==/109951169213425474.jpg"
+      },
+      {
+        "loadedAt": 1786340432109,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2F-noYXenVuiTrlcxrCqNPjQ%3D%3D%2F109951169213362679.jpg",
+        "rawUrl": "https://p3.music.126.net/-noYXenVuiTrlcxrCqNPjQ==/109951169213362679.jpg"
+      },
+      {
+        "loadedAt": 1786340432109,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FpwcUlwh9MFZ_V3hGBOPaCQ%3D%3D%2F109951169213425474.jpg",
+        "rawUrl": "https://p3.music.126.net/pwcUlwh9MFZ_V3hGBOPaCQ==/109951169213425474.jpg"
+      },
+      {
+        "loadedAt": 1786340432109,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FltPnu_JI1o70hz1INwzFYg%3D%3D%2F109951166557803274.jpg",
+        "rawUrl": "https://p3.music.126.net/ltPnu_JI1o70hz1INwzFYg==/109951166557803274.jpg"
+      },
+      {
+        "loadedAt": 1786340432108,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FSs7mkl2EK3Xl7Vv6iz-XAg%3D%3D%2F109951172945820235.jpg",
+        "rawUrl": "https://p3.music.126.net/Ss7mkl2EK3Xl7Vv6iz-XAg==/109951172945820235.jpg"
+      },
+      {
+        "loadedAt": 1786340432107,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FKWaq_VUONuvskCdV1l09Tw%3D%3D%2F109951168933839675.jpg",
+        "rawUrl": "https://p3.music.126.net/KWaq_VUONuvskCdV1l09Tw==/109951168933839675.jpg"
+      },
+      {
+        "loadedAt": 1786340432101,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2Fhgw9vCLwFg0xXUqKxIMiLw%3D%3D%2F18658712325009571.jpg",
+        "rawUrl": "https://p3.music.126.net/hgw9vCLwFg0xXUqKxIMiLw==/18658712325009571.jpg"
+      },
+      {
+        "loadedAt": 1786340432101,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FqMiFV8V6zlOSS9D4FLwFMw%3D%3D%2F109951162807427178.jpg",
+        "rawUrl": "https://p3.music.126.net/qMiFV8V6zlOSS9D4FLwFMw==/109951162807427178.jpg"
+      },
+      {
+        "loadedAt": 1786340432101,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp4.music.126.net%2Fryk8Gu64rOhlYn0pc2Q8Ww%3D%3D%2F109951168090271827.jpg",
+        "rawUrl": "https://p4.music.126.net/ryk8Gu64rOhlYn0pc2Q8Ww==/109951168090271827.jpg"
+      },
+      {
+        "loadedAt": 1786340432100,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FXE1XFkkDYrEW_eXFFlsSYQ%3D%3D%2F109951164202821890.jpg",
+        "rawUrl": "https://p3.music.126.net/XE1XFkkDYrEW_eXFFlsSYQ==/109951164202821890.jpg"
+      },
+      {
+        "loadedAt": 1786340432100,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FNQBaw13hHiaTh41QQUYsQg%3D%3D%2F109951162922231753.jpg",
+        "rawUrl": "https://p3.music.126.net/NQBaw13hHiaTh41QQUYsQg==/109951162922231753.jpg"
+      },
+      {
+        "loadedAt": 1786340432100,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FLBnYDAUED2mD1veBvBnC8g%3D%3D%2F5859297464524710.jpg",
+        "rawUrl": "https://p3.music.126.net/LBnYDAUED2mD1veBvBnC8g==/5859297464524710.jpg"
+      },
+      {
+        "loadedAt": 1786340429966,
+        "proxiedUrl": "http://127.0.0.1:55085/cover?url=https%3A%2F%2Fp3.music.126.net%2FYlQ6wc0mVWOuSGGUocahXw%3D%3D%2F3265549570924330.jpg",
+        "rawUrl": "https://p3.music.126.net/YlQ6wc0mVWOuSGGUocahXw==/3265549570924330.jpg"
+      },
+      {
         "loadedAt": 1786337304536,
         "proxiedUrl": "http://127.0.0.1:53019/cover?url=http%3A%2F%2Fp1.music.126.net%2FcKQqbk5MpjDMGpbuBT_3gg%3D%3D%2F3252355395429414.jpg",
         "rawUrl": "http://p1.music.126.net/cKQqbk5MpjDMGpbuBT_3gg==/3252355395429414.jpg"
@@ -143,106 +248,16 @@
       }
     ],
     "discoverPlaylists": {
-      "loadedAt": 1786339067231,
+      "loadedAt": 1786341617011,
       "value": [
         {
-          "cover": "https://p3.music.126.net/BjkyaAB4C-osEkhZZh5z5w==/109951170735518335.jpg",
+          "cover": "https://p4.music.126.net/BjkyaAB4C-osEkhZZh5z5w==/109951170735518335.jpg",
           "creator": "",
           "id": "3136952023",
           "name": "今天从《Por Una Cabeza（一步之遥）》听起|私人雷达",
           "provider": "netease",
           "subscribed": false,
           "track_count": 35
-        },
-        {
-          "cover": "https://p4.music.126.net/PpIg6uCrlZD4nay7WFMQdQ==/109951171310605352.jpg",
-          "creator": "",
-          "id": "13830114616",
-          "name": "那些一开口就惊艳的古风歌曲",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 52
-        },
-        {
-          "cover": "https://p3.music.126.net/q8PjG8q6Nlkyn8XfMkHVXw==/109951172753525998.jpg",
-          "creator": "",
-          "id": "17747877380",
-          "name": "戏腔古风 | 好听的古风国风歌曲",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 65
-        },
-        {
-          "cover": "https://p4.music.126.net/5Q_5H-2yGQERa7QwNJNPFg==/109951171263057248.jpg",
-          "creator": "",
-          "id": "13804431004",
-          "name": "[民谣]每首都有一个故事",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 49
-        },
-        {
-          "cover": "https://p3.music.126.net/NKkcVaSEAPO0KXb29jE77A==/109951165665117451.jpg",
-          "creator": "",
-          "id": "2829883282",
-          "name": "听你爱的赤伶|华语私人雷达",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 35
-        },
-        {
-          "cover": "https://p4.music.126.net/gOZdYQUmxg6Mm7COQxvXJA==/109951172134070942.jpg",
-          "creator": "",
-          "id": "14404341895",
-          "name": "民谣很苦，吉他很贵，女孩很远",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 35
-        },
-        {
-          "cover": "https://p4.music.126.net/NtJpXO4OcXrgKgmQMBaV4Q==/109951171972039932.jpg",
-          "creator": "",
-          "id": "13862845996",
-          "name": "小酒馆经典民谣歌单|将往事吟成曲",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 30
-        },
-        {
-          "cover": "https://p4.music.126.net/U40Fqh12JUUJ7U8Smw0cbQ==/109951168624559903.jpg",
-          "creator": "",
-          "id": "8426476642",
-          "name": "民谣不止安和桥",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 58
-        },
-        {
-          "cover": "https://p3.music.126.net/MnCpmc-b79xTTDxiw0gEAw==/109951171998980819.jpg",
-          "creator": "",
-          "id": "14270007669",
-          "name": "只打高端局的古风歌曲精选",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 52
-        },
-        {
-          "cover": "https://p4.music.126.net/WZh15-vdpgIAQRoYg5Uq8w==/109951170405698035.jpg",
-          "creator": "",
-          "id": "13171699238",
-          "name": "一人一首成名曲 火爆华语乐坛经典怀旧金曲",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 108
-        },
-        {
-          "cover": "https://p3.music.126.net/Pzh5uZj_2O4lBKdG8BdvzQ==/109951172331873195.jpg",
-          "creator": "",
-          "id": "17470841578",
-          "name": "千禧年神仙打架2000-2009年100首封神作",
-          "provider": "netease",
-          "subscribed": false,
-          "track_count": 128
         },
         {
           "cover": "https://p4.music.126.net/OTZ7izmTCziHI19UNogcLQ==/109951163050828782.jpg",
@@ -254,13 +269,22 @@
           "track_count": 29
         },
         {
-          "cover": "https://p3.music.126.net/Cl0-NpZ0ESTDjJ1HmZ33KA==/109951163460576279.jpg",
+          "cover": "https://p4.music.126.net/Cl0-NpZ0ESTDjJ1HmZ33KA==/109951163460576279.jpg",
           "creator": "",
           "id": "2312165875",
           "name": "100首华语民谣，因为懂得才有共鸣",
           "provider": "netease",
           "subscribed": false,
           "track_count": 99
+        },
+        {
+          "cover": "https://p3.music.126.net/NKkcVaSEAPO0KXb29jE77A==/109951165665117451.jpg",
+          "creator": "",
+          "id": "2829883282",
+          "name": "听你爱的赤伶|华语私人雷达",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 35
         },
         {
           "cover": "https://p3.music.126.net/aPdHNBUrqD-Iscnatx1UUw==/109951165565571895.jpg",
@@ -290,7 +314,7 @@
           "track_count": 59
         },
         {
-          "cover": "https://p3.music.126.net/9B6aHiVt9fNMhSjK6wR_Ag==/109951168967415136.jpg",
+          "cover": "https://p4.music.126.net/9B6aHiVt9fNMhSjK6wR_Ag==/109951168967415136.jpg",
           "creator": "",
           "id": "8786635357",
           "name": "少年就应剑指巅峰，而非山脚仰望山巅",
@@ -326,6 +350,15 @@
           "track_count": 32
         },
         {
+          "cover": "https://p4.music.126.net/WZh15-vdpgIAQRoYg5Uq8w==/109951170405698035.jpg",
+          "creator": "",
+          "id": "13171699238",
+          "name": "一人一首成名曲 火爆华语乐坛经典怀旧金曲",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 108
+        },
+        {
           "cover": "https://p3.music.126.net/Wb6QzPWK-Axj3gdXCbKwag==/109951172190796674.jpg",
           "creator": "",
           "id": "14411787347",
@@ -344,7 +377,16 @@
           "track_count": 27
         },
         {
-          "cover": "https://p3.music.126.net/QixrBPz7wkyBsnmrsOJj5g==/109951169698907376.jpg",
+          "cover": "https://p4.music.126.net/PijSbxYDVh1TQpmD6ay26A==/109951171972012366.jpg",
+          "creator": "",
+          "id": "13612462363",
+          "name": "单曲循环一亿遍的民谣合集 | 无法被替代的中文意蕴",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 34
+        },
+        {
+          "cover": "https://p4.music.126.net/QixrBPz7wkyBsnmrsOJj5g==/109951169698907376.jpg",
           "creator": "",
           "id": "8705206001",
           "name": "民谣酒馆 | 用歌声诉说生活的酸甜苦辣",
@@ -362,6 +404,15 @@
           "track_count": 83
         },
         {
+          "cover": "https://p3.music.126.net/djY_iXRX1RyjFxA0yToL-w==/109951172450253704.jpg",
+          "creator": "",
+          "id": "17562068936",
+          "name": "100首千禧年代 神仙打架的年代封神金曲",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 101
+        },
+        {
           "cover": "https://p3.music.126.net/o3szvK_PTUVPYTSDaKgo-w==/109951171972069227.jpg",
           "creator": "",
           "id": "14060779785",
@@ -371,7 +422,7 @@
           "track_count": 195
         },
         {
-          "cover": "https://p3.music.126.net/UL78U7vJi0B3s7Z-sR2caQ==/109951172655182511.jpg",
+          "cover": "https://p4.music.126.net/UL78U7vJi0B3s7Z-sR2caQ==/109951172655182511.jpg",
           "creator": "",
           "id": "17710038002",
           "name": "一些好听熟悉的歌（更新快）",
@@ -389,6 +440,51 @@
           "track_count": 42
         },
         {
+          "cover": "https://p4.music.126.net/BNDCHqt2Zlm8B_u5A4sJuw==/109951171500508372.jpg",
+          "creator": "",
+          "id": "14022802603",
+          "name": "绝美古风戏腔丨一曲惊鸿醉 春上柳枝头",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 84
+        },
+        {
+          "cover": "https://p3.music.126.net/x4leL2YYLulx09w0IlC7Dw==/109951171923354662.jpg",
+          "creator": "",
+          "id": "14169529502",
+          "name": "17岁没能送你花 27岁请你喝酒吧",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 208
+        },
+        {
+          "cover": "https://p4.music.126.net/cSgeIbLRHj492rGrokcC4g==/109951173580094249.jpg",
+          "creator": "",
+          "id": "18153942374",
+          "name": "那些百听不厌的江湖风歌曲",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 80
+        },
+        {
+          "cover": "https://p4.music.126.net/uH1QA14vQUIAMg1pUzFJAg==/109951170653055981.jpg",
+          "creator": "",
+          "id": "13478202720",
+          "name": "民谣 | 民谣始终在时代的褶皱处生长",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 29
+        },
+        {
+          "cover": "https://p4.music.126.net/ehBJDDFwMkPWBlFswnlaIQ==/109951173331209901.jpg",
+          "creator": "",
+          "id": "18015754992",
+          "name": "古风丨戏起青丝缠风月，腔落悲欢入尘烟",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 49
+        },
+        {
           "cover": "https://p4.music.126.net/UDpjFEHmXInxGd_xMAI12w==/109951162811986419.jpg",
           "creator": "热门歌单推荐",
           "id": "514947114",
@@ -398,7 +494,7 @@
           "track_count": 287
         },
         {
-          "cover": "https://p4.music.126.net/FAMA94EvpNbFclmU5GIAXQ==/109951164927042386.jpg",
+          "cover": "https://p3.music.126.net/FAMA94EvpNbFclmU5GIAXQ==/109951164927042386.jpg",
           "creator": "来听听经典的摇滚乐如何变成小资情调的爵士乐吧",
           "id": "4974682089",
           "name": "复古慵懒 | 当经典摇滚被爵士如此演绎",
@@ -407,19 +503,1025 @@
           "track_count": 30
         },
         {
-          "cover": "https://p4.music.126.net/n8RctTMYZ4CintnATKQlOA==/109951173019190450.jpg",
+          "cover": "https://p3.music.126.net/n8RctTMYZ4CintnATKQlOA==/109951173019190450.jpg",
           "creator": "热门歌单推荐",
           "id": "8055396278",
           "name": "华语经典 | 那些属于我们青春的一首歌曲",
           "provider": "netease",
           "subscribed": false,
           "track_count": 239
+        },
+        {
+          "cover": "https://p3.music.126.net/AdzjlCarP9a8rajChZAsiQ==/109951163017978367.jpg",
+          "creator": "只要有树叶飞舞的地方就会有火在燃烧",
+          "id": "899361402",
+          "name": "『物哀纯音』漫天飞舞的红叶，暮色黄昏",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 81
         }
       ]
     },
-    "playlistEntries": [],
+    "playlistEntries": [
+      {
+        "hasMoreTracks": true,
+        "loadedAt": 1786340432071,
+        "playlist": {
+          "cover": "http://p1.music.126.net/gFCbgvkIVW-VOeTUCRAo1w==/109951165446849278.jpg",
+          "creator": "Dolanter",
+          "id": "572039873",
+          "name": "Dolanter喜欢的音乐",
+          "provider": "netease",
+          "subscribed": false,
+          "track_count": 264
+        },
+        "playlistOffset": 50,
+        "tracks": [
+          {
+            "album": "腐草为萤",
+            "artist": "银临",
+            "artists": [
+              {
+                "cover": "",
+                "id": "188565",
+                "name": "银临"
+              }
+            ],
+            "cover": "https://p3.music.126.net/LBnYDAUED2mD1veBvBnC8g==/5859297464524710.jpg",
+            "duration": 245760,
+            "fee": 8,
+            "id": "28188427",
+            "language": null,
+            "name": "棠梨煎雪",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "高考必背曲目",
+            "artist": "奇然 / 沈谧仁",
+            "artists": [
+              {
+                "cover": "",
+                "id": "4873",
+                "name": "奇然"
+              },
+              {
+                "cover": "",
+                "id": "1178207",
+                "name": "沈谧仁"
+              }
+            ],
+            "cover": "https://p3.music.126.net/NQBaw13hHiaTh41QQUYsQg==/109951162922231753.jpg",
+            "duration": 335230,
+            "fee": 8,
+            "id": "476513774",
+            "language": null,
+            "name": "琵琶行",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "吹梦到西洲",
+            "artist": "恋恋故人难 / 黄诗扶 / 王敬轩（妖扬）",
+            "artists": [
+              {
+                "cover": "",
+                "id": "32041318",
+                "name": "恋恋故人难"
+              },
+              {
+                "cover": "",
+                "id": "12308369",
+                "name": "黄诗扶"
+              },
+              {
+                "cover": "",
+                "id": "12084589",
+                "name": "王敬轩（妖扬）"
+              }
+            ],
+            "cover": "https://p3.music.126.net/XE1XFkkDYrEW_eXFFlsSYQ==/109951164202821890.jpg",
+            "duration": 316186,
+            "fee": 8,
+            "id": "1376873330",
+            "language": null,
+            "name": "吹梦到西洲",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "浓烟下的诗歌电台",
+            "artist": "陈鸿宇",
+            "artists": [
+              {
+                "cover": "",
+                "id": "1058228",
+                "name": "陈鸿宇"
+              }
+            ],
+            "cover": "https://p4.music.126.net/ryk8Gu64rOhlYn0pc2Q8Ww==/109951168090271827.jpg",
+            "duration": 210814,
+            "fee": 8,
+            "id": "31445772",
+            "language": null,
+            "name": "理想三旬",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "急驶的马车",
+            "artist": "崔开潮",
+            "artists": [
+              {
+                "cover": "",
+                "id": "12174110",
+                "name": "崔开潮"
+              }
+            ],
+            "cover": "https://p3.music.126.net/qMiFV8V6zlOSS9D4FLwFMw==/109951162807427178.jpg",
+            "duration": 212000,
+            "fee": 8,
+            "id": "439139384",
+            "language": null,
+            "name": "声声慢",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "琵琶相",
+            "artist": "林海",
+            "artists": [
+              {
+                "cover": "",
+                "id": "3693",
+                "name": "林海"
+              }
+            ],
+            "cover": "https://p3.music.126.net/hgw9vCLwFg0xXUqKxIMiLw==/18658712325009571.jpg",
+            "duration": 259000,
+            "fee": 1,
+            "id": "27698844",
+            "language": null,
+            "name": "琵琶语",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Old Songs But It's (Lofi Music To Study Version)",
+            "artist": "Abau in Kyoto",
+            "artists": [
+              {
+                "cover": "",
+                "id": "58775724",
+                "name": "Abau in Kyoto"
+              }
+            ],
+            "cover": "https://p3.music.126.net/KWaq_VUONuvskCdV1l09Tw==/109951168933839675.jpg",
+            "duration": 325636,
+            "fee": 8,
+            "id": "2084434678",
+            "language": null,
+            "name": "Sick Teenage",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "安和桥北",
+            "artist": "宋冬野",
+            "artists": [
+              {
+                "cover": "",
+                "id": "5073",
+                "name": "宋冬野"
+              }
+            ],
+            "cover": "https://p3.music.126.net/Ss7mkl2EK3Xl7Vv6iz-XAg==/109951172945820235.jpg",
+            "duration": 250106,
+            "fee": 8,
+            "id": "27646205",
+            "language": null,
+            "name": "安和桥",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "歌手2018 第2期",
+            "artist": "张韶涵",
+            "artists": [
+              {
+                "cover": "",
+                "id": "10562",
+                "name": "张韶涵"
+              }
+            ],
+            "cover": "https://p3.music.126.net/ltPnu_JI1o70hz1INwzFYg==/109951166557803274.jpg",
+            "duration": 321369,
+            "fee": 1,
+            "id": "531786028",
+            "language": null,
+            "name": "阿刁 (Live)",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "吉姆餐厅",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p3.music.126.net/pwcUlwh9MFZ_V3hGBOPaCQ==/109951169213425474.jpg",
+            "duration": 308600,
+            "fee": 1,
+            "id": "29567192",
+            "language": null,
+            "name": "少年锦时",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "无法长大",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p3.music.126.net/-noYXenVuiTrlcxrCqNPjQ==/109951169213362679.jpg",
+            "duration": 374120,
+            "fee": 1,
+            "id": "447925059",
+            "language": "Diao",
+            "name": "阿刁",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "吉姆餐厅",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p4.music.126.net/pwcUlwh9MFZ_V3hGBOPaCQ==/109951169213425474.jpg",
+            "duration": 270746,
+            "fee": 1,
+            "id": "29567193",
+            "language": null,
+            "name": "我们的时光",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "我去2000年",
+            "artist": "朴树",
+            "artists": [
+              {
+                "cover": "",
+                "id": "4721",
+                "name": "朴树"
+              }
+            ],
+            "cover": "https://p3.music.126.net/w4ve3fd97ql6f34biizbGg==/109951171437356440.jpg",
+            "duration": 224400,
+            "fee": 1,
+            "id": "139371",
+            "language": null,
+            "name": "New Boy",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "赵小雷",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p3.music.126.net/btBocL7KKvl0sRZY62_BIA==/109951169213244790.jpg",
+            "duration": 332640,
+            "fee": 1,
+            "id": "202373",
+            "language": null,
+            "name": "南方姑娘",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "硬骨见鹿集",
+            "artist": "伏仪",
+            "artists": [
+              {
+                "cover": "",
+                "id": "12028291",
+                "name": "伏仪"
+              }
+            ],
+            "cover": "https://p4.music.126.net/gs9xF0rGLnUmsBr26ju73Q==/109951163190161411.jpg",
+            "duration": 249273,
+            "fee": 8,
+            "id": "501220618",
+            "language": "About the Past",
+            "name": "记昨日书",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "无法长大",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p3.music.126.net/-noYXenVuiTrlcxrCqNPjQ==/109951169213362679.jpg",
+            "duration": 281002,
+            "fee": 1,
+            "id": "447926067",
+            "language": "The Drum Tower",
+            "name": "鼓楼",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Under The Radar (Int'l Deluxe Audio Bundle)",
+            "artist": "Daniel Powter",
+            "artists": [
+              {
+                "cover": "",
+                "id": "31187",
+                "name": "Daniel Powter"
+              }
+            ],
+            "cover": "https://p3.music.126.net/qKHK5D3Jj1MJ7CiFyRy7fg==/109951163934298206.jpg",
+            "duration": 237911,
+            "fee": 8,
+            "id": "1343255776",
+            "language": null,
+            "name": "Best of Me",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "谁是宝藏歌手 第8期",
+            "artist": "房东的猫 / 陈婧霏",
+            "artists": [
+              {
+                "cover": "",
+                "id": "1050282",
+                "name": "房东的猫"
+              },
+              {
+                "cover": "",
+                "id": "12789956",
+                "name": "陈婧霏"
+              }
+            ],
+            "cover": "https://p4.music.126.net/KkrcSwKbRsd8GuaOHILlxA==/109951166077317301.jpg",
+            "duration": 256615,
+            "fee": 8,
+            "id": "1857630559",
+            "language": null,
+            "name": "New Boy",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "卓越2000",
+            "artist": "朴树",
+            "artists": [
+              {
+                "cover": "",
+                "id": "4721",
+                "name": "朴树"
+              }
+            ],
+            "cover": "https://p4.music.126.net/MZ1KYMkmAr-lDkE-ZaMaQg==/109951169026406813.jpg",
+            "duration": 232388,
+            "fee": 0,
+            "id": "5273188",
+            "language": null,
+            "name": "白桦林",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Cinema",
+            "artist": "Ludovico Einaudi",
+            "artists": [
+              {
+                "cover": "",
+                "id": "38127",
+                "name": "Ludovico Einaudi"
+              }
+            ],
+            "cover": "https://p3.music.126.net/qW4DazOfXLGmMDN_yuTKxA==/109951169060402330.jpg",
+            "duration": 205466,
+            "fee": 8,
+            "id": "1850184157",
+            "language": null,
+            "name": "Una Mattina",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Una Mattina",
+            "artist": "Ludovico Einaudi",
+            "artists": [
+              {
+                "cover": "",
+                "id": "38127",
+                "name": "Ludovico Einaudi"
+              }
+            ],
+            "cover": "https://p3.music.126.net/eRqsIxfu7_aIlciMlDUU1g==/109951169484870712.jpg",
+            "duration": 203800,
+            "fee": 1,
+            "id": "20952171",
+            "language": null,
+            "name": "Una Mattina",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "The Music of Alan Silvestri, Featuring Cast Away",
+            "artist": "Alan Silvestri",
+            "artists": [
+              {
+                "cover": "",
+                "id": "27645",
+                "name": "Alan Silvestri"
+              }
+            ],
+            "cover": "https://p3.music.126.net/wz362zwfo41041-sKu9GBA==/914793674352463.jpg",
+            "duration": 530093,
+            "fee": 8,
+            "id": "1001058",
+            "language": null,
+            "name": "Forrest Gump - Suite",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Las Canciones de Carlos Gardel",
+            "artist": "Carlos Gardel",
+            "artists": [
+              {
+                "cover": "",
+                "id": "30620",
+                "name": "Carlos Gardel"
+              }
+            ],
+            "cover": "https://p4.music.126.net/zD-gS0LQlDoJ8QB5Wta_Ww==/109951168313129062.jpg",
+            "duration": 325653,
+            "fee": 8,
+            "id": "2022817805",
+            "language": null,
+            "name": "Por una Cabeza",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "《闻香识女人》插曲",
+            "artist": "NewPiano",
+            "artists": [
+              {
+                "cover": "",
+                "id": "53362997",
+                "name": "NewPiano"
+              }
+            ],
+            "cover": "https://p3.music.126.net/BMc4i29Yo4MAGjtL-plqFg==/109951168772189782.jpg",
+            "duration": 229482,
+            "fee": 8,
+            "id": "2068095167",
+            "language": null,
+            "name": "Por Una Cabeza（一步之遥）",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "菊次郎 (Original Motion Picture Soundtrack)",
+            "artist": "久石譲",
+            "artists": [
+              {
+                "cover": "",
+                "id": "14408",
+                "name": "久石譲"
+              }
+            ],
+            "cover": "https://p4.music.126.net/nOhFczgnXcBbCSn6uLhmPg==/18416819765513414.jpg",
+            "duration": 339069,
+            "fee": 8,
+            "id": "421639623",
+            "language": null,
+            "name": "The Rain",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Kikujiro (Original Motion Picture Soundtrack)",
+            "artist": "久石譲",
+            "artists": [
+              {
+                "cover": "",
+                "id": "14408",
+                "name": "久石譲"
+              }
+            ],
+            "cover": "https://p4.music.126.net/ycootwX35fhkj2Dk5MDrDA==/109951171490166821.jpg",
+            "duration": 338093,
+            "fee": 1,
+            "id": "444312",
+            "language": null,
+            "name": "The Rain",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Dans la maison",
+            "artist": "Philippe Rombi",
+            "artists": [
+              {
+                "cover": "",
+                "id": "41252",
+                "name": "Philippe Rombi"
+              }
+            ],
+            "cover": "https://p4.music.126.net/9LYV5dkxF7H3HOmQBRKqPg==/2912606303301933.jpg",
+            "duration": 149360,
+            "fee": 0,
+            "id": "29142147",
+            "language": null,
+            "name": "Dans la maison (Thème)",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Easy Listening: Peace & Relaxed",
+            "artist": "Abel Korzeniowski",
+            "artists": [
+              {
+                "cover": "",
+                "id": "28721",
+                "name": "Abel Korzeniowski"
+              }
+            ],
+            "cover": "https://p4.music.126.net/M5x59U8kF3S9U7HofsOoag==/109951168266314294.jpg",
+            "duration": 188346,
+            "fee": 8,
+            "id": "1998284878",
+            "language": null,
+            "name": "Dance For Me Wallis",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Quentin Tarantino's Inglourious Basterds (Motion Picture Soundtrack)",
+            "artist": "Ennio Morricone",
+            "artists": [
+              {
+                "cover": "",
+                "id": "32668",
+                "name": "Ennio Morricone"
+              }
+            ],
+            "cover": "https://p4.music.126.net/oNg4MeXQMRQK7a0F9cwG6A==/109951163844493703.jpg",
+            "duration": 155200,
+            "fee": 8,
+            "id": "1317446889",
+            "language": null,
+            "name": "Un Amico",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "丑奴儿",
+            "artist": "草东没有派对",
+            "artists": [
+              {
+                "cover": "",
+                "id": "1161122",
+                "name": "草东没有派对"
+              }
+            ],
+            "cover": "https://p4.music.126.net/bpq4ZMWaRiY6IfCt58N9oA==/1387583682387727.jpg",
+            "duration": 236080,
+            "fee": 1,
+            "id": "411314657",
+            "language": null,
+            "name": "大风吹",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "我去2000年",
+            "artist": "朴树",
+            "artists": [
+              {
+                "cover": "",
+                "id": "4721",
+                "name": "朴树"
+              }
+            ],
+            "cover": "https://p4.music.126.net/xANk1-adqsx10DpRLJOBzg==/109951167411817871.jpg",
+            "duration": 227240,
+            "fee": 1,
+            "id": "28996926",
+            "language": null,
+            "name": "白桦林",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "明歌",
+            "artist": "鲜克",
+            "artists": [
+              {
+                "cover": "",
+                "id": "33584072",
+                "name": "鲜克"
+              }
+            ],
+            "cover": "https://p4.music.126.net/ynKpTWovaU_XmTTwNOU9eg==/109951172952618050.jpg",
+            "duration": 244102,
+            "fee": 8,
+            "id": "2051817275",
+            "language": null,
+            "name": "明歌",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Concert YY 黄伟文作品展 演唱会",
+            "artist": "傅佩嘉",
+            "artists": [
+              {
+                "cover": "",
+                "id": "7657",
+                "name": "傅佩嘉"
+              }
+            ],
+            "cover": "https://p4.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+            "duration": 222168,
+            "fee": 0,
+            "id": "27867506",
+            "language": null,
+            "name": "绝 (Live)",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "署前街少年",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p4.music.126.net/9bVOooAY6U6EJLzpv1Fikw==/109951169682871673.jpg",
+            "duration": 300394,
+            "fee": 1,
+            "id": "1974443815",
+            "language": null,
+            "name": "程艾影",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "署前街少年",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p4.music.126.net/9bVOooAY6U6EJLzpv1Fikw==/109951169682871673.jpg",
+            "duration": 329891,
+            "fee": 1,
+            "id": "1974443814",
+            "language": null,
+            "name": "我记得",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "成都",
+            "artist": "赵雷",
+            "artists": [
+              {
+                "cover": "",
+                "id": "6731",
+                "name": "赵雷"
+              }
+            ],
+            "cover": "https://p3.music.126.net/34YW1QtKxJ_3YnX9ZzKhzw==/2946691234868155.jpg",
+            "duration": 328362,
+            "fee": 1,
+            "id": "436514312",
+            "language": null,
+            "name": "成都",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "辞.九门回忆",
+            "artist": "解忧草 / 冰幽",
+            "artists": [
+              {
+                "cover": "",
+                "id": "14072349",
+                "name": "解忧草"
+              },
+              {
+                "cover": "",
+                "id": "12357533",
+                "name": "冰幽"
+              }
+            ],
+            "cover": "https://p4.music.126.net/pWJXXU4kbhsk1HhXCPUMag==/109951163879149420.jpg",
+            "duration": 241815,
+            "fee": 8,
+            "id": "1347524822",
+            "language": null,
+            "name": "辞.九门回忆",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "赤伶",
+            "artist": "李玉刚",
+            "artists": [
+              {
+                "cover": "",
+                "id": "4130",
+                "name": "李玉刚"
+              }
+            ],
+            "cover": "https://p3.music.126.net/0el5yaTEo3KjeJjL3ZXxmg==/109951165054951989.jpg",
+            "duration": 300000,
+            "fee": 8,
+            "id": "1454730043",
+            "language": null,
+            "name": "赤伶",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "戒网（《黑神话：悟空》游戏插曲）",
+            "artist": "村西 / 馨悦(WhiteRainbow)",
+            "artists": [
+              {
+                "cover": "",
+                "id": "35731880",
+                "name": "村西"
+              },
+              {
+                "cover": "",
+                "id": "1032059",
+                "name": "馨悦(WhiteRainbow)"
+              }
+            ],
+            "cover": "https://p3.music.126.net/SDJtjo5VFzpTWM7y2_Xk3g==/109951167798841516.jpg",
+            "duration": 329600,
+            "fee": 0,
+            "id": "1973446960",
+            "language": null,
+            "name": "戒网",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "《夜色钢琴曲》",
+            "artist": "赵海洋",
+            "artists": [
+              {
+                "cover": "",
+                "id": "990177",
+                "name": "赵海洋"
+              }
+            ],
+            "cover": "https://p3.music.126.net/-qjRsESn7bSKQKMM2XlgCw==/109951167062369748.jpg",
+            "duration": 147089,
+            "fee": 8,
+            "id": "31134633",
+            "language": null,
+            "name": "《夜色钢琴曲》在一起的时光",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Silhouettes",
+            "artist": "Muted",
+            "artists": [
+              {
+                "cover": "",
+                "id": "858409",
+                "name": "Muted"
+              }
+            ],
+            "cover": "https://p4.music.126.net/8uZUqgoVNfWB_sLEVv2CDQ==/109951165199667163.jpg",
+            "duration": 147460,
+            "fee": 8,
+            "id": "1468132421",
+            "language": null,
+            "name": "Belonging",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Mystery of Love (Piano Arrangement)",
+            "artist": "Costantino Carrara",
+            "artists": [
+              {
+                "cover": "",
+                "id": "14207000",
+                "name": "Costantino Carrara"
+              }
+            ],
+            "cover": "https://p4.music.126.net/RAw3Smp3cNwt3mxch0pYeg==/109951165320969663.jpg",
+            "duration": 338134,
+            "fee": 8,
+            "id": "1479642334",
+            "language": null,
+            "name": "Mystery of Love (Piano Arrangement)",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "循梦渡",
+            "artist": "变奏的梦想",
+            "artists": [
+              {
+                "cover": "",
+                "id": "1085053",
+                "name": "变奏的梦想"
+              }
+            ],
+            "cover": "https://p3.music.126.net/rxtmC5LLUxMfWx7szJr-bw==/7968160767131459.jpg",
+            "duration": 270007,
+            "fee": 8,
+            "id": "32743519",
+            "language": null,
+            "name": "江上清风游",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "木兰柴",
+            "artist": "君若",
+            "artists": [
+              {
+                "cover": "",
+                "id": "12564504",
+                "name": "君若"
+              }
+            ],
+            "cover": "https://p4.music.126.net/l0OyIhT__klyijtXk8whCg==/109951163258271633.jpg",
+            "duration": 293433,
+            "fee": 0,
+            "id": "554533308",
+            "language": null,
+            "name": "木兰柴",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "金陵遗梦",
+            "artist": "君若",
+            "artists": [
+              {
+                "cover": "",
+                "id": "12564504",
+                "name": "君若"
+              }
+            ],
+            "cover": "https://p4.music.126.net/exUNA-PtA4fD_3XU2ncHlw==/109951163848857053.jpg",
+            "duration": 323291,
+            "fee": 8,
+            "id": "1344943354",
+            "language": null,
+            "name": "金陵遗梦 epiano",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "金陵遗梦",
+            "artist": "君若",
+            "artists": [
+              {
+                "cover": "",
+                "id": "12564504",
+                "name": "君若"
+              }
+            ],
+            "cover": "https://p4.music.126.net/exUNA-PtA4fD_3XU2ncHlw==/109951163848857053.jpg",
+            "duration": 323291,
+            "fee": 8,
+            "id": "1344934011",
+            "language": null,
+            "name": "金陵遗梦 harp",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Atlas: Space II",
+            "artist": "Sleeping at Last",
+            "artists": [
+              {
+                "cover": "",
+                "id": "43004",
+                "name": "Sleeping at Last"
+              }
+            ],
+            "cover": "https://p3.music.126.net/uzF6HxY-T4ysGEnMgiamqQ==/5663584394801183.jpg",
+            "duration": 288821,
+            "fee": 0,
+            "id": "28013089",
+            "language": null,
+            "name": "Saturn",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Piano Cloud Series - Vol.1",
+            "artist": "Oskar Schuster",
+            "artists": [
+              {
+                "cover": "",
+                "id": "41103",
+                "name": "Oskar Schuster"
+              }
+            ],
+            "cover": "https://p4.music.126.net/rnHLMLESV1c-PcFbDgAngg==/18775260557760255.jpg",
+            "duration": 173267,
+            "fee": 1,
+            "id": "468882321",
+            "language": null,
+            "name": "Singur",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "A Moment Apart",
+            "artist": "ODESZA",
+            "artists": [
+              {
+                "cover": "",
+                "id": "839108",
+                "name": "ODESZA"
+              }
+            ],
+            "cover": "https://p4.music.126.net/GZhO2mRo5Jw4IM47PbbuVg==/109951169996847592.jpg",
+            "duration": 234244,
+            "fee": 1,
+            "id": "484249650",
+            "language": "游戏《极限竞速：地平线4》背景音乐",
+            "name": "A Moment Apart",
+            "playable": false,
+            "provider": "netease"
+          },
+          {
+            "album": "Feed Your Soul",
+            "artist": "Christa Wells",
+            "artists": [
+              {
+                "cover": "",
+                "id": "53047",
+                "name": "Christa Wells"
+              }
+            ],
+            "cover": "https://p4.music.126.net/pL55eSA87JQjzYV1u8xeeg==/109951169377384473.jpg",
+            "duration": 227526,
+            "fee": 1,
+            "id": "27630183",
+            "language": null,
+            "name": "You Are My Defense",
+            "playable": false,
+            "provider": "netease"
+          }
+        ]
+      }
+    ],
     "recommendSongs": {
-      "loadedAt": 1786339459742,
+      "loadedAt": 1786341617305,
       "value": [
         {
           "album": "清音流韵",
@@ -431,7 +1533,7 @@
               "name": "侃侃"
             }
           ],
-          "cover": "http://p3.music.126.net/PrOKwWMWePqOBOn75KLsyw==/2919203374005615.jpg",
+          "cover": "http://p4.music.126.net/PrOKwWMWePqOBOn75KLsyw==/2919203374005615.jpg",
           "duration": 252000,
           "fee": 0,
           "id": "32685948",
@@ -479,7 +1581,7 @@
               "name": "孙名川Chuanzi Suona"
             }
           ],
-          "cover": "http://p4.music.126.net/uQYu0Hkbq1VDVo6NnsGxUA==/109951173659759689.jpg",
+          "cover": "http://p3.music.126.net/uQYu0Hkbq1VDVo6NnsGxUA==/109951173659759689.jpg",
           "duration": 210113,
           "fee": 8,
           "id": "3406675933",
@@ -498,7 +1600,7 @@
               "name": "金志文"
             }
           ],
-          "cover": "http://p4.music.126.net/PRewo_EHoTOA80YCScNevw==/109951163451769788.jpg",
+          "cover": "http://p3.music.126.net/PRewo_EHoTOA80YCScNevw==/109951163451769788.jpg",
           "duration": 275000,
           "fee": 1,
           "id": "1297742772",
@@ -622,7 +1724,7 @@
               "name": "Emilio Conde"
             }
           ],
-          "cover": "http://p3.music.126.net/99tGvGLE6fzm39ZNfTeN2A==/109951170522590619.jpg",
+          "cover": "http://p4.music.126.net/99tGvGLE6fzm39ZNfTeN2A==/109951170522590619.jpg",
           "duration": 109619,
           "fee": 8,
           "id": "2685549587",
@@ -679,7 +1781,7 @@
               "name": "容祖儿"
             }
           ],
-          "cover": "http://p3.music.126.net/WDcYhuw0EejVMVCxgFl0Bg==/120946279068536.jpg",
+          "cover": "http://p4.music.126.net/WDcYhuw0EejVMVCxgFl0Bg==/120946279068536.jpg",
           "duration": 264601,
           "fee": 1,
           "id": "287231",
@@ -698,7 +1800,7 @@
               "name": "张闻仲"
             }
           ],
-          "cover": "http://p3.music.126.net/EfL-tClTthDpnKerOWxnnw==/109951170090609093.jpg",
+          "cover": "http://p4.music.126.net/EfL-tClTthDpnKerOWxnnw==/109951170090609093.jpg",
           "duration": 119679,
           "fee": 8,
           "id": "2641004349",
@@ -717,7 +1819,7 @@
               "name": "至上励合"
             }
           ],
-          "cover": "http://p4.music.126.net/CflH8LlraC4zCbunsjAG3Q==/109951163077752483.jpg",
+          "cover": "http://p3.music.126.net/CflH8LlraC4zCbunsjAG3Q==/109951163077752483.jpg",
           "duration": 228146,
           "fee": 8,
           "id": "394748",
@@ -736,7 +1838,7 @@
               "name": "小时姑娘"
             }
           ],
-          "cover": "http://p3.music.126.net/k_YAp1Rkt7Est1hDwJRKLw==/109951169774691583.jpg",
+          "cover": "http://p4.music.126.net/k_YAp1Rkt7Est1hDwJRKLw==/109951169774691583.jpg",
           "duration": 304175,
           "fee": 1,
           "id": "1332153723",
@@ -774,7 +1876,7 @@
               "name": "银临"
             }
           ],
-          "cover": "http://p4.music.126.net/LBnYDAUED2mD1veBvBnC8g==/5859297464524710.jpg",
+          "cover": "http://p3.music.126.net/LBnYDAUED2mD1veBvBnC8g==/5859297464524710.jpg",
           "duration": 224920,
           "fee": 8,
           "id": "28188425",
@@ -817,7 +1919,7 @@
               "name": "上海彩虹室内合唱团"
             }
           ],
-          "cover": "http://p4.music.126.net/PNSDtZUDYbPRRuk7kJlywA==/109951166544751174.jpg",
+          "cover": "http://p3.music.126.net/PNSDtZUDYbPRRuk7kJlywA==/109951166544751174.jpg",
           "duration": 249000,
           "fee": 8,
           "id": "1888933954",
@@ -855,7 +1957,7 @@
               "name": "Hans Zimmer"
             }
           ],
-          "cover": "http://p4.music.126.net/6BP-iGq2rNClRFJq_s7UEQ==/109951163849903300.jpg",
+          "cover": "http://p3.music.126.net/6BP-iGq2rNClRFJq_s7UEQ==/109951163849903300.jpg",
           "duration": 219600,
           "fee": 1,
           "id": "1429338",
@@ -874,7 +1976,7 @@
               "name": "许慧欣"
             }
           ],
-          "cover": "http://p3.music.126.net/OqkcG-E55JOfRw3rl8q3Ww==/109951169280559422.jpg",
+          "cover": "http://p4.music.126.net/OqkcG-E55JOfRw3rl8q3Ww==/109951169280559422.jpg",
           "duration": 243893,
           "fee": 1,
           "id": "307780",
@@ -931,7 +2033,7 @@
               "name": "黄龄"
             }
           ],
-          "cover": "http://p3.music.126.net/IW8GX4r2V_yNWoVbcNbsZQ==/109951166799421086.jpg",
+          "cover": "http://p4.music.126.net/IW8GX4r2V_yNWoVbcNbsZQ==/109951166799421086.jpg",
           "duration": 249000,
           "fee": 8,
           "id": "1817661979",
@@ -950,7 +2052,7 @@
               "name": "河图"
             }
           ],
-          "cover": "http://p4.music.126.net/Q2dCo2lH53tqJe2zjaC56Q==/3393092900107787.jpg",
+          "cover": "http://p3.music.126.net/Q2dCo2lH53tqJe2zjaC56Q==/3393092900107787.jpg",
           "duration": 262973,
           "fee": 8,
           "id": "101126",
@@ -969,7 +2071,7 @@
               "name": "双笙（陈元汐）"
             }
           ],
-          "cover": "http://p4.music.126.net/_SPItojIVnmpsNsgz8LlMw==/109951164096961308.jpg",
+          "cover": "http://p3.music.126.net/_SPItojIVnmpsNsgz8LlMw==/109951164096961308.jpg",
           "duration": 284096,
           "fee": 8,
           "id": "1367452194",
@@ -1026,7 +2128,7 @@
               "name": "伦桑"
             }
           ],
-          "cover": "http://p3.music.126.net/k5jl7yji8ggU-xKGmkY5NQ==/2908208258056959.jpg",
+          "cover": "http://p4.music.126.net/k5jl7yji8ggU-xKGmkY5NQ==/2908208258056959.jpg",
           "duration": 267154,
           "fee": 1,
           "id": "32922246",
@@ -1039,10 +2141,10 @@
     },
     "schemaVersion": 1,
     "topPlaylists": {
-      "loadedAt": 1786339067281,
+      "loadedAt": 1786341617212,
       "value": [
         {
-          "cover": "https://p3.music.126.net/DrRIg6CrgDfVLEph9SNh7w==/18696095720518497.jpg",
+          "cover": "https://p4.music.126.net/DrRIg6CrgDfVLEph9SNh7w==/18696095720518497.jpg",
           "creator": "",
           "id": "19723756",
           "name": "飙升榜",
@@ -1051,7 +2153,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/N2HO5xfYEqyQ8q6oxCw8IQ==/18713687906568048.jpg",
+          "cover": "https://p3.music.126.net/N2HO5xfYEqyQ8q6oxCw8IQ==/18713687906568048.jpg",
           "creator": "",
           "id": "3779629",
           "name": "新歌榜",
@@ -1069,7 +2171,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/GhhuF6Ep5Tq9IEvLsyCN7w==/18708190348409091.jpg",
+          "cover": "https://p4.music.126.net/GhhuF6Ep5Tq9IEvLsyCN7w==/18708190348409091.jpg",
           "creator": "",
           "id": "3778678",
           "name": "热歌榜",
@@ -1078,7 +2180,7 @@
           "track_count": 200
         },
         {
-          "cover": "https://p4.music.126.net/urByD_AmfBDBrs7fA9-O8A==/109951167976973225.jpg",
+          "cover": "https://p3.music.126.net/urByD_AmfBDBrs7fA9-O8A==/109951167976973225.jpg",
           "creator": "",
           "id": "71384707",
           "name": "网易云古典榜",
@@ -1087,7 +2189,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/hXGObvXfsGtFjFvRhOYAkA==/109951170091888741.jpg",
+          "cover": "https://p4.music.126.net/hXGObvXfsGtFjFvRhOYAkA==/109951170091888741.jpg",
           "creator": "",
           "id": "1978921795",
           "name": "网易云电音榜",
@@ -1105,7 +2207,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/b2-_Xw-6DwDXWIn7RNuCYQ==/109951173652479140.jpg",
+          "cover": "https://p4.music.126.net/b2-_Xw-6DwDXWIn7RNuCYQ==/109951173652479140.jpg",
           "creator": "",
           "id": "18176153161",
           "name": "实时分享榜",
@@ -1114,7 +2216,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/0hhFjP6WyIjHYDXKW5E7BA==/109951171535150782.jpg",
+          "cover": "https://p4.music.126.net/0hhFjP6WyIjHYDXKW5E7BA==/109951171535150782.jpg",
           "creator": "",
           "id": "14028249541",
           "name": "网易云全球说唱榜",
@@ -1132,7 +2234,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/s6ITpmGjKbyDpi7DPkqd2w==/109951170187827373.jpg",
+          "cover": "https://p3.music.126.net/s6ITpmGjKbyDpi7DPkqd2w==/109951170187827373.jpg",
           "creator": "",
           "id": "12911403728",
           "name": "音乐合伙人推荐榜",
@@ -1141,7 +2243,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/RgYxQmB-ZUjkMRo2N1jWnQ==/109951170187823494.jpg",
+          "cover": "https://p4.music.126.net/RgYxQmB-ZUjkMRo2N1jWnQ==/109951170187823494.jpg",
           "creator": "",
           "id": "12911589513",
           "name": "音乐合伙人热歌榜",
@@ -1150,7 +2252,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/aJJzGIxhkVaD7dX0XBNUnw==/109951170187831145.jpg",
+          "cover": "https://p3.music.126.net/aJJzGIxhkVaD7dX0XBNUnw==/109951170187831145.jpg",
           "creator": "",
           "id": "12911619970",
           "name": "音乐合伙人留名榜",
@@ -1186,7 +2288,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/na1kEeCS1iZEkzOrs9r_9g==/109951167976973667.jpg",
+          "cover": "https://p3.music.126.net/na1kEeCS1iZEkzOrs9r_9g==/109951167976973667.jpg",
           "creator": "",
           "id": "71385702",
           "name": "网易云ACG榜",
@@ -1204,7 +2306,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/fhAqiflLy3eU-ldmBQByrg==/109951165613082765.jpg",
+          "cover": "https://p3.music.126.net/fhAqiflLy3eU-ldmBQByrg==/109951165613082765.jpg",
           "creator": "",
           "id": "180106",
           "name": "UK排行榜周榜",
@@ -1231,7 +2333,7 @@
           "track_count": 127
         },
         {
-          "cover": "https://p4.music.126.net/5wDP78s43ydVTKt62C8OjQ==/109951165613100063.jpg",
+          "cover": "https://p3.music.126.net/5wDP78s43ydVTKt62C8OjQ==/109951165613100063.jpg",
           "creator": "",
           "id": "21845217",
           "name": "KTV唛榜",
@@ -1258,7 +2360,7 @@
           "track_count": 200
         },
         {
-          "cover": "https://p3.music.126.net/0lPWpI9Ejn1OiW2LSbg-qw==/109951167430863224.jpg",
+          "cover": "https://p4.music.126.net/0lPWpI9Ejn1OiW2LSbg-qw==/109951167430863224.jpg",
           "creator": "",
           "id": "2809577409",
           "name": "网易云欧美新歌榜",
@@ -1267,7 +2369,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/-fyzrPWd06FfWl_0JDAxMQ==/109951165613108584.jpg",
+          "cover": "https://p4.music.126.net/-fyzrPWd06FfWl_0JDAxMQ==/109951165613108584.jpg",
           "creator": "",
           "id": "27135204",
           "name": "法国 NRJ Vos Hits 周榜",
@@ -1303,7 +2405,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/YFBFNI2F-4BveUpv6FKFuw==/109951167430864069.jpg",
+          "cover": "https://p3.music.126.net/YFBFNI2F-4BveUpv6FKFuw==/109951167430864069.jpg",
           "creator": "",
           "id": "5059644681",
           "name": "网易云日语榜",
@@ -1321,7 +2423,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/kTJC5OBhg8I477X_ZmXyDQ==/109951168539740982.jpg",
+          "cover": "https://p4.music.126.net/kTJC5OBhg8I477X_ZmXyDQ==/109951168539740982.jpg",
           "creator": "",
           "id": "5059642708",
           "name": "网易云国风榜",
@@ -1330,7 +2432,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p4.music.126.net/Mi4QPklg1mtbWAfq74tEqQ==/109951165498334721.jpg",
+          "cover": "https://p3.music.126.net/Mi4QPklg1mtbWAfq74tEqQ==/109951165498334721.jpg",
           "creator": "",
           "id": "5338990334",
           "name": "潜力爆款榜",
@@ -1339,7 +2441,7 @@
           "track_count": 200
         },
         {
-          "cover": "https://p4.music.126.net/Xe9qLTAqtBAWX_hPgFHMyw==/109951170048510929.jpg",
+          "cover": "https://p3.music.126.net/Xe9qLTAqtBAWX_hPgFHMyw==/109951170048510929.jpg",
           "creator": "",
           "id": "5059661515",
           "name": "网易云民谣榜",
@@ -1411,7 +2513,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p3.music.126.net/yhzlQJCJ9NcT4MvJBG_HgQ==/109951167977014958.jpg",
+          "cover": "https://p4.music.126.net/yhzlQJCJ9NcT4MvJBG_HgQ==/109951167977014958.jpg",
           "creator": "",
           "id": "7356827205",
           "name": "BEAT排行榜",
@@ -1438,7 +2540,7 @@
           "track_count": 48
         },
         {
-          "cover": "https://p4.music.126.net/m9hQzC-d5wefBipedNPaHg==/109951168178601971.jpg",
+          "cover": "https://p3.music.126.net/m9hQzC-d5wefBipedNPaHg==/109951168178601971.jpg",
           "creator": "",
           "id": "7775163417",
           "name": "赏音榜",
@@ -1483,7 +2585,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/HVu2hGYvzN5XBuvFc_4Bgg==/109951168730309120.jpg",
+          "cover": "https://p4.music.126.net/HVu2hGYvzN5XBuvFc_4Bgg==/109951168730309120.jpg",
           "creator": "",
           "id": "8537588450",
           "name": "喜力®星电音派对潮音榜",
@@ -1492,7 +2594,7 @@
           "track_count": 7
         },
         {
-          "cover": "https://p4.music.126.net/RlStCmE97y0xYFk7rS3Zww==/109951168864907822.jpg",
+          "cover": "https://p3.music.126.net/RlStCmE97y0xYFk7rS3Zww==/109951168864907822.jpg",
           "creator": "",
           "id": "8661209031",
           "name": "乐夏榜",
@@ -1528,7 +2630,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/r9kBQNsOro1EAB82Ol51WQ==/109951168924380971.jpg",
+          "cover": "https://p3.music.126.net/r9kBQNsOro1EAB82Ol51WQ==/109951168924380971.jpg",
           "creator": "",
           "id": "8703220480",
           "name": "蔚来车友爱听榜",
@@ -1537,7 +2639,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p3.music.126.net/Cu0RXoKewSPM9Gyc7Cp8jw==/109951168924391596.jpg",
+          "cover": "https://p4.music.126.net/Cu0RXoKewSPM9Gyc7Cp8jw==/109951168924391596.jpg",
           "creator": "",
           "id": "8702982391",
           "name": "极氪车友爱听榜",
@@ -1573,7 +2675,7 @@
           "track_count": 100
         },
         {
-          "cover": "https://p4.music.126.net/FcP1U6Bck0wPKqd0XgBwSQ==/109951169679731241.jpg",
+          "cover": "https://p3.music.126.net/FcP1U6Bck0wPKqd0XgBwSQ==/109951169679731241.jpg",
           "creator": "",
           "id": "10162841534",
           "name": "埃安车友爱听榜",
@@ -1591,7 +2693,7 @@
           "track_count": 50
         },
         {
-          "cover": "https://p4.music.126.net/WXCSf4ZNcDCdOTY5ixm3Bg==/109951169809318325.jpg",
+          "cover": "https://p3.music.126.net/WXCSf4ZNcDCdOTY5ixm3Bg==/109951169809318325.jpg",
           "creator": "",
           "id": "12344472377",
           "name": "黑胶VIP限免榜",
@@ -1612,7 +2714,7 @@
     },
     "userId": "402535554",
     "userPlaylists": {
-      "loadedAt": 1786339067221,
+      "loadedAt": 1786341616999,
       "value": [
         {
           "cover": "http://p1.music.126.net/gFCbgvkIVW-VOeTUCRAo1w==/109951165446849278.jpg",
@@ -1853,34 +2955,63 @@
   },
   "keyboardShortcutsEnabled": true,
   "lastPlayback": {
-    "currentTime": 151.488369,
-    "duration": 250.106,
+    "currentTime": 323.087149,
+    "duration": 335.23,
     "song": {
-      "album": "安和桥北",
-      "artist": "宋冬野",
+      "album": "高考必背曲目",
+      "artist": "奇然 / 沈谧仁",
       "artists": [
         {
           "cover": "",
-          "id": "5073",
-          "name": "宋冬野"
+          "id": "4873",
+          "name": "奇然"
+        },
+        {
+          "cover": "",
+          "id": "1178207",
+          "name": "沈谧仁"
         }
       ],
-      "cover": "https://p4.music.126.net/Ss7mkl2EK3Xl7Vv6iz-XAg==/109951172945820235.jpg",
-      "duration": 250106,
+      "cover": "https://p3.music.126.net/NQBaw13hHiaTh41QQUYsQg==/109951162922231753.jpg",
+      "duration": 335230,
       "fee": 8,
-      "id": "27646205",
+      "id": "476513774",
       "language": null,
-      "name": "安和桥",
+      "name": "琵琶行",
       "playable": false,
       "provider": "netease"
     },
-    "updatedAt": 1786086188185
+    "updatedAt": 1786342086571
   },
   "lyricFontSize": "normal",
   "muted": false,
   "playMode": "one",
   "quality": "hires",
   "recentSongs": [
+    {
+      "album": "高考必背曲目",
+      "artist": "奇然 / 沈谧仁",
+      "artists": [
+        {
+          "cover": "",
+          "id": "4873",
+          "name": "奇然"
+        },
+        {
+          "cover": "",
+          "id": "1178207",
+          "name": "沈谧仁"
+        }
+      ],
+      "cover": "https://p3.music.126.net/NQBaw13hHiaTh41QQUYsQg==/109951162922231753.jpg",
+      "duration": 335230,
+      "fee": 8,
+      "id": "476513774",
+      "language": null,
+      "name": "琵琶行",
+      "playable": false,
+      "provider": "netease"
+    },
     {
       "album": "安和桥北",
       "artist": "宋冬野",
@@ -2449,30 +3580,6 @@
       "id": "28639182",
       "language": null,
       "name": "Try",
-      "playable": false,
-      "provider": "netease"
-    },
-    {
-      "album": "Quentin Tarantino's Inglourious Basterds (Motion Picture Soundtrack)",
-      "artist": "Samantha Shelton / Michael Andrew",
-      "artists": [
-        {
-          "cover": "",
-          "id": "77860",
-          "name": "Samantha Shelton"
-        },
-        {
-          "cover": "",
-          "id": "300862",
-          "name": "Michael Andrew"
-        }
-      ],
-      "cover": "https://p3.music.126.net/oNg4MeXQMRQK7a0F9cwG6A==/109951163844493703.jpg",
-      "duration": 108893,
-      "fee": 8,
-      "id": "1317446884",
-      "language": null,
-      "name": "The Man With the Big Sombrero",
       "playable": false,
       "provider": "netease"
     }

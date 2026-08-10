@@ -52,15 +52,6 @@ export function getFriendProfile(steamId: string): Promise<FriendDto> {
   return invoke<FriendDto>("get_friend_profile", { steamId });
 }
 
-/**
- * Drain chat messages buffered by the CM connection since the last poll.
- * `activePartner` suppresses the unread count for that conversation.
- */
-export function pollChat(activePartner?: string): Promise<ChatMessageDto[]> {
-  const args = activePartner ? { activePartner } : {};
-  return invoke<ChatMessageDto[]>("poll_chat", args);
-}
-
 /** Send a text message to a friend; returns the persisted local message. */
 export function sendChatMessage(steamId: string, text: string): Promise<ChatMessageDto> {
   return invoke<ChatMessageDto>("send_chat_message", { steamId, text });
@@ -166,15 +157,6 @@ export function sendGroupMessage(
   text: string,
 ): Promise<GroupMessageDto> {
   return invoke<GroupMessageDto>("send_group_message", { groupId, chatId, text });
-}
-
-/**
- * Drain group chat messages buffered by the CM connection.
- * `activeGroup` (`[groupId, chatId]`) suppresses the unread count for that channel.
- */
-export function pollGroupMessages(activeGroup?: [string, string]): Promise<GroupMessageDto[]> {
-  const args = activeGroup ? { activeGroup } : {};
-  return invoke<GroupMessageDto[]>("poll_group_messages", args);
 }
 
 // ── E4 图片 / 贴纸 ───────────────────────────────────────────

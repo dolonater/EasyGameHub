@@ -470,8 +470,8 @@ fn cached_msg_to_chat_dto(m: &CachedMessage) -> ChatMessageDto {
     }
 }
 
-/// Map a drained CM incoming chat message to its DTO. Shared by the `poll_chat`
-/// command and the background poller (their event payloads must be identical).
+/// Map a drained CM incoming chat message to its DTO. Shared by the background
+/// poller (its `social:chat` event payload).
 fn incoming_to_chat_dto(m: &cm::IncomingChat) -> ChatMessageDto {
     ChatMessageDto {
         steam_id: m.partner_steam_id.to_string(),
@@ -482,8 +482,8 @@ fn incoming_to_chat_dto(m: &cm::IncomingChat) -> ChatMessageDto {
     }
 }
 
-/// Map a drained CM incoming group message to its DTO. Shared by the
-/// `poll_group_messages` command and the background poller.
+/// Map a drained CM incoming group message to its DTO. Shared by the background
+/// poller (its `social:group` event payload).
 fn group_incoming_to_dto(m: &cm::GroupIncoming) -> GroupMessageDto {
     GroupMessageDto {
         group_id: m.group_id.to_string(),
@@ -647,37 +647,6 @@ pub async fn get_friend_profile(state: State<'_, AppState>, steam_id: String) ->
         in_game_name: s.as_ref().and_then(|x| x.gameextrainfo.clone()),
         last_logoff: s.as_ref().and_then(|x| x.lastlogoff).map(|v| v),
     })
-}
-
-/// Drain chat messages buffered by the CM connection since the last poll.
-///
-/// Real incoming messages are appended to the per-partner thread cache (and
-/// counted as unread unless this is the active conversation); echoes of our
-/// own sends correlate the pending cache entry to its server identity. Echoes
-/// are not returned — the UI appends its own optimistic bubbles.
-#[tauri::command]
-pub async fn poll_chat(
-    state: State<'_, AppState>,
-    active_partner: Option<String>,
-) -> Result<Vec<ChatMessageDto>, String> {
-    let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
-    let client = ensure_cm(steam_id, &access_token).await?;
-    let messages = client.take_messages().await;
-
-    if !messages.is_empty() {
-        let account = steam_id.to_string();
-        let active = active_partner.unwrap_or_default();
-        let _guard = social_cache_lock().lock().await;
-        if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
-            process_friend_incoming(&mut cache, &account, &messages, &active).await;
-        }
-    }
-
-    Ok(messages
-        .into_iter()
-        .filter(|m| !m.local_echo)
-        .map(|m| incoming_to_chat_dto(&m))
-        .collect())
 }
 
 /// Send a text message to a friend (CM service method). The message is
@@ -1303,38 +1272,6 @@ pub async fn send_group_message(
             Err(e)
         }
     }
-}
-
-/// Drain group chat messages buffered by the CM connection since the last poll,
-/// appending them to the per-channel thread cache (unread unless this is the
-/// active channel). Our own sends are dropped from the return — the UI appends
-/// those optimistically.
-#[tauri::command]
-pub async fn poll_group_messages(
-    state: State<'_, AppState>,
-    active_group: Option<(String, String)>,
-) -> Result<Vec<GroupMessageDto>, String> {
-    let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
-    let client = ensure_cm(steam_id, &access_token).await?;
-    let self_id = steam_id.to_string();
-    let items = client.take_group_messages().await;
-
-    if !items.is_empty() {
-        let account = steam_id.to_string();
-        let active = active_group
-            .as_ref()
-            .map(|(g, c)| (g.as_str(), c.as_str()));
-        let _guard = social_cache_lock().lock().await;
-        if let Some(mut cache) = open_cache(&state.tool_dir, steam_id) {
-            process_group_incoming(&mut cache, &account, &self_id, &items, active).await;
-        }
-    }
-
-    Ok(items
-        .into_iter()
-        .filter(|m| m.sender_steam_id.to_string() != self_id)
-        .map(|m| group_incoming_to_dto(&m))
-        .collect())
 }
 
 // ── E4 图片 / 贴纸 ───────────────────────────────────────────

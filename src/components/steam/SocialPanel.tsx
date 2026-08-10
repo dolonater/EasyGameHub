@@ -1,9 +1,6 @@
-import { Fragment, useLayoutEffect, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { listen } from "@tauri-apps/api/event";
 import Icon from "../ui/Icon";
-import TextField from "../ui/TextField";
-import Button from "../ui/Button";
 import TabButtons from "../ui/TabButtons";
 import { showToast } from "../Notification";
 import {
@@ -19,16 +16,12 @@ import {
   sendChatMessage,
   sendGroupMessage,
   sendStickerMessage,
-  stickerImageUrl,
   uploadChatImage,
   uploadGroupImage,
   type ChatGroupDto,
   type ChatMessageDto,
-  type ChatThreadDto,
-  type DeliveryState,
   type FriendDto,
   type GroupMessageDto,
-  type GroupThreadDto,
   type OnlineState,
   type StickerDto,
 } from "../../lib/steamSocial";
@@ -38,6 +31,9 @@ import {
   registerActiveThread,
   useSocialState,
 } from "../../lib/socialEvents";
+import { useCachedList } from "../../hooks/useCachedList";
+import { useChatThread } from "../../hooks/useChatThread";
+import ChatThreadView from "./ChatThreadView";
 import type { SessionDto } from "../../lib/steamCommunity";
 
 interface SocialPanelProps {
@@ -112,78 +108,6 @@ const STATE_STYLES: Record<OnlineState, { labelKey: string; dot: string }> = {
   offline: { labelKey: "socialOffline", dot: "bg-slate-300" },
 };
 
-/** Render a message body: `/sticker <name>` → sticker, `[img]url[/img]` → image, else text. */
-function ChatMessageContent({ text }: { text: string }) {
-  const trimmed = text.trim();
-  const stickerMatch = /^\/sticker\s+(.+?)\s*$/.exec(trimmed);
-  if (stickerMatch) {
-    return (
-      <img
-        src={stickerImageUrl(stickerMatch[1])}
-        alt={stickerMatch[1]}
-        className="max-h-28 max-w-[160px] object-contain"
-        loading="lazy"
-      />
-    );
-  }
-  const imgSrc = extractImgSrc(trimmed);
-  if (imgSrc) {
-    return (
-      <img
-        src={imgSrc}
-        alt=""
-        className="max-h-64 max-w-full rounded-lg object-contain"
-        loading="lazy"
-        onError={(e) => {
-          e.currentTarget.style.display = "none";
-        }}
-      />
-    );
-  }
-  return <>{text}</>;
-}
-
-/** Extract the display URL from a Steam image BBCode chat message. */
-function extractImgSrc(text: string): string | null {
-  // Rich form Steam's own clients emit for shared images:
-  //   [img src=<url> thumbnail_src=<url> srcset="..." width=.. height=..]
-  //     [url=<url>]url[/url][/img]
-  const rich = /^\[img\b([^\]]*)\][\s\S]*\[\/img\]$/i.exec(text);
-  if (rich) {
-    const attrs = rich[1];
-    // Prefer the scaled CDN thumbnail (`?imw=512...`) over the full-resolution
-    // original for the in-bubble preview.
-    const thumb = /thumbnail_src=([^\s\]]+)/i.exec(attrs);
-    if (thumb) return thumb[1];
-    const src = /\bsrc=([^\s\]]+)/i.exec(attrs);
-    if (src) return src[1];
-  }
-  // Plain BBCode: [img]url[/img] or [img=WxH]url[/img]
-  const plain = /^\[img[^\]]*\](https?:\/\/[^\[]+)\[\/img\]$/i.exec(text);
-  return plain ? plain[1] : null;
-}
-
-/** Local "HH:mm" for a unix-seconds timestamp. */
-function formatChatTime(ts: number): string {
-  return new Date(ts * 1000).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-/** A date separator label: same day → "HH:mm", otherwise "M月d日 HH:mm". */
-function formatChatDate(ts: number): string {
-  const d = new Date(ts * 1000);
-  const now = new Date();
-  const sameDay =
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-  if (sameDay) return formatChatTime(ts);
-  const date = d.toLocaleDateString([], { month: "numeric", day: "numeric" });
-  return `${date} ${formatChatTime(ts)}`;
-}
-
 /**
  * 社交 Tab: friend list + private chat (web-chat/CM) AND group chat rooms.
  * Both only work with an active Steam session.
@@ -192,34 +116,41 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const { t } = useTranslation();
   const [socialMode, setSocialMode] = useState<"friends" | "groups">("friends");
 
-  // Friends
-  const [friends, setFriends] = useState<FriendDto[]>([]);
-  const [friendsLoading, setFriendsLoading] = useState(false);
-  const [friendsError, setFriendsError] = useState<string | null>(null);
-  const [friendsStale, setFriendsStale] = useState(false);
-  const [friendsStaleError, setFriendsStaleError] = useState<string | null>(null);
+  // Thread selection (persists across mode toggles).
   const [selected, setSelected] = useState<string | null>(null);
-  const [messages, setMessages] = useState<UiChatMessage[]>([]);
-  const [moreAvailable, setMoreAvailable] = useState(false);
-  const [loadingOlder, setLoadingOlder] = useState(false);
-  const [historyError, setHistoryError] = useState<string | null>(null);
-  const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
-
-  // Groups
-  const [groups, setGroups] = useState<ChatGroupDto[]>([]);
-  const [groupsLoading, setGroupsLoading] = useState(false);
-  const [groupsError, setGroupsError] = useState<string | null>(null);
-  const [groupsStale, setGroupsStale] = useState(false);
-  const [groupsStaleError, setGroupsStaleError] = useState<string | null>(null);
-  const hasCachedGroups = useRef(false);
   const [selectedGroup, setSelectedGroup] = useState<ChatGroupDto | null>(null);
-  const [groupMessages, setGroupMessages] = useState<UiGroupMessage[]>([]);
-  const [groupMoreAvailable, setGroupMoreAvailable] = useState(false);
-  const [groupLoadingOlder, setGroupLoadingOlder] = useState(false);
-  const [groupHistoryError, setGroupHistoryError] = useState<string | null>(null);
-  const [groupInput, setGroupInput] = useState("");
-  const [groupSending, setGroupSending] = useState(false);
+
+  // Friends list: cached first (instant), then a silent network refresh.
+  const friendsState = useCachedList<FriendDto>({
+    enabled: !!session,
+    load: loadFriends,
+    refresh: refreshFriends,
+    onCache: (list) => setSelected((prev) => prev ?? list[0]?.steamId ?? null),
+  });
+  const {
+    list: friends,
+    setList: setFriends,
+    loading: friendsLoading,
+    stale: friendsStale,
+    staleError: friendsStaleError,
+    error: friendsError,
+  } = friendsState;
+
+  // Groups list: same cache-first pattern.
+  const groupsState = useCachedList<ChatGroupDto>({
+    enabled: !!session,
+    load: loadGroups,
+    refresh: refreshGroups,
+    onCache: (list) => setSelectedGroup((prev) => prev ?? list[0] ?? null),
+  });
+  const {
+    list: groups,
+    setList: setGroups,
+    loading: groupsLoading,
+    stale: groupsStale,
+    staleError: groupsStaleError,
+    error: groupsError,
+  } = groupsState;
 
   // E4 图片 / 贴纸
   const [uploading, setUploading] = useState(false);
@@ -228,302 +159,77 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
   const [stickersLoading, setStickersLoading] = useState(false);
   const stickersLoadedRef = useRef(false);
   const [refreshTick, setRefreshTick] = useState(0);
-  const hasCachedFriends = useRef(false);
-
-  const listRef = useRef<HTMLDivElement>(null);
-  const groupListRef = useRef<HTMLDivElement>(null);
 
   const selfId = session?.steamId ?? null;
-
-  // Load friends: cached list first (instant), then a silent network refresh.
-  // A failed refresh keeps the cache and flags it stale instead of blanking.
-  useEffect(() => {
-    if (!session) return;
-    let cancelled = false;
-    setFriendsLoading(true);
-    setFriendsError(null);
-    setFriendsStale(false);
-    loadFriends()
-      .then((list) => {
-        if (cancelled) return;
-        hasCachedFriends.current = list.length > 0;
-        setFriendsStaleError(null);
-        setFriends(list);
-        setSelected((prev) => prev ?? list[0]?.steamId ?? null);
-      })
-      .catch(() => {
-        // No cache — the refresh below is the source of truth.
-      })
-      .finally(() => {
-        if (!cancelled) setFriendsLoading(false);
-      });
-    refreshFriends()
-      .then((list) => {
-        if (cancelled) return;
-        hasCachedFriends.current = false;
-        setFriends(list);
-        setFriendsStale(false);
-        setFriendsStaleError(null);
-        setFriendsError(null);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        const msg = e instanceof Error ? e.message : String(e);
-        if (hasCachedFriends.current) {
-          // Cached list is on screen; refresh just failed → stale hint.
-          setFriendsStaleError(msg);
-          setFriendsStale(true);
-        } else {
-          setFriendsError(msg);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [session]);
-
-  // Load groups: cached list first (instant), then a silent network refresh.
-  useEffect(() => {
-    if (!session) return;
-    let cancelled = false;
-    setGroupsLoading(true);
-    setGroupsError(null);
-    setGroupsStale(false);
-    loadGroups()
-      .then((list) => {
-        if (cancelled) return;
-        hasCachedGroups.current = list.length > 0;
-        setGroupsStaleError(null);
-        setGroups(list);
-        setSelectedGroup((prev) => prev ?? list[0] ?? null);
-      })
-      .catch(() => {
-        // No cache — the refresh below is the source of truth.
-      })
-      .finally(() => {
-        if (!cancelled) setGroupsLoading(false);
-      });
-    refreshGroups()
-      .then((list) => {
-        if (cancelled) return;
-        hasCachedGroups.current = false;
-        setGroups(list);
-        setGroupsStale(false);
-        setGroupsStaleError(null);
-        setGroupsError(null);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        const msg = e instanceof Error ? e.message : String(e);
-        if (hasCachedGroups.current) setGroupsStaleError(msg);
-        setGroupsStale(hasCachedGroups.current);
-        if (!hasCachedGroups.current) setGroupsError(msg);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [session]);
 
   // Live unread + previews come from the module store (`socialEvents`), seeded
   // by SteamHub on mount and incremented by live events — no O(friends)
   // recompute per message (P1-8).
   const social = useSocialState();
 
-  // Open a friend thread: cached history first (instant), then a silent
-  // refresh that merges server history with the cache. Runs only in friends
-  // mode so a stale `selected` can't act on the group tab.
-  useEffect(() => {
-    if (!session || !selected || socialMode !== "friends") return;
-    let cancelled = false;
-    setMoreAvailable(false);
-    setLoadingOlder(false);
-    openChat(selected)
-      .then((t) => {
-        if (cancelled) return;
-        setMessages(unionMessages(t.messages, [], selfId ?? undefined));
-        setHistoryError(null);
-        // openChat clears the conversation's unread in the cache; clear the live
-        // store counter too so the badge empties immediately.
-        clearFriendUnread(selected);
-      })
-      .catch(() => {
-        if (!cancelled) setMessages([]);
-      });
-    refreshChat(selected)
-      .then((t) => {
-        if (cancelled) return;
-        setMessages((prev) => unionMessages(t.messages, prev, selfId ?? undefined));
-        setHistoryError(null);
-        setMoreAvailable(t.moreAvailable);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setHistoryError(e instanceof Error ? e.message : String(e));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [session, selected, socialMode, refreshTick]);
+  // Friend private-chat thread: messages, optimistic send/retry, live append,
+  // scroll-to-top load-older and the pre-paint scroll authority all live in
+  // `useChatThread`. Runs only in friends mode with a selected friend.
+  const friendChat = useChatThread<UiChatMessage>({
+    active: !!session && socialMode === "friends" && !!selected,
+    selfId,
+    scrollKey: `f:${selected ?? ""}`,
+    refreshKey: refreshTick,
+    open: () => openChat(selected as string),
+    refresh: (olderThan) => refreshChat(selected as string, olderThan),
+    send: (text) => sendChatMessage(selected as string, text),
+    buildOptimistic: (text, localId) => ({
+      steamId: selfId as string,
+      timestamp: Math.floor(Date.now() / 1000),
+      message: text,
+      kind: "saytext",
+      deliveryState: "pending",
+      localId,
+    }),
+    isSelf: (m) => m.steamId === selfId,
+    isThreadMessage: (m) => m.steamId === selected || m.steamId === selfId,
+    merge: unionMessages,
+    dedup: dedupKey,
+    eventName: "social:chat",
+    matchIncoming: (m) => m.steamId === selected,
+    onOpened: () => clearFriendUnread(selected as string),
+  });
 
-  // Open a group channel: cached thread first (instant), then a silent refresh
-  // that merges server history with the cache. Runs only in groups mode.
-  useEffect(() => {
-    if (!session || !selectedGroup || socialMode !== "groups") return;
-    const chatId = selectedGroup.defaultChatId;
-    if (!chatId) return;
-    let cancelled = false;
-    setGroupMoreAvailable(false);
-    setGroupLoadingOlder(false);
-    openGroupChat(selectedGroup.groupId, chatId)
-      .then((t) => {
-        if (cancelled) return;
-        setGroupMessages(unionGroupMessages(t.messages, [], selfId ?? undefined));
-        setGroupHistoryError(null);
-        // openGroupChat clears this channel's unread — refresh the list badges
-        // and the live store counter.
-        clearGroupUnread(selectedGroup.groupId, selectedGroup.defaultChatId);
-        loadGroups()
-          .then((list) => {
-            if (!cancelled) setGroups(list);
-          })
-          .catch(() => {});
-      })
-      .catch(() => {
-        if (!cancelled) setGroupMessages([]);
-      });
-    refreshGroupChat(selectedGroup.groupId, chatId)
-      .then((t) => {
-        if (cancelled) return;
-        setGroupMessages((prev) => unionGroupMessages(t.messages, prev, selfId ?? undefined));
-        setGroupHistoryError(null);
-        setGroupMoreAvailable(t.moreAvailable);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setGroupHistoryError(e instanceof Error ? e.message : String(e));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [session, selectedGroup, socialMode, refreshTick]);
-
-  // Current thread identity. Guards stale async results (a load-older resolving
-  // after the user switched threads) from being applied to the wrong thread.
-  const threadKeyRef = useRef("");
-  threadKeyRef.current =
-    socialMode === "friends"
-      ? `f:${selected ?? ""}`
-      : `g:${selectedGroup?.groupId ?? ""}:${selectedGroup?.defaultChatId ?? ""}`;
-
-  // Scroll settlement state, consumed by the `useLayoutEffect` scroll authority
-  // (runs before paint, so re-opening a thread never flashes top→bottom).
-  const lastThreadKeyRef = useRef("");
-  const savedScrollRef = useRef<Record<string, { top: number; height: number }>>({});
-  const pendingAnchorRef = useRef<{ height: number; top: number } | null>(null);
-
-  // Load a page of older friend messages (scroll-to-top). Merges the fetched
-  // batch into the thread and keeps the view anchored at the previous position.
-  const loadOlderMessages = async () => {
-    const partner = selected;
-    const key = threadKeyRef.current;
-    const el = listRef.current;
-    if (!partner || loadingOlder || !messages.length) return;
-    const oldest = messages[0].timestamp;
-    if (!oldest) return;
-    const prevScrollHeight = el?.scrollHeight ?? 0;
-    const prevScrollTop = el?.scrollTop ?? 0;
-    setLoadingOlder(true);
-    try {
-      const t = await refreshChat(partner, oldest);
-      if (threadKeyRef.current !== key) return; // user switched threads
-      setMessages((prev) => unionMessages(t.messages, prev, selfId ?? undefined));
-      setMoreAvailable(t.moreAvailable);
-      pendingAnchorRef.current = { height: prevScrollHeight, top: prevScrollTop };
-    } catch {
-      // keep the current list; the next scroll up retries
-    } finally {
-      if (threadKeyRef.current === key) setLoadingOlder(false);
-    }
-  };
-
-  // Group variant of `loadOlderMessages`.
-  const loadOlderGroupMessages = async () => {
-    const g = selectedGroup;
-    const key = threadKeyRef.current;
-    const el = groupListRef.current;
-    if (!g || !g.defaultChatId || groupLoadingOlder || !groupMessages.length) return;
-    const oldest = groupMessages[0].timestamp;
-    if (!oldest) return;
-    const prevScrollHeight = el?.scrollHeight ?? 0;
-    const prevScrollTop = el?.scrollTop ?? 0;
-    setGroupLoadingOlder(true);
-    try {
-      const t = await refreshGroupChat(g.groupId, g.defaultChatId, oldest);
-      if (threadKeyRef.current !== key) return;
-      setGroupMessages((prev) => unionGroupMessages(t.messages, prev, selfId ?? undefined));
-      setGroupMoreAvailable(t.moreAvailable);
-      pendingAnchorRef.current = { height: prevScrollHeight, top: prevScrollTop };
-    } catch {
-      // keep the current list; the next scroll up retries
-    } finally {
-      if (threadKeyRef.current === key) setGroupLoadingOlder(false);
-    }
-  };
-
-  const handleChatScroll = () => {
-    const el = listRef.current;
-    if (!el) return;
-    // Remember this thread's scroll position so re-opening it restores it.
-    savedScrollRef.current[`f:${selected ?? ""}`] = { top: el.scrollTop, height: el.scrollHeight };
-    if (loadingOlder || !moreAvailable) return;
-    if (el.scrollTop <= 20) void loadOlderMessages();
-  };
-
-  const handleGroupScroll = () => {
-    const el = groupListRef.current;
-    if (!el) return;
-    savedScrollRef.current[`g:${selectedGroup?.groupId ?? ""}:${selectedGroup?.defaultChatId ?? ""}`] = {
-      top: el.scrollTop,
-      height: el.scrollHeight,
-    };
-    if (groupLoadingOlder || !groupMoreAvailable) return;
-    if (el.scrollTop <= 20) void loadOlderGroupMessages();
-  };
-
-  // Live incoming: the App-level `useSocialEvents` hook updates the store
-  // (global unread + previews). This listener only appends messages for the
-  // currently-open thread — the store skips the active thread, so there is no
-  // double counting. Replaces the old 3s polling.
-  useEffect(() => {
-    if (!session) return;
-    const unlistenChat = listen<ChatMessageDto[]>("social:chat", (event) => {
-      if (socialMode !== "friends" || !selected) return;
-      const fresh = event.payload.filter((m) => m.steamId === selected);
-      if (!fresh.length) return;
-      setMessages((prev) => {
-        const seen = new Set(prev.map(dedupKey));
-        const newOnes = fresh.filter((m) => !seen.has(dedupKey(m)));
-        return newOnes.length ? [...prev, ...newOnes] : prev;
-      });
-    });
-    const unlistenGroup = listen<GroupMessageDto[]>("social:group", (event) => {
-      if (socialMode !== "groups" || !selectedGroup || !selectedGroup.defaultChatId) return;
-      const chatId = selectedGroup.defaultChatId;
-      const fresh = event.payload.filter(
-        (m) => m.groupId === selectedGroup.groupId && m.chatId === chatId,
-      );
-      if (!fresh.length) return;
-      setGroupMessages((prev) => {
-        const seen = new Set(prev.map(groupDedupKey));
-        const newOnes = fresh.filter((m) => !seen.has(groupDedupKey(m)));
-        return newOnes.length ? [...prev, ...newOnes] : prev;
-      });
-    });
-    return () => {
-      unlistenChat.then((fn) => fn());
-      unlistenGroup.then((fn) => fn());
-    };
-  }, [session, socialMode, selected, selectedGroup]);
+  // Group-channel thread: the same state machine driven by group commands.
+  const groupChat = useChatThread<UiGroupMessage>({
+    active: !!session && socialMode === "groups" && !!selectedGroup?.defaultChatId,
+    selfId,
+    scrollKey: `g:${selectedGroup?.groupId ?? ""}:${selectedGroup?.defaultChatId ?? ""}`,
+    refreshKey: refreshTick,
+    open: () => openGroupChat(selectedGroup!.groupId, selectedGroup!.defaultChatId!),
+    refresh: (olderThan) =>
+      refreshGroupChat(selectedGroup!.groupId, selectedGroup!.defaultChatId!, olderThan),
+    send: (text) => sendGroupMessage(selectedGroup!.groupId, selectedGroup!.defaultChatId!, text),
+    buildOptimistic: (text, localId) => ({
+      groupId: selectedGroup!.groupId,
+      chatId: selectedGroup!.defaultChatId!,
+      senderSteamId: selfId as string,
+      timestamp: Math.floor(Date.now() / 1000),
+      ordinal: 0,
+      message: text,
+      deliveryState: "pending",
+      localId,
+    }),
+    isSelf: (m) => m.senderSteamId === selfId,
+    isThreadMessage: (m) =>
+      m.groupId === selectedGroup?.groupId && m.chatId === selectedGroup?.defaultChatId,
+    merge: unionGroupMessages,
+    dedup: groupDedupKey,
+    eventName: "social:group",
+    matchIncoming: (m) =>
+      m.groupId === selectedGroup?.groupId && m.chatId === selectedGroup?.defaultChatId,
+    onOpened: () => {
+      clearGroupUnread(selectedGroup!.groupId, selectedGroup!.defaultChatId!);
+      loadGroups()
+        .then((list) => setGroups(list))
+        .catch(() => {});
+    },
+  });
 
   // Report the open thread so the store and the backend poller suppress its
   // unread. Clearing on unmount leaves the app open to counting again.
@@ -544,203 +250,10 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     return () => registerActiveThread({});
   }, [session, socialMode, selected, selectedGroup]);
 
-  // Single scroll authority for the friend list, running BEFORE paint so
-  // re-opening a thread never flashes from the top. A fresh thread restores its
-  // saved position (or lands at the newest message); the same thread follows
-  // new messages only when already near the bottom; a pending load-older anchor
-  // is consumed first.
-  useLayoutEffect(() => {
-    const el = listRef.current;
-    if (!el) return;
-    const threadKey = `f:${selected ?? ""}`;
-    // A stale array (thread switch in progress, old thread still in state) must
-    // not settle the new thread's scroll. All messages of a friend thread are
-    // from the partner or self, so any other sender means the array is stale.
-    const stale =
-      messages.length > 0 &&
-      !messages.every((m) => m.steamId === selected || m.steamId === selfId);
-    if (!stale && messages.length > 0 && threadKey !== lastThreadKeyRef.current) {
-      lastThreadKeyRef.current = threadKey;
-      const saved = savedScrollRef.current[threadKey];
-      if (saved && saved.height > 0 && el.scrollHeight > 0) {
-        el.scrollTop = (saved.top / saved.height) * el.scrollHeight;
-      } else {
-        el.scrollTop = el.scrollHeight;
-      }
-      return;
-    }
-    if (pendingAnchorRef.current) {
-      const a = pendingAnchorRef.current;
-      pendingAnchorRef.current = null;
-      el.scrollTop = el.scrollHeight - a.height + a.top;
-      return;
-    }
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
-      el.scrollTop = el.scrollHeight;
-    }
-  }, [messages, selected, socialMode, selfId]);
-
-  // Same scroll authority for the group list.
-  useLayoutEffect(() => {
-    const el = groupListRef.current;
-    if (!el) return;
-    const threadKey = `g:${selectedGroup?.groupId ?? ""}:${selectedGroup?.defaultChatId ?? ""}`;
-    const stale =
-      groupMessages.length > 0 &&
-      selectedGroup != null &&
-      !groupMessages.every(
-        (m) => m.groupId === selectedGroup.groupId && m.chatId === selectedGroup.defaultChatId,
-      );
-    if (!stale && groupMessages.length > 0 && threadKey !== lastThreadKeyRef.current) {
-      lastThreadKeyRef.current = threadKey;
-      const saved = savedScrollRef.current[threadKey];
-      if (saved && saved.height > 0 && el.scrollHeight > 0) {
-        el.scrollTop = (saved.top / saved.height) * el.scrollHeight;
-      } else {
-        el.scrollTop = el.scrollHeight;
-      }
-      return;
-    }
-    if (pendingAnchorRef.current) {
-      const a = pendingAnchorRef.current;
-      pendingAnchorRef.current = null;
-      el.scrollTop = el.scrollHeight - a.height + a.top;
-      return;
-    }
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
-      el.scrollTop = el.scrollHeight;
-    }
-  }, [groupMessages, selectedGroup, socialMode, selfId]);
-
   const selectedFriend = useMemo(
     () => friends.find((f) => f.steamId === selected) ?? null,
     [friends, selected],
   );
-
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text || !selected || !selfId) return;
-    setInput("");
-    const localId = `s${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    setMessages((prev) => [
-      ...prev,
-      { steamId: selfId, timestamp: Math.floor(Date.now() / 1000), message: text, kind: "saytext", deliveryState: "pending", localId },
-    ]);
-    setSending(true);
-    try {
-      await sendChatMessage(selected, text);
-      setMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "sent" } : m)));
-    } catch (e) {
-      setMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "failedRetryable" } : m)));
-      showToast("error", e instanceof Error ? e.message : String(e));
-    } finally {
-      setSending(false);
-    }
-  };
-
-  /** Re-send a failed message, reusing its bubble (matched by content). */
-  const handleRetry = async (m: UiChatMessage) => {
-    const text = m.message;
-    if (!selected || !selfId) return;
-    setMessages((prev) =>
-      prev.map((x) =>
-        x.steamId === selfId && x.message === text && x.deliveryState === "failedRetryable"
-          ? { ...x, deliveryState: "pending" }
-          : x,
-      ),
-    );
-    setSending(true);
-    try {
-      await sendChatMessage(selected, text);
-      setMessages((prev) =>
-        prev.map((x) =>
-          x.steamId === selfId && x.message === text && x.deliveryState === "pending"
-            ? { ...x, deliveryState: "sent" }
-            : x,
-        ),
-      );
-    } catch (e) {
-      setMessages((prev) =>
-        prev.map((x) =>
-          x.steamId === selfId && x.message === text && x.deliveryState === "pending"
-            ? { ...x, deliveryState: "failedRetryable" }
-            : x,
-        ),
-      );
-      showToast("error", e instanceof Error ? e.message : String(e));
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const handleGroupSend = async () => {
-    const text = groupInput.trim();
-    if (!text || !selectedGroup || !selfId) return;
-    const chatId = selectedGroup.defaultChatId;
-    if (!chatId) return;
-    setGroupInput("");
-    const localId = `g${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    setGroupMessages((prev) => [
-      ...prev,
-      {
-        groupId: selectedGroup.groupId,
-        chatId,
-        senderSteamId: selfId,
-        timestamp: Math.floor(Date.now() / 1000),
-        ordinal: 0,
-        message: text,
-        deliveryState: "pending",
-        localId,
-      },
-    ]);
-    setGroupSending(true);
-    try {
-      await sendGroupMessage(selectedGroup.groupId, chatId, text);
-      setGroupMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "sent" } : m)));
-    } catch (e) {
-      setGroupMessages((prev) => prev.map((m) => (m.localId === localId ? { ...m, deliveryState: "failedRetryable" } : m)));
-      showToast("error", e instanceof Error ? e.message : String(e));
-    } finally {
-      setGroupSending(false);
-    }
-  };
-
-  /** Re-send a failed group message, reusing its bubble (matched by content). */
-  const handleGroupRetry = async (m: UiGroupMessage) => {
-    const text = m.message;
-    if (!selectedGroup || !selfId) return;
-    const chatId = selectedGroup.defaultChatId;
-    if (!chatId) return;
-    setGroupMessages((prev) =>
-      prev.map((x) =>
-        x.senderSteamId === selfId && x.message === text && x.deliveryState === "failedRetryable"
-          ? { ...x, deliveryState: "pending" }
-          : x,
-      ),
-    );
-    setGroupSending(true);
-    try {
-      await sendGroupMessage(selectedGroup.groupId, chatId, text);
-      setGroupMessages((prev) =>
-        prev.map((x) =>
-          x.senderSteamId === selfId && x.message === text && x.deliveryState === "pending"
-            ? { ...x, deliveryState: "sent" }
-            : x,
-        ),
-      );
-    } catch (e) {
-      setGroupMessages((prev) =>
-        prev.map((x) =>
-          x.senderSteamId === selfId && x.message === text && x.deliveryState === "pending"
-            ? { ...x, deliveryState: "failedRetryable" }
-            : x,
-        ),
-      );
-      showToast("error", e instanceof Error ? e.message : String(e));
-    } finally {
-      setGroupSending(false);
-    }
-  };
 
   // E4: toggle the sticker picker (loads the catalogue once; a failed load
   // leaves the flag unset so the next open retries).
@@ -791,7 +304,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     if (!selfId) return;
     if (socialMode === "friends") {
       if (!selected) return;
-      setMessages((prev) => [
+      friendChat.setMessages((prev) => [
         ...prev,
         { steamId: selfId, timestamp: Math.floor(Date.now() / 1000), message: `/sticker ${name}`, kind: "saytext" },
       ]);
@@ -803,7 +316,7 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
     } else {
       const chatId = selectedGroup?.defaultChatId;
       if (!selectedGroup || !chatId) return;
-      setGroupMessages((prev) => [
+      groupChat.setMessages((prev) => [
         ...prev,
         {
           groupId: selectedGroup.groupId,
@@ -952,96 +465,17 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                       <span className="truncate text-[11px] text-primary">{t("steam.socialInGame", { defaultValue: "游戏中" })} {selectedFriend.inGameName}</span>
                     )}
                   </div>
-                  <div ref={listRef} onScroll={handleChatScroll} className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-                    {loadingOlder && (
-                      <div className="py-1 text-center text-[10px] text-muted-foreground">
-                        {t("steam.socialLoadingOlder")}
-                      </div>
-                    )}
-                    {messages.length === 0 && historyError ? (
-                      <div className="break-words px-2 py-8 text-center text-xs text-red-500">
-                        {t("steam.socialLoadFailed", { error: historyError })}
-                      </div>
-                    ) : messages.length === 0 ? (
-                      <div className="py-8 text-center text-xs text-muted-foreground">{t("steam.socialChatEmpty")}</div>
-                    ) : null}
-                    {messages.map((m, i) => {
-                      const self = selfId != null && m.steamId === selfId;
-                      const prev = messages[i - 1];
-                      // Insert a date/time separator when there's a quiet gap
-                      // (> 5 minutes) so long conversations are easy to scan.
-                      const showSep = !!prev && m.timestamp - prev.timestamp > 300;
-                      return (
-                        <Fragment key={dedupKey(m) + i}>
-                          {showSep && (
-                            <div className="flex justify-center py-1">
-                              <span className="rounded-full bg-secondary/40 px-2 py-0.5 text-[10px] text-muted-foreground">
-                                {formatChatDate(m.timestamp)}
-                              </span>
-                            </div>
-                          )}
-                          <div className={`flex ${self ? "justify-end" : "justify-start"}`}>
-                            <div
-                              title={formatChatTime(m.timestamp)}
-                              className={`max-w-[75%] rounded-xl px-3 py-1.5 text-sm ${self ? "rounded-br-sm bg-primary/20 text-foreground" : "rounded-bl-sm bg-secondary/60 text-foreground"}`}
-                            >
-                              <ChatMessageContent text={m.message} />
-                              {self && m.deliveryState === "pending" && (
-                                <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
-                                  <span>{t("steam.socialSending")}</span>
-                                </div>
-                              )}
-                              {self && m.deliveryState === "failedRetryable" && (
-                                <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px]">
-                                  <span className="text-red-500">{t("steam.socialFailed")}</span>
-                                  <button type="button" onClick={() => void handleRetry(m)} className="text-primary underline">
-                                    {t("steam.socialRetry")}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </Fragment>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => void handlePickImage()}
-                      disabled={uploading}
-                      title={t("steam.socialSendImage")}
-                      className="flex-none px-2"
-                    >
-                      <Icon name="image" size={16} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={toggleStickerPicker}
-                      title={t("steam.socialSticker")}
-                      className="flex-none px-2"
-                    >
-                      <Icon name="starFilled" size={16} />
-                    </Button>
-                    <TextField
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          void handleSend();
-                        }
-                      }}
-                      placeholder={t("steam.socialChatPlaceholder")}
-                      className="flex-1"
-                      density="compact"
-                    />
-                    <Button variant="primary" size="sm" onClick={() => void handleSend()} disabled={sending || !input.trim()}>
-                      {t("steam.socialSend")}
-                    </Button>
-                  </div>
+                  <ChatThreadView
+                    api={friendChat}
+                    emptyKey="steam.socialChatEmpty"
+                    onPickImage={() => void handlePickImage()}
+                    onToggleSticker={toggleStickerPicker}
+                    uploading={uploading}
+                    imageTitle={t("steam.socialSendImage")}
+                    stickerTitle={t("steam.socialSticker")}
+                    placeholder={t("steam.socialChatPlaceholder")}
+                    sendLabel={t("steam.socialSend")}
+                  />
                 </>
               ) : (
                 <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
@@ -1116,99 +550,19 @@ export default function SocialPanel({ session, embedded = false }: SocialPanelPr
                       {selectedGroup.rooms[0]?.name}
                     </span>
                   </div>
-                  <div ref={groupListRef} onScroll={handleGroupScroll} className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-                    {groupLoadingOlder && (
-                      <div className="py-1 text-center text-[10px] text-muted-foreground">
-                        {t("steam.socialLoadingOlder")}
-                      </div>
-                    )}
-                    {groupMessages.length === 0 && groupHistoryError ? (
-                      <div className="break-words px-2 py-8 text-center text-xs text-red-500">
-                        {t("steam.socialLoadFailed", { error: groupHistoryError })}
-                      </div>
-                    ) : groupMessages.length === 0 ? (
-                      <div className="py-8 text-center text-xs text-muted-foreground">{t("steam.socialChatEmpty")}</div>
-                    ) : null}
-                    {groupMessages.map((m, i) => {
-                      const self = selfId != null && m.senderSteamId === selfId;
-                      const prev = groupMessages[i - 1];
-                      const showSep = !!prev && m.timestamp - prev.timestamp > 300;
-                      return (
-                        <Fragment key={groupDedupKey(m) + i}>
-                          {showSep && (
-                            <div className="flex justify-center py-1">
-                              <span className="rounded-full bg-secondary/40 px-2 py-0.5 text-[10px] text-muted-foreground">
-                                {formatChatDate(m.timestamp)}
-                              </span>
-                            </div>
-                          )}
-                          <div className={`flex ${self ? "justify-end" : "justify-start"}`}>
-                            <div
-                              title={formatChatTime(m.timestamp)}
-                              className={`max-w-[75%] rounded-xl px-3 py-1.5 text-sm ${self ? "rounded-br-sm bg-primary/20 text-foreground" : "rounded-bl-sm bg-secondary/60 text-foreground"}`}
-                            >
-                              {!self && (
-                                <div className="mb-0.5 text-[10px] text-muted-foreground">
-                                  {m.senderSteamId === selfId ? "" : m.senderSteamId.slice(-6)}
-                                </div>
-                              )}
-                              <ChatMessageContent text={m.message} />
-                              {self && m.deliveryState === "pending" && (
-                                <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
-                                  <span>{t("steam.socialSending")}</span>
-                                </div>
-                              )}
-                              {self && m.deliveryState === "failedRetryable" && (
-                                <div className="mt-0.5 flex items-center justify-end gap-1.5 text-[10px]">
-                                  <span className="text-red-500">{t("steam.socialFailed")}</span>
-                                  <button type="button" onClick={() => void handleGroupRetry(m)} className="text-primary underline">
-                                    {t("steam.socialRetry")}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </Fragment>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => void handlePickImage()}
-                      disabled={uploading}
-                      title={t("steam.socialSendImage")}
-                      className="flex-none px-2"
-                    >
-                      <Icon name="image" size={16} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={toggleStickerPicker}
-                      title={t("steam.socialSticker")}
-                      className="flex-none px-2"
-                    >
-                      <Icon name="starFilled" size={16} />
-                    </Button>
-                    <TextField
-                      value={groupInput}
-                      onChange={(e) => setGroupInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          void handleGroupSend();
-                        }
-                      }}
-                      placeholder={t("steam.socialChatPlaceholder")}
-                      className="flex-1"
-                      density="compact"
-                    />
-                    <Button variant="primary" size="sm" onClick={() => void handleGroupSend()} disabled={groupSending || !groupInput.trim()}>
-                      {t("steam.socialSend")}
-                    </Button>
-                  </div>
+                  <ChatThreadView
+                    api={groupChat}
+                    showSender
+                    senderLabel={(m) => m.senderSteamId.slice(-6)}
+                    emptyKey="steam.socialChatEmpty"
+                    onPickImage={() => void handlePickImage()}
+                    onToggleSticker={toggleStickerPicker}
+                    uploading={uploading}
+                    imageTitle={t("steam.socialSendImage")}
+                    stickerTitle={t("steam.socialSticker")}
+                    placeholder={t("steam.socialChatPlaceholder")}
+                    sendLabel={t("steam.socialSend")}
+                  />
                 </>
               ) : (
                 <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
