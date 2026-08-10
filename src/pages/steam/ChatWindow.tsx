@@ -338,6 +338,8 @@ export default function ChatWindow() {
         {isFriend ? (
           <ChatThreadView
             api={friendChat}
+            avatarOf={(m) => (friendChat.isSelf(m) ? null : (params.avatar ?? null))}
+            sameSender={(a, b) => a.steamId === b.steamId}
             emptyKey="steam.socialChatEmpty"
             onPickImage={() => void handlePickImage()}
             onToggleSticker={toggleStickerPicker}
@@ -352,6 +354,7 @@ export default function ChatWindow() {
             api={groupChat}
             showSender
             senderLabel={(m) => m.senderSteamId.slice(-6)}
+            sameSender={(a, b) => a.senderSteamId === b.senderSteamId}
             emptyKey="steam.socialChatEmpty"
             onPickImage={() => void handlePickImage()}
             onToggleSticker={toggleStickerPicker}

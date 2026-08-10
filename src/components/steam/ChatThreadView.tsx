@@ -84,6 +84,13 @@ interface ChatThreadViewProps<T extends ChatThreadMessage> {
   showSender?: boolean;
   /** Label for the sender line (e.g. steamid tail). */
   senderLabel?: (m: T) => string;
+  /** Avatar for others' bubbles (friend chat = the partner's avatar). `null`
+   * disables avatars (group chat falls back to `senderLabel`). */
+  avatarOf?: (m: T) => string | null;
+  /** Are two messages from the same sender? (friend: `steamId`, group:
+   * `senderSteamId`). Drives message grouping — consecutive same-sender
+   * messages render tight with the avatar only on the first. */
+  sameSender?: (a: T, b: T) => boolean;
   /** i18n key for the empty-thread hint. */
   emptyKey: string;
   onPickImage: () => void;
@@ -105,6 +112,8 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
   api,
   showSender = false,
   senderLabel,
+  avatarOf,
+  sameSender,
   emptyKey,
   onPickImage,
   onToggleSticker,
@@ -122,7 +131,7 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
       <div
         ref={api.listRef}
         onScroll={api.handleScroll}
-        className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1"
+        className="min-h-0 flex-1 overflow-y-auto pr-1"
       >
         {api.loadingOlder && (
           <div className="py-1 text-center text-[10px] text-muted-foreground">
@@ -139,18 +148,33 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
         {messages.map((m, i) => {
           const self = api.isSelf(m);
           const prev = messages[i - 1];
+          // A continuation = the previous message is from the same sender and
+          // within 5 minutes: render tight, with the avatar/label only once.
+          const continuation = !!prev && !!sameSender && sameSender(prev, m) && m.timestamp - prev.timestamp <= 300;
           // Insert a date/time separator when there's a quiet gap (> 5 minutes).
           const showSep = !!prev && m.timestamp - prev.timestamp > 300;
+          // Spacing per row: first message no top margin, continuations tight,
+          // otherwise a normal gap (the old `space-y-2` had no grouping).
+          const rowMt = i === 0 ? "" : continuation ? "mt-0.5" : "mt-2";
+          // Avatar on the first message of an others' group.
+          const avatar = !self && !continuation && avatarOf ? avatarOf(m) : null;
           return (
             <Fragment key={api.dedup(m) + i}>
               {showSep && (
-                <div className="flex justify-center py-1">
+                <div className="mt-2 flex justify-center py-1">
                   <span className="rounded-full bg-secondary/40 px-2 py-0.5 text-[10px] text-muted-foreground">
                     {formatChatDate(m.timestamp)}
                   </span>
                 </div>
               )}
-              <div className={`flex ${self ? "justify-end" : "justify-start"}`}>
+              <div className={`${rowMt} flex items-end ${self ? "justify-end" : "justify-start"}`}>
+                {avatar && (
+                  <img
+                    src={avatar}
+                    alt=""
+                    className="mr-2 h-8 w-8 flex-none rounded-full"
+                  />
+                )}
                 <div
                   title={formatChatTime(m.timestamp)}
                   className={`max-w-[75%] rounded-xl px-3 py-1.5 text-sm ${
@@ -159,13 +183,18 @@ export default function ChatThreadView<T extends ChatThreadMessage>({
                       : "rounded-bl-sm bg-secondary/60 text-foreground"
                   }`}
                 >
-                  {showSender && !self && senderLabel && (
+                  {showSender && !self && senderLabel && !continuation && (
                     <div className="mb-0.5 text-[10px] text-muted-foreground">{senderLabel(m)}</div>
                   )}
                   <ChatMessageContent text={m.message} />
                   {self && m.deliveryState === "pending" && (
                     <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
                       <span>{t("steam.socialSending")}</span>
+                    </div>
+                  )}
+                  {self && m.deliveryState === "sent" && m.localId && (
+                    <div className="mt-0.5 flex items-center justify-end text-[10px] text-muted-foreground">
+                      <span>✓</span>
                     </div>
                   )}
                   {self && m.deliveryState === "failedRetryable" && (
