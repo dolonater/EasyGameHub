@@ -173,21 +173,18 @@ export default function ChatWindow() {
   // Register as the active thread. `registerActiveThread` invokes the backend
   // `set_active_thread`, which both stores the process-wide ACTIVE_THREAD (the
   // poller suppresses cache unread for it) AND broadcasts `social:active-thread`
-  // to all windows (so the main window's store mirrors it). Clear on unmount and
-  // on OS-window close.
+  // to all windows (so the main window's store mirrors it). Close-time cleanup
+  // is handled by the Rust-side `on_window_event` in `open_chat_window` (a JS
+  // `onCloseRequested` handler here interfered with the window closing); this
+  // cleanup covers the rare non-close unmount.
   useEffect(() => {
     if (!params || !session) return;
-    const clear = () => registerActiveThread({});
     if (isFriend && friendId) {
       registerActiveThread({ partner: friendId });
     } else if (groupInfo) {
       registerActiveThread({ group: [groupInfo[0], groupInfo[1]] });
     }
-    const unlisten = getCurrentWebviewWindow().onCloseRequested(clear);
-    return () => {
-      clear();
-      unlisten.then((fn) => fn());
-    };
+    return () => registerActiveThread({});
   }, [params, session, isFriend, friendId, groupInfo]);
 
   // Live-message fallback: poll the cache every few seconds. The background
@@ -240,28 +237,35 @@ export default function ChatWindow() {
   // E4: pick a local image → upload to the active chat (friend or group).
   const handlePickImage = async () => {
     if (uploading) return;
-    const { open } = await import("@tauri-apps/plugin-dialog");
-    const file = await open({
-      multiple: false,
-      filters: [{ name: t("steam.socialImageFilter"), extensions: ["png", "jpg", "jpeg", "gif", "webp"] }],
-    });
-    if (!file || typeof file !== "string") return;
-    setUploading(true);
     try {
-      if (isFriend) {
-        if (!friendId) throw new Error(t("steam.socialEmptyFriends"));
-        await uploadChatImage(file, friendId);
-      } else {
-        if (!groupInfo) throw new Error(t("steam.socialGroupsEmpty"));
-        await uploadGroupImage(file, groupInfo[0], groupInfo[1]);
+      const { open } = await import("@tauri-apps/plugin-dialog");
+      const file = await open({
+        multiple: false,
+        // Parent the native dialog to THIS window — otherwise it can attach to
+        // the main window and appear behind the chat sub-window.
+        parent: getCurrentWebviewWindow().label,
+        filters: [{ name: t("steam.socialImageFilter"), extensions: ["png", "jpg", "jpeg", "gif", "webp"] }],
+      });
+      if (!file || typeof file !== "string") return;
+      setUploading(true);
+      try {
+        if (isFriend) {
+          if (!friendId) throw new Error(t("steam.socialEmptyFriends"));
+          await uploadChatImage(file, friendId);
+        } else {
+          if (!groupInfo) throw new Error(t("steam.socialGroupsEmpty"));
+          await uploadGroupImage(file, groupInfo[0], groupInfo[1]);
+        }
+        showToast("success", t("steam.socialImageSent"));
+        // Steam inserts the image server-side — re-run the open cycle to show it.
+        setRefreshTick((x) => x + 1);
+      } catch (e) {
+        showToast("error", e instanceof Error ? e.message : String(e));
+      } finally {
+        setUploading(false);
       }
-      showToast("success", t("steam.socialImageSent"));
-      // Steam inserts the image server-side — re-run the open cycle to show it.
-      setRefreshTick((x) => x + 1);
     } catch (e) {
       showToast("error", e instanceof Error ? e.message : String(e));
-    } finally {
-      setUploading(false);
     }
   };
 
