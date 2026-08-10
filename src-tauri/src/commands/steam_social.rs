@@ -189,6 +189,9 @@ pub async fn open_chat_window(
         .inner_size(420.0, 620.0)
         .min_inner_size(360.0, 480.0)
         .resizable(true)
+        // Frameless so the JS side draws a Mac-style traffic-light titlebar,
+        // matching the main window (`decorations: false` in tauri.conf.json).
+        .decorations(false)
         .build()
         .map_err(|e| e.to_string())?;
     // Reliably clear the active thread when the chat window closes. The

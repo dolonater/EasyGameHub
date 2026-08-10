@@ -5,6 +5,7 @@ import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import Icon from "../../components/ui/Icon";
 import { showToast } from "../../components/Notification";
 import ChatThreadView from "../../components/steam/ChatThreadView";
+import ChatWindowTitleBar from "../../components/steam/ChatWindowTitleBar";
 import { useChatThread } from "../../hooks/useChatThread";
 import { registerActiveThread } from "../../lib/socialEvents";
 import {
@@ -305,32 +306,28 @@ export default function ChatWindow() {
     setStickerPickerOpen(false);
   };
 
-  if (!sessionLoaded || params === undefined) {
-    return (
-      <div className="flex h-screen items-center justify-center text-sm text-muted-foreground">
-        {t("common.loading")}
-      </div>
-    );
-  }
-  if (!session) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center gap-2 text-muted-foreground">
-        <Icon name="steamLogin" size={32} />
-        <div className="text-sm">{t("steam.socialNoSession")}</div>
-      </div>
-    );
-  }
-  if (params === null) {
-    return (
-      <div className="flex h-screen items-center justify-center text-sm text-muted-foreground">
-        {t("steam.socialChatEmpty")}
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-screen flex-col p-3">
-      {/* Header: avatar + name + (friend) status + profile link */}
+    <div className="flex h-screen flex-col">
+      {/* Mac-style titlebar — always rendered so the frameless window stays
+          draggable/closable in every state (loading / no-session / empty). */}
+      <ChatWindowTitleBar title={params?.name} />
+      <div className="flex min-h-0 flex-1 flex-col">
+        {!sessionLoaded || params === undefined ? (
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            {t("common.loading")}
+          </div>
+        ) : !session ? (
+          <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
+            <Icon name="steamLogin" size={32} />
+            <div className="text-sm">{t("steam.socialNoSession")}</div>
+          </div>
+        ) : params === null ? (
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            {t("steam.socialChatEmpty")}
+          </div>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col p-3">
+            {/* Header: avatar + name + (friend) status + profile link */}
       <div className="mb-2 flex items-center gap-2 border-b border-border/40 pb-2">
         {params.avatar ? (
           <img src={params.avatar} alt="" className="h-8 w-8 flex-none rounded-full" />
@@ -418,6 +415,9 @@ export default function ChatWindow() {
             sendLabel={t("steam.socialSend")}
           />
         ) : null}
+          </div>
+        </div>
+        )}
       </div>
     </div>
   );
