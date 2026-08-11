@@ -6,7 +6,7 @@ interface BiliAppShellProps {
   current: BiliTopNavPage;
   title?: string;
   subtitle?: string;
-  children: any;
+  children?: any;
   actions?: any;
 }
 

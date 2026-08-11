@@ -535,15 +535,31 @@ export const cssText = `
   bottom: 0;
   left: 0;
   display: grid;
-  grid-template-columns: auto auto minmax(120px, 1fr) auto auto 88px 76px auto auto;
-  gap: 8px;
-  align-items: center;
-  min-height: 52px;
-  padding: 8px;
+  grid-template-rows: auto auto;
+  gap: 5px;
+  padding: 6px 10px 8px;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.2));
 }
-.bili-player-icon-button,
-.bili-player-rate {
+.bili-player-controls-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+}
+.bili-player-controls-bottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.bili-player-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 34px;
   min-height: 32px;
   border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 8px;
@@ -551,11 +567,14 @@ export const cssText = `
   color: #fff;
   font: inherit;
   font-size: 12px;
-}
-.bili-player-icon-button {
-  min-width: 52px;
-  padding: 0 10px;
+  padding: 0 8px;
+  white-space: nowrap;
   cursor: pointer;
+}
+.bili-player-icon-button small {
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.92;
 }
 .bili-player-icon-button:disabled,
 .bili-player-rate:disabled,
@@ -578,9 +597,23 @@ export const cssText = `
 .bili-player-volume {
   min-width: 74px;
 }
+.bili-player-rate-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+}
 .bili-player-rate {
-  width: 76px;
-  padding: 0 6px;
+  width: auto;
+  min-width: 52px;
+  min-height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(12, 16, 24, 0.72);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  padding: 0 4px;
 }
 .bili-video-detail-panel {
   display: grid;
@@ -651,10 +684,15 @@ export const cssText = `
   padding: 2px 0 4px;
   scrollbar-width: thin;
 }
+.bili-popover-anchor {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
 .bili-interaction-button {
-  display: inline-grid;
-  grid-template-columns: auto auto;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   min-width: max-content;
   min-height: 38px;
@@ -672,38 +710,85 @@ export const cssText = `
   border-color: color-mix(in srgb, var(--bili-accent) 68%, transparent);
   background: color-mix(in srgb, var(--bili-accent) 18%, var(--card, #272b36));
 }
+.bili-interaction-button-active svg {
+  color: var(--bili-accent);
+}
 .bili-interaction-button-active small {
   color: color-mix(in srgb, var(--bili-accent) 82%, #fff);
 }
-.bili-popover-panel {
+.bili-menu-popover {
+  position: absolute;
+  z-index: 50;
   display: grid;
-  gap: 12px;
-  width: min(320px, 100%);
+  gap: 3px;
+  min-width: 200px;
+  max-width: min(300px, calc(100vw - 24px));
   border: 1px solid color-mix(in srgb, var(--border, #ffffff) 44%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 88%, #05070c 12%);
-  padding: 12px;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.26);
+  background: color-mix(in srgb, var(--card, #272b36) 92%, #05070c 8%);
+  padding: 6px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
 }
-.bili-favorite-popover {
-  width: min(420px, 100%);
-}
-.bili-popover-heading {
+.bili-menu-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
+  min-height: 28px;
+  padding: 2px 8px 5px;
+  color: var(--muted-foreground, #a8adbd);
+  font-size: 12px;
 }
-.bili-popover-heading strong {
-  font-size: 14px;
+.bili-menu-heading strong {
+  color: var(--foreground, #f6f7fb);
+  font-size: 13px;
 }
-.bili-popover-heading button {
+.bili-menu-close {
   border: 0;
   background: transparent;
   color: var(--muted-foreground, #a8adbd);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
+}
+.bili-menu-close:hover {
+  color: var(--foreground, #f6f7fb);
+}
+.bili-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--foreground, #f6f7fb);
+  padding: 0 10px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bili-menu-item:hover {
+  background: color-mix(in srgb, var(--bili-accent) 18%, transparent);
+}
+.bili-menu-item-active {
+  background: color-mix(in srgb, var(--bili-accent) 16%, transparent);
+  color: var(--bili-accent);
+}
+.bili-menu-item small {
+  margin-left: auto;
+  color: var(--muted-foreground, #a8adbd);
+  font-size: 11px;
+}
+.bili-menu-empty {
+  padding: 6px 10px;
+  color: var(--muted-foreground, #a8adbd);
+  font-size: 12px;
+}
+.bili-menu-footer {
+  padding-top: 2px;
 }
 .bili-segment-row {
   display: grid;
@@ -827,6 +912,20 @@ export const cssText = `
   text-align: left;
   font: inherit;
   cursor: pointer;
+}
+.bili-quality-option-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.bili-quality-option-main strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-quality-option-main svg {
+  color: var(--bili-accent);
 }
 .bili-quality-option:disabled {
   cursor: not-allowed;
@@ -1257,13 +1356,96 @@ export const cssText = `
   grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
   gap: 16px 14px;
 }
+.bili-hot-row {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.bili-hot-track {
+  display: flex;
+  gap: 14px;
+  min-width: 0;
+  padding-bottom: 6px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+.bili-hot-track .bili-video-card {
+  flex: 0 0 200px;
+  width: 200px;
+}
 .bili-mine {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 14px;
   align-items: start;
   max-width: 1220px;
   margin: 0 auto;
+}
+.bili-account-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--card, #272b36) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(132%);
+  -webkit-backdrop-filter: blur(18px) saturate(132%);
+  padding: 16px;
+}
+.bili-account-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.bili-account-card-avatar {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+  background: color-mix(in srgb, var(--muted, #4b5563) 70%, transparent);
+}
+.bili-account-card-id {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.bili-account-card-id strong {
+  overflow: hidden;
+  max-width: 260px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  line-height: 1.2;
+}
+.bili-account-card-id small {
+  color: var(--muted-foreground, #a8adbd);
+  font-size: 12px;
+}
+.bili-account-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
+}
+.bili-account-card-stat {
+  display: grid;
+  gap: 2px;
+  text-align: center;
+}
+.bili-account-card-stat strong {
+  font-size: 18px;
+  line-height: 1.1;
+}
+.bili-account-card-stat small {
+  color: var(--muted-foreground, #a8adbd);
+  font-size: 11px;
+}
+.bili-account-card > .bili-button {
+  flex: 0 0 auto;
 }
 .bili-mine .bili-login-panel,
 .bili-mine .bili-library {
@@ -1282,52 +1464,40 @@ export const cssText = `
   position: sticky;
   top: 12px;
   gap: 10px;
-}
-.bili-watch-tabs {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-  padding: 6px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 70%, transparent);
-  backdrop-filter: blur(18px) saturate(132%);
-  -webkit-backdrop-filter: blur(18px) saturate(132%);
-}
-.bili-watch-tab {
-  display: grid;
-  place-items: center;
-  gap: 1px;
-  min-width: 0;
-  min-height: 38px;
-  border-radius: 7px;
-  color: var(--muted-foreground, #a8adbd);
-  cursor: pointer;
-}
-.bili-watch-tab span,
-.bili-watch-tab small {
-  overflow: hidden;
-  max-width: 100%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.bili-watch-tab small {
-  font-size: 10px;
-}
-.bili-watch-tab-active {
-  background: color-mix(in srgb, var(--bili-accent) 20%, var(--card, #272b36));
-  color: var(--foreground, #f6f7fb);
-}
-.bili-watch-tab-panel {
-  display: grid;
-  min-width: 0;
   max-height: calc(100vh - 110px);
   overflow: auto;
+  overscroll-behavior: contain;
+}
+.bili-watch-side-toggle {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 38px;
   border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 76%, transparent);
-  backdrop-filter: blur(18px) saturate(132%);
-  -webkit-backdrop-filter: blur(18px) saturate(132%);
+  background: color-mix(in srgb, var(--card, #272b36) 48%, transparent);
+  color: var(--foreground, #f6f7fb);
+  padding: 0 12px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bili-watch-side-toggle small {
+  color: var(--muted-foreground, #a8adbd);
+  font-size: 12px;
+}
+.bili-watch-side-content {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.bili-related-list {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
 }
 .bili-sidebar-section {
   display: grid;
@@ -1354,7 +1524,7 @@ export const cssText = `
 .bili-setting-field select {
   border-radius: 8px;
 }
-@media (max-width: 640px) {
+@media (max-width: 820px) {
   .bili-shell {
     padding: 12px;
   }
@@ -1414,24 +1584,26 @@ export const cssText = `
   }
   .bili-watch-side {
     position: static;
-  }
-  .bili-watch-tabs {
-    grid-template-columns: repeat(5, minmax(48px, 1fr));
-    overflow-x: auto;
-  }
-  .bili-watch-tab-panel {
     max-height: none;
+    overflow: visible;
+  }
+  .bili-watch-side-toggle {
+    display: flex;
+  }
+  .bili-watch-side-content {
+    display: none;
+  }
+  .bili-watch-side-open .bili-watch-side-content {
+    display: grid;
   }
   .bili-player-shell {
     min-height: 180px;
   }
-  .bili-player-controls {
-    grid-template-columns: auto auto minmax(80px, 1fr) auto auto;
+  .bili-player-controls-top .bili-player-time:last-child {
+    display: none;
   }
-  .bili-player-volume,
-  .bili-player-rate,
-  .bili-player-controls .bili-player-icon-button:last-child,
-  .bili-player-controls .bili-player-time:nth-of-type(2) {
+  .bili-player-controls-bottom .bili-player-volume,
+  .bili-player-controls-bottom .bili-player-rate-wrap {
     display: none;
   }
   .bili-danmaku-input {

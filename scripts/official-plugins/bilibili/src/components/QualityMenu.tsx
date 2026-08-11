@@ -1,4 +1,4 @@
-import React, { Button } from "sdk";
+import React, { Button, Icon } from "sdk";
 import type { BiliQualityOption } from "../types";
 import type { QualityMode } from "../player/dashPlayer";
 
@@ -65,25 +65,32 @@ export function QualityMenu({
             type="button"
             onClick={onAuto}
           >
-            <strong>自动</strong>
+            <span className="bili-quality-option-main">
+              {mode === "auto" ? <Icon name="check" size={14} /> : null}
+              <strong>自动</strong>
+            </span>
             <small>{currentLabel(currentQualityId, qualities)}</small>
           </button>
-          {qualities.map((quality) => (
-            <button
-              className={`bili-quality-option ${
-                mode === "manual" && selectedQualityId === quality.id ? "bili-quality-option-active" : ""
-              }`}
-              disabled={disabled}
-              key={quality.id}
-              type="button"
-              onClick={() => onManual(quality.id)}
-            >
-              <strong>{quality.label || quality.quality}</strong>
-              <small>
-                {quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video"}
-              </small>
-            </button>
-          ))}
+          {qualities.map((quality) => {
+            const active = mode === "manual" && selectedQualityId === quality.id;
+            return (
+              <button
+                className={`bili-quality-option ${active ? "bili-quality-option-active" : ""}`}
+                disabled={disabled}
+                key={quality.id}
+                type="button"
+                onClick={() => onManual(quality.id)}
+              >
+                <span className="bili-quality-option-main">
+                  {active ? <Icon name="check" size={14} /> : null}
+                  <strong>{quality.label || quality.quality}</strong>
+                </span>
+                <small>
+                  {quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video"}
+                </small>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

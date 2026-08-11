@@ -1,4 +1,4 @@
-import React, { useState } from "sdk";
+import React, { Icon, useState } from "sdk";
 import type { BiliVideoDetail, BiliVideoPage, PluginSdk } from "../types";
 import { captureVideoFrame, screenshotFileName } from "../player/frameCapture";
 
@@ -14,8 +14,15 @@ export function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled
   const [saving, setSaving] = useState(false);
 
   return (
-    <button className="bili-player-icon-button" disabled={disabled || saving} type="button" onClick={saveScreenshot}>
-      {saving ? "保存中" : "截图"}
+    <button
+      className="bili-player-icon-button bili-player-icon-label"
+      disabled={disabled || saving}
+      title={saving ? "保存中" : "截图"}
+      type="button"
+      onClick={saveScreenshot}
+    >
+      <Icon name="screenshots" size={16} />
+      {saving ? <small>保存中</small> : null}
     </button>
   );
 

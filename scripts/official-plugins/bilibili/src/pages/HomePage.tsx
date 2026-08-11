@@ -1,85 +1,71 @@
-import React, { Button, TextField, useEffect, useState } from "sdk";
+import React, { Button, TextField, useState } from "sdk";
 import { BiliAppShell } from "../components/BiliAppShell";
 import { HomeFeed } from "../components/HomeFeed";
-import { errorMessage, getState } from "../runtime";
-import type { BiliVideoCard } from "../types";
+import { usePagedFeed } from "../hooks/usePagedFeed";
+import { getState } from "../runtime";
+import type { PluginSdk } from "../types";
 
 type Mode = "recommend" | "popular" | "search";
 
 export function HomePage() {
-  const [videos, setVideos] = useState<BiliVideoCard[]>([]);
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<Mode>("recommend");
-  const [recommendPage, setRecommendPage] = useState(1);
-  const [popularPage, setPopularPage] = useState(1);
-  const [searchPage, setSearchPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [popularActive, setPopularActive] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
-  useEffect(() => {
-    void loadRecommend(false);
-  }, []);
+  // 推荐：mount 即加载第一页
+  const recommend = usePagedFeed(
+    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.recommendVideos(page, refresh)),
+    { key: "recommend" },
+  );
+  // 热门：懒加载，首次切到热门 Tab 才请求（对齐现有行为）
+  const popular = usePagedFeed(
+    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.popularVideos(page, refresh)),
+    { key: "popular", enabled: popularActive },
+  );
+  // 搜索：key 用已提交关键词（非实时输入框），避免敲键即搜索
+  const search = usePagedFeed(
+    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.searchVideos(searchKeyword, page, refresh)),
+    { key: searchKeyword, enabled: searchKeyword.length > 0 },
+  );
 
-  const loadRecommend = async (refresh = false) => {
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    const nextPage = refresh ? recommendPage + 1 : 1;
-    setLoading(true);
-    setError("");
-    try {
-      const next = await sdk.bilibili.home.recommendVideos(nextPage, refresh);
-      setVideos(next);
-      setRecommendPage(nextPage);
-      setMode("recommend");
-    } catch (err) {
-      setError(errorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const active = mode === "popular" ? popular : mode === "search" ? search : recommend;
 
-  const loadPopular = async (refresh = false) => {
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    const nextPage = refresh ? popularPage + 1 : 1;
-    setLoading(true);
-    setError("");
-    try {
-      const next = await sdk.bilibili.home.popularVideos(nextPage, refresh);
-      setVideos(next);
-      setPopularPage(nextPage);
-      setMode("popular");
-    } catch (err) {
-      setError(errorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const search = async (event?: { preventDefault(): void }, refresh = false) => {
+  function handleSearch(event?: { preventDefault(): void }) {
     event?.preventDefault();
     const keywords = query.trim();
     if (!keywords) {
-      await loadRecommend(refresh);
+      setMode("recommend");
       return;
     }
-
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    const nextPage = refresh ? searchPage + 1 : 1;
-    setLoading(true);
-    setError("");
-    try {
-      const next = await sdk.bilibili.home.searchVideos(keywords, nextPage, refresh);
-      setVideos(next);
-      setSearchPage(nextPage);
-      setMode("search");
-    } catch (err) {
-      setError(errorMessage(err));
-    } finally {
-      setLoading(false);
+    // 同一关键词重提交：key 未变不会触发 effect，显式重载第一页
+    if (keywords === searchKeyword) {
+      search.reset();
     }
-  };
+    setSearchKeyword(keywords);
+    setMode("search");
+  }
+
+  function switchToRecommend() {
+    setMode("recommend");
+  }
+
+  function switchToPopular() {
+    setPopularActive(true);
+    setMode("popular");
+  }
+
+  function switchToSearch() {
+    setMode("search");
+  }
+
+  function refreshCurrent() {
+    if (mode === "search") search.reload();
+    else if (mode === "popular") popular.reload();
+    else recommend.reload();
+  }
+
+  const searchGuide = mode === "search" && searchKeyword.length === 0;
 
   return (
     <BiliAppShell
@@ -91,37 +77,33 @@ export function HomePage() {
       }
     >
       <section className="bili-home">
-        <form className="bili-search" onSubmit={(event) => void search(event)}>
+        <form className="bili-search" onSubmit={(event) => handleSearch(event)}>
           <TextField value={query} onChange={(event: any) => setQuery(event.currentTarget.value)} placeholder="搜索视频" />
-          <Button type="submit" disabled={loading} size="sm">
+          <Button type="submit" disabled={active.loading} size="sm">
             搜索
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            type="button"
-            onClick={() => void refreshCurrent()}
-            disabled={loading}
-          >
+          <Button variant="outline" size="sm" type="button" onClick={refreshCurrent} disabled={active.loading}>
             刷新
           </Button>
         </form>
 
         <HomeFeed
-          error={error}
-          loading={loading}
+          error={active.error}
+          loading={active.loading}
           mode={mode}
-          videos={videos}
-          onPopular={() => void loadPopular(false)}
-          onRecommend={() => void loadRecommend(false)}
+          videos={active.items}
+          searchGuide={searchGuide}
+          onPopular={switchToPopular}
+          onRecommend={switchToRecommend}
+          onSearch={switchToSearch}
         />
       </section>
     </BiliAppShell>
   );
+}
 
-  function refreshCurrent() {
-    if (mode === "search") return search(undefined, true);
-    if (mode === "popular") return loadPopular(true);
-    return loadRecommend(true);
-  }
+function homeCall<T>(call: (sdk: PluginSdk) => Promise<T>): Promise<T> {
+  const sdk = getState().sdk;
+  if (!sdk) return Promise.reject(new Error("Bilibili 插件尚未初始化"));
+  return call(sdk);
 }

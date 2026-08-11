@@ -1,14 +1,17 @@
-import React, { Button, useState } from "sdk";
+import React, { Button, Icon, useState } from "sdk";
 import type { BiliFavoriteFolder } from "../types";
+import { MenuPopover } from "./MenuPopover";
 
 interface FavoritePanelProps {
   busy: boolean;
   folders: BiliFavoriteFolder[];
   onClose(): void;
   onSubmit(addMediaIds: string[], delMediaIds: string[]): void;
+  style?: Record<string, string | number>;
+  triggerRef?: { current: HTMLElement | null };
 }
 
-export function FavoritePanel({ busy, folders, onClose, onSubmit }: FavoritePanelProps) {
+export function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }: FavoritePanelProps) {
   const ownedFolders = folders.filter((folder) => folder.owned);
   const [selected, setSelected] = useState<Record<number, boolean>>(() =>
     Object.fromEntries(ownedFolders.map((folder) => [folder.id, folder.favState > 0])),
@@ -29,34 +32,35 @@ export function FavoritePanel({ busy, folders, onClose, onSubmit }: FavoritePane
   }
 
   return (
-    <div className="bili-popover-panel bili-favorite-popover">
-      <div className="bili-popover-heading">
+    <MenuPopover onClose={onClose} style={style} triggerRef={triggerRef}>
+      <div className="bili-menu-heading">
         <strong>收藏到</strong>
-        <button type="button" onClick={onClose}>
+        <button className="bili-menu-close" type="button" onClick={onClose}>
           关闭
         </button>
       </div>
-      <div className="bili-favorite-picker">
-        {!hasOwnedFolders ? (
-          <span>暂无可写入的收藏夹</span>
-        ) : (
-          ownedFolders.map((folder) => (
-            <button
-              className={selected[folder.id] ? "bili-folder-item bili-folder-item-active" : "bili-folder-item"}
-              disabled={busy}
-              key={folder.id}
-              type="button"
-              onClick={() => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))}
-            >
-              <span>{folder.title || "未命名收藏夹"}</span>
-              <small>{selected[folder.id] ? "已选择" : `${folder.mediaCount} 个`}</small>
-            </button>
-          ))
-        )}
+      {!hasOwnedFolders ? (
+        <span className="bili-menu-empty">暂无可写入的收藏夹</span>
+      ) : (
+        ownedFolders.map((folder) => (
+          <button
+            className={`bili-menu-item ${selected[folder.id] ? "bili-menu-item-active" : ""}`}
+            disabled={busy}
+            key={folder.id}
+            type="button"
+            onClick={() => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))}
+          >
+            {selected[folder.id] ? <Icon name="check" size={14} /> : null}
+            <span>{folder.title || "未命名收藏夹"}</span>
+            <small>{selected[folder.id] ? "已选择" : `${folder.mediaCount} 个`}</small>
+          </button>
+        ))
+      )}
+      <div className="bili-menu-footer">
+        <Button disabled={busy || !hasOwnedFolders} size="sm" type="button" onClick={submit}>
+          {busy ? "提交中" : "保存收藏"}
+        </Button>
       </div>
-      <Button disabled={busy || !hasOwnedFolders} size="sm" type="button" onClick={submit}>
-        {busy ? "提交中" : "保存收藏"}
-      </Button>
-    </div>
+    </MenuPopover>
   );
 }

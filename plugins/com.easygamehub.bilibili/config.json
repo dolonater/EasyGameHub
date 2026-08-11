@@ -1,0 +1,10 @@
+{
+  "danmakuDensity": 0.85,
+  "danmakuEnabled": true,
+  "danmakuFontSize": 22,
+  "danmakuOpacity": 0.85,
+  "danmakuSpeed": 1,
+  "defaultPlaybackRate": 1.0,
+  "defaultQualityMode": "auto",
+  "syncProgress": true
+}

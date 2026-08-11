@@ -5,9 +5,10 @@ interface HomeFeedTabsProps {
   loading: boolean;
   onRecommend(): void;
   onPopular(): void;
+  onSearch(): void;
 }
 
-export function HomeFeedTabs({ mode, loading, onRecommend, onPopular }: HomeFeedTabsProps) {
+export function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onSearch }: HomeFeedTabsProps) {
   return (
     <div className="bili-feed-tabs" role="tablist" aria-label="首页内容">
       <Button
@@ -33,6 +34,18 @@ export function HomeFeedTabs({ mode, loading, onRecommend, onPopular }: HomeFeed
         disabled={loading}
       >
         热门
+      </Button>
+      <Button
+        aria-selected={mode === "search"}
+        className={mode === "search" ? "bili-feed-tab bili-feed-tab-active" : "bili-feed-tab"}
+        variant="ghost"
+        size="sm"
+        role="tab"
+        type="button"
+        onClick={onSearch}
+        disabled={loading}
+      >
+        搜索
       </Button>
     </div>
   );

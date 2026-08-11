@@ -1,72 +1,65 @@
-import React, { Button, useEffect, useState } from "sdk";
-
-type WatchTab = "pages" | "quality" | "danmaku" | "comments" | "more";
+import React, { useState } from "sdk";
+import type { BiliVideoPage } from "../types";
+import { RelatedPanel } from "./RelatedPanel";
 
 interface WatchSidebarTabsProps {
-  defaultTab: WatchTab;
-  focusMoreNonce?: number;
-  pagesCount: number;
-  commentsPanel: any;
-  pagesPanel: any;
-  qualityPanel: any;
-  danmakuPanel: any;
-  morePanel: any;
+  pages: BiliVideoPage[];
+  selectedPageCid: number | undefined;
+  onSelectPage(page: BiliVideoPage): void;
+  bvid?: string;
+  aid?: number;
 }
 
-const tabs: Array<{ id: WatchTab; label: string }> = [
-  { id: "pages", label: "分P" },
-  { id: "quality", label: "清晰度" },
-  { id: "danmaku", label: "弹幕" },
-  { id: "comments", label: "评论" },
-  { id: "more", label: "更多" },
-];
-
-export function WatchSidebarTabs({
-  defaultTab,
-  focusMoreNonce,
-  pagesCount,
-  commentsPanel,
-  pagesPanel,
-  qualityPanel,
-  danmakuPanel,
-  morePanel,
-}: WatchSidebarTabsProps) {
-  const [active, setActive] = useState<WatchTab>(defaultTab);
-
-  useEffect(() => {
-    setActive(defaultTab);
-  }, [defaultTab]);
-
-  useEffect(() => {
-    if (focusMoreNonce) setActive("more");
-  }, [focusMoreNonce]);
+/**
+ * 播放页右侧内容栏：分P 列表 + 相关推荐，两个堆叠区块，不做 Tab 切换。
+ * 宽窗口常驻展示；窄窗口（断点内）收起为可展开面板，不常驻占宽。
+ */
+export function WatchSidebarTabs({ pages, selectedPageCid, onSelectPage, bvid, aid }: WatchSidebarTabsProps) {
+  const [open, setOpen] = useState(false);
 
   return (
-    <aside className="bili-watch-side">
-      <div className="bili-watch-tabs" role="tablist" aria-label="播放辅助功能">
-        {tabs.map((tab) => (
-          <Button
-            aria-selected={active === tab.id}
-            className={active === tab.id ? "bili-watch-tab bili-watch-tab-active" : "bili-watch-tab"}
-            variant="ghost"
-            size="sm"
-            key={tab.id}
-            role="tab"
-            type="button"
-            onClick={() => setActive(tab.id)}
-          >
-            <span>{tab.label}</span>
-            {tab.id === "pages" && pagesCount > 1 ? <small>{pagesCount}</small> : null}
-          </Button>
-        ))}
-      </div>
-      <div className="bili-watch-tab-panel" role="tabpanel">
-        {active === "pages" ? pagesPanel : null}
-        {active === "quality" ? qualityPanel : null}
-        {active === "danmaku" ? danmakuPanel : null}
-        {active === "comments" ? commentsPanel : null}
-        {active === "more" ? morePanel : null}
+    <aside className={`bili-watch-side ${open ? "bili-watch-side-open" : ""}`}>
+      <button className="bili-watch-side-toggle" type="button" onClick={() => setOpen((value) => !value)}>
+        <span>分P · 相关推荐</span>
+        <small>{open ? "收起" : "展开"}</small>
+      </button>
+      <div className="bili-watch-side-content">
+        <section className="bili-sidebar-section">
+          <div className="bili-section-title">
+            <strong>分 P</strong>
+            <small>{pages.length} 个</small>
+          </div>
+          <div className="bili-page-list">
+            {pages.map((page) => (
+              <button
+                className={`bili-page-item ${selectedPageCid === page.cid ? "bili-page-item-active" : ""}`}
+                key={page.cid}
+                type="button"
+                onClick={() => onSelectPage(page)}
+              >
+                <span>
+                  {page.page}. {page.title || `CID ${page.cid}`}
+                </span>
+                <small>{formatDuration(page.duration)}</small>
+              </button>
+            ))}
+          </div>
+        </section>
+        <RelatedPanel bvid={bvid} aid={aid} />
       </div>
     </aside>
   );
+}
+
+function formatDuration(seconds: number) {
+  const safe = Math.max(0, Math.floor(seconds || 0));
+  const hour = Math.floor(safe / 3600);
+  const minute = Math.floor((safe % 3600) / 60);
+  const second = safe % 60;
+  if (hour > 0) return `${hour}:${pad(minute)}:${pad(second)}`;
+  return `${minute}:${pad(second)}`;
+}
+
+function pad(value: number) {
+  return value.toString().padStart(2, "0");
 }

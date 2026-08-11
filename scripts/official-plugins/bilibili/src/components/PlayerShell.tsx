@@ -1,4 +1,4 @@
-import React, { Button, Slider, Toggle, useCallback, useEffect, useRef, useState } from "sdk";
+import React, { Button, Icon, useCallback, useEffect, useRef, useState } from "sdk";
 import type {
   BiliDanmakuItem,
   BiliPlaybackSource,
@@ -13,11 +13,12 @@ import { createProgressReporter, type ProgressReporterHandle } from "../player/p
 import { errorMessage } from "../runtime";
 import { DanmakuInput } from "./DanmakuInput";
 import { DanmakuOverlay, type DanmakuSettings } from "./DanmakuOverlay";
+import { DanmakuSettingsPopover } from "./DanmakuSettingsPopover";
+import { MenuPopover } from "./MenuPopover";
 import { QualityMenu } from "./QualityMenu";
 import { ScreenshotButton } from "./ScreenshotButton";
 import { VideoInteractionBar } from "./VideoInteractionBar";
 import { VideoOwnerRow } from "./VideoOwnerRow";
-import { WatchSidebarTabs } from "./WatchSidebarTabs";
 
 interface PlayerShellProps {
   detail: BiliVideoDetail;
@@ -45,7 +46,6 @@ interface PlayerShellProps {
   onToView(): void;
   onFollowOwner(): void;
   onReport(): void;
-  onSelectPage(page: BiliVideoPage): void;
   onPlaybackTime(cid: number, seconds: number): void;
   onReloadPlayback(): void;
   onPlaybackFallback(wasDirect: boolean): void;
@@ -84,7 +84,6 @@ export function PlayerShell({
   onToView,
   onFollowOwner,
   onReport,
-  onSelectPage,
   onPlaybackTime,
   onReloadPlayback,
   onPlaybackFallback,
@@ -96,6 +95,8 @@ export function PlayerShell({
 }: PlayerShellProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
+  const qualityTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const danmakuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const playerRef = useRef<DashPlayerHandle | null>(null);
   const reporterRef = useRef<ProgressReporterHandle | null>(null);
   const sourceStartedAtRef = useRef(0);
@@ -114,7 +115,8 @@ export function PlayerShell({
   const [muted, setMuted] = useState(false);
   const [rate, setRate] = useState(defaultPlaybackRate);
   const [fullscreen, setFullscreen] = useState(false);
-  const [moreNonce, setMoreNonce] = useState(0);
+  const [qualityOpen, setQualityOpen] = useState(false);
+  const [danmakuOpen, setDanmakuOpen] = useState(false);
 
   const rememberTime = useCallback(() => {
     const video = videoRef.current;
@@ -139,7 +141,7 @@ export function PlayerShell({
     setFullscreen((value) => !value);
   }, []);
 
-  const toggleDanmaku = useCallback(() => {
+  const toggleDanmakuEnabled = useCallback(() => {
     onDanmakuSettingsChange({ ...danmakuSettings, enabled: !danmakuSettings.enabled });
   }, [danmakuSettings, onDanmakuSettingsChange]);
 
@@ -247,162 +249,55 @@ export function PlayerShell({
       video,
       container: shell,
       onFullscreenToggle: toggleFullscreen,
-      onDanmakuToggle: toggleDanmaku,
+      onDanmakuToggle: toggleDanmakuEnabled,
       onChange: syncVideoState,
     });
-  }, [syncVideoState, toggleDanmaku, toggleFullscreen]);
+  }, [syncVideoState, toggleDanmakuEnabled, toggleFullscreen]);
 
   const playbackError = mediaError || dashState.error || error;
   const canControl = Boolean(playback && !loadingPlayback && !playbackError);
-  const defaultSidebarTab = detail.pages.length > 1 ? "pages" : "quality";
-  const pagesPanel = (
-    <section className="bili-sidebar-section">
-      <div className="bili-section-title">
-        <strong>分 P</strong>
-        <small>{detail.pages.length} 个</small>
-      </div>
-      <div className="bili-page-list">
-        {detail.pages.map((page) => (
-          <button
-            className={`bili-page-item ${selectedPage?.cid === page.cid ? "bili-page-item-active" : ""}`}
-            key={page.cid}
-            type="button"
-            onClick={() => {
-              rememberTime();
-              reporterRef.current?.flush();
-              onSelectPage(page);
-            }}
-          >
-            <span>{page.page}. {page.title || `CID ${page.cid}`}</span>
-            <small>{formatDuration(page.duration)}</small>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-  const qualityPanel = (
-    <section className="bili-sidebar-section">
-      <QualityMenu
-        currentQualityId={dashState.currentQualityId}
-        disabled={!playerRef.current || loadingPlayback}
-        mode={dashState.mode}
-        playbackMode={playbackMode}
-        qualities={playback?.qualities ?? []}
-        selectedQualityId={dashState.selectedQualityId}
-        onAuto={() => playerRef.current?.setAutoQuality()}
-        onManual={(id) => playerRef.current?.setManualQuality(id)}
-        onPlaybackModeChange={onPlaybackModeChange}
-      />
-      {error ? <div className="bili-state bili-state-error bili-state-compact">{error}</div> : null}
-    </section>
-  );
-  const danmakuPanel = (
-    <section className="bili-sidebar-section">
-      <div className="bili-danmaku-settings">
-        <div className="bili-section-title">
-          <strong>弹幕</strong>
-          <small>{danmakuLoading ? "加载中" : `${danmakuItems.length} 条`}</small>
-        </div>
-        {danmakuError ? <div className="bili-state bili-state-error bili-state-compact">{danmakuError}</div> : null}
-        <label className="bili-toggle-line">
-          <Toggle
-            on={danmakuSettings.enabled}
-            onChange={(enabled: boolean) => onDanmakuSettingsChange({ ...danmakuSettings, enabled })}
-          />
-          <span>显示弹幕</span>
-        </label>
-        <label className="bili-slider-line">
-          <span>字号 {danmakuSettings.fontSize}px</span>
-          <Slider
-            max={32}
-            min={16}
-            step={1}
-            value={danmakuSettings.fontSize}
-            onChange={(fontSize: number) => onDanmakuSettingsChange({ ...danmakuSettings, fontSize })}
-          />
-        </label>
-        <label className="bili-slider-line">
-          <span>透明度 {Math.round(danmakuSettings.opacity * 100)}%</span>
-          <Slider
-            max={1}
-            min={0.2}
-            step={0.05}
-            value={danmakuSettings.opacity}
-            onChange={(opacity: number) => onDanmakuSettingsChange({ ...danmakuSettings, opacity })}
-          />
-        </label>
-        <label className="bili-slider-line">
-          <span>密度 {Math.round(danmakuSettings.density * 100)}%</span>
-          <Slider
-            max={1}
-            min={0.25}
-            step={0.05}
-            value={danmakuSettings.density}
-            onChange={(density: number) => onDanmakuSettingsChange({ ...danmakuSettings, density })}
-          />
-        </label>
-        <label className="bili-slider-line">
-          <span>速度 {danmakuSettings.speed.toFixed(1)}x</span>
-          <Slider
-            max={1.8}
-            min={0.6}
-            step={0.1}
-            value={danmakuSettings.speed}
-            onChange={(speed: number) => onDanmakuSettingsChange({ ...danmakuSettings, speed })}
-          />
-        </label>
-      </div>
-    </section>
-  );
-  const morePanel = (
-    <section className="bili-sidebar-section">
-      <div className="bili-section-title">
-        <strong>更多</strong>
-        <small>{loggedIn ? "已登录" : "部分功能需登录"}</small>
-      </div>
-      <div className="bili-action-row">
-        <Button variant="outline" size="sm" type="button" onClick={openExternal}>
-          外部打开
-        </Button>
-        <Button variant="outline" size="sm" type="button" onClick={onShare}>
-          复制链接
-        </Button>
-        <Button variant="outline" size="sm" type="button" onClick={openScreenshotFolder}>
-          截图目录
-        </Button>
-      </div>
-    </section>
-  );
+
+  function qualityLabel() {
+    if (playbackMode === "compat") return "兼容";
+    if (dashState.mode === "manual" && dashState.selectedQualityId) {
+      return playback?.qualities.find((quality) => quality.id === dashState.selectedQualityId)?.label ?? "手动";
+    }
+    return "自动";
+  }
+
+  function toggleQuality() {
+    setQualityOpen((value) => !value);
+  }
+
+  function toggleDanmaku() {
+    setDanmakuOpen((value) => !value);
+  }
 
   return (
-    <section className="bili-watch-grid">
-      <div className="bili-watch-main">
-        <div className={`bili-player-shell ${fullscreen ? "bili-player-shell-fullscreen" : ""}`} ref={shellRef}>
-          <video className="bili-video-element" playsInline ref={videoRef} />
-          <DanmakuOverlay items={danmakuItems} settings={danmakuSettings} videoRef={videoRef} />
+    <div className="bili-watch-main">
+      <div className={`bili-player-shell ${fullscreen ? "bili-player-shell-fullscreen" : ""}`} ref={shellRef}>
+        <video className="bili-video-element" playsInline ref={videoRef} />
+        <DanmakuOverlay items={danmakuItems} settings={danmakuSettings} videoRef={videoRef} />
 
-          {loadingPlayback || !playback || playbackError ? (
-            <div className="bili-player-overlay">
-              <strong>{playbackError ? "播放失败" : loadingPlayback ? "正在创建播放会话" : "等待播放源"}</strong>
-              {playbackError ? <span>{playbackError}</span> : null}
-              {playbackError ? (
-                <div className="bili-player-overlay-actions">
-                  <Button size="sm" type="button" onClick={onReloadPlayback}>
-                    重载
-                  </Button>
-                  <Button variant="outline" size="sm" type="button" onClick={openExternal}>
-                    外部打开
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
+        {loadingPlayback || !playback || playbackError ? (
+          <div className="bili-player-overlay">
+            <strong>{playbackError ? "播放失败" : loadingPlayback ? "正在创建播放会话" : "等待播放源"}</strong>
+            {playbackError ? <span>{playbackError}</span> : null}
+            {playbackError ? (
+              <div className="bili-player-overlay-actions">
+                <Button size="sm" type="button" onClick={onReloadPlayback}>
+                  重载
+                </Button>
+                <Button variant="outline" size="sm" type="button" onClick={openExternal}>
+                  外部打开
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
-          <div className="bili-player-controls">
-            <button className="bili-player-icon-button" disabled={!canControl} type="button" onClick={togglePlay}>
-              {isPlaying ? "暂停" : "播放"}
-            </button>
-            <span className="bili-player-time">{formatDuration(currentTime)}</span>
+        <div className="bili-player-controls">
+          <div className="bili-player-controls-top">
             <input
               aria-label="播放进度"
               className="bili-player-seek"
@@ -412,11 +307,29 @@ export function PlayerShell({
               step="0.1"
               type="range"
               value={Math.min(currentTime, Math.max(1, duration))}
-              onChange={(event) => seek(Number(event.currentTarget.value))}
+              onChange={(event: any) => seek(Number(event.currentTarget.value))}
             />
+            <span className="bili-player-time">{formatDuration(currentTime)}</span>
             <span className="bili-player-time">{formatDuration(duration)}</span>
-            <button className="bili-player-icon-button" disabled={!canControl} type="button" onClick={toggleMute}>
-              {muted || volume === 0 ? "静音" : "音量"}
+          </div>
+          <div className="bili-player-controls-bottom">
+            <button
+              className="bili-player-icon-button"
+              disabled={!canControl}
+              title={isPlaying ? "暂停" : "播放"}
+              type="button"
+              onClick={togglePlay}
+            >
+              <Icon name={isPlaying ? "pauseFilled" : "playFilled"} size={18} />
+            </button>
+            <button
+              className="bili-player-icon-button"
+              disabled={!canControl}
+              title={muted || volume === 0 ? "取消静音" : "静音"}
+              type="button"
+              onClick={toggleMute}
+            >
+              <Icon name={muted || volume === 0 ? "speakerMute" : "speaker"} size={18} />
             </button>
             <input
               aria-label="音量"
@@ -427,23 +340,44 @@ export function PlayerShell({
               step="0.01"
               type="range"
               value={muted ? 0 : volume}
-              onChange={(event) => changeVolume(Number(event.currentTarget.value))}
+              onChange={(event: any) => changeVolume(Number(event.currentTarget.value))}
             />
-            <select
-              aria-label="倍速"
-              className="bili-player-rate"
+            <span className="bili-player-rate-wrap">
+              <Icon name="playtime" size={15} />
+              <select
+                aria-label="倍速"
+                className="bili-player-rate"
+                disabled={!canControl}
+                value={rate}
+                onChange={(event: any) => changeRate(Number(event.currentTarget.value))}
+              >
+                {playbackRates.map((value) => (
+                  <option key={value} value={value}>
+                    {value}x
+                  </option>
+                ))}
+              </select>
+            </span>
+            <button
+              className="bili-player-icon-button bili-player-icon-label"
               disabled={!canControl}
-              value={rate}
-              onChange={(event) => changeRate(Number(event.currentTarget.value))}
+              ref={qualityTriggerRef}
+              title="清晰度"
+              type="button"
+              onMouseDown={toggleQuality}
             >
-              {playbackRates.map((value) => (
-                <option key={value} value={value}>
-                  {value}x
-                </option>
-              ))}
-            </select>
-            <button className="bili-player-icon-button" disabled={!canControl} type="button" onClick={toggleFullscreen}>
-              {fullscreen ? "退出" : "全屏"}
+              <Icon name="settings" size={16} />
+              <small>{qualityLabel()}</small>
+            </button>
+            <button
+              className="bili-player-icon-button bili-player-icon-label"
+              ref={danmakuTriggerRef}
+              title="弹幕"
+              type="button"
+              onMouseDown={toggleDanmaku}
+            >
+              <Icon name="playlistFilled" size={16} />
+              <small>{danmakuSettings.enabled ? "开" : "关"}</small>
             </button>
             <ScreenshotButton
               detail={detail}
@@ -452,66 +386,107 @@ export function PlayerShell({
               selectedPage={selectedPage}
               videoRef={videoRef}
             />
+            <button
+              className="bili-player-icon-button"
+              disabled={!canControl}
+              title={fullscreen ? "退出全屏" : "全屏"}
+              type="button"
+              onClick={toggleFullscreen}
+            >
+              <Icon name="fullscreen" size={18} />
+            </button>
           </div>
         </div>
 
-        <DanmakuInput
-          detail={detail}
-          disabled={!loggedIn}
-          hidden={!danmakuSettings.enabled}
-          sdk={sdk}
-          selectedPage={selectedPage}
-          videoRef={videoRef}
-          onSent={onDanmakuSent}
-        />
+        {qualityOpen ? (
+          <MenuPopover
+            onClose={() => setQualityOpen(false)}
+            style={{ position: "absolute", right: 12, bottom: 80, zIndex: 50 }}
+            triggerRef={qualityTriggerRef}
+          >
+            <QualityMenu
+              currentQualityId={dashState.currentQualityId}
+              disabled={!playerRef.current || loadingPlayback}
+              mode={dashState.mode}
+              playbackMode={playbackMode}
+              qualities={playback?.qualities ?? []}
+              selectedQualityId={dashState.selectedQualityId}
+              onAuto={() => {
+                playerRef.current?.setAutoQuality();
+                setQualityOpen(false);
+              }}
+              onManual={(id) => {
+                playerRef.current?.setManualQuality(id);
+                setQualityOpen(false);
+              }}
+              onPlaybackModeChange={onPlaybackModeChange}
+            />
+          </MenuPopover>
+        ) : null}
 
-        <VideoInteractionBar
-          busy={interactionBusy}
-          loggedIn={loggedIn}
-          loading={interactionLoading}
-          state={interactionState}
-          onCoin={onCoin}
-          onFavorite={onFavorite}
-          onLike={onLike}
-          onMore={() => setMoreNonce((value) => value + 1)}
-          onReport={onReport}
-          onShare={onShare}
-          onToView={onToView}
-        />
-
-        {interactionError ? <div className="bili-state bili-state-error bili-state-compact">{interactionError}</div> : null}
-
-        <VideoOwnerRow
-          busy={interactionBusy === "follow"}
-          loggedIn={loggedIn}
-          state={interactionState}
-          onFollow={onFollowOwner}
-          onOpenSpace={openOwnerSpace}
-        />
-
-        <section className="bili-video-detail-panel">
-          <div className="bili-video-heading">
-            <strong>{detail.title || "Untitled"}</strong>
-            <small>
-              {detail.owner.name || "未知 UP 主"} · {formatCount(detail.stats.viewCount)} 播放 ·{" "}
-              {formatCount(detail.stats.danmakuCount)} 弹幕
-            </small>
-          </div>
-          <p>{detail.description || "暂无简介"}</p>
-        </section>
+        {danmakuOpen ? (
+          <DanmakuSettingsPopover
+            settings={danmakuSettings}
+            loading={danmakuLoading}
+            count={danmakuItems.length}
+            error={danmakuError}
+            onChange={onDanmakuSettingsChange}
+            onClose={() => setDanmakuOpen(false)}
+            style={{ position: "absolute", right: 12, bottom: 80, zIndex: 50 }}
+            triggerRef={danmakuTriggerRef}
+          />
+        ) : null}
       </div>
 
-      <WatchSidebarTabs
-        commentsPanel={commentsPanel}
-        danmakuPanel={danmakuPanel}
-        defaultTab={defaultSidebarTab}
-        focusMoreNonce={moreNonce}
-        morePanel={morePanel}
-        pagesCount={detail.pages.length}
-        pagesPanel={pagesPanel}
-        qualityPanel={qualityPanel}
+      <DanmakuInput
+        detail={detail}
+        disabled={!loggedIn}
+        hidden={!danmakuSettings.enabled}
+        sdk={sdk}
+        selectedPage={selectedPage}
+        videoRef={videoRef}
+        onSent={onDanmakuSent}
       />
-    </section>
+
+      <VideoInteractionBar
+        busy={interactionBusy}
+        loggedIn={loggedIn}
+        loading={interactionLoading}
+        state={interactionState}
+        onCoin={onCoin}
+        onFavorite={onFavorite}
+        onLike={onLike}
+        onShare={onShare}
+        onToView={onToView}
+        onReport={onReport}
+        onExternalOpen={openExternal}
+        onCopyLink={onShare}
+        onOpenScreenshotFolder={openScreenshotFolder}
+      />
+
+      {interactionError ? <div className="bili-state bili-state-error bili-state-compact">{interactionError}</div> : null}
+
+      <VideoOwnerRow
+        busy={interactionBusy === "follow"}
+        loggedIn={loggedIn}
+        state={interactionState}
+        onFollow={onFollowOwner}
+        onOpenSpace={openOwnerSpace}
+      />
+
+      <section className="bili-video-detail-panel">
+        <div className="bili-video-heading">
+          <strong>{detail.title || "Untitled"}</strong>
+          <small>
+            {detail.owner.name || "未知 UP 主"} · {formatCount(detail.stats.viewCount)} 播放 ·{" "}
+            {formatCount(detail.stats.danmakuCount)} 弹幕
+          </small>
+        </div>
+        <p>{detail.description || "暂无简介"}</p>
+      </section>
+
+      {commentsPanel}
+    </div>
   );
 
   function togglePlay() {
