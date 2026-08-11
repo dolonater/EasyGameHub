@@ -7,7 +7,7 @@ import type {
   PluginSdk,
 } from "../types";
 import { errorMessage } from "../runtime";
-import { BiliImage } from "./BiliImage";
+import { CommentItem, reportReasons, type ReportDraft } from "./CommentItem";
 
 interface CommentPanelProps {
   detail: BiliVideoDetail;
@@ -23,28 +23,10 @@ interface ReplyState {
   error: string;
 }
 
-interface ReportDraft {
-  reason: BiliReportReason;
-  content: string;
-}
-
 const sortOptions: Array<{ value: BiliCommentSort; label: string }> = [
   { value: "replies", label: "热门" },
   { value: "time", label: "最新" },
   { value: "like", label: "最多赞" },
-];
-
-const reportReasons: Array<{ value: BiliReportReason; label: string }> = [
-  { value: "ad", label: "广告" },
-  { value: "spam", label: "刷屏" },
-  { value: "flame", label: "引战" },
-  { value: "abuse", label: "辱骂" },
-  { value: "porn", label: "色情低俗" },
-  { value: "spoiler", label: "剧透" },
-  { value: "politics", label: "涉政" },
-  { value: "illegal", label: "违法" },
-  { value: "privacy", label: "侵犯隐私" },
-  { value: "other", label: "其他" },
 ];
 
 export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
@@ -121,7 +103,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
           disabled={!loggedIn || !sdk || busyRpid === 0}
           placeholder={loggedIn ? "发一条友善的评论" : "登录后可以发表评论"}
           value={mainMessage}
-          onChange={(event) => setMainMessage(event.currentTarget.value)}
+          onChange={(event: any) => setMainMessage(event.currentTarget.value)}
         />
         <div className="bili-comment-editor-actions">
           <span>{mainMessage.trim().length}/1000</span>
@@ -153,116 +135,64 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
 
   function renderComment(comment: BiliComment, pinned: boolean) {
     const replyState = replyStates[comment.rpid];
-    const draft = replyDrafts[comment.rpid] ?? "";
     const reportDraft = reportDrafts[comment.rpid] ?? { reason: "ad" as BiliReportReason, content: "" };
+    const replyOpenThis = Boolean(replyOpen[comment.rpid]);
+    const draft = replyDrafts[comment.rpid] ?? "";
     return (
-      <article className={`bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}`} key={`${pinned ? "top" : "comment"}-${comment.rpid}`}>
-        <BiliImage
-          className="bili-comment-avatar"
-          fallbackSrc={detail.cover}
-          src={comment.member.avatar}
-        />
-        <div className="bili-comment-body">
-          <div className="bili-comment-meta">
-            <strong>{comment.member.name || `用户 ${comment.member.mid}`}</strong>
-            <small>{comment.ctime ? formatTime(comment.ctime) : "刚刚"}</small>
-            {pinned || comment.isTop ? <span>置顶</span> : null}
-          </div>
-          <p className="bili-comment-message">{comment.content.message}</p>
-          {comment.content.pictures.length > 0 ? (
-            <div className="bili-comment-pictures">
-              {comment.content.pictures.map((url) => (
-                <BiliImage key={url} src={url} loading="lazy" />
-              ))}
-            </div>
-          ) : null}
-          <div className="bili-comment-actions">
-            <button disabled={!loggedIn || busyRpid === comment.rpid} type="button" onClick={() => toggleLike(comment)}>
-              {comment.liked ? "已赞" : "赞"} {comment.likeCount > 0 ? formatCount(comment.likeCount) : ""}
-            </button>
-            <button disabled={!loggedIn || busyRpid === comment.rpid} type="button" onClick={() => toggleDislike(comment)}>
-              {comment.disliked ? "已点踩" : "点踩"}
-            </button>
-            <button disabled={!loggedIn} type="button" onClick={() => setReplyOpen((value) => ({ ...value, [comment.rpid]: !value[comment.rpid] }))}>
-              回复
-            </button>
-            {comment.repliesCount > 0 ? (
-              <button type="button" onClick={() => toggleReplies(comment)}>
-                {replyOpen[comment.rpid] ? "收起回复" : `展开 ${formatCount(comment.repliesCount)} 条回复`}
-              </button>
-            ) : null}
-            {comment.canTop ? (
-              <button disabled={busyRpid === comment.rpid} type="button" onClick={() => toggleTop(comment)}>
-                {comment.isTop || pinned ? "取消置顶" : "置顶"}
-              </button>
-            ) : null}
-            {comment.canDelete ? (
-              <button disabled={busyRpid === comment.rpid} type="button" onClick={() => deleteComment(comment)}>
-                删除
-              </button>
-            ) : null}
-            <button type="button" onClick={() => setReportOpen((value) => ({ ...value, [comment.rpid]: !value[comment.rpid] }))}>
-              举报
-            </button>
-          </div>
-
-          {replyOpen[comment.rpid] ? (
+      <CommentItem
+        key={`${pinned ? "top" : "comment"}-${comment.rpid}`}
+        comment={comment}
+        pinned={pinned}
+        fallbackAvatar={detail.cover}
+        loggedIn={loggedIn}
+        busy={busyRpid === comment.rpid}
+        replyOpen={replyOpenThis}
+        reportOpen={Boolean(reportOpen[comment.rpid])}
+        reportDraft={reportDraft}
+        repliesSlot={
+          replyOpenThis ? (
             <div className="bili-comment-replies">
               {replyState?.error ? <div className="bili-state bili-state-error bili-state-compact">{replyState.error}</div> : null}
               {(replyState?.items ?? comment.replies).map((reply) => renderReply(reply, comment.rpid))}
               {replyState?.hasMore ? (
-                <button className="bili-button bili-button-ghost" disabled={replyState.loading} type="button" onClick={() => loadReplies(comment.rpid, (replyState.page || 1) + 1, true)}>
+                <button
+                  className="bili-button bili-button-ghost"
+                  disabled={replyState.loading}
+                  type="button"
+                  onClick={() => loadReplies(comment.rpid, (replyState.page || 1) + 1, true)}
+                >
                   {replyState.loading ? "加载中" : "更多回复"}
                 </button>
               ) : null}
-              <form className="bili-comment-reply-editor" onSubmit={(event) => submitReply(event, comment)}>
+              <form className="bili-comment-reply-editor" onSubmit={(event: any) => submitReply(event, comment)}>
                 <input
                   disabled={!loggedIn || busyRpid === comment.rpid}
                   placeholder={loggedIn ? `回复 ${comment.member.name || "评论"}` : "登录后可以回复"}
                   value={draft}
-                  onChange={(event) => setReplyDrafts((value) => ({ ...value, [comment.rpid]: event.currentTarget.value }))}
+                  onChange={(event: any) => setReplyDrafts((value) => ({ ...value, [comment.rpid]: event.currentTarget.value }))}
                 />
                 <button className="bili-button" disabled={!loggedIn || !draft.trim() || busyRpid === comment.rpid} type="submit">
                   发送
                 </button>
               </form>
             </div>
-          ) : null}
-
-          {reportOpen[comment.rpid] ? (
-            <div className="bili-comment-report">
-              <select
-                value={reportDraft.reason}
-                onChange={(event) =>
-                  setReportDrafts((value) => ({
-                    ...value,
-                    [comment.rpid]: { ...reportDraft, reason: event.currentTarget.value as BiliReportReason },
-                  }))
-                }
-              >
-                {reportReasons.map((reason) => (
-                  <option key={reason.value} value={reason.value}>
-                    {reason.label}
-                  </option>
-                ))}
-              </select>
-              <input
-                placeholder="补充说明"
-                value={reportDraft.content}
-                onChange={(event) =>
-                  setReportDrafts((value) => ({
-                    ...value,
-                    [comment.rpid]: { ...reportDraft, content: event.currentTarget.value },
-                  }))
-                }
-              />
-              <button className="bili-button bili-button-ghost" disabled={!loggedIn || busyRpid === comment.rpid} type="button" onClick={() => reportComment(comment, reportDraft)}>
-                确认举报
-              </button>
-            </div>
-          ) : null}
-        </div>
-      </article>
+          ) : null
+        }
+        onLike={() => toggleLike(comment)}
+        onDislike={() => toggleDislike(comment)}
+        onToggleReply={() => setReplyOpen((value) => ({ ...value, [comment.rpid]: !value[comment.rpid] }))}
+        onToggleReplies={() => toggleReplies(comment)}
+        onToggleTop={() => toggleTop(comment)}
+        onDelete={() => deleteComment(comment)}
+        onToggleReport={() => setReportOpen((value) => ({ ...value, [comment.rpid]: !value[comment.rpid] }))}
+        onReportReasonChange={(reason) =>
+          setReportDrafts((value) => ({ ...value, [comment.rpid]: { ...reportDraft, reason } }))
+        }
+        onReportContentChange={(content) =>
+          setReportDrafts((value) => ({ ...value, [comment.rpid]: { ...reportDraft, content } }))
+        }
+        onReportSubmit={() => reportComment(comment, reportDraft)}
+      />
     );
   }
 
@@ -303,7 +233,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
           <div className="bili-comment-report">
             <select
               value={reportDraft.reason}
-              onChange={(event) =>
+              onChange={(event: any) =>
                 setReportDrafts((value) => ({
                   ...value,
                   [reply.rpid]: { ...reportDraft, reason: event.currentTarget.value as BiliReportReason },
@@ -319,7 +249,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
             <input
               placeholder="补充说明"
               value={reportDraft.content}
-              onChange={(event) =>
+              onChange={(event: any) =>
                 setReportDrafts((value) => ({
                   ...value,
                   [reply.rpid]: { ...reportDraft, content: event.currentTarget.value },
@@ -575,12 +505,6 @@ function mapReplyStates(
     next[Number(root)] = { ...state, items: map(state.items) };
   });
   return next;
-}
-
-function formatTime(seconds: number) {
-  const date = new Date(seconds * 1000);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
 function formatCount(value: number) {

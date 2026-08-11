@@ -15,7 +15,7 @@ export function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled
 
   return (
     <button
-      className="bili-player-icon-button bili-player-icon-label"
+      className="bili-ctrl-btn bili-ctrl-btn-label"
       disabled={disabled || saving}
       title={saving ? "保存中" : "截图"}
       type="button"

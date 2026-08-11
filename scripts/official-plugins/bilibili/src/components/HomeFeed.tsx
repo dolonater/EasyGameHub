@@ -2,7 +2,6 @@ import React from "sdk";
 import type { BiliVideoCard } from "../types";
 import { VideoCard } from "./VideoCard";
 import { HomeFeedTabs } from "./HomeFeedTabs";
-import { HotRow } from "./HotRow";
 
 interface HomeFeedProps {
   mode: "recommend" | "popular" | "search";
@@ -38,8 +37,6 @@ export function HomeFeed({
         />
         <span>{loading ? "加载中" : `${videos.length} 条`}</span>
       </div>
-
-      <HotRow />
 
       {searchGuide ? (
         <div className="bili-state">输入关键词开始搜索</div>
