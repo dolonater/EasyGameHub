@@ -42,19 +42,21 @@ export function FavoritePanel({ busy, folders, onClose, onSubmit, style, trigger
       {!hasOwnedFolders ? (
         <span className="bili-menu-empty">暂无可写入的收藏夹</span>
       ) : (
-        ownedFolders.map((folder) => (
-          <button
-            className={`bili-menu-item ${selected[folder.id] ? "bili-menu-item-active" : ""}`}
-            disabled={busy}
-            key={folder.id}
-            type="button"
-            onClick={() => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))}
-          >
-            {selected[folder.id] ? <Icon name="check" size={14} /> : null}
-            <span>{folder.title || "未命名收藏夹"}</span>
-            <small>{selected[folder.id] ? "已选择" : `${folder.mediaCount} 个`}</small>
-          </button>
-        ))
+        <div className="bili-folder-scroll">
+          {ownedFolders.map((folder) => (
+            <button
+              className={`bili-menu-item ${selected[folder.id] ? "bili-menu-item-active" : ""}`}
+              disabled={busy}
+              key={folder.id}
+              type="button"
+              onClick={() => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))}
+            >
+              {selected[folder.id] ? <Icon name="check" size={14} /> : null}
+              <span>{folder.title || "未命名收藏夹"}</span>
+              <small>{selected[folder.id] ? "已选择" : `${folder.mediaCount} 个`}</small>
+            </button>
+          ))}
+        </div>
       )}
       <div className="bili-menu-footer">
         <Button disabled={busy || !hasOwnedFolders} size="sm" type="button" onClick={submit}>

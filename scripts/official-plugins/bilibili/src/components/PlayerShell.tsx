@@ -184,7 +184,7 @@ export function PlayerShell({
       video.removeAttribute("src");
       video.load();
     };
-  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, startTime, rememberTime, syncVideoState]);
+  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, syncVideoState]);
 
   useEffect(() => {
     if (dashState.error && playback && !playback.directUrl) {

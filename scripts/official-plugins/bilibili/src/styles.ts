@@ -221,12 +221,18 @@ export const cssText = `
   display: grid;
   gap: 9px;
   min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   color: inherit;
   text-align: left;
   cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+.bili-video-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 .bili-cover-wrap {
   position: relative;
@@ -438,7 +444,7 @@ export const cssText = `
 .bili-video-detail-panel {
   border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
   backdrop-filter: blur(18px) saturate(132%);
   -webkit-backdrop-filter: blur(18px) saturate(132%);
 }
@@ -847,6 +853,13 @@ export const cssText = `
   color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
+.bili-folder-scroll {
+  display: grid;
+  gap: 3px;
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .bili-menu-footer {
   padding-top: 2px;
 }
@@ -1039,7 +1052,7 @@ export const cssText = `
 .bili-comments {
   border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 70%, transparent);
   backdrop-filter: blur(18px) saturate(132%);
   -webkit-backdrop-filter: blur(18px) saturate(132%);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
@@ -1165,11 +1178,6 @@ export const cssText = `
 }
 .bili-comment-card-top {
   background: color-mix(in srgb, var(--bili-cyan) 8%, transparent);
-}
-.bili-comment-thumbs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 .bili-thumb {
   display: inline-flex;
@@ -1619,16 +1627,6 @@ export const cssText = `
   gap: 14px;
   align-content: start;
   min-width: 0;
-  padding: 14px;
-}
-.bili-comments {
-  min-height: 0;
-  max-height: none;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
   padding: 14px;
 }
 .bili-comment-card,

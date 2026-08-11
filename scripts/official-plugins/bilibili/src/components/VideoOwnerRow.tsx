@@ -1,5 +1,6 @@
 import React, { Button } from "sdk";
 import type { BiliVideoInteractionState } from "../types";
+import { BiliImage } from "./BiliImage";
 
 interface VideoOwnerRowProps {
   busy: boolean;
@@ -15,7 +16,11 @@ export function VideoOwnerRow({ busy, loggedIn, state, onFollow, onOpenSpace }: 
   return (
     <div className="bili-owner-row">
       <button className="bili-owner-main" disabled={!owner} type="button" onClick={onOpenSpace}>
-        {owner?.avatar ? <img alt="" className="bili-owner-avatar" src={owner.avatar} /> : <span className="bili-owner-avatar" />}
+        {owner?.avatar ? (
+          <BiliImage className="bili-owner-avatar" src={owner.avatar} />
+        ) : (
+          <span className="bili-owner-avatar" />
+        )}
         <span>
           <strong>{owner?.name || "未知 UP 主"}</strong>
           <small>{owner ? `${formatCount(owner.followerCount)} 粉丝` : "互动状态加载中"}</small>

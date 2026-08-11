@@ -18412,12 +18412,18 @@ var cssText = `
   display: grid;
   gap: 9px;
   min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   color: inherit;
   text-align: left;
   cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+.bili-video-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 .bili-cover-wrap {
   position: relative;
@@ -18629,7 +18635,7 @@ var cssText = `
 .bili-video-detail-panel {
   border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
   backdrop-filter: blur(18px) saturate(132%);
   -webkit-backdrop-filter: blur(18px) saturate(132%);
 }
@@ -19038,6 +19044,13 @@ var cssText = `
   color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
+.bili-folder-scroll {
+  display: grid;
+  gap: 3px;
+  max-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .bili-menu-footer {
   padding-top: 2px;
 }
@@ -19230,7 +19243,7 @@ var cssText = `
 .bili-comments {
   border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 70%, transparent);
   backdrop-filter: blur(18px) saturate(132%);
   -webkit-backdrop-filter: blur(18px) saturate(132%);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
@@ -19356,11 +19369,6 @@ var cssText = `
 }
 .bili-comment-card-top {
   background: color-mix(in srgb, var(--bili-cyan) 8%, transparent);
-}
-.bili-comment-thumbs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 .bili-thumb {
   display: inline-flex;
@@ -19810,16 +19818,6 @@ var cssText = `
   gap: 14px;
   align-content: start;
   min-width: 0;
-  padding: 14px;
-}
-.bili-comments {
-  min-height: 0;
-  max-height: none;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
   padding: 14px;
 }
 .bili-comment-card,
@@ -20719,7 +20717,7 @@ function CommentItem({
   onReportSubmit
 }) {
   const displayName = comment.member.name || `\u7528\u6237 ${comment.member.mid}`;
-  return /* @__PURE__ */ React12.createElement("article", { className: `bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}` }, /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-main" }, /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-user" }, /* @__PURE__ */ React12.createElement(BiliImage, { className: "bili-comment-avatar", fallbackSrc: fallbackAvatar, src: comment.member.avatar }), /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-user-info" }, /* @__PURE__ */ React12.createElement("span", null, displayName), /* @__PURE__ */ React12.createElement("p", null, comment.ctime ? formatTime(comment.ctime) : "\u521A\u521A", pinned || comment.isTop ? " \xB7 \u7F6E\u9876" : ""))), /* @__PURE__ */ React12.createElement("p", { className: "bili-comment-content" }, comment.content.message), comment.content.pictures.length > 0 ? /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-pictures" }, comment.content.pictures.map((url) => /* @__PURE__ */ React12.createElement(BiliImage, { key: url, src: url, loading: "lazy" }))) : null, /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-thumbs" }, /* @__PURE__ */ React12.createElement(
+  return /* @__PURE__ */ React12.createElement("article", { className: `bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}` }, /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-main" }, /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-user" }, /* @__PURE__ */ React12.createElement(BiliImage, { className: "bili-comment-avatar", fallbackSrc: fallbackAvatar, src: comment.member.avatar }), /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-user-info" }, /* @__PURE__ */ React12.createElement("span", null, displayName), /* @__PURE__ */ React12.createElement("p", null, comment.ctime ? formatTime(comment.ctime) : "\u521A\u521A", pinned || comment.isTop ? " \xB7 \u7F6E\u9876" : ""))), /* @__PURE__ */ React12.createElement("p", { className: "bili-comment-content" }, comment.content.message), comment.content.pictures.length > 0 ? /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-pictures" }, comment.content.pictures.map((url) => /* @__PURE__ */ React12.createElement(BiliImage, { key: url, src: url, loading: "lazy" }))) : null, /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-actions" }, /* @__PURE__ */ React12.createElement(
     "button",
     {
       className: `bili-thumb ${comment.liked ? "bili-thumb-active" : ""}`,
@@ -20740,7 +20738,7 @@ function CommentItem({
       onClick: onDislike
     },
     /* @__PURE__ */ React12.createElement(ThumbIcon, { down: true })
-  )), /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-actions" }, /* @__PURE__ */ React12.createElement("button", { disabled: !loggedIn, type: "button", onClick: onToggleReply }, replyOpen ? "\u6536\u8D77\u56DE\u590D\u6846" : "\u56DE\u590D"), comment.repliesCount > 0 ? /* @__PURE__ */ React12.createElement("button", { type: "button", onClick: onToggleReplies }, replyOpen ? "\u6536\u8D77\u56DE\u590D" : `\u5C55\u5F00 ${formatCount2(comment.repliesCount)} \u6761\u56DE\u590D`) : null, comment.canTop ? /* @__PURE__ */ React12.createElement("button", { disabled: busy, type: "button", onClick: onToggleTop }, comment.isTop || pinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876") : null, comment.canDelete ? /* @__PURE__ */ React12.createElement("button", { disabled: busy, type: "button", onClick: onDelete }, "\u5220\u9664") : null, /* @__PURE__ */ React12.createElement("button", { type: "button", onClick: onToggleReport }, "\u4E3E\u62A5")), repliesSlot, reportOpen ? /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React12.createElement(
+  ), /* @__PURE__ */ React12.createElement("button", { disabled: !loggedIn, type: "button", onClick: onToggleReply }, replyOpen ? "\u6536\u8D77\u56DE\u590D\u6846" : "\u56DE\u590D"), comment.repliesCount > 0 ? /* @__PURE__ */ React12.createElement("button", { type: "button", onClick: onToggleReplies }, replyOpen ? "\u6536\u8D77\u56DE\u590D" : `\u5C55\u5F00 ${formatCount2(comment.repliesCount)} \u6761\u56DE\u590D`) : null, comment.canTop ? /* @__PURE__ */ React12.createElement("button", { disabled: busy, type: "button", onClick: onToggleTop }, comment.isTop || pinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876") : null, comment.canDelete ? /* @__PURE__ */ React12.createElement("button", { disabled: busy, type: "button", onClick: onDelete }, "\u5220\u9664") : null, /* @__PURE__ */ React12.createElement("button", { type: "button", onClick: onToggleReport }, "\u4E3E\u62A5")), repliesSlot, reportOpen ? /* @__PURE__ */ React12.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React12.createElement(
     "select",
     {
       value: reportDraft.reason,
@@ -21923,7 +21921,7 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
     }
     onSubmit(addMediaIds, delMediaIds);
   }
-  return /* @__PURE__ */ React20.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React20.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React20.createElement("strong", null, "\u6536\u85CF\u5230"), /* @__PURE__ */ React20.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), !hasOwnedFolders ? /* @__PURE__ */ React20.createElement("span", { className: "bili-menu-empty" }, "\u6682\u65E0\u53EF\u5199\u5165\u7684\u6536\u85CF\u5939") : ownedFolders.map((folder) => /* @__PURE__ */ React20.createElement(
+  return /* @__PURE__ */ React20.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React20.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React20.createElement("strong", null, "\u6536\u85CF\u5230"), /* @__PURE__ */ React20.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), !hasOwnedFolders ? /* @__PURE__ */ React20.createElement("span", { className: "bili-menu-empty" }, "\u6682\u65E0\u53EF\u5199\u5165\u7684\u6536\u85CF\u5939") : /* @__PURE__ */ React20.createElement("div", { className: "bili-folder-scroll" }, ownedFolders.map((folder) => /* @__PURE__ */ React20.createElement(
     "button",
     {
       className: `bili-menu-item ${selected[folder.id] ? "bili-menu-item-active" : ""}`,
@@ -21935,7 +21933,7 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
     selected[folder.id] ? /* @__PURE__ */ React20.createElement(Icon2, { name: "check", size: 14 }) : null,
     /* @__PURE__ */ React20.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
     /* @__PURE__ */ React20.createElement("small", null, selected[folder.id] ? "\u5DF2\u9009\u62E9" : `${folder.mediaCount} \u4E2A`)
-  )), /* @__PURE__ */ React20.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React20.createElement(Button10, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
+  ))), /* @__PURE__ */ React20.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React20.createElement(Button10, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
 }
 
 // src/components/WatchMoreMenu.tsx
@@ -22458,7 +22456,7 @@ function PlayerShell({
       video.removeAttribute("src");
       video.load();
     };
-  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, startTime, rememberTime, syncVideoState]);
+  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, syncVideoState]);
   useEffect12(() => {
     if (dashState.error && playback && !playback.directUrl) {
       requestPlaybackFallback(false);
@@ -22772,7 +22770,7 @@ function RelatedPanel({ bvid, aid }) {
 import React27, { Button as Button13 } from "sdk";
 function VideoOwnerRow({ busy, loggedIn, state: state2, onFollow, onOpenSpace }) {
   const owner = state2?.owner;
-  return /* @__PURE__ */ React27.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React27.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React27.createElement("img", { alt: "", className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React27.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React27.createElement("span", null, /* @__PURE__ */ React27.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React27.createElement("small", null, owner ? `${formatCount6(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React27.createElement(Button13, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
+  return /* @__PURE__ */ React27.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React27.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React27.createElement(BiliImage, { className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React27.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React27.createElement("span", null, /* @__PURE__ */ React27.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React27.createElement("small", null, owner ? `${formatCount6(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React27.createElement(Button13, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
 }
 function formatCount6(value) {
   if (value >= 1e8) return `${trim6(value / 1e8)}\u4EBF`;

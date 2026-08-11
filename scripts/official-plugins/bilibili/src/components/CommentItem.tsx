@@ -95,7 +95,7 @@ export function CommentItem({
           </div>
         ) : null}
 
-        <div className="bili-comment-thumbs">
+        <div className="bili-comment-actions">
           <button
             className={`bili-thumb ${comment.liked ? "bili-thumb-active" : ""}`}
             disabled={!loggedIn || busy}
@@ -115,9 +115,6 @@ export function CommentItem({
           >
             <ThumbIcon down />
           </button>
-        </div>
-
-        <div className="bili-comment-actions">
           <button disabled={!loggedIn} type="button" onClick={onToggleReply}>
             {replyOpen ? "收起回复框" : "回复"}
           </button>
