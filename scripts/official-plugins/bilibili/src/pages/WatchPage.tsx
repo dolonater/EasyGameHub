@@ -4,6 +4,7 @@ import { defaultDanmakuSettings, type DanmakuSettings } from "../components/Danm
 import { PlayerShell } from "../components/PlayerShell";
 import { WatchSidebarTabs } from "../components/WatchSidebarTabs";
 import { useVideoInteraction } from "../hooks/useVideoInteraction";
+import { openSpace } from "../navigation";
 import { errorMessage, getState, loadConfig, refreshLoginStatus, subscribe } from "../runtime";
 import type {
   BiliDanmakuItem,
@@ -290,6 +291,10 @@ export function WatchPage({ target }: WatchPageProps) {
             interactionState={interaction.state}
             loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)}
             onFollowOwner={interaction.followOwner}
+            onOpenSpace={() => {
+              const ownerMid = interaction.state?.owner?.mid;
+              if (ownerMid) openSpace(ownerMid);
+            }}
             pages={detail.pages}
             selectedPageCid={selectedPage?.cid}
             onSelectPage={selectPage}

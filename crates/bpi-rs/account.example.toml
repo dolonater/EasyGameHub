@@ -1,0 +1,16 @@
+# 本地测试用。可以打开 B 站登录，F12 > Application > Cookies 找到下面的值。
+# 当前只支持 [vip] / [normal] 结构化 profile，不再兼容 *_vip / *_normal 旧格式。
+
+[normal]
+bili_jct = "normal_bili_jct"
+dede_user_id = "normal_dede_user_id"
+dede_user_id_ckmd5 = "normal_dede_user_id_ckmd5"
+sessdata = "normal_sessdata"
+buvid3 = "normal_buvid3"
+
+[vip]
+bili_jct = "vip_bili_jct"
+dede_user_id = "vip_dede_user_id"
+dede_user_id_ckmd5 = "vip_dede_user_id_ckmd5"
+sessdata = "vip_sessdata"
+buvid3 = "vip_buvid3"

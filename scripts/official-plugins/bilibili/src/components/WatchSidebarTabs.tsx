@@ -13,6 +13,7 @@ interface WatchSidebarTabsProps {
   interactionState: BiliVideoInteractionState | null;
   followBusy: boolean;
   onFollowOwner(): void;
+  onOpenSpace(): void;
 }
 
 /**
@@ -29,6 +30,7 @@ export function WatchSidebarTabs({
   interactionState,
   followBusy,
   onFollowOwner,
+  onOpenSpace,
 }: WatchSidebarTabsProps) {
   const [open, setOpen] = useState(false);
 

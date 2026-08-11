@@ -1,10 +1,15 @@
-import React, { Button, TextField, useState } from "sdk";
+import React, { Button, useEffect, useState } from "sdk";
 import { HomeFeed } from "../components/HomeFeed";
+import type { HomeMode } from "../components/HomeFeedTabs";
+import { HotSubTabs, type HotSubMode } from "../components/HotSubTabs";
+import { PreciousPanel } from "../components/PreciousPanel";
+import { RankingPanel } from "../components/RankingPanel";
+import { SearchBox } from "../components/SearchBox";
+import { SearchEmptyPanel } from "../components/SearchEmptyPanel";
+import { WeeklyPanel } from "../components/WeeklyPanel";
 import { usePagedFeed } from "../hooks/usePagedFeed";
-import { getState } from "../runtime";
+import { getState, saveConfig, subscribe, withSearchHistory } from "../runtime";
 import type { PluginSdk } from "../types";
-
-type Mode = "recommend" | "popular" | "search";
 
 /**
  * 推荐"换一批"随机会话种子。
@@ -15,9 +20,16 @@ const RECOMMEND_SEED = Math.floor(Math.random() * 30) + 1;
 
 export function HomePage() {
   const [query, setQuery] = useState("");
-  const [mode, setMode] = useState<Mode>("recommend");
+  const [mode, setMode] = useState<HomeMode>("recommend");
+  const [popularSub, setPopularSub] = useState<HotSubMode>("all");
   const [popularActive, setPopularActive] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [config, setConfig] = useState(getState().config);
+
+  // 订阅 runtime config（搜索历史变化时刷新）
+  useEffect(() => subscribe(() => setConfig(getState().config)), []);
+
+  const searchHistory = config.searchHistory;
 
   // 推荐：mount 即加载第一页；fresh_idx = 种子 + 页（种子随机 → 重启后起点不同）
   const recommend = usePagedFeed(
@@ -37,9 +49,8 @@ export function HomePage() {
 
   const active = mode === "popular" ? popular : mode === "search" ? search : recommend;
 
-  function handleSearch(event?: { preventDefault(): void }) {
-    event?.preventDefault();
-    const keywords = query.trim();
+  function submitSearch(rawKeywords: string) {
+    const keywords = rawKeywords.trim();
     if (!keywords) {
       setMode("recommend");
       return;
@@ -50,6 +61,16 @@ export function HomePage() {
     }
     setSearchKeyword(keywords);
     setMode("search");
+    saveConfig({ searchHistory: withSearchHistory(searchHistory, keywords) }).catch(() => {});
+  }
+
+  function handleSearch(event?: { preventDefault(): void }) {
+    event?.preventDefault();
+    submitSearch(query);
+  }
+
+  function clearSearchHistory() {
+    saveConfig({ searchHistory: [] }).catch(() => {});
   }
 
   function switchToRecommend() {
@@ -65,18 +86,90 @@ export function HomePage() {
     setMode("search");
   }
 
+  // 追番/影视/直播占位：P2/P6 填充真实内容
+  function switchToBangumi() {
+    setMode("bangumi");
+  }
+
+  function switchToCinema() {
+    setMode("cinema");
+  }
+
+  function switchToLive() {
+    setMode("live");
+  }
+
   function refreshCurrent() {
     if (mode === "search") search.reload();
-    else if (mode === "popular") popular.reload();
-    else recommend.reload();
+    else if (mode === "popular" && popularSub === "all") popular.reload();
+    else if (mode === "recommend") recommend.reload();
   }
 
   const searchGuide = mode === "search" && searchKeyword.length === 0;
+  const comingSoon = mode === "bangumi" || mode === "cinema" || mode === "live";
+
+  const mainFeed =
+    mode === "popular" ? (
+      <>
+        <HotSubTabs sub={popularSub} onSub={setPopularSub} />
+        {popularSub === "all" ? (
+          <HomeFeed
+            error={active.error}
+            loading={active.loading}
+            mode={mode}
+            videos={active.items}
+            searchGuide={searchGuide}
+            onPopular={switchToPopular}
+            onRecommend={switchToRecommend}
+            onSearch={switchToSearch}
+            onBangumi={switchToBangumi}
+            onCinema={switchToCinema}
+            onLive={switchToLive}
+          />
+        ) : popularSub === "ranking" ? (
+          <RankingPanel />
+        ) : popularSub === "weekly" ? (
+          <WeeklyPanel />
+        ) : (
+          <PreciousPanel />
+        )}
+      </>
+    ) : (
+      <HomeFeed
+        error={active.error}
+        loading={active.loading}
+        mode={mode}
+        videos={active.items}
+        searchGuide={searchGuide}
+        searchEmpty={
+          <SearchEmptyPanel
+            history={searchHistory}
+            onPick={(keyword) => {
+              setQuery(keyword);
+              submitSearch(keyword);
+            }}
+            onClearHistory={clearSearchHistory}
+          />
+        }
+        comingSoon={comingSoon}
+        onPopular={switchToPopular}
+        onRecommend={switchToRecommend}
+        onSearch={switchToSearch}
+        onBangumi={switchToBangumi}
+        onCinema={switchToCinema}
+        onLive={switchToLive}
+      />
+    );
 
   return (
     <section className="bili-home">
       <form className="bili-search" onSubmit={(event) => handleSearch(event)}>
-        <TextField value={query} onChange={(event: any) => setQuery(event.currentTarget.value)} placeholder="搜索视频" />
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+          onSubmit={() => submitSearch(query)}
+          placeholder="搜索视频"
+        />
         <Button type="submit" disabled={active.loading} size="sm">
           搜索
         </Button>
@@ -85,16 +178,7 @@ export function HomePage() {
         </Button>
       </form>
 
-      <HomeFeed
-        error={active.error}
-        loading={active.loading}
-        mode={mode}
-        videos={active.items}
-        searchGuide={searchGuide}
-        onPopular={switchToPopular}
-        onRecommend={switchToRecommend}
-        onSearch={switchToSearch}
-      />
+      {mainFeed}
     </section>
   );
 }

@@ -1,18 +1,25 @@
 import React from "sdk";
 import type { BiliVideoCard } from "../types";
 import { VideoCard } from "./VideoCard";
-import { HomeFeedTabs } from "./HomeFeedTabs";
+import { HomeFeedTabs, type HomeMode } from "./HomeFeedTabs";
 
 interface HomeFeedProps {
-  mode: "recommend" | "popular" | "search";
+  mode: HomeMode;
   loading: boolean;
   error: string;
   videos: BiliVideoCard[];
-  /** 搜索 Tab 但还没有已提交关键词：显示引导空态 */
+  /** 搜索 Tab 但还没有已提交关键词：显示引导空态（可自定义内容） */
   searchGuide: boolean;
+  /** 搜索空态的自定义内容（热搜/历史面板）；缺省显示引导文案 */
+  searchEmpty?: React.ReactNode;
+  /** 追番/影视/直播占位提示（P2/P6 填充后移除） */
+  comingSoon?: boolean;
   onRecommend(): void;
   onPopular(): void;
   onSearch(): void;
+  onBangumi(): void;
+  onCinema(): void;
+  onLive(): void;
 }
 
 export function HomeFeed({
@@ -21,9 +28,14 @@ export function HomeFeed({
   error,
   videos,
   searchGuide,
+  searchEmpty,
+  comingSoon,
   onRecommend,
   onPopular,
   onSearch,
+  onBangumi,
+  onCinema,
+  onLive,
 }: HomeFeedProps) {
   return (
     <section className="bili-feed-panel">
@@ -34,12 +46,17 @@ export function HomeFeed({
           onRecommend={onRecommend}
           onPopular={onPopular}
           onSearch={onSearch}
+          onBangumi={onBangumi}
+          onCinema={onCinema}
+          onLive={onLive}
         />
         <span>{loading ? "加载中" : `${videos.length} 条`}</span>
       </div>
 
-      {searchGuide ? (
-        <div className="bili-state">输入关键词开始搜索</div>
+      {comingSoon ? (
+        <div className="bili-state">功能开发中，敬请期待</div>
+      ) : searchGuide ? (
+        searchEmpty ?? <div className="bili-state">输入关键词开始搜索</div>
       ) : (
         <>
           {mode === "search" ? <div className="bili-feed-context">搜索结果</div> : null}
@@ -58,3 +75,4 @@ export function HomeFeed({
     </section>
   );
 }
+

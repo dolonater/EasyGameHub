@@ -141,6 +141,46 @@ declare module "sdk" {
     progress: number;
   }
 
+  export interface BiliWeeklySeries {
+    number: number;
+    subject: string;
+    name: string;
+  }
+
+  export interface BiliHotWord {
+    keyword: string;
+    showName: string;
+    heatScore: number;
+  }
+
+  export interface BiliPreciousVideos {
+    title: string;
+    explain: string;
+    videos: BiliVideoCard[];
+  }
+
+  export interface BiliUserSpace {
+    mid: number;
+    name: string;
+    face: string;
+    sign: string;
+    level: number;
+    fans: number;
+    following: number;
+    likes: number;
+    view: number;
+    archiveCount: number;
+    isFollowed: boolean;
+    liveRoom: BiliUserSpaceLive | null;
+  }
+
+  export interface BiliUserSpaceLive {
+    roomId: number;
+    liveStatus: number;
+    title: string;
+    url: string;
+  }
+
   export interface BiliHistoryItem {
     video: BiliVideoCard;
     viewedAt: number;
@@ -408,6 +448,44 @@ declare module "sdk" {
         clearCache(): Promise<number>;
         coverProxyUrl(rawUrl: string): Promise<string>;
       };
+      ranking: {
+        videos(rid?: number): Promise<BiliVideoCard[]>;
+        weeks(): Promise<BiliWeeklySeries[]>;
+        weekDetail(number: number): Promise<BiliVideoCard[]>;
+        precious(): Promise<BiliPreciousVideos>;
+      };
+      search: {
+        suggest(keyword: string): Promise<string[]>;
+        hotwords(): Promise<BiliHotWord[]>;
+      };
+      fav: {
+        createFolder(args: { title: string }): Promise<BiliOperationResult>;
+        editFolder(args: { mediaId: number; title: string }): Promise<BiliOperationResult>;
+        deleteFolders(args: { mediaIds: number[] }): Promise<BiliOperationResult>;
+        deleteResources(args: { mediaId: number; resources: number[] }): Promise<BiliOperationResult>;
+        moveResources(args: {
+          srcMediaId: number;
+          tarMediaId: number;
+          resources: number[];
+        }): Promise<BiliOperationResult>;
+        copyResources(args: {
+          srcMediaId: number;
+          tarMediaId: number;
+          resources: number[];
+        }): Promise<BiliOperationResult>;
+        cleanResources(args: { mediaId: number }): Promise<BiliOperationResult>;
+      };
+      user: {
+        space(args: { mid: number }): Promise<BiliUserSpace>;
+        videos(args: { mid: number; page?: number }): Promise<BiliVideoCard[]>;
+        follow(args: { mid: number; follow: boolean }): Promise<BiliOperationResult>;
+      };
+      season: Record<string, never>;
+      live: Record<string, never>;
+      dynamic: Record<string, never>;
+      message: Record<string, never>;
+      note: Record<string, never>;
+      article: Record<string, never>;
     };
   }
 

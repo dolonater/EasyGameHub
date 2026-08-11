@@ -2,6 +2,7 @@ import React, { Button, useEffect, useState } from "sdk";
 import { BiliAppShell } from "../components/BiliAppShell";
 import { HomePage } from "./HomePage";
 import { MinePage } from "./MinePage";
+import { SpacePage } from "./SpacePage";
 import { WatchPage } from "./WatchPage";
 import { clearViewScroll, getNavView, getViewScroll, goBackNav, subscribeNav, type BiliNavView } from "../navigation";
 import { getState, subscribe } from "../runtime";
@@ -36,7 +37,8 @@ export function MainPage() {
   const loginInfo = runtimeState.loginInfo;
   const loggedIn = Boolean(loginInfo?.loggedIn);
 
-  const title = view.name === "watch" ? "播放" : "Bilibili";
+  const title =
+    view.name === "watch" ? "播放" : view.name === "space" ? "UP 主页" : view.name === "season" ? "番剧详情" : view.name === "live" ? "直播间" : view.name === "settings" ? "设置" : view.name === "dynDetail" ? "动态详情" : view.name === "article" ? "专栏" : "Bilibili";
   const subtitle =
     view.name === "watch"
       ? view.bvid || (view.aid ? `av${view.aid}` : "播放")
@@ -51,7 +53,7 @@ export function MainPage() {
       <a className="bili-link-button" href="https://www.bilibili.com" target="_blank" rel="noreferrer">
         打开 B 站
       </a>
-    ) : view.name === "watch" ? (
+    ) : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "dynDetail" || view.name === "article" ? (
       <Button variant="outline" size="sm" type="button" onClick={goBackNav}>
         返回
       </Button>
@@ -66,7 +68,23 @@ export function MainPage() {
         <MinePage />
       </div>
       {view.name === "watch" ? <WatchPage key={watchKey(view)} target={view} /> : null}
+      {view.name === "space" ? <SpacePage key={`space-${view.mid}`} mid={view.mid} /> : null}
+      {view.name === "season" ? <PlaceholderPage label="番剧详情" /> : null}
+      {view.name === "live" ? <PlaceholderPage label="直播间" /> : null}
+      {view.name === "settings" ? <PlaceholderPage label="设置" /> : null}
+      {view.name === "dynDetail" ? <PlaceholderPage label="动态详情" /> : null}
+      {view.name === "article" ? <PlaceholderPage label="专栏" /> : null}
     </BiliAppShell>
+  );
+}
+
+/** P0 视图占位：space/season/live/settings/dynDetail/article 由 P1-P8 逐个填充 */
+function PlaceholderPage({ label }: { label: string }) {
+  return (
+    <div className="bili-placeholder-page">
+      <div className="bili-placeholder-label">{label}</div>
+      <div className="bili-placeholder-hint">功能开发中</div>
+    </div>
   );
 }
 

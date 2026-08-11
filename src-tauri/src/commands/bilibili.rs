@@ -10,16 +10,20 @@ use crate::core::bilibili::client;
 use crate::core::bilibili::comment;
 use crate::core::bilibili::danmaku;
 use crate::core::bilibili::errors;
+use crate::core::bilibili::fav;
 use crate::core::bilibili::interaction;
 use crate::core::bilibili::library;
 use crate::core::bilibili::models::{
     BiliComment, BiliCommentPage, BiliDanmakuItem, BiliFavoriteFolder, BiliFavoriteItem,
-    BiliHistoryItem, BiliLocalProgress, BiliLoginInfo, BiliOperationResult, BiliPlaybackSource,
-    BiliQrLoginKey, BiliQrLoginStatus, BiliToViewItem, BiliVideoCard, BiliVideoDetail,
-    BiliVideoInteractionState,
+    BiliHistoryItem, BiliHotWord, BiliLocalProgress, BiliLoginInfo, BiliOperationResult,
+    BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliToViewItem,
+    BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
 };
 use crate::core::bilibili::playback;
 use crate::core::bilibili::proxy;
+use crate::core::bilibili::ranking;
+use crate::core::bilibili::search;
+use crate::core::bilibili::user_space;
 use crate::core::bilibili::video;
 use crate::AppState;
 use bpi_rs::BpiError;
@@ -799,6 +803,162 @@ pub async fn bilibili_comment_report(
 #[tauri::command]
 pub fn bilibili_clear_cache(state: State<'_, AppState>) -> Result<usize, String> {
     cache::clear_cache(&state.tool_dir).map_err(bpi_error)
+}
+
+/// 分区视频排行榜（rid=0 或缺省为全站）。
+#[tauri::command]
+pub async fn bilibili_ranking_videos(rid: Option<u32>) -> Result<Vec<BiliVideoCard>, String> {
+    ranking::ranking_videos(rid).await.map_err(bpi_error)
+}
+
+/// 每周必看期列表。
+#[tauri::command]
+pub async fn bilibili_weekly_series_list() -> Result<Vec<BiliWeeklySeries>, String> {
+    ranking::weekly_series_list().await.map_err(bpi_error)
+}
+
+/// 每周必看单期视频列表。
+#[tauri::command]
+pub async fn bilibili_weekly_series_one(number: u32) -> Result<Vec<BiliVideoCard>, String> {
+    ranking::weekly_series_one(number).await.map_err(bpi_error)
+}
+
+/// 入站必刷（精选必看）。
+#[tauri::command]
+pub async fn bilibili_precious_videos() -> Result<BiliPreciousVideos, String> {
+    ranking::precious_videos().await.map_err(bpi_error)
+}
+
+/// 搜索输入联想（空关键词返回空数组）。
+#[tauri::command]
+pub async fn bilibili_search_suggest(keyword: String) -> Result<Vec<String>, String> {
+    search::suggest(&keyword).await.map_err(bpi_error)
+}
+
+/// 热搜榜。
+#[tauri::command]
+pub async fn bilibili_search_hotwords() -> Result<Vec<BiliHotWord>, String> {
+    search::hotwords().await.map_err(bpi_error)
+}
+
+/// 新建收藏夹。
+#[tauri::command]
+pub async fn bilibili_fav_folder_create(
+    state: State<'_, AppState>,
+    title: String,
+) -> Result<(), String> {
+    fav::folder_create(&state.tool_dir, title)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 重命名收藏夹。
+#[tauri::command]
+pub async fn bilibili_fav_folder_edit(
+    state: State<'_, AppState>,
+    media_id: u64,
+    title: String,
+) -> Result<(), String> {
+    fav::folder_edit(&state.tool_dir, media_id, title)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 删除收藏夹（可批量）。
+#[tauri::command]
+pub async fn bilibili_fav_folder_delete(
+    state: State<'_, AppState>,
+    media_ids: Vec<u64>,
+) -> Result<(), String> {
+    fav::folder_delete(&state.tool_dir, media_ids)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 收藏夹资源批量删除。
+#[tauri::command]
+pub async fn bilibili_fav_resource_delete(
+    state: State<'_, AppState>,
+    media_id: u64,
+    resources: Vec<u64>,
+) -> Result<(), String> {
+    fav::resource_delete(&state.tool_dir, media_id, resources)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 收藏夹资源移动到其他收藏夹。
+#[tauri::command]
+pub async fn bilibili_fav_resource_move(
+    state: State<'_, AppState>,
+    src_media_id: u64,
+    tar_media_id: u64,
+    resources: Vec<u64>,
+) -> Result<(), String> {
+    let mid = current_mid(&state.tool_dir)?;
+    fav::resource_move(&state.tool_dir, src_media_id, tar_media_id, resources, mid)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 收藏夹资源复制到其他收藏夹。
+#[tauri::command]
+pub async fn bilibili_fav_resource_copy(
+    state: State<'_, AppState>,
+    src_media_id: u64,
+    tar_media_id: u64,
+    resources: Vec<u64>,
+) -> Result<(), String> {
+    let mid = current_mid(&state.tool_dir)?;
+    fav::resource_copy(&state.tool_dir, src_media_id, tar_media_id, resources, mid)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 清空收藏夹中失效资源。
+#[tauri::command]
+pub async fn bilibili_fav_resource_clean(
+    state: State<'_, AppState>,
+    media_id: u64,
+) -> Result<(), String> {
+    fav::resource_clean(&state.tool_dir, media_id)
+        .await
+        .map_err(bpi_error)
+}
+
+/// UP 主页聚合信息（信息卡 + 统计 + 直播状态）。
+#[tauri::command]
+pub async fn bilibili_user_space(
+    state: State<'_, AppState>,
+    mid: u64,
+) -> Result<BiliUserSpace, String> {
+    user_space::user_space(&state.tool_dir, mid)
+        .await
+        .map_err(bpi_error)
+}
+
+/// UP 投稿视频列表。
+#[tauri::command]
+pub async fn bilibili_user_videos(
+    state: State<'_, AppState>,
+    mid: u64,
+    page: Option<u32>,
+) -> Result<Vec<BiliVideoCard>, String> {
+    user_space::user_videos(&state.tool_dir, mid, page)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 关注 / 取关 UP。
+#[tauri::command]
+pub async fn bilibili_user_follow(
+    state: State<'_, AppState>,
+    mid: u64,
+    follow: bool,
+) -> Result<(), String> {
+    user_space::user_follow(&state.tool_dir, mid, follow)
+        .await
+        .map_err(bpi_error)
 }
 
 fn current_mid(tool_dir: &std::path::Path) -> Result<u64, String> {

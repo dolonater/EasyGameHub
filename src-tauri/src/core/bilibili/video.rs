@@ -360,7 +360,7 @@ fn positive_i64_to_u64(value: i64) -> Option<u64> {
     u64::try_from(value).ok().filter(|value| *value > 0)
 }
 
-fn value_to_card(item: &Value) -> BiliVideoCard {
+pub fn value_to_card(item: &Value) -> BiliVideoCard {
     let owner = item.get("owner").unwrap_or(&Value::Null);
     let stat = item.get("stat").unwrap_or(&Value::Null);
 
@@ -424,7 +424,7 @@ fn parse_count(value: &str) -> Option<u64> {
     normalized.parse::<u64>().ok()
 }
 
-fn parse_duration(value: &str) -> u64 {
+pub fn parse_duration(value: &str) -> u64 {
     let parts: Vec<_> = value.trim().split(':').collect();
     if parts.is_empty() {
         return 0;

@@ -2,5 +2,6 @@
 members = [
     "src-tauri",
     "steam-sdk",
+    "crates/bpi-rs",
 ]
 resolver = "2"

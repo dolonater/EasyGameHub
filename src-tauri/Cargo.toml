@@ -41,7 +41,7 @@ urlencoding = "2"
 tokio = { version = "1", features = ["net", "time", "sync"] }
 steamlocate = "1"
 steam-sdk = { path = "../steam-sdk" }
-bpi-rs = { path = "../bpi-rs", default-features = false, features = [
+bpi-rs = { path = "../crates/bpi-rs", default-features = false, features = [
     "login",
     "video",
     "video_ranking",

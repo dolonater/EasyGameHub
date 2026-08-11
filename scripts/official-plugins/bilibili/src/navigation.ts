@@ -15,7 +15,13 @@
 export type BiliNavView =
   | { name: "home" }
   | { name: "mine" }
-  | { name: "watch"; bvid?: string; aid?: number; cid?: number };
+  | { name: "watch"; type?: "video" | "season"; bvid?: string; aid?: number; cid?: number; seasonId?: number; epId?: number }
+  | { name: "space"; mid: number }
+  | { name: "season"; seasonId: number }
+  | { name: "live"; roomId: number }
+  | { name: "settings" }
+  | { name: "dynDetail"; dynId: string }
+  | { name: "article"; articleId: number };
 
 type NavListener = (view: BiliNavView) => void;
 
@@ -45,6 +51,12 @@ export function navigateNav(view: BiliNavView): void {
 export function openWatch(view: { name: "watch"; bvid?: string; aid?: number; cid?: number }): void {
   stack.push(memory);
   switchView(view);
+}
+
+/** 打开 UP 主页：压入当前视图，可逐级返回 */
+export function openSpace(mid: number): void {
+  stack.push(memory);
+  switchView({ name: "space", mid });
 }
 
 /** 播放页返回：弹栈回到上一个视图（空栈则回首页） */

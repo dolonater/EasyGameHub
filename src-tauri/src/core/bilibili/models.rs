@@ -78,6 +78,56 @@ pub struct BiliVideoCard {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
+pub struct BiliWeeklySeries {
+    pub number: u32,
+    pub subject: String,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliHotWord {
+    pub keyword: String,
+    pub show_name: String,
+    pub heat_score: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliPreciousVideos {
+    pub title: String,
+    pub explain: String,
+    pub videos: Vec<BiliVideoCard>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliUserSpace {
+    pub mid: u64,
+    pub name: String,
+    pub face: String,
+    pub sign: String,
+    pub level: u32,
+    pub fans: u64,
+    pub following: u64,
+    pub likes: u64,
+    pub view: u64,
+    pub archive_count: u64,
+    pub is_followed: bool,
+    pub live_room: Option<BiliUserSpaceLive>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliUserSpaceLive {
+    pub room_id: u64,
+    pub live_status: u8,
+    pub title: String,
+    pub url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct BiliOwner {
     pub mid: u64,
     pub name: String,

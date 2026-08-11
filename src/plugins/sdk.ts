@@ -165,6 +165,46 @@ export interface BiliVideoCard {
   progress: number;
 }
 
+export interface BiliWeeklySeries {
+  number: number;
+  subject: string;
+  name: string;
+}
+
+export interface BiliHotWord {
+  keyword: string;
+  showName: string;
+  heatScore: number;
+}
+
+export interface BiliPreciousVideos {
+  title: string;
+  explain: string;
+  videos: BiliVideoCard[];
+}
+
+export interface BiliUserSpace {
+  mid: number;
+  name: string;
+  face: string;
+  sign: string;
+  level: number;
+  fans: number;
+  following: number;
+  likes: number;
+  view: number;
+  archiveCount: number;
+  isFollowed: boolean;
+  liveRoom: BiliUserSpaceLive | null;
+}
+
+export interface BiliUserSpaceLive {
+  roomId: number;
+  liveStatus: number;
+  title: string;
+  url: string;
+}
+
 export interface BiliOwner {
   mid: number;
   name: string;
@@ -536,6 +576,44 @@ export interface PluginSdk {
       clearCache(): Promise<number>;
       coverProxyUrl(rawUrl: string): Promise<string>;
     };
+    ranking: {
+      videos(rid?: number): Promise<BiliVideoCard[]>;
+      weeks(): Promise<BiliWeeklySeries[]>;
+      weekDetail(number: number): Promise<BiliVideoCard[]>;
+      precious(): Promise<BiliPreciousVideos>;
+    };
+    search: {
+      suggest(keyword: string): Promise<string[]>;
+      hotwords(): Promise<BiliHotWord[]>;
+    };
+    fav: {
+      createFolder(args: { title: string }): Promise<BiliOperationResult>;
+      editFolder(args: { mediaId: number; title: string }): Promise<BiliOperationResult>;
+      deleteFolders(args: { mediaIds: number[] }): Promise<BiliOperationResult>;
+      deleteResources(args: { mediaId: number; resources: number[] }): Promise<BiliOperationResult>;
+      moveResources(args: {
+        srcMediaId: number;
+        tarMediaId: number;
+        resources: number[];
+      }): Promise<BiliOperationResult>;
+      copyResources(args: {
+        srcMediaId: number;
+        tarMediaId: number;
+        resources: number[];
+      }): Promise<BiliOperationResult>;
+      cleanResources(args: { mediaId: number }): Promise<BiliOperationResult>;
+    };
+    user: {
+      space(args: { mid: number }): Promise<BiliUserSpace>;
+      videos(args: { mid: number; page?: number }): Promise<BiliVideoCard[]>;
+      follow(args: { mid: number; follow: boolean }): Promise<BiliOperationResult>;
+    };
+    season: Record<string, never>;
+    live: Record<string, never>;
+    dynamic: Record<string, never>;
+    message: Record<string, never>;
+    note: Record<string, never>;
+    article: Record<string, never>;
   };
 }
 
@@ -947,6 +1025,84 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
           return `http://127.0.0.1:${port}/bilibili/cover/${coverKey(rawUrl)}?url=${encodeURIComponent(rawUrl)}`;
         },
       },
+      ranking: {
+        videos(rid) {
+          requirePerm("bilibili", "bilibili.ranking.videos");
+          return biliInvoke("bilibili_ranking_videos", { rid });
+        },
+        weeks() {
+          requirePerm("bilibili", "bilibili.ranking.weeks");
+          return biliInvoke("bilibili_weekly_series_list");
+        },
+        weekDetail(number) {
+          requirePerm("bilibili", "bilibili.ranking.weekDetail");
+          return biliInvoke("bilibili_weekly_series_one", { number });
+        },
+        precious() {
+          requirePerm("bilibili", "bilibili.ranking.precious");
+          return biliInvoke("bilibili_precious_videos");
+        },
+      },
+      search: {
+        suggest(keyword) {
+          requirePerm("bilibili", "bilibili.search.suggest");
+          return biliInvoke("bilibili_search_suggest", { keyword });
+        },
+        hotwords() {
+          requirePerm("bilibili", "bilibili.search.hotwords");
+          return biliInvoke("bilibili_search_hotwords");
+        },
+      },
+      fav: {
+        createFolder({ title }) {
+          requirePerm("bilibili", "bilibili.fav.createFolder");
+          return biliInvoke("bilibili_fav_folder_create", { title });
+        },
+        editFolder({ mediaId, title }) {
+          requirePerm("bilibili", "bilibili.fav.editFolder");
+          return biliInvoke("bilibili_fav_folder_edit", { mediaId, title });
+        },
+        deleteFolders({ mediaIds }) {
+          requirePerm("bilibili", "bilibili.fav.deleteFolders");
+          return biliInvoke("bilibili_fav_folder_delete", { mediaIds });
+        },
+        deleteResources({ mediaId, resources }) {
+          requirePerm("bilibili", "bilibili.fav.deleteResources");
+          return biliInvoke("bilibili_fav_resource_delete", { mediaId, resources });
+        },
+        moveResources({ srcMediaId, tarMediaId, resources }) {
+          requirePerm("bilibili", "bilibili.fav.moveResources");
+          return biliInvoke("bilibili_fav_resource_move", { srcMediaId, tarMediaId, resources });
+        },
+        copyResources({ srcMediaId, tarMediaId, resources }) {
+          requirePerm("bilibili", "bilibili.fav.copyResources");
+          return biliInvoke("bilibili_fav_resource_copy", { srcMediaId, tarMediaId, resources });
+        },
+        cleanResources({ mediaId }) {
+          requirePerm("bilibili", "bilibili.fav.cleanResources");
+          return biliInvoke("bilibili_fav_resource_clean", { mediaId });
+        },
+      },
+      user: {
+        space({ mid }) {
+          requirePerm("bilibili", "bilibili.user.space");
+          return biliInvoke("bilibili_user_space", { mid });
+        },
+        videos({ mid, page }) {
+          requirePerm("bilibili", "bilibili.user.videos");
+          return biliInvoke("bilibili_user_videos", { mid, page });
+        },
+        follow({ mid, follow }) {
+          requirePerm("bilibili", "bilibili.user.follow");
+          return biliInvoke("bilibili_user_follow", { mid, follow });
+        },
+      },
+      season: {},
+      live: {},
+      dynamic: {},
+      message: {},
+      note: {},
+      article: {},
     },
   };
 }

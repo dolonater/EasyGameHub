@@ -1,52 +1,54 @@
 import React, { Button } from "sdk";
 
+export type HomeMode = "recommend" | "popular" | "search" | "bangumi" | "cinema" | "live";
+
 interface HomeFeedTabsProps {
-  mode: "recommend" | "popular" | "search";
+  mode: HomeMode;
   loading: boolean;
   onRecommend(): void;
   onPopular(): void;
   onSearch(): void;
+  onBangumi(): void;
+  onCinema(): void;
+  onLive(): void;
 }
 
-export function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onSearch }: HomeFeedTabsProps) {
+const TABS: Array<{ key: HomeMode; label: string; available: boolean }> = [
+  { key: "recommend", label: "推荐", available: true },
+  { key: "popular", label: "热门", available: true },
+  { key: "search", label: "搜索", available: true },
+  // 追番/影视/直播由 P2/P6 填充，当前为禁用占位
+  { key: "bangumi", label: "追番", available: false },
+  { key: "cinema", label: "影视", available: false },
+  { key: "live", label: "直播", available: false },
+];
+
+export function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onSearch, onBangumi, onCinema, onLive }: HomeFeedTabsProps) {
+  const handlers: Record<string, () => void> = {
+    recommend: onRecommend,
+    popular: onPopular,
+    search: onSearch,
+    bangumi: onBangumi,
+    cinema: onCinema,
+    live: onLive,
+  };
   return (
     <div className="bili-feed-tabs" role="tablist" aria-label="首页内容">
-      <Button
-        aria-selected={mode === "recommend"}
-        className={mode === "recommend" ? "bili-feed-tab bili-feed-tab-active" : "bili-feed-tab"}
-        variant="ghost"
-        size="sm"
-        role="tab"
-        type="button"
-        onClick={onRecommend}
-        disabled={loading}
-      >
-        推荐
-      </Button>
-      <Button
-        aria-selected={mode === "popular"}
-        className={mode === "popular" ? "bili-feed-tab bili-feed-tab-active" : "bili-feed-tab"}
-        variant="ghost"
-        size="sm"
-        role="tab"
-        type="button"
-        onClick={onPopular}
-        disabled={loading}
-      >
-        热门
-      </Button>
-      <Button
-        aria-selected={mode === "search"}
-        className={mode === "search" ? "bili-feed-tab bili-feed-tab-active" : "bili-feed-tab"}
-        variant="ghost"
-        size="sm"
-        role="tab"
-        type="button"
-        onClick={onSearch}
-        disabled={loading}
-      >
-        搜索
-      </Button>
+      {TABS.map((tab) => (
+        <Button
+          key={tab.key}
+          aria-selected={mode === tab.key}
+          className={mode === tab.key ? "bili-feed-tab bili-feed-tab-active" : "bili-feed-tab"}
+          variant="ghost"
+          size="sm"
+          role="tab"
+          type="button"
+          onClick={handlers[tab.key]}
+          disabled={loading || !tab.available}
+        >
+          {tab.label}
+        </Button>
+      ))}
     </div>
   );
 }

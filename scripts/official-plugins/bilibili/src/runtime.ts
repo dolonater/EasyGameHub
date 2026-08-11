@@ -19,6 +19,7 @@ export interface BilibiliPluginConfig {
   danmakuSpeed: number;
   defaultPlaybackRate: number;
   defaultQualityMode: "auto";
+  searchHistory: string[];
 }
 
 export const defaultConfig: BilibiliPluginConfig = {
@@ -30,6 +31,7 @@ export const defaultConfig: BilibiliPluginConfig = {
   danmakuSpeed: 1,
   defaultPlaybackRate: 1,
   defaultQualityMode: "auto",
+  searchHistory: [],
 };
 
 const initialState: BilibiliRuntimeState = {
@@ -182,7 +184,31 @@ function normalizeConfig(value: unknown): BilibiliPluginConfig {
     danmakuSpeed: clampNumber(source.danmakuSpeed, 0.6, 1.8, defaultConfig.danmakuSpeed),
     defaultPlaybackRate: clampRate(source.defaultPlaybackRate),
     defaultQualityMode: "auto",
+    searchHistory: normalizeSearchHistory(source.searchHistory),
   };
+}
+
+/** 搜索历史：只保留非空字符串，最多 10 条 */
+function normalizeSearchHistory(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of value) {
+    if (typeof item !== "string") continue;
+    const keyword = item.trim();
+    if (!keyword || seen.has(keyword)) continue;
+    seen.add(keyword);
+    result.push(keyword);
+    if (result.length >= 10) break;
+  }
+  return result;
+}
+
+/** 记录一条搜索历史（去重置顶、上限 10 条），返回新列表 */
+export function withSearchHistory(history: string[], keyword: string): string[] {
+  const trimmed = keyword.trim();
+  if (!trimmed) return history;
+  return normalizeSearchHistory([trimmed, ...history]);
 }
 
 function clampNumber(value: unknown, min: number, max: number, fallback: number) {

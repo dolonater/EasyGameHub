@@ -1,0 +1,247 @@
+version: '3'
+
+vars:
+  CARGO_TEST_ARGS: ":: -- --test-threads=1 --nocapture"
+
+tasks:
+  check:
+    cmds:
+      - cargo check
+
+  fmt_check:
+    cmds:
+      - cargo fmt --check
+
+  test_compile:
+    desc: Compile all library tests without running legacy live tests.
+    cmds:
+      - cargo test --all-features --lib --no-run
+
+  test_offline:
+    desc: Run default offline library tests.
+    cmds:
+      - cargo test --all-features --lib
+
+  check_all:
+    desc: Safe default checks for the migration baseline.
+    cmds:
+      - cargo fmt --check
+      - cargo clippy --all-targets --all-features --locked -- -D warnings
+      - cargo check --all-features
+      - cargo test --all-features
+      - cargo test --doc
+      - cargo check --examples --all-features
+      - cargo check --no-default-features --lib
+
+  ci:
+    desc: Run the same checks as GitHub Actions CI.
+    cmds:
+      - task: check_all
+
+  pre_commit:
+    desc: Run CI-equivalent checks plus Git patch whitespace checks before committing.
+    cmds:
+      - task: ci
+      - git diff --check
+      - git diff --cached --check
+
+  package_check:
+    desc: Verify the crate package without publishing.
+    cmds:
+      - cargo package --allow-dirty
+
+  probe_fields:
+    desc: Print field path statistics for committed contract JSON files.
+    cmds:
+      - cargo run --bin bpi-probe -- fields tests/contracts
+
+  probe_sanitize_audit:
+    desc: Check committed response fixtures for high-confidence sensitive fields.
+    cmds:
+      - cargo run --bin bpi-probe -- sanitize-audit tests/contracts
+
+  probe_contract_audit:
+    desc: Check committed contract structure and v2 metadata migration status.
+    cmds:
+      - cargo run --bin bpi-probe -- contract-audit tests/contracts
+
+  probe_read_only:
+    desc: Run all read-only promoted contracts against anonymous, normal, and vip profiles.
+    cmds:
+      - $env:BPI_PROBE='1'; cargo run --all-features --bin bpi-probe -- batch-run tests/contracts --account account.toml --profiles anonymous,normal,vip --pages 10 --read-only --output target/bpi-probe-runs/read-only
+
+  api_doc:
+    desc: Generate the AI-friendly API index from contracts and Rust source.
+    cmds:
+      - cargo run --all-features --bin bpi-probe -- api-doc tests/contracts --output docs/api-index.md
+
+  contract_test:
+    desc: Run the unified offline contract runner.
+    cmds:
+      - cargo test --all-features --test contract_runner
+
+  check_feature_matrix:
+    desc: Check that no-default and single-feature library builds stay healthy.
+    cmds:
+      - cargo check --no-default-features --lib
+      - cargo check --no-default-features --bin bpi-probe
+      - cargo check --no-default-features --lib --features activity
+      - cargo check --no-default-features --lib --features article
+      - cargo check --no-default-features --lib --features audio
+      - cargo check --no-default-features --lib --features bangumi
+      - cargo check --no-default-features --lib --features cheese
+      - cargo check --no-default-features --lib --features clientinfo
+      - cargo check --no-default-features --lib --features comment
+      - cargo check --no-default-features --lib --features creativecenter
+      - cargo check --no-default-features --lib --features danmaku
+      - cargo check --no-default-features --lib --features dynamic
+      - cargo check --no-default-features --lib --features electric
+      - cargo check --no-default-features --lib --features fav
+      - cargo check --no-default-features --lib --features historytoview
+      - cargo check --no-default-features --lib --features live
+      - cargo check --no-default-features --lib --features login
+      - cargo check --no-default-features --lib --features manga
+      - cargo check --no-default-features --lib --features message
+      - cargo check --no-default-features --lib --features misc
+      - cargo check --no-default-features --lib --features note
+      - cargo check --no-default-features --lib --features opus
+      - cargo check --no-default-features --lib --features search
+      - cargo check --no-default-features --lib --features user
+      - cargo check --no-default-features --lib --features video
+      - cargo check --no-default-features --lib --features video_ranking
+      - cargo check --no-default-features --lib --features vip
+      - cargo check --no-default-features --lib --features wallet
+      - cargo check --no-default-features --lib --features web_widget
+
+  lint_strict:
+    desc: Run strict clippy for all targets and features.
+    cmds:
+      - cargo clippy --all-targets --all-features --locked -- -D warnings
+
+  test_live_legacy:
+    desc: Run ignored legacy live tests. Treat this as potentially mutating until each test is classified.
+    preconditions:
+      - sh: test "$BPI_LIVE_TEST" = "1"
+        msg: Set BPI_LIVE_TEST=1 before running live Bilibili API tests.
+      - sh: test "$BPI_MUTATING_TEST" = "1"
+        msg: Set BPI_MUTATING_TEST=1 because legacy live tests are not yet classified as read-only.
+    cmds:
+      - cargo test --all-features --lib -- --ignored --test-threads=1 --nocapture
+
+  test_live_mutating:
+    desc: Alias for running ignored legacy live tests that may mutate account state.
+    preconditions:
+      - sh: test "$BPI_LIVE_TEST" = "1"
+        msg: Set BPI_LIVE_TEST=1 before running live Bilibili API tests.
+      - sh: test "$BPI_MUTATING_TEST" = "1"
+        msg: Set BPI_MUTATING_TEST=1 before running mutating Bilibili API tests.
+    cmds:
+      - task: test_live_legacy
+
+  test_activity:
+    cmds:
+      - cargo test --no-default-features --features activity activity{{.CARGO_TEST_ARGS}}
+
+  test_article:
+    cmds:
+      - cargo test --no-default-features --features article article{{.CARGO_TEST_ARGS}}
+
+  test_audio:
+    cmds:
+      - cargo test --no-default-features --features audio audio{{.CARGO_TEST_ARGS}}
+
+  test_bangumi:
+    cmds:
+      - cargo test --no-default-features --features bangumi bangumi{{.CARGO_TEST_ARGS}}
+
+  test_cheese:
+    cmds:
+      - cargo test --no-default-features --features cheese cheese{{.CARGO_TEST_ARGS}}
+
+  test_clientinfo:
+    cmds:
+      - cargo test --no-default-features --features clientinfo clientinfo{{.CARGO_TEST_ARGS}}
+
+  test_comment:
+    cmds:
+      - cargo test --no-default-features --features comment comment{{.CARGO_TEST_ARGS}}
+
+  test_creativecenter:
+    cmds:
+      - cargo test --no-default-features --features creativecenter creativecenter{{.CARGO_TEST_ARGS}}
+
+  test_danmaku:
+    cmds:
+      - cargo test --no-default-features --features danmaku danmaku{{.CARGO_TEST_ARGS}}
+
+  test_dynamic:
+    cmds:
+      - cargo test --no-default-features --features dynamic dynamic{{.CARGO_TEST_ARGS}}
+
+  test_electric:
+    cmds:
+      - cargo test --no-default-features --features electric electric{{.CARGO_TEST_ARGS}}
+
+  test_fav:
+    cmds:
+      - cargo test --no-default-features --features fav fav{{.CARGO_TEST_ARGS}}
+
+  test_historytoview:
+    cmds:
+      - cargo test --no-default-features --features historytoview historytoview{{.CARGO_TEST_ARGS}}
+
+  test_live:
+    cmds:
+      - cargo test --no-default-features --features live live{{.CARGO_TEST_ARGS}}
+
+  test_login:
+    cmds:
+      - cargo test --no-default-features --features login login{{.CARGO_TEST_ARGS}}
+
+  test_manga:
+    cmds:
+      - cargo test --no-default-features --features manga manga{{.CARGO_TEST_ARGS}}
+
+  test_message:
+    cmds:
+      - cargo test --no-default-features --features message message{{.CARGO_TEST_ARGS}}
+
+  test_misc:
+    cmds:
+      - cargo test --no-default-features --features misc misc{{.CARGO_TEST_ARGS}}
+
+  test_note:
+    cmds:
+      - cargo test --no-default-features --features note note{{.CARGO_TEST_ARGS}}
+
+  test_opus:
+    cmds:
+      - cargo test --no-default-features --features opus opus{{.CARGO_TEST_ARGS}}
+
+  test_search:
+    cmds:
+      - cargo test --no-default-features --features search search{{.CARGO_TEST_ARGS}}
+
+  test_user:
+    cmds:
+      - cargo test --no-default-features --features user user{{.CARGO_TEST_ARGS}}
+
+  test_video:
+    cmds:
+      - cargo test --no-default-features --features video video{{.CARGO_TEST_ARGS}}
+
+  test_video_ranking:
+    cmds:
+      - cargo test --no-default-features --features video_ranking video_ranking{{.CARGO_TEST_ARGS}}
+
+  test_vip:
+    cmds:
+      - cargo test --no-default-features --features vip vip{{.CARGO_TEST_ARGS}}
+
+  test_wallet:
+    cmds:
+      - cargo test --no-default-features --features wallet wallet{{.CARGO_TEST_ARGS}}
+
+  test_web_widget:
+    cmds:
+      - cargo test --no-default-features --features web_widget web_widget{{.CARGO_TEST_ARGS}}

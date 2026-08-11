@@ -1,6 +1,7 @@
 import React, { Button, useEffect, useState } from "sdk";
 import { errorMessage, getState, subscribe } from "../runtime";
 import type { BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliToViewItem } from "../types";
+import { FavoriteManagePanel } from "./FavoriteManagePanel";
 import { VideoCard } from "./VideoCard";
 
 const tabs = [
@@ -19,6 +20,7 @@ export function AccountLibraryTabs() {
   const [folders, setFolders] = useState<BiliFavoriteFolder[]>([]);
   const [favoriteItems, setFavoriteItems] = useState<BiliFavoriteItem[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+  const [manageMode, setManageMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -34,6 +36,7 @@ export function AccountLibraryTabs() {
       setFolders([]);
       setFavoriteItems([]);
       setSelectedFolderId(null);
+      setManageMode(false);
       return;
     }
     void loadActive();
@@ -99,6 +102,27 @@ export function AccountLibraryTabs() {
     return (
       <div className="bili-favorite-browser">
         <div className="bili-folder-list">
+          {!manageMode ? (
+            <Button
+              className="bili-fav-manage-entry"
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => setManageMode(true)}
+            >
+              管理
+            </Button>
+          ) : (
+            <Button
+              className="bili-fav-manage-entry"
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={() => setManageMode(false)}
+            >
+              完成
+            </Button>
+          )}
           {folders.map((folder) => (
             <Button
               className={folder.id === selectedFolderId ? "bili-folder-item bili-folder-item-active" : "bili-folder-item"}
@@ -116,7 +140,17 @@ export function AccountLibraryTabs() {
           ))}
         </div>
         <div className="bili-folder-videos">
-          {favoriteItems.length === 0 ? (
+          {manageMode ? (
+            <FavoriteManagePanel
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              items={favoriteItems}
+              onSelectFolder={setSelectedFolderId}
+              onChanged={() => {
+                void loadActive();
+              }}
+            />
+          ) : favoriteItems.length === 0 ? (
             <LibraryEmpty title="收藏夹内容" copy="该收藏夹暂无视频" />
           ) : (
             favoriteItems.map((item) => (
