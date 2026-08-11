@@ -89,23 +89,6 @@
       "description": "示例插件：展示游戏列表与订阅备份事件。"
     },
     {
-      "id": "com.easygamehub.achievement-print",
-      "name": "成就打印",
-      "version": "0.1.0",
-      "api_version": 1,
-      "entry": "bundle.js",
-      "permissions": [
-        "core.read",
-        "ui"
-      ],
-      "enabled": true,
-      "installed_at": "2026-08-10T14:33:32.718358700+08:00",
-      "last_error": null,
-      "error_count": 0,
-      "icon": null,
-      "description": null
-    },
-    {
       "id": "com.easygamehub.bilibili",
       "name": "Bilibili",
       "version": "0.1.0",
