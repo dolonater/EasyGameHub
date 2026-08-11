@@ -1635,6 +1635,13 @@ export const cssText = `
   min-width: 0;
   padding: 14px;
 }
+/* 分P 区块背景卡片（只给含分P列表的 section；用 --muted，--card==背景色不可见） */
+.bili-sidebar-section:has(.bili-page-list) {
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
 .bili-comment-card,
 .bili-comment-editor textarea,
 .bili-comment-reply-editor input,
