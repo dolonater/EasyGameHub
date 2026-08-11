@@ -3,6 +3,7 @@ import { CommentPanel } from "../components/CommentPanel";
 import { defaultDanmakuSettings, type DanmakuSettings } from "../components/DanmakuOverlay";
 import { PlayerShell } from "../components/PlayerShell";
 import { WatchSidebarTabs } from "../components/WatchSidebarTabs";
+import { DanmakuSegmentLoader } from "../danmaku/segmentLoader";
 import { useVideoInteraction } from "../hooks/useVideoInteraction";
 import { openSpace } from "../navigation";
 import { errorMessage, getState, loadConfig, refreshLoginStatus, subscribe } from "../runtime";
@@ -59,6 +60,9 @@ export function WatchPage({ target }: WatchPageProps) {
   const [danmakuLoading, setDanmakuLoading] = useState(false);
   const [danmakuError, setDanmakuError] = useState("");
   const [danmakuSettings, setDanmakuSettings] = useState<DanmakuSettings>(defaultDanmakuSettings);
+  const danmakuLoaderRef = useRef<DanmakuSegmentLoader | null>(null);
+  // 自己发送的弹幕：id → 发送时间戳秒（5 分钟窗口内描边 + 可操作）
+  const selfDanmakuRef = useRef<Map<string, number>>(new Map());
   const [defaultPlaybackRate, setDefaultPlaybackRate] = useState(1);
   const [runtimeState, setRuntimeState] = useState(getState);
   const progressRef = useRef<Record<number, number>>({});
@@ -242,30 +246,36 @@ export function WatchPage({ target }: WatchPageProps) {
     const sdk = getState().sdk;
     if (!sdk || !videoDetail || !activePage) return;
 
-    let active = true;
-    setDanmakuLoading(true);
-    setDanmakuError("");
-    setDanmakuItems([]);
-    sdk.bilibili.danmaku
-      .list({
-        aid: videoDetail.aid,
-        bvid: videoDetail.bvid,
-        cid: activePage.cid,
-      })
-      .then((items) => {
-        if (active) setDanmakuItems(sortDanmaku(items));
-      })
-      .catch((err) => {
-        if (active) setDanmakuError(errorMessage(err));
-      })
-      .finally(() => {
-        if (active) setDanmakuLoading(false);
-      });
+    const loader = new DanmakuSegmentLoader({
+      sdk,
+      cid: activePage.cid,
+      aid: videoDetail.aid,
+      onSegment: (items) => {
+        setDanmakuItems((current) => mergeDanmaku(current, items));
+      },
+      onFallback: (items) => {
+        setDanmakuItems(mergeDanmaku([], items));
+        if (items.length === 0) setDanmakuError("弹幕加载失败（已降级，暂无数据）");
+      },
+      onError: (message) => setDanmakuError(errorMessage(message)),
+    });
+    danmakuLoaderRef.current = loader;
 
     return () => {
-      active = false;
+      danmakuLoaderRef.current = null;
+      loader.dispose();
     };
-  }, [videoDetail?.aid, videoDetail?.bvid, activePage?.cid]);
+  }, [videoDetail?.aid, activePage?.cid]);
+
+  function handleDanmakuSent(item: BiliDanmakuItem) {
+    selfDanmakuRef.current.set(item.id, item.timestamp);
+    setDanmakuItems((items) => mergeDanmaku(items, [item]));
+  }
+
+  function handleDanmakuRecalled(id: string) {
+    selfDanmakuRef.current.delete(id);
+    setDanmakuItems((items) => items.filter((item) => item.id !== id));
+  }
 
   function rememberPlaybackTime(cid: number, seconds: number) {
     if (cid > 0 && Number.isFinite(seconds) && seconds >= 0) {
@@ -386,12 +396,15 @@ export function WatchPage({ target }: WatchPageProps) {
             onToView={interaction.toggleToView}
             onReport={interaction.report}
             onPlaybackTime={rememberPlaybackTime}
+            onTimeUpdate={(seconds) => danmakuLoaderRef.current?.updateTime(seconds)}
             onReloadPlayback={reloadPlayback}
             onPlaybackFallback={fallbackPlayback}
             playbackMode={playbackMode}
             onPlaybackModeChange={changePlaybackMode}
             onDanmakuSettingsChange={setDanmakuSettings}
-            onDanmakuSent={(item) => setDanmakuItems((items) => sortDanmaku([...items, item]))}
+            onDanmakuSent={handleDanmakuSent}
+            selfDanmaku={selfDanmakuRef.current}
+            onDanmakuRecalled={handleDanmakuRecalled}
             commentsPanel={
               <CommentPanel detail={videoDetail} loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)} sdk={getState().sdk} />
             }
@@ -453,8 +466,15 @@ function safeStartTime(value: number | undefined, duration: number) {
   return value;
 }
 
-function sortDanmaku(items: BiliDanmakuItem[]) {
-  return [...items].sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
+/** 合并弹幕列表：按 id 去重后按时间排序（分段加载与全量降级可安全叠加）。 */
+function mergeDanmaku(current: BiliDanmakuItem[], incoming: BiliDanmakuItem[]) {
+  if (incoming.length === 0) return current;
+  const byId = new Map<string, BiliDanmakuItem>();
+  for (const item of current) byId.set(item.id, item);
+  for (const item of incoming) byId.set(item.id, item);
+  return [...byId.values()].sort(
+    (left, right) => left.time - right.time || left.id.localeCompare(right.id),
+  );
 }
 
 /** 番剧单集 → 播放页分 P 结构（选集列表复用分 P 列表 UI；duration 毫秒→秒） */

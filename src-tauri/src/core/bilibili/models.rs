@@ -50,6 +50,25 @@ pub struct BiliOperationResult {
     pub message: String,
 }
 
+/// 发送弹幕结果：携带真实 dmid，供撤回/点赞操作与本地 self 标记使用。
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDanmakuSendResult {
+    pub ok: bool,
+    pub message: String,
+    pub dmid: Option<u64>,
+}
+
+impl BiliDanmakuSendResult {
+    pub fn ok(message: impl Into<String>, dmid: Option<u64>) -> Self {
+        Self {
+            ok: true,
+            message: message.into(),
+            dmid,
+        }
+    }
+}
+
 impl BiliOperationResult {
     pub fn ok(message: impl Into<String>) -> Self {
         Self {

@@ -1,9 +1,14 @@
 export interface DanmakuRenderState {
   key: string;
+  /** 原始弹幕 id（自己弹幕的 dmid / 本地 id）。 */
+  id: string;
   text: string;
   color: string;
   track: number;
   top: number;
+  bottom: number;
+  /** 弹幕模式：1 滚动、2 顶部固定、3 底部固定。 */
+  mode: number;
   durationSeconds: number;
   fontSize: number;
   opacity: number;
@@ -11,13 +16,20 @@ export interface DanmakuRenderState {
 }
 
 export function createDanmakuStyle(item: DanmakuRenderState) {
-  return {
-    "--bili-danmaku-top": `${item.top}px`,
+  const style: Record<string, string | number> = {
     "--bili-danmaku-duration": `${item.durationSeconds}s`,
     color: item.color || "#ffffff",
     fontSize: `${item.fontSize}px`,
     opacity: item.opacity,
-  } as Record<string, string | number>;
+  };
+  if (item.mode === 1) {
+    style["--bili-danmaku-top"] = `${item.top}px`;
+  } else if (item.mode === 2) {
+    style.top = `${item.top}px`;
+  } else if (item.mode === 3) {
+    style.bottom = `${item.bottom}px`;
+  }
+  return style;
 }
 
 export function durationForSpeed(speed: number) {

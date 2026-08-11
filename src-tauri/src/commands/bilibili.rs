@@ -14,11 +14,11 @@ use crate::core::bilibili::fav;
 use crate::core::bilibili::interaction;
 use crate::core::bilibili::library;
 use crate::core::bilibili::models::{
-    BiliBangumiFollow, BiliComment, BiliCommentPage, BiliDanmakuItem, BiliFavoriteFolder,
-    BiliFavoriteItem, BiliHistoryItem, BiliHotWord, BiliLocalProgress, BiliLoginInfo,
-    BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource, BiliPreciousVideos,
-    BiliQrLoginKey, BiliQrLoginStatus, BiliSeasonDetail, BiliToViewItem, BiliUserSpace,
-    BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
+    BiliBangumiFollow, BiliComment, BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult,
+    BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliHotWord, BiliLocalProgress,
+    BiliLoginInfo, BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource,
+    BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliSeasonDetail, BiliToViewItem,
+    BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
 };
 use crate::core::bilibili::playback;
 use crate::core::bilibili::proxy;
@@ -403,9 +403,61 @@ pub async fn bilibili_send_danmaku(
     cid: u64,
     message: String,
     progress: u32,
-) -> Result<BiliOperationResult, String> {
+) -> Result<BiliDanmakuSendResult, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
     danmaku::send_danmaku(&client, aid, bvid, cid, message, progress)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_danmaku_segment(
+    state: State<'_, AppState>,
+    cid: u64,
+    segment_index: u32,
+    aid: Option<u64>,
+) -> Result<Vec<BiliDanmakuItem>, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    danmaku::danmaku_segment(&client, cid, aid, segment_index)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_danmaku_thumbup(
+    state: State<'_, AppState>,
+    cid: u64,
+    dmid: u64,
+    like: bool,
+) -> Result<BiliOperationResult, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    danmaku::thumbup_danmaku(&client, cid, dmid, like)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_danmaku_report(
+    state: State<'_, AppState>,
+    cid: u64,
+    dmid: u64,
+    reason: u8,
+    content: Option<String>,
+) -> Result<BiliOperationResult, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    danmaku::report_danmaku(&client, cid, dmid, reason, content)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_danmaku_recall(
+    state: State<'_, AppState>,
+    cid: u64,
+    dmid: u64,
+) -> Result<BiliOperationResult, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    danmaku::recall_danmaku(&client, cid, dmid)
         .await
         .map_err(bpi_error)
 }

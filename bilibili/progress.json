@@ -29,6 +29,13 @@
       "updatedAt": 1786462537
     },
     {
+      "bvid": "BV19Jud6uEyX",
+      "aid": 117070792491138,
+      "cid": 40780893656,
+      "progressSeconds": 1,
+      "updatedAt": 1786466318
+    },
+    {
       "bvid": "BV1BQud67Egq",
       "aid": 117070171736383,
       "cid": 40775584617,
@@ -106,6 +113,13 @@
       "updatedAt": 1786375238
     },
     {
+      "bvid": "BV1UpM16YEGj",
+      "aid": 117042304780575,
+      "cid": 40693530780,
+      "progressSeconds": 18,
+      "updatedAt": 1786468708
+    },
+    {
       "bvid": "BV1XPuo6uES8",
       "aid": 117070306024746,
       "cid": 40773488258,
@@ -169,6 +183,13 @@
       "updatedAt": 1786382335
     },
     {
+      "bvid": "BV1hMup6BEVR",
+      "aid": 117048696902140,
+      "cid": 40658534430,
+      "progressSeconds": 1,
+      "updatedAt": 1786466389
+    },
+    {
       "bvid": "BV1hTup6uEof",
       "aid": 117048713679332,
       "cid": 40658141333,
@@ -228,8 +249,8 @@
       "bvid": "BV1oY411x7BD",
       "aid": 251807980,
       "cid": 184593767,
-      "progressSeconds": 5,
-      "updatedAt": 1786462066
+      "progressSeconds": 1337,
+      "updatedAt": 1786463757
     },
     {
       "bvid": "BV1p5u86mECB",

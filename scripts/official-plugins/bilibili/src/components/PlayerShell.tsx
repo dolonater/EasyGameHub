@@ -45,12 +45,17 @@ interface PlayerShellProps {
   onToView(): void;
   onReport(): void;
   onPlaybackTime(cid: number, seconds: number): void;
+  onTimeUpdate?(seconds: number): void;
   onReloadPlayback(): void;
   onPlaybackFallback(wasDirect: boolean): void;
   playbackMode: "quality" | "compat";
   onPlaybackModeChange(mode: "quality" | "compat"): void;
   onDanmakuSettingsChange(settings: DanmakuSettings): void;
   onDanmakuSent(item: BiliDanmakuItem): void;
+  /** 自己发送的弹幕（id → 发送时间戳秒），5 分钟窗口内可点击操作。 */
+  selfDanmaku?: Map<string, number>;
+  /** 自己弹幕撤回成功后回调（上层从列表移除）。 */
+  onDanmakuRecalled?(id: string): void;
   commentsPanel: any;
 }
 
@@ -82,12 +87,15 @@ export function PlayerShell({
   onToView,
   onReport,
   onPlaybackTime,
+  onTimeUpdate,
   onReloadPlayback,
   onPlaybackFallback,
   playbackMode,
   onPlaybackModeChange,
   onDanmakuSettingsChange,
   onDanmakuSent,
+  selfDanmaku,
+  onDanmakuRecalled,
   commentsPanel,
 }: PlayerShellProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -119,6 +127,9 @@ export function PlayerShell({
   const [qualityOpen, setQualityOpen] = useState(false);
   const [danmakuOpen, setDanmakuOpen] = useState(false);
   const [hovering, setHovering] = useState(false);
+  // 分段弹幕加载驱动：timeupdate 时把当前播放时间转发给上层（ref 模式避免闭包过期）
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+  onTimeUpdateRef.current = onTimeUpdate;
 
   const rememberTime = useCallback(() => {
     const video = videoRef.current;
@@ -236,10 +247,15 @@ export function PlayerShell({
     };
     const events = ["play", "pause", "timeupdate", "durationchange", "volumechange", "ratechange", "loadedmetadata"];
     events.forEach((eventName) => video.addEventListener(eventName, syncVideoState));
+    const onVideoTimeUpdate = () => {
+      onTimeUpdateRef.current?.(videoRef.current?.currentTime ?? 0);
+    };
+    video.addEventListener("timeupdate", onVideoTimeUpdate);
     video.addEventListener("ended", onEnded);
     video.addEventListener("error", onError);
     return () => {
       events.forEach((eventName) => video.removeEventListener(eventName, syncVideoState));
+      video.removeEventListener("timeupdate", onVideoTimeUpdate);
       video.removeEventListener("ended", onEnded);
       video.removeEventListener("error", onError);
       rememberTime();
@@ -288,7 +304,15 @@ export function PlayerShell({
         onMouseLeave={() => setHovering(false)}
       >
         <video className="bili-video-element" playsInline ref={videoRef} />
-        <DanmakuOverlay items={danmakuItems} settings={danmakuSettings} videoRef={videoRef} />
+        <DanmakuOverlay
+          items={danmakuItems}
+          settings={danmakuSettings}
+          videoRef={videoRef}
+          sdk={sdk}
+          cid={selectedPage?.cid ?? 0}
+          selfDanmaku={selfDanmaku}
+          onRecalled={onDanmakuRecalled}
+        />
 
         {loadingPlayback || !playback || playbackError ? (
           <div className="bili-player-overlay">

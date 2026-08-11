@@ -502,6 +502,8 @@ export const cssText = `
     1px 1px 2px rgba(0, 0, 0, 0.78),
     -1px -1px 2px rgba(0, 0, 0, 0.58);
   will-change: transform;
+  pointer-events: auto;
+  cursor: pointer;
   animation: bili-danmaku-roll var(--bili-danmaku-duration) linear forwards;
 }
 @keyframes bili-danmaku-roll {
@@ -511,6 +513,76 @@ export const cssText = `
   to {
     transform: translateX(calc(-100vw - 100%));
   }
+}
+/* mode 2/3 固定弹幕：独立于滚动轨道，垂直定位用 inline top/bottom，淡入淡出 */
+.bili-danmaku-item.bili-danmaku-fixed {
+  left: 0;
+  animation: bili-danmaku-fade var(--bili-danmaku-duration) linear forwards;
+}
+.bili-danmaku-fixed-top {
+  top: var(--bili-danmaku-top, 6px);
+}
+.bili-danmaku-fixed-bottom {
+  bottom: var(--bili-danmaku-bottom, 6px);
+}
+@keyframes bili-danmaku-fade {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* 自己发送的弹幕：5 分钟窗口内高亮描边 */
+.bili-danmaku-item.bili-danmaku-self {
+  box-shadow: 0 0 0 2px rgba(0, 174, 255, 0.9);
+  border-radius: 3px;
+}
+/* 弹幕操作菜单（点赞/举报/撤回）：absolute 相对弹幕层定位，越界自动翻转 */
+.bili-danmaku-menu {
+  position: absolute;
+  z-index: 100;
+  display: grid;
+  gap: 3px;
+  min-width: 150px;
+  pointer-events: auto;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, #05070c 8%);
+  padding: 6px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+.bili-danmaku-menu-title {
+  padding: 4px 10px 2px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-danmaku-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: hsl(var(--foreground, 0 0% 100%));
+  cursor: pointer;
+  text-align: left;
+}
+.bili-danmaku-menu-item:hover {
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 55%, transparent);
+}
+/* 视频暂停时弹幕动画同步暂停 */
+.bili-danmaku-layer.bili-danmaku-paused .bili-danmaku-item {
+  animation-play-state: paused;
 }
 .bili-player-overlay {
   z-index: 2;

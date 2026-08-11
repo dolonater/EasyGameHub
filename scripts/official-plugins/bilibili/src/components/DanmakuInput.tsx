@@ -72,8 +72,9 @@ export function DanmakuInput({
       })
       .then((result) => {
         if (!result.ok) throw new Error(result.message || "弹幕发送失败");
+        const dmid = result.dmid && result.dmid > 0 ? String(result.dmid) : `local-${Date.now()}`;
         onSent({
-          id: `local-${Date.now()}`,
+          id: dmid,
           time: progress / 1000,
           text,
           color: "#ffffff",

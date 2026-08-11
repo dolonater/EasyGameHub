@@ -18693,6 +18693,8 @@ var cssText = `
     1px 1px 2px rgba(0, 0, 0, 0.78),
     -1px -1px 2px rgba(0, 0, 0, 0.58);
   will-change: transform;
+  pointer-events: auto;
+  cursor: pointer;
   animation: bili-danmaku-roll var(--bili-danmaku-duration) linear forwards;
 }
 @keyframes bili-danmaku-roll {
@@ -18702,6 +18704,76 @@ var cssText = `
   to {
     transform: translateX(calc(-100vw - 100%));
   }
+}
+/* mode 2/3 \u56FA\u5B9A\u5F39\u5E55\uFF1A\u72EC\u7ACB\u4E8E\u6EDA\u52A8\u8F68\u9053\uFF0C\u5782\u76F4\u5B9A\u4F4D\u7528 inline top/bottom\uFF0C\u6DE1\u5165\u6DE1\u51FA */
+.bili-danmaku-item.bili-danmaku-fixed {
+  left: 0;
+  animation: bili-danmaku-fade var(--bili-danmaku-duration) linear forwards;
+}
+.bili-danmaku-fixed-top {
+  top: var(--bili-danmaku-top, 6px);
+}
+.bili-danmaku-fixed-bottom {
+  bottom: var(--bili-danmaku-bottom, 6px);
+}
+@keyframes bili-danmaku-fade {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+/* \u81EA\u5DF1\u53D1\u9001\u7684\u5F39\u5E55\uFF1A5 \u5206\u949F\u7A97\u53E3\u5185\u9AD8\u4EAE\u63CF\u8FB9 */
+.bili-danmaku-item.bili-danmaku-self {
+  box-shadow: 0 0 0 2px rgba(0, 174, 255, 0.9);
+  border-radius: 3px;
+}
+/* \u5F39\u5E55\u64CD\u4F5C\u83DC\u5355\uFF08\u70B9\u8D5E/\u4E3E\u62A5/\u64A4\u56DE\uFF09\uFF1Aabsolute \u76F8\u5BF9\u5F39\u5E55\u5C42\u5B9A\u4F4D\uFF0C\u8D8A\u754C\u81EA\u52A8\u7FFB\u8F6C */
+.bili-danmaku-menu {
+  position: absolute;
+  z-index: 100;
+  display: grid;
+  gap: 3px;
+  min-width: 150px;
+  pointer-events: auto;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, #05070c 8%);
+  padding: 6px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+.bili-danmaku-menu-title {
+  padding: 4px 10px 2px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-danmaku-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: hsl(var(--foreground, 0 0% 100%));
+  cursor: pointer;
+  text-align: left;
+}
+.bili-danmaku-menu-item:hover {
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 55%, transparent);
+}
+/* \u89C6\u9891\u6682\u505C\u65F6\u5F39\u5E55\u52A8\u753B\u540C\u6B65\u6682\u505C */
+.bili-danmaku-layer.bili-danmaku-paused .bili-danmaku-item {
+  animation-play-state: paused;
 }
 .bili-player-overlay {
   z-index: 2;
@@ -22906,28 +22978,68 @@ function maxOnScreenForTracks(trackCount, density) {
 }
 function planDanmakuBatch(items, options) {
   const nextTracks = options.activeTracks.map((track) => ({ ...track }));
+  const nextFixed = {
+    top: options.activeFixed.top.map((track) => ({ ...track })),
+    bottom: options.activeFixed.bottom.map((track) => ({ ...track }))
+  };
   const planned = [];
   let dropped = 0;
   for (const item of items) {
-    if (planned.length + nextTracks.length >= options.maxOnScreen) {
+    const fixedSide = fixedSideOf(item.mode);
+    if (!fixedSide) {
+      if (planned.length + nextTracks.length >= options.maxOnScreen) {
+        dropped += 1;
+        continue;
+      }
+      const track = firstAvailableTrack(nextTracks, options.maxTracks, item.time);
+      if (track === null) {
+        dropped += 1;
+        continue;
+      }
+      planned.push({ item, track, fixed: null, fixedSlot: -1 });
+      nextTracks.push({
+        track,
+        occupiedUntil: item.time + Math.max(1, options.durationSeconds * 0.38)
+      });
+      continue;
+    }
+    const occupancy = fixedSide === "top" ? nextFixed.top : nextFixed.bottom;
+    const slot = firstAvailableFixedSlot(occupancy, options.maxFixedPerSide, item.time);
+    if (slot === null) {
       dropped += 1;
       continue;
     }
-    const track = firstAvailableTrack(nextTracks, options.maxTracks, item.time);
-    if (track === null) {
-      dropped += 1;
-      continue;
-    }
-    planned.push({ item, track });
-    nextTracks.push({
-      track,
-      occupiedUntil: item.time + Math.max(1, options.durationSeconds * 0.38)
+    planned.push({ item, track: -1, fixed: fixedSide, fixedSlot: slot });
+    occupancy.push({
+      track: slot,
+      occupiedUntil: item.time + Math.max(1, options.durationSeconds)
     });
   }
-  return { planned, dropped, nextTracks };
+  return { planned, dropped, nextTracks, nextFixed };
 }
 function pruneTrackOccupancy(activeTracks, currentTime) {
   return activeTracks.filter((track) => track.occupiedUntil > currentTime);
+}
+function pruneFixedOccupancy(activeFixed, currentTime) {
+  return {
+    top: activeFixed.top.filter((track) => track.occupiedUntil > currentTime),
+    bottom: activeFixed.bottom.filter((track) => track.occupiedUntil > currentTime)
+  };
+}
+function fixedSideOf(mode) {
+  if (mode === 2) return "top";
+  if (mode === 3) return "bottom";
+  return null;
+}
+function firstAvailableFixedSlot(activeSlots, maxSlots, time) {
+  const safeMaxSlots = Math.max(1, Math.floor(maxSlots || 1));
+  for (let slot = 0; slot < safeMaxSlots; slot += 1) {
+    const occupied = activeSlots.some(
+      (entry) => entry.track === slot && entry.occupiedUntil > time
+    );
+    if (!occupied) return slot;
+  }
+  return null;
 }
 function firstAvailableTrack(activeTracks, maxTracks, time) {
   const safeMaxTracks = Math.max(1, Math.floor(maxTracks || 1));
@@ -22942,13 +23054,20 @@ function firstAvailableTrack(activeTracks, maxTracks, time) {
 
 // src/danmaku/renderer.ts
 function createDanmakuStyle(item) {
-  return {
-    "--bili-danmaku-top": `${item.top}px`,
+  const style = {
     "--bili-danmaku-duration": `${item.durationSeconds}s`,
     color: item.color || "#ffffff",
     fontSize: `${item.fontSize}px`,
     opacity: item.opacity
   };
+  if (item.mode === 1) {
+    style["--bili-danmaku-top"] = `${item.top}px`;
+  } else if (item.mode === 2) {
+    style.top = `${item.top}px`;
+  } else if (item.mode === 3) {
+    style.bottom = `${item.bottom}px`;
+  }
+  return style;
 }
 function durationForSpeed(speed) {
   const safeSpeed = Math.min(1.8, Math.max(0.6, speed || 1));
@@ -22963,19 +23082,72 @@ var defaultDanmakuSettings = {
   density: 0.75,
   speed: 1
 };
-function DanmakuOverlay({ items, settings, videoRef }) {
+var SELF_DANMAKU_WINDOW = 300;
+var danmakuReportReasons = [
+  { id: 2, label: "\u8272\u60C5\u4F4E\u4FD7" },
+  { id: 3, label: "\u4EBA\u8EAB\u653B\u51FB" },
+  { id: 4, label: "\u8FDD\u6CD5\u4FE1\u606F" },
+  { id: 5, label: "\u5237\u5C4F" },
+  { id: 6, label: "\u5E7F\u544A" },
+  { id: 1, label: "\u5176\u4ED6" }
+];
+function DanmakuOverlay({
+  items,
+  settings,
+  videoRef,
+  sdk,
+  cid,
+  selfDanmaku,
+  onRecalled
+}) {
   const layerRef = useRef3(null);
   const sortedRef = useRef3([]);
   const cursorRef = useRef3(0);
   const lastVideoTimeRef = useRef3(0);
   const activeTracksRef = useRef3([]);
+  const activeFixedRef = useRef3({ top: [], bottom: [] });
   const renderCounterRef = useRef3(0);
   const [visibleItems, setVisibleItems] = useState19([]);
+  const [menu, setMenu] = useState19(null);
+  const [reportOpen, setReportOpen] = useState19(false);
   useEffect19(() => {
-    sortedRef.current = [...items].filter((item) => item.text.trim()).sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
-    cursorRef.current = 0;
-    activeTracksRef.current = [];
-    setVisibleItems([]);
+    if (!menu) return;
+    const close = () => {
+      setMenu(null);
+      setReportOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [menu]);
+  useEffect19(() => {
+    const incoming = [...items].filter((item) => item.text.trim()).sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
+    const old = sortedRef.current;
+    const byId = /* @__PURE__ */ new Map();
+    for (const item of old) byId.set(item.id, item);
+    for (const item of incoming) byId.set(item.id, item);
+    const merged = [...byId.values()].sort(
+      (left, right) => left.time - right.time || left.id.localeCompare(right.id)
+    );
+    if (merged.length !== old.length) {
+      const cursorTime = old[cursorRef.current]?.time ?? 0;
+      const oldIds = new Set(old.map((item) => item.id));
+      let minNewTime = Number.POSITIVE_INFINITY;
+      for (const item of incoming) {
+        if (!oldIds.has(item.id)) minNewTime = Math.min(minNewTime, item.time);
+      }
+      if (Number.isFinite(minNewTime) && minNewTime < cursorTime - 0.05) {
+        cursorRef.current = lowerBoundByTime(
+          merged,
+          Math.min(minNewTime, lastVideoTimeRef.current - 0.2)
+        );
+      } else {
+        cursorRef.current = lowerBoundByTime(
+          merged,
+          Math.max(cursorTime, lastVideoTimeRef.current - 0.2)
+        );
+      }
+    }
+    sortedRef.current = merged;
   }, [items]);
   useEffect19(() => {
     if (!settings.enabled) {
@@ -22989,7 +23161,13 @@ function DanmakuOverlay({ items, settings, videoRef }) {
       if (cancelled) return;
       const video = videoRef.current;
       const layer = layerRef.current;
-      if (!video || !layer || video.paused || video.readyState < 1) {
+      if (!video || !layer || video.readyState < 1) {
+        frame = requestAnimationFrame(tick);
+        return;
+      }
+      const paused = video.paused;
+      layer.classList.toggle("bili-danmaku-paused", paused);
+      if (paused) {
         frame = requestAnimationFrame(tick);
         return;
       }
@@ -22998,12 +23176,14 @@ function DanmakuOverlay({ items, settings, videoRef }) {
       if (jumped) {
         cursorRef.current = lowerBoundByTime(sortedRef.current, currentTime - 0.2);
         activeTracksRef.current = [];
+        activeFixedRef.current = { top: [], bottom: [] };
         setVisibleItems([]);
       }
       lastVideoTimeRef.current = currentTime;
       const height = layer.clientHeight || 260;
       const trackCount = estimateTrackCount(height, settings.fontSize);
       const maxOnScreen = maxOnScreenForTracks(trackCount, settings.density);
+      const maxFixedPerSide = Math.max(1, Math.floor(trackCount / 3));
       const durationSeconds = durationForSpeed(settings.speed);
       const batch = [];
       const sorted = sortedRef.current;
@@ -23015,27 +23195,41 @@ function DanmakuOverlay({ items, settings, videoRef }) {
       setVisibleItems((previous) => {
         const now = performance.now();
         const alive = previous.filter((item) => item.expiresAt > now);
+        const aliveIds = new Set(alive.map((item) => item.id));
+        const freshBatch = batch.filter((item) => !aliveIds.has(item.id));
         activeTracksRef.current = pruneTrackOccupancy(activeTracksRef.current, currentTime);
-        if (batch.length === 0) return alive;
-        const planned = planDanmakuBatch(batch, {
+        activeFixedRef.current = pruneFixedOccupancy(activeFixedRef.current, currentTime);
+        if (freshBatch.length === 0) return alive;
+        const planned = planDanmakuBatch(freshBatch, {
           activeTracks: activeTracksRef.current,
+          activeFixed: activeFixedRef.current,
           maxTracks: trackCount,
           maxOnScreen: Math.max(maxOnScreen, alive.length),
+          maxFixedPerSide,
           durationSeconds
         });
         activeTracksRef.current = planned.nextTracks;
-        const nextItems = planned.planned.map(({ item, track }) => {
+        activeFixedRef.current = planned.nextFixed;
+        const rowHeight = settings.fontSize + 8;
+        const nextItems = planned.planned.map(({ item, track, fixed, fixedSlot }) => {
           const key = `${item.id}-${renderCounterRef.current++}`;
+          const mode = item.mode || 1;
+          const isFixed = mode === 2 || mode === 3;
+          const top = fixed === "bottom" ? 0 : fixed === "top" ? fixedSlot * rowHeight + 6 : track * rowHeight + 6;
+          const bottom = fixed === "bottom" ? fixedSlot * rowHeight + 6 : 0;
           return {
             key,
+            id: item.id,
             text: item.text,
             color: item.color || "#ffffff",
             track,
-            top: track * (settings.fontSize + 8) + 6,
-            durationSeconds,
+            top,
+            bottom,
+            mode,
+            durationSeconds: isFixed ? Math.min(durationSeconds, 6) : durationSeconds,
             fontSize: settings.fontSize,
             opacity: settings.opacity,
-            expiresAt: now + durationSeconds * 1e3
+            expiresAt: now + (isFixed ? Math.min(durationSeconds, 6) : durationSeconds) * 1e3
           };
         });
         return [...alive, ...nextItems].slice(-maxOnScreen);
@@ -23049,7 +23243,101 @@ function DanmakuOverlay({ items, settings, videoRef }) {
     };
   }, [settings.density, settings.enabled, settings.fontSize, settings.opacity, settings.speed, videoRef]);
   if (!settings.enabled) return null;
-  return /* @__PURE__ */ React25.createElement("div", { className: "bili-danmaku-layer", ref: layerRef }, visibleItems.map((item) => /* @__PURE__ */ React25.createElement("span", { className: "bili-danmaku-item", key: item.key, style: createDanmakuStyle(item) }, item.text)));
+  return /* @__PURE__ */ React25.createElement("div", { className: "bili-danmaku-layer", ref: layerRef }, visibleItems.map((item) => /* @__PURE__ */ React25.createElement(
+    "span",
+    {
+      className: `bili-danmaku-item ${item.mode === 2 ? "bili-danmaku-fixed bili-danmaku-fixed-top" : item.mode === 3 ? "bili-danmaku-fixed bili-danmaku-fixed-bottom" : ""} ${isSelfItem(item) ? "bili-danmaku-self" : ""}`,
+      key: item.key,
+      style: createDanmakuStyle(item),
+      onMouseDown: (event) => handleDanmakuDown(item, event)
+    },
+    item.text
+  )), menu ? /* @__PURE__ */ React25.createElement(
+    "div",
+    {
+      className: "bili-danmaku-menu",
+      style: { left: menu.x, top: menu.y },
+      onMouseDown: (event) => event.stopPropagation()
+    },
+    reportOpen ? /* @__PURE__ */ React25.createElement(React25.Fragment, null, /* @__PURE__ */ React25.createElement("div", { className: "bili-danmaku-menu-title" }, "\u4E3E\u62A5\u5F39\u5E55"), danmakuReportReasons.map((reason) => /* @__PURE__ */ React25.createElement(
+      "button",
+      {
+        className: "bili-danmaku-menu-item",
+        key: reason.id,
+        type: "button",
+        onClick: () => reportDanmaku(reason.id)
+      },
+      reason.label
+    )), /* @__PURE__ */ React25.createElement(
+      "button",
+      {
+        className: "bili-danmaku-menu-item",
+        type: "button",
+        onClick: () => setReportOpen(false)
+      },
+      "\u8FD4\u56DE"
+    )) : /* @__PURE__ */ React25.createElement(React25.Fragment, null, /* @__PURE__ */ React25.createElement("div", { className: "bili-danmaku-menu-title" }, menu.self ? "\u6211\u7684\u5F39\u5E55" : "\u5F39\u5E55\u64CD\u4F5C"), /* @__PURE__ */ React25.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: thumbupDanmaku }, "\u70B9\u8D5E"), /* @__PURE__ */ React25.createElement(
+      "button",
+      {
+        className: "bili-danmaku-menu-item",
+        type: "button",
+        onClick: () => setReportOpen(true)
+      },
+      "\u4E3E\u62A5"
+    ), menu.self ? /* @__PURE__ */ React25.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: recallDanmaku }, "\u64A4\u56DE") : null)
+  ) : null);
+  function handleDanmakuDown(item, event) {
+    if (!sdk || !cid) return;
+    event.stopPropagation();
+    const layer = layerRef.current;
+    const span = event.currentTarget ?? null;
+    if (!layer || !span) return;
+    const layerRect = layer.getBoundingClientRect();
+    const spanRect = span.getBoundingClientRect();
+    const menuWidth = 160;
+    const menuHeight = 250;
+    let x = spanRect.left - layerRect.left;
+    let y = spanRect.bottom - layerRect.top + 4;
+    if (x + menuWidth > layerRect.width) x = Math.max(0, spanRect.right - layerRect.left - menuWidth);
+    if (y + menuHeight > layerRect.height) y = Math.max(0, spanRect.top - layerRect.top - menuHeight - 4);
+    setMenu({ id: item.id, x, y, self: isSelfItem(item) });
+    setReportOpen(false);
+  }
+  function isSelfItem(item) {
+    if (!selfDanmaku || !cid) return false;
+    const sentAt = selfDanmaku.get(item.id);
+    if (sentAt === void 0) return false;
+    return Date.now() / 1e3 - sentAt < SELF_DANMAKU_WINDOW;
+  }
+  function closeMenu() {
+    setMenu(null);
+    setReportOpen(false);
+  }
+  function thumbupDanmaku() {
+    const current = menu;
+    if (!current || !sdk || !cid) return;
+    sdk.bilibili.danmaku.thumbup({ cid, dmid: Number(current.id), like: true }).then((result) => {
+      if (!result.ok) throw new Error(result.message || "\u70B9\u8D5E\u5931\u8D25");
+      sdk.ui.notify("\u5F39\u5E55\u5DF2\u70B9\u8D5E");
+    }).catch((error) => sdk.ui.notify(errorMessage(error))).finally(closeMenu);
+  }
+  function reportDanmaku(reason) {
+    const current = menu;
+    if (!current || !sdk || !cid) return;
+    sdk.bilibili.danmaku.report({ cid, dmid: Number(current.id), reason }).then((result) => {
+      if (!result.ok) throw new Error(result.message || "\u4E3E\u62A5\u5931\u8D25");
+      sdk.ui.notify("\u5F39\u5E55\u5DF2\u4E3E\u62A5");
+    }).catch((error) => sdk.ui.notify(errorMessage(error))).finally(closeMenu);
+  }
+  function recallDanmaku() {
+    const current = menu;
+    if (!current || !sdk || !cid) return;
+    sdk.bilibili.danmaku.recall({ cid, dmid: Number(current.id) }).then((result) => {
+      if (!result.ok) throw new Error(result.message || "\u64A4\u56DE\u5931\u8D25");
+      sdk.ui.notify("\u5F39\u5E55\u5DF2\u64A4\u56DE");
+      onRecalled?.(current.id);
+    }).catch((error) => sdk.ui.notify(errorMessage(error))).finally(closeMenu);
+  }
 }
 function lowerBoundByTime(items, time) {
   let low = 0;
@@ -23390,8 +23678,9 @@ function DanmakuInput({
       progress
     }).then((result) => {
       if (!result.ok) throw new Error(result.message || "\u5F39\u5E55\u53D1\u9001\u5931\u8D25");
+      const dmid = result.dmid && result.dmid > 0 ? String(result.dmid) : `local-${Date.now()}`;
       onSent({
-        id: `local-${Date.now()}`,
+        id: dmid,
         time: progress / 1e3,
         text,
         color: "#ffffff",
@@ -24088,12 +24377,15 @@ function PlayerShell({
   onToView,
   onReport,
   onPlaybackTime,
+  onTimeUpdate,
   onReloadPlayback,
   onPlaybackFallback,
   playbackMode,
   onPlaybackModeChange,
   onDanmakuSettingsChange,
   onDanmakuSent,
+  selfDanmaku,
+  onDanmakuRecalled,
   commentsPanel
 }) {
   const videoRef = useRef6(null);
@@ -24123,6 +24415,8 @@ function PlayerShell({
   const [qualityOpen, setQualityOpen] = useState25(false);
   const [danmakuOpen, setDanmakuOpen] = useState25(false);
   const [hovering, setHovering] = useState25(false);
+  const onTimeUpdateRef = useRef6(onTimeUpdate);
+  onTimeUpdateRef.current = onTimeUpdate;
   const rememberTime = useCallback2(() => {
     const video = videoRef.current;
     if (!video || !selectedPage) return;
@@ -24226,10 +24520,15 @@ function PlayerShell({
     };
     const events = ["play", "pause", "timeupdate", "durationchange", "volumechange", "ratechange", "loadedmetadata"];
     events.forEach((eventName) => video.addEventListener(eventName, syncVideoState));
+    const onVideoTimeUpdate = () => {
+      onTimeUpdateRef.current?.(videoRef.current?.currentTime ?? 0);
+    };
+    video.addEventListener("timeupdate", onVideoTimeUpdate);
     video.addEventListener("ended", onEnded);
     video.addEventListener("error", onError);
     return () => {
       events.forEach((eventName) => video.removeEventListener(eventName, syncVideoState));
+      video.removeEventListener("timeupdate", onVideoTimeUpdate);
       video.removeEventListener("ended", onEnded);
       video.removeEventListener("error", onError);
       rememberTime();
@@ -24272,7 +24571,18 @@ function PlayerShell({
       onMouseLeave: () => setHovering(false)
     },
     /* @__PURE__ */ React36.createElement("video", { className: "bili-video-element", playsInline: true, ref: videoRef }),
-    /* @__PURE__ */ React36.createElement(DanmakuOverlay, { items: danmakuItems, settings: danmakuSettings, videoRef }),
+    /* @__PURE__ */ React36.createElement(
+      DanmakuOverlay,
+      {
+        items: danmakuItems,
+        settings: danmakuSettings,
+        videoRef,
+        sdk,
+        cid: selectedPage?.cid ?? 0,
+        selfDanmaku,
+        onRecalled: onDanmakuRecalled
+      }
+    ),
     loadingPlayback || !playback || playbackError ? /* @__PURE__ */ React36.createElement("div", { className: "bili-player-overlay" }, /* @__PURE__ */ React36.createElement("strong", null, playbackError ? "\u64AD\u653E\u5931\u8D25" : loadingPlayback ? "\u6B63\u5728\u521B\u5EFA\u64AD\u653E\u4F1A\u8BDD" : "\u7B49\u5F85\u64AD\u653E\u6E90"), playbackError ? /* @__PURE__ */ React36.createElement("span", null, playbackError) : null, playbackError ? /* @__PURE__ */ React36.createElement("div", { className: "bili-player-overlay-actions" }, /* @__PURE__ */ React36.createElement(Button15, { size: "sm", type: "button", onClick: onReloadPlayback }, "\u91CD\u8F7D"), /* @__PURE__ */ React36.createElement(Button15, { variant: "outline", size: "sm", type: "button", onClick: openExternal }, "\u5916\u90E8\u6253\u5F00")) : null) : null,
     /* @__PURE__ */ React36.createElement(
       VideoPlayerControls,
@@ -24565,6 +24875,102 @@ function pad4(value) {
   return value.toString().padStart(2, "0");
 }
 
+// src/danmaku/segmentLoader.ts
+var SEGMENT_SECONDS = 360;
+var PREFETCH_RADIUS = 2;
+var DanmakuSegmentLoader = class {
+  sdk;
+  cid;
+  aid;
+  onSegment;
+  onFallback;
+  onError;
+  cache = /* @__PURE__ */ new Map();
+  inFlight = /* @__PURE__ */ new Set();
+  requested = /* @__PURE__ */ new Set();
+  fallbackActive = false;
+  fallbackRequested = false;
+  disposed = false;
+  lastSegment = -1;
+  constructor(options) {
+    this.sdk = options.sdk;
+    this.cid = options.cid;
+    this.aid = options.aid;
+    this.onSegment = options.onSegment;
+    this.onFallback = options.onFallback;
+    this.onError = options.onError;
+  }
+  /** 播放游标更新：段变化时预取当前段 ±2 段（由播放器 timeupdate 驱动）。 */
+  updateTime(time) {
+    if (this.disposed || this.fallbackActive) return;
+    const current = this.segmentIndexForTime(time);
+    if (current === this.lastSegment) return;
+    this.lastSegment = current;
+    this.prefetchRange(current);
+  }
+  /** 清理请求标记（供卸载/切 P 时调用）。 */
+  dispose() {
+    this.disposed = true;
+    this.inFlight.clear();
+  }
+  segmentIndexForTime(time) {
+    const safeTime = Math.max(0, Number.isFinite(time) ? time : 0);
+    return Math.floor(safeTime / SEGMENT_SECONDS) + 1;
+  }
+  prefetchRange(current) {
+    for (let index = current - PREFETCH_RADIUS; index <= current + PREFETCH_RADIUS; index += 1) {
+      if (index >= 1) this.ensureSegment(index);
+    }
+  }
+  ensureSegment(index) {
+    if (this.cache.has(index) || this.requested.has(index) || this.inFlight.has(index)) return;
+    this.requested.add(index);
+    this.inFlight.add(index);
+    const sdk = this.sdk;
+    if (!sdk) {
+      this.inFlight.delete(index);
+      return;
+    }
+    sdk.bilibili.danmaku.segment({ cid: this.cid, segmentIndex: index, aid: this.aid }).then((items) => {
+      if (this.disposed) return;
+      if (!this.cache.has(index)) this.cache.set(index, items);
+      if (items.length > 0) this.onSegment(items, index);
+    }).catch(() => {
+      if (this.disposed) return;
+      this.requested.delete(index);
+      this.fallbackToFullList();
+    }).finally(() => {
+      this.inFlight.delete(index);
+    });
+  }
+  fallbackToFullList() {
+    if (this.fallbackActive || this.fallbackRequested) return;
+    this.fallbackRequested = true;
+    const sdk = this.sdk;
+    if (!sdk) return;
+    sdk.bilibili.danmaku.list({ cid: this.cid }).then((items) => {
+      if (this.disposed) return;
+      this.fallbackActive = true;
+      this.inFlight.clear();
+      this.onFallback(items);
+    }).catch((error) => {
+      if (!this.disposed) this.onError(errorMessageOf(error));
+    });
+  }
+  /** 当前是否已降级为全量 XML 模式。 */
+  get isFallbackActive() {
+    return this.fallbackActive;
+  }
+  /** 测试/调试：当前已缓存段集合。 */
+  get cachedSegments() {
+    return [...this.cache.keys()].sort((a2, b) => a2 - b);
+  }
+};
+function errorMessageOf(error) {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
 // src/hooks/useVideoInteraction.ts
 import { useEffect as useEffect24, useState as useState28 } from "sdk";
 function useVideoInteraction({
@@ -24758,6 +25164,8 @@ function WatchPage({ target }) {
   const [danmakuLoading, setDanmakuLoading] = useState29(false);
   const [danmakuError, setDanmakuError] = useState29("");
   const [danmakuSettings, setDanmakuSettings] = useState29(defaultDanmakuSettings);
+  const danmakuLoaderRef = useRef7(null);
+  const selfDanmakuRef = useRef7(/* @__PURE__ */ new Map());
   const [defaultPlaybackRate, setDefaultPlaybackRate] = useState29(1);
   const [runtimeState, setRuntimeState] = useState29(getState);
   const progressRef = useRef7({});
@@ -24909,25 +25317,33 @@ function WatchPage({ target }) {
   useEffect25(() => {
     const sdk = getState().sdk;
     if (!sdk || !videoDetail || !activePage) return;
-    let active = true;
-    setDanmakuLoading(true);
-    setDanmakuError("");
-    setDanmakuItems([]);
-    sdk.bilibili.danmaku.list({
+    const loader = new DanmakuSegmentLoader({
+      sdk,
+      cid: activePage.cid,
       aid: videoDetail.aid,
-      bvid: videoDetail.bvid,
-      cid: activePage.cid
-    }).then((items) => {
-      if (active) setDanmakuItems(sortDanmaku(items));
-    }).catch((err) => {
-      if (active) setDanmakuError(errorMessage(err));
-    }).finally(() => {
-      if (active) setDanmakuLoading(false);
+      onSegment: (items) => {
+        setDanmakuItems((current) => mergeDanmaku(current, items));
+      },
+      onFallback: (items) => {
+        setDanmakuItems(mergeDanmaku([], items));
+        if (items.length === 0) setDanmakuError("\u5F39\u5E55\u52A0\u8F7D\u5931\u8D25\uFF08\u5DF2\u964D\u7EA7\uFF0C\u6682\u65E0\u6570\u636E\uFF09");
+      },
+      onError: (message) => setDanmakuError(errorMessage(message))
     });
+    danmakuLoaderRef.current = loader;
     return () => {
-      active = false;
+      danmakuLoaderRef.current = null;
+      loader.dispose();
     };
-  }, [videoDetail?.aid, videoDetail?.bvid, activePage?.cid]);
+  }, [videoDetail?.aid, activePage?.cid]);
+  function handleDanmakuSent(item) {
+    selfDanmakuRef.current.set(item.id, item.timestamp);
+    setDanmakuItems((items) => mergeDanmaku(items, [item]));
+  }
+  function handleDanmakuRecalled(id) {
+    selfDanmakuRef.current.delete(id);
+    setDanmakuItems((items) => items.filter((item) => item.id !== id));
+  }
   function rememberPlaybackTime(cid, seconds) {
     if (cid > 0 && Number.isFinite(seconds) && seconds >= 0) {
       progressRef.current = { ...progressRef.current, [cid]: seconds };
@@ -25024,12 +25440,15 @@ function WatchPage({ target }) {
       onToView: interaction.toggleToView,
       onReport: interaction.report,
       onPlaybackTime: rememberPlaybackTime,
+      onTimeUpdate: (seconds) => danmakuLoaderRef.current?.updateTime(seconds),
       onReloadPlayback: reloadPlayback,
       onPlaybackFallback: fallbackPlayback,
       playbackMode,
       onPlaybackModeChange: changePlaybackMode,
       onDanmakuSettingsChange: setDanmakuSettings,
-      onDanmakuSent: (item) => setDanmakuItems((items) => sortDanmaku([...items, item])),
+      onDanmakuSent: handleDanmakuSent,
+      selfDanmaku: selfDanmakuRef.current,
+      onDanmakuRecalled: handleDanmakuRecalled,
       commentsPanel: /* @__PURE__ */ React40.createElement(CommentPanel, { detail: videoDetail, loggedIn: Boolean(runtimeState.loginInfo?.loggedIn), sdk: getState().sdk })
     }
   ), /* @__PURE__ */ React40.createElement(
@@ -25077,8 +25496,14 @@ function safeStartTime(value, duration2) {
   if (Number.isFinite(duration2) && duration2 > 30 && value >= duration2 - 30) return 0;
   return value;
 }
-function sortDanmaku(items) {
-  return [...items].sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
+function mergeDanmaku(current, incoming) {
+  if (incoming.length === 0) return current;
+  const byId = /* @__PURE__ */ new Map();
+  for (const item of current) byId.set(item.id, item);
+  for (const item of incoming) byId.set(item.id, item);
+  return [...byId.values()].sort(
+    (left, right) => left.time - right.time || left.id.localeCompare(right.id)
+  );
 }
 function episodeToPage(episode) {
   return {

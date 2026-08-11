@@ -37,6 +37,12 @@ declare module "sdk" {
     message: string;
   }
 
+  export interface BiliDanmakuSendResult {
+    ok: boolean;
+    message: string;
+    dmid?: number;
+  }
+
   export type BiliErrorKind =
     | "notLoggedIn"
     | "loginExpired"
@@ -414,15 +420,28 @@ declare module "sdk" {
         loadLocalProgress(args: { bvid: string; cid?: number }): Promise<BiliLocalProgress | null>;
         reportProgress(args: { aid: number; cid: number; progress: number }): Promise<BiliOperationResult>;
       };
-      danmaku: {
-        list(args: { cid: number; aid?: number; bvid?: string }): Promise<BiliDanmakuItem[]>;
-        send(args: {
+    danmaku: {
+      list(args: { cid: number; aid?: number; bvid?: string }): Promise<BiliDanmakuItem[]>;
+      segment(args: {
+        cid: number;
+        segmentIndex: number;
+        aid?: number;
+      }): Promise<BiliDanmakuItem[]>;
+      thumbup(args: { cid: number; dmid: number; like: boolean }): Promise<BiliOperationResult>;
+      report(args: {
+        cid: number;
+        dmid: number;
+        reason: number;
+        content?: string;
+      }): Promise<BiliOperationResult>;
+      recall(args: { cid: number; dmid: number }): Promise<BiliOperationResult>;
+      send(args: {
           aid: number;
           bvid: string;
           cid: number;
           message: string;
           progress: number;
-        }): Promise<BiliOperationResult>;
+        }): Promise<BiliDanmakuSendResult>;
       };
       comment: {
         list(args: { oid: number; page?: number; sort?: BiliCommentSort }): Promise<BiliCommentPage>;
