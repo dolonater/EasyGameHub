@@ -114,32 +114,6 @@
     ]
   },
   {
-    "app_id": 1158310,
-    "fetched_at": 1786250504,
-    "items": [
-      {
-        "appId": 1158310,
-        "title": "Dragon Age: Thedas at War is a BioWare RPG-inspired Crusader Kings 3 total conversion mod that's here to keep the series alive while it sits in EA limbo",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1839041357035930",
-        "author": "",
-        "contents": "Who knows when or if BioWare'll ever be allowed to make a follow-up to Dragon Age: The Veilguard. Whatever ends up being the future of a series EA've left in a rather ambiguous place, a group of Crusader Kings 3 modders have stepped up to make a Dragon Age total conversion that lets folks play out a...",
-        "feedLabel": "Rock, Paper, Shotgun",
-        "feedType": 0,
-        "date": 1785163333
-      },
-      {
-        "appId": 1158310,
-        "title": "PDX ModCon: July 24-26",
-        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029195",
-        "author": "PDX-Trinexx",
-        "contents": "Rulers! Great tidings to all from PDX ModCon!We are a fan-organised three-day showcase and celebration event for Paradox mods; specifically those of Crusader Kings III, Victoria 3, and this year, Europa Universalis V. We will be presenting no less than 60 mods over the coming weekend. Besides traile...",
-        "feedLabel": "Community Announcements",
-        "feedType": 1,
-        "date": 1784890753
-      }
-    ]
-  },
-  {
     "app_id": 3240220,
     "fetched_at": 1786329918,
     "items": [
@@ -198,6 +172,32 @@
         "feedLabel": "SteamDB",
         "feedType": 0,
         "date": 1771318800
+      }
+    ]
+  },
+  {
+    "app_id": 1158310,
+    "fetched_at": 1786432121,
+    "items": [
+      {
+        "appId": 1158310,
+        "title": "Dragon Age: Thedas at War is a BioWare RPG-inspired Crusader Kings 3 total conversion mod that's here to keep the series alive while it sits in EA limbo",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1839041357035930",
+        "author": "",
+        "contents": "Who knows when or if BioWare'll ever be allowed to make a follow-up to Dragon Age: The Veilguard. Whatever ends up being the future of a series EA've left in a rather ambiguous place, a group of Crusader Kings 3 modders have stepped up to make a Dragon Age total conversion that lets folks play out a...",
+        "feedLabel": "Rock, Paper, Shotgun",
+        "feedType": 0,
+        "date": 1785163333
+      },
+      {
+        "appId": 1158310,
+        "title": "PDX ModCon: July 24-26",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1839041357029195",
+        "author": "PDX-Trinexx",
+        "contents": "Rulers! Great tidings to all from PDX ModCon!We are a fan-organised three-day showcase and celebration event for Paradox mods; specifically those of Crusader Kings III, Victoria 3, and this year, Europa Universalis V. We will be presenting no less than 60 mods over the coming weekend. Besides traile...",
+        "feedLabel": "Community Announcements",
+        "feedType": 1,
+        "date": 1784890753
       }
     ]
   }

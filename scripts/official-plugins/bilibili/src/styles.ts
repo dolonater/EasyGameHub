@@ -2,6 +2,8 @@ export const cssText = `
 .bili-shell {
   --bili-accent: #fb7299;
   --bili-cyan: #23ade5;
+  --bili-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --bili-spring: cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
   min-height: min(760px, 100%);
   padding: 16px;
@@ -232,10 +234,11 @@ export const cssText = `
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: box-shadow 0.15s ease;
+  transition: transform 220ms var(--bili-spring), box-shadow 220ms var(--bili-ease);
 }
 .bili-video-card:hover {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
 }
 .bili-cover-wrap {
   position: relative;
@@ -581,7 +584,7 @@ export const cssText = `
   background: transparent;
   color: #fff;
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 160ms var(--bili-spring);
 }
 .bili-ctrl-btn:hover {
   background: rgba(0, 0, 0, 0.5);
@@ -1195,7 +1198,7 @@ export const cssText = `
   font-size: 11px;
   line-height: 1;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: color 0.2s var(--bili-ease), border-color 0.2s var(--bili-ease), background 0.2s var(--bili-ease), transform 180ms var(--bili-spring);
 }
 .bili-thumb-icon {
   width: 14px;
@@ -1640,6 +1643,117 @@ export const cssText = `
 .bili-setting-field select {
   border-radius: 8px;
 }
+
+/* ── 动画体系（参考网易云插件动画：弹性缓动 + 错峰进入 + 微交互，遵守 prefers-reduced-motion） ── */
+@keyframes bili-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes bili-slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bili-view-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bili-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes bili-list-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bili-popover-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 页面进入：.bili-shell / .bili-watch 只用透明度，避免给全屏播放器（position: fixed）制造 containing block */
+.bili-shell {
+  animation: bili-fade-in 320ms var(--bili-spring);
+}
+.bili-top-nav {
+  animation: bili-slide-down 340ms var(--bili-spring) 40ms backwards;
+}
+.bili-home,
+.bili-mine {
+  animation: bili-view-in 360ms var(--bili-spring) both;
+}
+.bili-watch {
+  animation: bili-fade-in 320ms var(--bili-spring);
+}
+
+/* 视频卡片错峰进入（首页网格逐卡延迟，相关推荐/我的页库走基础淡入） */
+.bili-video-card {
+  animation: bili-card-in 360ms var(--bili-spring) backwards;
+}
+.bili-video-grid .bili-video-card:nth-child(1) { animation-delay: 20ms; }
+.bili-video-grid .bili-video-card:nth-child(2) { animation-delay: 40ms; }
+.bili-video-grid .bili-video-card:nth-child(3) { animation-delay: 60ms; }
+.bili-video-grid .bili-video-card:nth-child(4) { animation-delay: 80ms; }
+.bili-video-grid .bili-video-card:nth-child(5) { animation-delay: 100ms; }
+.bili-video-grid .bili-video-card:nth-child(6) { animation-delay: 120ms; }
+.bili-video-grid .bili-video-card:nth-child(n + 7) { animation-delay: 140ms; }
+
+/* 评论卡片 / 弹层 / 状态提示进入 */
+.bili-comment-card {
+  animation: bili-list-in 300ms var(--bili-spring) backwards;
+}
+.bili-menu-popover {
+  animation: bili-popover-in 150ms var(--bili-spring);
+}
+.bili-state {
+  animation: bili-list-in 260ms var(--bili-ease);
+}
+
+/* 顶部 Tab / 按钮微交互 */
+.bili-nav-tab,
+.bili-feed-tab,
+.bili-tab,
+.bili-profile-button {
+  transition: transform 160ms var(--bili-spring), background 180ms var(--bili-ease), color 160ms var(--bili-ease), border-color 180ms var(--bili-ease);
+}
+.bili-nav-tab:hover,
+.bili-feed-tab:hover,
+.bili-tab:hover,
+.bili-profile-button:hover {
+  transform: translateY(-1px);
+}
+.bili-menu-item {
+  transition: background 160ms var(--bili-ease), transform 160ms var(--bili-spring);
+}
+.bili-menu-item:active,
+.bili-thumb:active,
+.bili-ctrl-btn:active {
+  transform: scale(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bili-shell,
+  .bili-top-nav,
+  .bili-home,
+  .bili-mine,
+  .bili-watch,
+  .bili-video-card,
+  .bili-comment-card,
+  .bili-menu-popover,
+  .bili-state {
+    animation: none !important;
+  }
+  .bili-video-card,
+  .bili-nav-tab,
+  .bili-feed-tab,
+  .bili-tab,
+  .bili-profile-button,
+  .bili-thumb,
+  .bili-ctrl-btn,
+  .bili-menu-item {
+    transition: none !important;
+  }
+}
+
 @media (max-width: 820px) {
   .bili-shell {
     padding: 12px;

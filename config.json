@@ -17,8 +17,8 @@
   "cover_card_style": "card1",
   "appearance": {
     "preset": "custom",
-    "background_image": "C:\\Users\\JT\\Pictures\\pexels-jiale-ma-177643434-33683957.jpg",
-    "background_choice": "%custom",
+    "background_image": null,
+    "background_choice": "%none",
     "custom_backgrounds": [
       "C:\\Users\\JT\\Pictures\\pexels-chuotanhls-38527010.jpg",
       "C:\\Users\\JT\\Pictures\\pexels-pixabay-531880.jpg",

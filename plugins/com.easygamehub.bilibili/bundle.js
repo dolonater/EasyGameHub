@@ -18193,6 +18193,8 @@ var cssText = `
 .bili-shell {
   --bili-accent: #fb7299;
   --bili-cyan: #23ade5;
+  --bili-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --bili-spring: cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
   min-height: min(760px, 100%);
   padding: 16px;
@@ -18423,10 +18425,11 @@ var cssText = `
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: box-shadow 0.15s ease;
+  transition: transform 220ms var(--bili-spring), box-shadow 220ms var(--bili-ease);
 }
 .bili-video-card:hover {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
 }
 .bili-cover-wrap {
   position: relative;
@@ -18772,7 +18775,7 @@ var cssText = `
   background: transparent;
   color: #fff;
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 160ms var(--bili-spring);
 }
 .bili-ctrl-btn:hover {
   background: rgba(0, 0, 0, 0.5);
@@ -19386,7 +19389,7 @@ var cssText = `
   font-size: 11px;
   line-height: 1;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: color 0.2s var(--bili-ease), border-color 0.2s var(--bili-ease), background 0.2s var(--bili-ease), transform 180ms var(--bili-spring);
 }
 .bili-thumb-icon {
   width: 14px;
@@ -19831,6 +19834,117 @@ var cssText = `
 .bili-setting-field select {
   border-radius: 8px;
 }
+
+/* \u2500\u2500 \u52A8\u753B\u4F53\u7CFB\uFF08\u53C2\u8003\u7F51\u6613\u4E91\u63D2\u4EF6\u52A8\u753B\uFF1A\u5F39\u6027\u7F13\u52A8 + \u9519\u5CF0\u8FDB\u5165 + \u5FAE\u4EA4\u4E92\uFF0C\u9075\u5B88 prefers-reduced-motion\uFF09 \u2500\u2500 */
+@keyframes bili-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes bili-slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bili-view-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bili-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes bili-list-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bili-popover-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* \u9875\u9762\u8FDB\u5165\uFF1A.bili-shell / .bili-watch \u53EA\u7528\u900F\u660E\u5EA6\uFF0C\u907F\u514D\u7ED9\u5168\u5C4F\u64AD\u653E\u5668\uFF08position: fixed\uFF09\u5236\u9020 containing block */
+.bili-shell {
+  animation: bili-fade-in 320ms var(--bili-spring);
+}
+.bili-top-nav {
+  animation: bili-slide-down 340ms var(--bili-spring) 40ms backwards;
+}
+.bili-home,
+.bili-mine {
+  animation: bili-view-in 360ms var(--bili-spring) both;
+}
+.bili-watch {
+  animation: bili-fade-in 320ms var(--bili-spring);
+}
+
+/* \u89C6\u9891\u5361\u7247\u9519\u5CF0\u8FDB\u5165\uFF08\u9996\u9875\u7F51\u683C\u9010\u5361\u5EF6\u8FDF\uFF0C\u76F8\u5173\u63A8\u8350/\u6211\u7684\u9875\u5E93\u8D70\u57FA\u7840\u6DE1\u5165\uFF09 */
+.bili-video-card {
+  animation: bili-card-in 360ms var(--bili-spring) backwards;
+}
+.bili-video-grid .bili-video-card:nth-child(1) { animation-delay: 20ms; }
+.bili-video-grid .bili-video-card:nth-child(2) { animation-delay: 40ms; }
+.bili-video-grid .bili-video-card:nth-child(3) { animation-delay: 60ms; }
+.bili-video-grid .bili-video-card:nth-child(4) { animation-delay: 80ms; }
+.bili-video-grid .bili-video-card:nth-child(5) { animation-delay: 100ms; }
+.bili-video-grid .bili-video-card:nth-child(6) { animation-delay: 120ms; }
+.bili-video-grid .bili-video-card:nth-child(n + 7) { animation-delay: 140ms; }
+
+/* \u8BC4\u8BBA\u5361\u7247 / \u5F39\u5C42 / \u72B6\u6001\u63D0\u793A\u8FDB\u5165 */
+.bili-comment-card {
+  animation: bili-list-in 300ms var(--bili-spring) backwards;
+}
+.bili-menu-popover {
+  animation: bili-popover-in 150ms var(--bili-spring);
+}
+.bili-state {
+  animation: bili-list-in 260ms var(--bili-ease);
+}
+
+/* \u9876\u90E8 Tab / \u6309\u94AE\u5FAE\u4EA4\u4E92 */
+.bili-nav-tab,
+.bili-feed-tab,
+.bili-tab,
+.bili-profile-button {
+  transition: transform 160ms var(--bili-spring), background 180ms var(--bili-ease), color 160ms var(--bili-ease), border-color 180ms var(--bili-ease);
+}
+.bili-nav-tab:hover,
+.bili-feed-tab:hover,
+.bili-tab:hover,
+.bili-profile-button:hover {
+  transform: translateY(-1px);
+}
+.bili-menu-item {
+  transition: background 160ms var(--bili-ease), transform 160ms var(--bili-spring);
+}
+.bili-menu-item:active,
+.bili-thumb:active,
+.bili-ctrl-btn:active {
+  transform: scale(0.9);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bili-shell,
+  .bili-top-nav,
+  .bili-home,
+  .bili-mine,
+  .bili-watch,
+  .bili-video-card,
+  .bili-comment-card,
+  .bili-menu-popover,
+  .bili-state {
+    animation: none !important;
+  }
+  .bili-video-card,
+  .bili-nav-tab,
+  .bili-feed-tab,
+  .bili-tab,
+  .bili-profile-button,
+  .bili-thumb,
+  .bili-ctrl-btn,
+  .bili-menu-item {
+    transition: none !important;
+  }
+}
+
 @media (max-width: 820px) {
   .bili-shell {
     padding: 12px;
