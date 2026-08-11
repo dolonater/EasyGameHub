@@ -1,6 +1,7 @@
 # Development Progress
 
 ## Current Fixes (2026-08-11)
+- **Bug：很多组件完全没有卡片效果、直接铺在页面上** —— 根因：宿主主题变量（`--card`/`--foreground`/`--border`/`--muted-foreground`/`--muted`）在宿主里定义的是 **HSL 三元组**（如 `--card: 240 10% 3.9%`），宿主组件库用 `hsl(var(--card))` 消费；而插件 styles.ts 把这些变量**裸当颜色**用（`var(--card, #272b36)`），解析成 `color-mix(in srgb, 240 10% 3.9% 78%, transparent)` 是**非法 CSS**，声明被浏览器丢弃 → 卡片背景、边框、文字颜色全部失效 → 只剩默认白底黑字、元素直接铺在页面上。修复：用脚本把 styles.ts 里全部 110 处宿主变量引用包上 `hsl()`（`var(--card, #272b36)` → `hsl(var(--card, 0 0% 100%))`，等），恢复卡片背景/边框/文字色。验证：`npm run build`/`pack` passed，bundle 含 110 处 `hsl(var(--` 包裹、无裸 `var(--card, #` 残留，仅 `from "sdk"` 导入。注：播放器控制条内 `--bili-accent`/`--bili-cyan` 是插件自有十六进制变量，不受影响，未改。
 - **Bug：投币/收藏/更多/清晰度/弹幕点击无反应** —— 根因：MenuPopover 的 document `mousedown` 监听在**打开弹层的同一次点击**里就触发（触发按钮在 popover ref 之外），弹层开一下就被立刻关闭，表现为"无反应"。修复：MenuPopover 新增 `triggerRef`（点外关闭时把触发按钮视为"内部"），`CoinPanel`/`FavoritePanel`/`WatchMoreMenu`/`DanmakuSettingsPopover`/QualityMenu 弹层全部传入对应触发按钮 ref（互动条传 `coinAnchorRef`/`favoriteAnchorRef`/`moreAnchorRef`，控制栏新增 `qualityTriggerRef`/`danmakuTriggerRef`）。验证：`npm run build`/`pack` passed，bundle 含 `triggerRef`（16 处）。
 - **UI 优化：组件库使用 + 减少文字选项** —— (1) 互动条按钮加图标：点赞=`heartFilled`、收藏=`starFilled`/`starOutline`（按 active）、稍后再看=`bookmarkFilled`、举报=`warning`（投币/分享/更多因库内无 coin/share/dots 图标保持文字）；`.bili-interaction-button` 从 2 列 grid 改 flex 容纳 图标+文字+数值。(2) 清晰度选项加选中对勾（`check` 图标，active 项显示，`bili-quality-option-main` 样式）。(3) 收藏夹项选中加 `check` 图标。播放器控制条（seek/volume/rate/图标按钮）按既定决策保持专用控件（视频控制密度与行为稳定，库组件无 disabled/会与暗色叠层冲突），未转换。
 

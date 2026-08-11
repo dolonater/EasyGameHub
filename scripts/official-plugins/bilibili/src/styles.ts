@@ -5,7 +5,7 @@ export const cssText = `
   box-sizing: border-box;
   min-height: min(760px, 100%);
   padding: 16px;
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
 }
 .bili-shell *,
 .bili-shell *::before,
@@ -39,7 +39,7 @@ export const cssText = `
 .bili-home-header small,
 .bili-login-heading small,
 .bili-account-main small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-home-grid {
@@ -62,25 +62,25 @@ export const cssText = `
 .bili-search input {
   min-width: 0;
   min-height: 36px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 44%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 70%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 70%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 12px;
   font: inherit;
   font-size: 13px;
 }
 .bili-search input::placeholder {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
 }
 .bili-login-panel,
 .bili-content-panel,
 .bili-empty-panel,
 .bili-library {
   min-height: 360px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 78%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
   backdrop-filter: blur(18px) saturate(132%);
   -webkit-backdrop-filter: blur(18px) saturate(132%);
 }
@@ -126,7 +126,7 @@ export const cssText = `
   height: 48px;
   border-radius: 8px;
   object-fit: cover;
-  background: color-mix(in srgb, var(--muted, #4b5563) 70%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 70%, transparent);
 }
 .bili-account-main {
   flex: 1;
@@ -152,9 +152,9 @@ export const cssText = `
 .bili-qr-placeholder {
   display: grid;
   place-items: center;
-  color: var(--muted-foreground, #a8adbd);
-  border: 1px dashed color-mix(in srgb, var(--border, #ffffff) 55%, transparent);
-  background: color-mix(in srgb, var(--muted, #4b5563) 26%, transparent);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+  border: 1px dashed color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 26%, transparent);
 }
 .bili-login-actions {
   min-height: 34px;
@@ -175,25 +175,25 @@ export const cssText = `
   opacity: 0.62;
 }
 .bili-button-ghost {
-  border-color: color-mix(in srgb, var(--border, #ffffff) 48%, transparent);
-  background: color-mix(in srgb, var(--card, #272b36) 52%, transparent);
-  color: var(--foreground, #f6f7fb);
+  border-color: color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 48%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 52%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
 }
 .bili-link-button {
   display: inline-grid;
   place-items: center;
   min-height: 34px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 48%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 48%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 52%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 52%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 12px;
   font-size: 13px;
   text-decoration: none;
 }
 .bili-status {
   margin: 0;
-  color: color-mix(in srgb, var(--bili-cyan) 80%, var(--foreground, #f6f7fb));
+  color: color-mix(in srgb, var(--bili-cyan) 80%, hsl(var(--foreground, 0 0% 98%)));
   font-size: 13px;
   line-height: 1.5;
   text-align: center;
@@ -209,7 +209,7 @@ export const cssText = `
   line-height: 1.2;
 }
 .bili-section-title small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-video-grid {
@@ -234,7 +234,7 @@ export const cssText = `
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 8px;
-  background: color-mix(in srgb, var(--muted, #4b5563) 38%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 38%, transparent);
 }
 .bili-cover,
 .bili-cover-empty {
@@ -252,7 +252,7 @@ export const cssText = `
 .bili-cover-empty {
   display: grid;
   place-items: center;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-duration {
@@ -283,7 +283,7 @@ export const cssText = `
 .bili-video-body small,
 .bili-video-meta,
 .bili-library-empty span {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-video-meta {
@@ -298,7 +298,7 @@ export const cssText = `
   height: 4px;
   overflow: hidden;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--border, #ffffff) 34%, transparent);
+  background: color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 34%, transparent);
 }
 .bili-video-progress span {
   display: block;
@@ -311,12 +311,12 @@ export const cssText = `
   display: grid;
   place-items: center;
   min-height: 112px;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   text-align: center;
   font-size: 13px;
 }
 .bili-state-error {
-  color: color-mix(in srgb, #ef4444 82%, var(--foreground, #f6f7fb));
+  color: color-mix(in srgb, #ef4444 82%, hsl(var(--foreground, 0 0% 98%)));
 }
 .bili-tabs {
   display: grid;
@@ -325,24 +325,24 @@ export const cssText = `
 }
 .bili-tab {
   min-height: 32px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 50%, transparent);
-  color: var(--muted-foreground, #a8adbd);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 50%, transparent);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
 .bili-tab-active {
   border-color: color-mix(in srgb, var(--bili-accent) 62%, transparent);
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
 }
 .bili-library-empty {
   min-height: 86px;
   gap: 5px;
 }
 .bili-library-empty strong {
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   font-size: 13px;
 }
 .bili-library-list {
@@ -378,10 +378,10 @@ export const cssText = `
   gap: 3px;
   min-width: 0;
   min-height: 38px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 38%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 38%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 44%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 44%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 7px 9px;
   text-align: left;
   font: inherit;
@@ -395,12 +395,12 @@ export const cssText = `
 }
 .bili-folder-item small,
 .bili-favorite-picker > span {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 11px;
 }
 .bili-folder-item-active {
   border-color: color-mix(in srgb, var(--bili-accent) 70%, transparent);
-  background: color-mix(in srgb, var(--bili-accent) 18%, var(--card, #272b36));
+  background: color-mix(in srgb, var(--bili-accent) 18%, hsl(var(--card, 0 0% 100%)));
 }
 .bili-panel-copy {
   display: grid;
@@ -412,7 +412,7 @@ export const cssText = `
   line-height: 1.2;
 }
 .bili-panel-copy span {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 13px;
   line-height: 1.6;
 }
@@ -436,9 +436,9 @@ export const cssText = `
 }
 .bili-player-shell,
 .bili-video-detail-panel {
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 78%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
   backdrop-filter: blur(18px) saturate(132%);
   -webkit-backdrop-filter: blur(18px) saturate(132%);
 }
@@ -508,11 +508,11 @@ export const cssText = `
   align-content: center;
   padding: 24px;
   background: rgba(5, 7, 12, 0.72);
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   text-align: center;
 }
 .bili-player-overlay strong {
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   font-size: 18px;
 }
 .bili-player-overlay span {
@@ -626,18 +626,18 @@ export const cssText = `
   gap: 8px;
   align-items: center;
   min-height: 44px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 72%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 72%, transparent);
   padding: 8px;
 }
 .bili-danmaku-input input {
   min-width: 0;
   min-height: 32px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 36%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.18);
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 10px;
   font: inherit;
   font-size: 13px;
@@ -648,7 +648,7 @@ export const cssText = `
 }
 .bili-danmaku-count {
   min-width: 48px;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
   text-align: center;
 }
@@ -662,7 +662,7 @@ export const cssText = `
 }
 .bili-video-heading small,
 .bili-video-detail-panel p {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 13px;
   line-height: 1.6;
 }
@@ -696,19 +696,19 @@ export const cssText = `
   gap: 6px;
   min-width: max-content;
   min-height: 38px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 40%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 40%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 54%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 54%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 12px;
 }
 .bili-interaction-button small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 11px;
 }
 .bili-interaction-button-active {
   border-color: color-mix(in srgb, var(--bili-accent) 68%, transparent);
-  background: color-mix(in srgb, var(--bili-accent) 18%, var(--card, #272b36));
+  background: color-mix(in srgb, var(--bili-accent) 18%, hsl(var(--card, 0 0% 100%)));
 }
 .bili-interaction-button-active svg {
   color: var(--bili-accent);
@@ -723,9 +723,9 @@ export const cssText = `
   gap: 3px;
   min-width: 200px;
   max-width: min(300px, calc(100vw - 24px));
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 44%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 92%, #05070c 8%);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, #05070c 8%);
   padding: 6px;
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
 }
@@ -736,23 +736,23 @@ export const cssText = `
   gap: 8px;
   min-height: 28px;
   padding: 2px 8px 5px;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-menu-heading strong {
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   font-size: 13px;
 }
 .bili-menu-close {
   border: 0;
   background: transparent;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   cursor: pointer;
   font: inherit;
   font-size: 12px;
 }
 .bili-menu-close:hover {
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
 }
 .bili-menu-item {
   display: flex;
@@ -763,7 +763,7 @@ export const cssText = `
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: var(--foreground, #f6f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 10px;
   text-align: left;
   font: inherit;
@@ -779,12 +779,12 @@ export const cssText = `
 }
 .bili-menu-item small {
   margin-left: auto;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 11px;
 }
 .bili-menu-empty {
   padding: 6px 10px;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-menu-footer {
@@ -797,16 +797,16 @@ export const cssText = `
 }
 .bili-segment {
   min-height: 34px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 40%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 40%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 50%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 50%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   cursor: pointer;
   font: inherit;
 }
 .bili-segment-active {
   border-color: color-mix(in srgb, var(--bili-accent) 70%, transparent);
-  background: color-mix(in srgb, var(--bili-accent) 20%, var(--card, #272b36));
+  background: color-mix(in srgb, var(--bili-accent) 20%, hsl(var(--card, 0 0% 100%)));
 }
 .bili-owner-row {
   display: flex;
@@ -814,9 +814,9 @@ export const cssText = `
   justify-content: space-between;
   gap: 12px;
   min-height: 58px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 38%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 38%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 58%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 58%, transparent);
   padding: 8px;
 }
 .bili-owner-main {
@@ -841,7 +841,7 @@ export const cssText = `
   flex: 0 0 auto;
   border-radius: 8px;
   object-fit: cover;
-  background: color-mix(in srgb, var(--muted, #4b5563) 52%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 52%, transparent);
 }
 .bili-owner-main span {
   display: grid;
@@ -858,7 +858,7 @@ export const cssText = `
   font-size: 14px;
 }
 .bili-owner-main small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-page-list,
@@ -874,10 +874,10 @@ export const cssText = `
   gap: 8px;
   align-items: center;
   min-height: 38px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 48%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 48%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 10px;
   text-align: left;
   font: inherit;
@@ -891,12 +891,12 @@ export const cssText = `
 }
 .bili-page-item small,
 .bili-quality-option small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 11px;
 }
 .bili-page-item-active {
   border-color: color-mix(in srgb, var(--bili-accent) 70%, transparent);
-  background: color-mix(in srgb, var(--bili-accent) 20%, var(--card, #272b36));
+  background: color-mix(in srgb, var(--bili-accent) 20%, hsl(var(--card, 0 0% 100%)));
 }
 .bili-quality-option {
   display: flex;
@@ -904,10 +904,10 @@ export const cssText = `
   justify-content: space-between;
   gap: 8px;
   min-height: 32px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 38%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 38%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 44%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 44%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 10px;
   text-align: left;
   font: inherit;
@@ -936,7 +936,7 @@ export const cssText = `
 }
 .bili-quality-option-active {
   border-color: color-mix(in srgb, var(--bili-accent) 76%, transparent);
-  background: color-mix(in srgb, var(--bili-accent) 20%, var(--card, #272b36));
+  background: color-mix(in srgb, var(--bili-accent) 20%, hsl(var(--card, 0 0% 100%)));
 }
 .bili-state-compact {
   min-height: 48px;
@@ -961,7 +961,7 @@ export const cssText = `
 }
 .bili-toggle-line,
 .bili-slider-line span {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-toggle-line {
@@ -1009,7 +1009,7 @@ export const cssText = `
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   cursor: pointer;
   font-size: 12px;
   padding: 6px 10px;
@@ -1032,7 +1032,7 @@ export const cssText = `
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.07);
-  color: var(--foreground, #f5f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   min-width: 0;
   outline: none;
 }
@@ -1058,7 +1058,7 @@ export const cssText = `
 .bili-comment-meta small,
 .bili-comment-actions button,
 .bili-comment-reply button {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-comment-list,
@@ -1111,7 +1111,7 @@ export const cssText = `
   padding: 2px 6px;
 }
 .bili-comment-message {
-  color: var(--foreground, #f5f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   line-height: 1.65;
   margin: 0;
   overflow-wrap: anywhere;
@@ -1162,7 +1162,7 @@ export const cssText = `
   min-width: 0;
 }
 .bili-comment-reply span {
-  color: var(--foreground, #f5f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   flex: 1 1 180px;
   overflow-wrap: anywhere;
 }
@@ -1181,7 +1181,7 @@ export const cssText = `
   min-width: 0;
 }
 .bili-setting-field {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   display: grid;
   gap: 8px;
   font-size: 12px;
@@ -1190,7 +1190,7 @@ export const cssText = `
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.07);
-  color: var(--foreground, #f5f7fb);
+  color: hsl(var(--foreground, 0 0% 98%));
   height: 36px;
   padding: 0 10px;
 }
@@ -1246,7 +1246,7 @@ export const cssText = `
 }
 .bili-brand small {
   overflow: hidden;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1257,20 +1257,20 @@ export const cssText = `
   gap: 6px;
   min-width: 0;
   padding: 4px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 36%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 48%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 48%, transparent);
 }
 .bili-nav-tab {
   min-width: 64px;
   min-height: 32px;
   border-radius: 7px;
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   cursor: pointer;
 }
 .bili-nav-tab-active {
-  background: color-mix(in srgb, var(--bili-accent) 18%, var(--card, #272b36));
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, var(--bili-accent) 18%, hsl(var(--card, 0 0% 100%)));
+  color: hsl(var(--foreground, 0 0% 98%));
 }
 .bili-top-actions {
   display: inline-flex;
@@ -1285,9 +1285,9 @@ export const cssText = `
   gap: 8px;
   max-width: 190px;
   min-height: 34px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 52%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 52%, transparent);
   padding: 0 10px 0 6px;
   cursor: pointer;
 }
@@ -1307,7 +1307,7 @@ export const cssText = `
   object-fit: cover;
 }
 .bili-profile-avatar-empty {
-  background: color-mix(in srgb, var(--bili-cyan) 30%, var(--card, #272b36));
+  background: color-mix(in srgb, var(--bili-cyan) 30%, hsl(var(--card, 0 0% 100%)));
   color: #fff;
   font-size: 12px;
 }
@@ -1331,7 +1331,7 @@ export const cssText = `
 }
 .bili-feed-heading > span,
 .bili-feed-context {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-feed-tabs {
@@ -1341,16 +1341,16 @@ export const cssText = `
 .bili-feed-tab {
   min-width: 72px;
   min-height: 34px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 36%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 44%, transparent);
-  color: var(--muted-foreground, #a8adbd);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 44%, transparent);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   cursor: pointer;
 }
 .bili-feed-tab-active {
   border-color: color-mix(in srgb, var(--bili-accent) 66%, transparent);
-  background: color-mix(in srgb, var(--bili-accent) 18%, var(--card, #272b36));
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, var(--bili-accent) 18%, hsl(var(--card, 0 0% 100%)));
+  color: hsl(var(--foreground, 0 0% 98%));
 }
 .bili-video-grid {
   grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
@@ -1387,9 +1387,9 @@ export const cssText = `
   gap: 16px;
   flex-wrap: wrap;
   min-width: 0;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 78%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
   backdrop-filter: blur(18px) saturate(132%);
   -webkit-backdrop-filter: blur(18px) saturate(132%);
   padding: 16px;
@@ -1406,7 +1406,7 @@ export const cssText = `
   flex: 0 0 auto;
   border-radius: 50%;
   object-fit: cover;
-  background: color-mix(in srgb, var(--muted, #4b5563) 70%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 70%, transparent);
 }
 .bili-account-card-id {
   display: grid;
@@ -1422,7 +1422,7 @@ export const cssText = `
   line-height: 1.2;
 }
 .bili-account-card-id small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-account-card-stats {
@@ -1441,7 +1441,7 @@ export const cssText = `
   line-height: 1.1;
 }
 .bili-account-card-stat small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 11px;
 }
 .bili-account-card > .bili-button {
@@ -1475,10 +1475,10 @@ export const cssText = `
   gap: 8px;
   width: 100%;
   min-height: 38px;
-  border: 1px solid color-mix(in srgb, var(--border, #ffffff) 42%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--card, #272b36) 48%, transparent);
-  color: var(--foreground, #f6f7fb);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 48%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
   padding: 0 12px;
   text-align: left;
   font: inherit;
@@ -1486,7 +1486,7 @@ export const cssText = `
   cursor: pointer;
 }
 .bili-watch-side-toggle small {
-  color: var(--muted-foreground, #a8adbd);
+  color: hsl(var(--muted-foreground, 240 5% 64%));
   font-size: 12px;
 }
 .bili-watch-side-content {
