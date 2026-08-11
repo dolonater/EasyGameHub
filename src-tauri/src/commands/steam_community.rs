@@ -176,7 +176,12 @@ pub async fn get_game_news(
     app_id: u32,
     count: Option<u32>,
 ) -> Result<Vec<NewsItemDto>, String> {
-    fetch_news_for_app(&shared_client(), &state.tool_dir, app_id, count.unwrap_or(5))
+    fetch_news_for_app(
+        &shared_client(),
+        &state.tool_dir,
+        app_id,
+        count.unwrap_or(5),
+    )
 }
 
 /// Aggregate news for a list of games, newest first, capped at 50 items.
@@ -280,7 +285,13 @@ pub fn add_manual_watch(
 pub fn remove_manual_watch(state: State<'_, AppState>, app_id: u32) -> Result<(), String> {
     let path = watchlist_path(&state.tool_dir);
     let list = load_watchlist(&path);
-    save_watchlist(&path, &list.into_iter().filter(|item| item.app_id != app_id).collect::<Vec<_>>());
+    save_watchlist(
+        &path,
+        &list
+            .into_iter()
+            .filter(|item| item.app_id != app_id)
+            .collect::<Vec<_>>(),
+    );
     Ok(())
 }
 
@@ -329,8 +340,8 @@ fn save_wishlist_cache(path: &Path, steam_id: &str, entry: &CachedWishlist) {
 }
 
 fn fetch_wishlist(client: &SteamHttpClient, steam_id: u64) -> Result<Vec<WishlistItemDto>, String> {
-    let raw = steam_sdk::client::store::get_wishlist(client, steam_id)
-        .map_err(|e| e.to_string())?;
+    let raw =
+        steam_sdk::client::store::get_wishlist(client, steam_id).map_err(|e| e.to_string())?;
     Ok(raw
         .into_iter()
         .map(|item| WishlistItemDto {
@@ -348,7 +359,9 @@ fn fetch_wishlist(client: &SteamHttpClient, steam_id: u64) -> Result<Vec<Wishlis
 /// request every time. Errors (not logged in / private / network) are surfaced
 /// to the frontend, which falls back to the local watchlist.
 #[tauri::command]
-pub async fn get_steam_wishlist(state: State<'_, AppState>) -> Result<Vec<WishlistItemDto>, String> {
+pub async fn get_steam_wishlist(
+    state: State<'_, AppState>,
+) -> Result<Vec<WishlistItemDto>, String> {
     let steam_id = crate::commands::steam_auth::active_steam_id(&state.tool_dir)
         .ok_or_else(|| "Not logged in. Sign in to view your wishlist.".to_string())?;
     let steam_id_str = steam_id.to_string();
@@ -478,7 +491,9 @@ pub fn set_price_threshold(
 /// All set reminder prices, app id → base-unit price.
 #[tauri::command]
 pub fn get_price_thresholds(state: State<'_, AppState>) -> Result<HashMap<u32, u64>, String> {
-    Ok(load_price_thresholds(&price_thresholds_path(&state.tool_dir)))
+    Ok(load_price_thresholds(&price_thresholds_path(
+        &state.tool_dir,
+    )))
 }
 
 // ── Persisted price-drop events ────────────────────────────
@@ -534,7 +549,10 @@ const MAX_DROP_EVENTS: usize = 300;
 /// exposed as `lowest_price` + `history` for the "历史最低价" badge and the
 /// price sparkline.
 #[tauri::command]
-pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> Result<Vec<PriceDto>, String> {
+pub async fn get_steam_prices(
+    state: State<'_, AppState>,
+    app_ids: Vec<u32>,
+) -> Result<Vec<PriceDto>, String> {
     if app_ids.is_empty() {
         return Ok(Vec::new());
     }
@@ -551,18 +569,24 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
         steam_sdk::client::store::get_app_details(&shared_client(), &app_ids, "schinese")
     {
         for detail in details {
-            let (final_price, initial_price, discount, currency, final_formatted, initial_formatted) =
-                match &detail.price {
-                    Some(p) => (
-                        Some(p.final_price),
-                        Some(p.initial_price),
-                        p.discount_percent,
-                        Some(p.currency.clone()),
-                        p.final_formatted.clone(),
-                        p.initial_formatted.clone(),
-                    ),
-                    None => (None, None, 0, None, None, None),
-                };
+            let (
+                final_price,
+                initial_price,
+                discount,
+                currency,
+                final_formatted,
+                initial_formatted,
+            ) = match &detail.price {
+                Some(p) => (
+                    Some(p.final_price),
+                    Some(p.initial_price),
+                    p.discount_percent,
+                    Some(p.currency.clone()),
+                    p.final_formatted.clone(),
+                    p.initial_formatted.clone(),
+                ),
+                None => (None, None, 0, None, None, None),
+            };
 
             let (dropped, prev_price, lowest_price, history) = match final_price {
                 Some(fp) => {
@@ -570,7 +594,11 @@ pub async fn get_steam_prices(state: State<'_, AppState>, app_ids: Vec<u32>) -> 
                     let currency = currency.clone().unwrap_or_default();
                     let drop =
                         crate::core::steam_prices::check_price_drop(prev, fp, discount, &currency);
-                    let prev_price = if drop { prev.map(|b| b.final_price) } else { None };
+                    let prev_price = if drop {
+                        prev.map(|b| b.final_price)
+                    } else {
+                        None
+                    };
                     let next = crate::core::steam_prices::update_baseline(
                         prev, fp, discount, &currency, &now,
                     );
@@ -653,9 +681,8 @@ pub async fn search_steam_games(term: String) -> Result<Vec<SearchResultDto>, St
     if term.chars().count() < 2 {
         return Ok(Vec::new());
     }
-    let results =
-        steam_sdk::client::store::search_games(&shared_client(), &term, "schinese")
-            .map_err(|e| e.to_string())?;
+    let results = steam_sdk::client::store::search_games(&shared_client(), &term, "schinese")
+        .map_err(|e| e.to_string())?;
     Ok(results
         .into_iter()
         .map(|r| SearchResultDto {
@@ -675,8 +702,7 @@ pub async fn search_steam_games(term: String) -> Result<Vec<SearchResultDto>, St
 /// frontend falls back to the feed preview it already has.
 #[tauri::command]
 pub async fn get_news_article(app_id: u32, url: String) -> Result<Option<NewsItemDto>, String> {
-    let item = news::get_news_article(&shared_client(), app_id, &url)
-        .map_err(|e| e.to_string())?;
+    let item = news::get_news_article(&shared_client(), app_id, &url).map_err(|e| e.to_string())?;
     Ok(item.map(|item| NewsItemDto {
         app_id,
         title: item.title,
@@ -743,7 +769,10 @@ const METADATA_CACHE_TTL_SECS: u64 = 7 * 24 * 60 * 60;
 /// Missing/expired apps are fetched from the store and written back. Apps
 /// without store data simply stay absent from the result.
 #[tauri::command]
-pub async fn get_steam_metadata(state: State<'_, AppState>, app_ids: Vec<u32>) -> Result<Vec<MetadataDto>, String> {
+pub async fn get_steam_metadata(
+    state: State<'_, AppState>,
+    app_ids: Vec<u32>,
+) -> Result<Vec<MetadataDto>, String> {
     if app_ids.is_empty() {
         return Ok(Vec::new());
     }
@@ -764,7 +793,9 @@ pub async fn get_steam_metadata(state: State<'_, AppState>, app_ids: Vec<u32>) -
 
     if !missing.is_empty() {
         let client = shared_client();
-        if let Ok(details) = steam_sdk::client::store::get_app_details(&client, &missing, "schinese") {
+        if let Ok(details) =
+            steam_sdk::client::store::get_app_details(&client, &missing, "schinese")
+        {
             for detail in details {
                 fresh.insert(
                     detail.app_id,
@@ -876,7 +907,9 @@ pub async fn get_store_detail(app_id: u32) -> Result<StoreDetailDto, String> {
     let dlc_ids: Vec<u32> = detail.dlc.iter().take(8).copied().collect();
     let mut dlc: Vec<StoreDlcDto> = Vec::new();
     if !dlc_ids.is_empty() {
-        if let Ok(details) = steam_sdk::client::store::get_app_details(&client, &dlc_ids, "schinese") {
+        if let Ok(details) =
+            steam_sdk::client::store::get_app_details(&client, &dlc_ids, "schinese")
+        {
             dlc = details
                 .into_iter()
                 .map(|d| StoreDlcDto {
@@ -924,9 +957,10 @@ pub async fn get_store_detail(app_id: u32) -> Result<StoreDetailDto, String> {
             recommended: r.recommended,
         }),
         supported_languages: detail.supported_languages,
-        metacritic: detail
-            .metacritic
-            .map(|m| StoreMetacriticDto { score: m.score, url: m.url }),
+        metacritic: detail.metacritic.map(|m| StoreMetacriticDto {
+            score: m.score,
+            url: m.url,
+        }),
         recommendations_total: detail.recommendations_total,
         dlc,
     })
@@ -966,7 +1000,8 @@ pub async fn get_multi_region_price(app_id: u32) -> Result<Vec<RegionPriceDto>, 
                 scope.spawn(move || {
                     match steam_sdk::client::store::get_app_price_in_region(&client, app_id, cc) {
                         Ok(Some(price)) => {
-                            let cny = steam_sdk::crypto::fx::to_cny(price.final_price, &price.currency);
+                            let cny =
+                                steam_sdk::crypto::fx::to_cny(price.final_price, &price.currency);
                             Some(RegionPriceDto {
                                 cc: cc.to_string(),
                                 currency: Some(price.currency.clone()),

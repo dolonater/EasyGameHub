@@ -124,7 +124,8 @@ fn wire_kind(v: &proto_wire::WireValue) -> &'static str {
 }
 
 fn parse_recent_messages(body: &[u8]) -> Result<RecentMessages> {
-    let fields = proto_wire::parse(body).map_err(|e| SteamError::Http(format!("history parse: {}", e)))?;
+    let fields =
+        proto_wire::parse(body).map_err(|e| SteamError::Http(format!("history parse: {}", e)))?;
     let mut messages = Vec::new();
     let mut offset = 0usize;
     while let Some(field) = fields.get(offset) {
@@ -325,8 +326,14 @@ pub fn get_user_summaries(
             }
             all.push(UserSummary {
                 steamid,
-                personaname: p.get("personaname").and_then(serde_json::Value::as_str).map(String::from),
-                avatarfull: p.get("avatarfull").and_then(serde_json::Value::as_str).map(String::from),
+                personaname: p
+                    .get("personaname")
+                    .and_then(serde_json::Value::as_str)
+                    .map(String::from),
+                avatarfull: p
+                    .get("avatarfull")
+                    .and_then(serde_json::Value::as_str)
+                    .map(String::from),
                 personastate: p
                     .get("personastate")
                     .and_then(serde_json::Value::as_i64)
@@ -336,7 +343,10 @@ pub fn get_user_summaries(
                             .and_then(serde_json::Value::as_str)
                             .and_then(|s| s.parse().ok())
                     }),
-                gameextrainfo: p.get("gameextrainfo").and_then(serde_json::Value::as_str).map(String::from),
+                gameextrainfo: p
+                    .get("gameextrainfo")
+                    .and_then(serde_json::Value::as_str)
+                    .map(String::from),
                 lastlogoff: p
                     .get("lastlogoff")
                     .and_then(serde_json::Value::as_u64)
@@ -403,15 +413,18 @@ pub fn upload_chat_image(
     width: u32,
     height: u32,
 ) -> Result<String> {
-    let mime = mime_from_path(path)
-        .ok_or_else(|| SteamError::General("unsupported image type (use png/jpg/gif/webp)".into()))?;
+    let mime = mime_from_path(path).ok_or_else(|| {
+        SteamError::General("unsupported image type (use png/jpg/gif/webp)".into())
+    })?;
     let file_name = upload_file_name(path);
     let file_bytes = std::fs::read(path)?;
     if file_bytes.is_empty() {
         return Err(SteamError::General("empty image file".into()));
     }
     if file_bytes.len() as u64 > MAX_CHAT_IMAGE_BYTES {
-        return Err(SteamError::General("Steam chat images must be ≤ 30 MB".into()));
+        return Err(SteamError::General(
+            "Steam chat images must be ≤ 30 MB".into(),
+        ));
     }
 
     let session_id = random_hex(12);
@@ -450,15 +463,18 @@ pub fn upload_chat_image(
             truncate(&begin_text, 200)
         )));
     }
-    let result = begin["result"].as_object().ok_or_else(|| {
-        SteamError::Http("beginfileupload returned no result object".into())
-    })?;
+    let result = begin["result"]
+        .as_object()
+        .ok_or_else(|| SteamError::Http("beginfileupload returned no result object".into()))?;
     let host = result
         .get("url_host")
         .and_then(|v| v.as_str())
         .filter(|s| !s.is_empty())
         .ok_or_else(|| SteamError::Http("beginfileupload returned no upload host".into()))?;
-    let path_seg = result.get("url_path").and_then(|v| v.as_str()).unwrap_or("");
+    let path_seg = result
+        .get("url_path")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
     let cloud_url = format!(
         "https://{}{}",
         host,
@@ -490,7 +506,9 @@ pub fn upload_chat_image(
         .unwrap_or("")
         .to_string();
     if ugcid.is_empty() || timestamp == 0 || hmac.is_empty() {
-        return Err(SteamError::Http("beginfileupload returned incomplete upload credentials".into()));
+        return Err(SteamError::Http(
+            "beginfileupload returned incomplete upload credentials".into(),
+        ));
     }
     let mut upload_headers: Vec<(String, String)> = Vec::new();
     if let Some(arr) = result.get("request_headers").and_then(|v| v.as_array()) {
@@ -563,7 +581,12 @@ pub fn upload_chat_image(
         .as_str()
         .filter(|s| !s.is_empty())
         .map(String::from)
-        .unwrap_or_else(|| format!("https://images.steamusercontent.com/ugc/{}/{}/", ugcid, sha_upper));
+        .unwrap_or_else(|| {
+            format!(
+                "https://images.steamusercontent.com/ugc/{}/{}/",
+                ugcid, sha_upper
+            )
+        });
     Ok(url)
 }
 
@@ -581,12 +604,19 @@ fn post_chat_form(
         .post(url)
         .set("Origin", "https://steamcommunity.com")
         .set("Referer", "https://steamcommunity.com/chat/")
-        .set("X-Requested-With", "com.valvesoftware.android.steam.community")
+        .set(
+            "X-Requested-With",
+            "com.valvesoftware.android.steam.community",
+        )
         .set("Cookie", cookie)
         .send_form(fields)
         .map_err(|e| map_ureq_error(url, e))?;
     if response.status() != 200 {
-        return Err(SteamError::Http(format!("{} returned HTTP {}", url, response.status())));
+        return Err(SteamError::Http(format!(
+            "{} returned HTTP {}",
+            url,
+            response.status()
+        )));
     }
     response
         .into_string()
@@ -595,17 +625,24 @@ fn post_chat_form(
 
 fn sha1_hex(bytes: &[u8]) -> String {
     let digest = ring::digest::digest(&ring::digest::SHA1_FOR_LEGACY_USE_ONLY, bytes);
-    digest.as_ref().iter().map(|b| format!("{:02x}", b)).collect()
+    digest
+        .as_ref()
+        .iter()
+        .map(|b| format!("{:02x}", b))
+        .collect()
 }
 
 fn upload_file_name(path: &Path) -> String {
-    let base = path
-        .file_name()
-        .and_then(|s| s.to_str())
-        .unwrap_or("image");
+    let base = path.file_name().and_then(|s| s.to_str()).unwrap_or("image");
     let sanitized: String = base
         .chars()
-        .map(|c| if c.is_control() || c == '/' || c == '\\' { '_' } else { c })
+        .map(|c| {
+            if c.is_control() || c == '/' || c == '\\' {
+                '_'
+            } else {
+                c
+            }
+        })
         .take(180)
         .collect();
     let ts = std::time::SystemTime::now()
@@ -639,7 +676,9 @@ fn is_blocked_upload_header(name: &str) -> bool {
 }
 
 fn random_hex(bytes: usize) -> String {
-    (0..bytes).map(|_| format!("{:02x}", rand::random::<u8>())).collect()
+    (0..bytes)
+        .map(|_| format!("{:02x}", rand::random::<u8>()))
+        .collect()
 }
 
 /// Steam upload responses flag success as `1` (int) or `true` (bool) depending
@@ -667,7 +706,12 @@ fn map_ureq_error(what: &str, err: ureq::Error) -> SteamError {
     match err {
         ureq::Error::Status(code, response) => {
             let body = response.into_string().unwrap_or_default();
-            SteamError::Http(format!("{} failed (HTTP {}): {}", what, code, truncate(&body, 300)))
+            SteamError::Http(format!(
+                "{} failed (HTTP {}): {}",
+                what,
+                code,
+                truncate(&body, 300)
+            ))
         }
         e => SteamError::Http(format!("{} failed: {}", what, e)),
     }
@@ -869,10 +913,7 @@ mod tests {
     #[test]
     fn sha1_hex_vector() {
         // RFC 3174 test vector: SHA1("abc").
-        assert_eq!(
-            sha1_hex(b"abc"),
-            "a9993e364706816aba3e25717850c26c9cd0d89d"
-        );
+        assert_eq!(sha1_hex(b"abc"), "a9993e364706816aba3e25717850c26c9cd0d89d");
         assert_eq!(sha1_hex(b""), "da39a3ee5e6b4b0d3255bfef95601890afd80709");
     }
 

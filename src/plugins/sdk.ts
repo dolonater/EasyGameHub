@@ -60,7 +60,7 @@ export { default as Toggle } from "../components/ui/Toggle";
 /// Highest api_version the current SDK supports. Bump only on breaking changes.
 export const apiVersion = 1;
 
-export const ALL_PERMISSIONS = ["core.read", "core.backup", "events", "ui", "music"] as const;
+export const ALL_PERMISSIONS = ["core.read", "core.backup", "events", "ui", "music", "bilibili"] as const;
 export type Permission = (typeof ALL_PERMISSIONS)[number];
 export type LifecycleDispose = () => void | Promise<void>;
 
@@ -77,6 +77,274 @@ export interface RegisteredSettingsSection {
   id: string;
   title: string;
   render: () => ReactElement;
+}
+
+export interface BiliLoginInfo {
+  provider: "bilibili" | string;
+  loggedIn: boolean;
+  userId: string;
+  nickname: string;
+  avatar: string;
+  loginExpired: boolean;
+  message: string;
+}
+
+export interface BiliQrLoginKey {
+  key: string;
+  qrUrl: string;
+  qrImage: string;
+}
+
+export interface BiliQrLoginStatus {
+  code: number;
+  message: string;
+  loggedIn: boolean;
+  loginInfo?: BiliLoginInfo;
+}
+
+export interface BiliOperationResult {
+  ok: boolean;
+  message: string;
+}
+
+export type BiliErrorKind =
+  | "notLoggedIn"
+  | "loginExpired"
+  | "vipRequired"
+  | "permissionDenied"
+  | "regionRestricted"
+  | "copyrightRestricted"
+  | "riskControl"
+  | "network"
+  | "proxy"
+  | "playback"
+  | "api"
+  | "unknown";
+
+export interface BiliErrorDto {
+  kind: BiliErrorKind;
+  message: string;
+  retryable: boolean;
+  externalUrl?: string;
+}
+
+export class BiliSdkError extends Error {
+  kind: BiliErrorKind;
+  retryable: boolean;
+  externalUrl?: string;
+
+  constructor(dto: BiliErrorDto) {
+    super(dto.message);
+    this.name = "BiliSdkError";
+    this.kind = dto.kind;
+    this.retryable = dto.retryable;
+    this.externalUrl = dto.externalUrl;
+  }
+}
+
+export interface BiliLocalProgress {
+  bvid: string;
+  aid: number;
+  cid: number;
+  progressSeconds: number;
+  updatedAt: number;
+}
+
+export interface BiliVideoCard {
+  bvid: string;
+  aid: number;
+  cid: number;
+  title: string;
+  cover: string;
+  ownerName: string;
+  ownerMid: number;
+  duration: number;
+  viewCount: number;
+  danmakuCount: number;
+  publishedAt: number;
+  progress: number;
+}
+
+export interface BiliOwner {
+  mid: number;
+  name: string;
+  face: string;
+}
+
+export interface BiliVideoStats {
+  viewCount: number;
+  danmakuCount: number;
+  replyCount: number;
+  favoriteCount: number;
+  coinCount: number;
+  shareCount: number;
+  likeCount: number;
+}
+
+export interface BiliVideoPage {
+  cid: number;
+  page: number;
+  title: string;
+  duration: number;
+}
+
+export interface BiliVideoDetail {
+  bvid: string;
+  aid: number;
+  cid: number;
+  title: string;
+  cover: string;
+  description: string;
+  owner: BiliOwner;
+  stats: BiliVideoStats;
+  pages: BiliVideoPage[];
+  duration: number;
+  publishedAt: number;
+  lastPlayCid?: number;
+  lastPlayTime?: number;
+}
+
+export interface BiliQualityOption {
+  id: string;
+  quality: number;
+  label: string;
+  codecs: string;
+  width?: number;
+  height?: number;
+  bandwidth: number;
+}
+
+export interface BiliPlaybackSource {
+  playbackId: string;
+  manifestUrl: string;
+  directUrl?: string;
+  qualities: BiliQualityOption[];
+  expiresAt: number;
+}
+
+export interface BiliDanmakuItem {
+  id: string;
+  time: number;
+  text: string;
+  color: string;
+  mode: number;
+  fontSize: number;
+  timestamp: number;
+}
+
+export interface BiliHistoryItem {
+  video: BiliVideoCard;
+  viewedAt: number;
+  page: number;
+  pageTitle: string;
+}
+
+export interface BiliToViewItem {
+  video: BiliVideoCard;
+  addedAt: number;
+}
+
+export interface BiliFavoriteFolder {
+  id: number;
+  title: string;
+  cover: string;
+  ownerMid: number;
+  ownerName: string;
+  mediaCount: number;
+  owned: boolean;
+  favState: number;
+}
+
+export interface BiliVideoInteractionStats {
+  likeCount: number;
+  coinCount: number;
+  favoriteCount: number;
+  shareCount: number;
+}
+
+export interface BiliOwnerInteractionState {
+  mid: number;
+  name: string;
+  avatar: string;
+  followerCount: number;
+  following: boolean;
+}
+
+export interface BiliVideoInteractionState {
+  aid: number;
+  bvid: string;
+  liked: boolean;
+  coinCount: number;
+  favorited: boolean;
+  toView: boolean;
+  stats: BiliVideoInteractionStats;
+  owner: BiliOwnerInteractionState;
+  favoriteFolders: BiliFavoriteFolder[];
+}
+
+export interface BiliFavoriteItem {
+  video: BiliVideoCard;
+  mediaId: number;
+  favoriteTime: number;
+}
+
+export type BiliCommentSort = "time" | "like" | "replies";
+export type BiliReportReason =
+  | "other"
+  | "ad"
+  | "porn"
+  | "spam"
+  | "flame"
+  | "spoiler"
+  | "politics"
+  | "abuse"
+  | "irrelevant"
+  | "illegal"
+  | "vulgar"
+  | "phishing"
+  | "scam"
+  | "rumor"
+  | "incitement"
+  | "privacy"
+  | "floorSnatching"
+  | "harmfulToYouth";
+
+export interface BiliCommentMember {
+  mid: number;
+  name: string;
+  avatar: string;
+}
+
+export interface BiliCommentContent {
+  message: string;
+  pictures: string[];
+}
+
+export interface BiliComment {
+  rpid: number;
+  root: number;
+  parent: number;
+  ctime: number;
+  likeCount: number;
+  liked: boolean;
+  disliked: boolean;
+  repliesCount: number;
+  member: BiliCommentMember;
+  content: BiliCommentContent;
+  replies: BiliComment[];
+  canDelete: boolean;
+  canTop: boolean;
+  isTop: boolean;
+}
+
+export interface BiliCommentPage {
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
+  sort: string;
+  comments: BiliComment[];
+  topComments: BiliComment[];
 }
 
 // Module-level UI registries, keyed by pluginId (loader clears on unload).
@@ -165,6 +433,110 @@ export interface PluginSdk {
     coverProxyUrl(rawUrl: string): Promise<string>;
     clearCoverCache(): Promise<number>;
   };
+  bilibili: {
+    account: {
+      loginQrKey(): Promise<BiliQrLoginKey>;
+      loginQrCheck(key: string): Promise<BiliQrLoginStatus>;
+      loginStatus(): Promise<BiliLoginInfo>;
+      logout(): Promise<BiliOperationResult>;
+    };
+    home: {
+      recommendVideos(page?: number, refresh?: boolean): Promise<BiliVideoCard[]>;
+      searchVideos(keywords: string, page?: number, refresh?: boolean): Promise<BiliVideoCard[]>;
+      popularVideos(page?: number, refresh?: boolean): Promise<BiliVideoCard[]>;
+    };
+    video: {
+      detail(args: { bvid?: string; aid?: number }): Promise<BiliVideoDetail>;
+      related(args: { bvid?: string; aid?: number }): Promise<BiliVideoCard[]>;
+      openExternal(bvid: string): Promise<BiliOperationResult>;
+    };
+    playback: {
+      proxyPort(): Promise<number>;
+      createPlayback(args: {
+        bvid?: string;
+        aid?: number;
+        cid: number;
+        quality?: number;
+        preferProgressive?: boolean;
+      }): Promise<BiliPlaybackSource>;
+      saveLocalProgress(args: {
+        bvid: string;
+        aid: number;
+        cid: number;
+        progressSeconds: number;
+      }): Promise<BiliLocalProgress>;
+      loadLocalProgress(args: { bvid: string; cid?: number }): Promise<BiliLocalProgress | null>;
+      reportProgress(args: { aid: number; cid: number; progress: number }): Promise<BiliOperationResult>;
+    };
+    danmaku: {
+      list(args: { cid: number; aid?: number; bvid?: string }): Promise<BiliDanmakuItem[]>;
+      send(args: {
+        aid: number;
+        bvid: string;
+        cid: number;
+        message: string;
+        progress: number;
+      }): Promise<BiliOperationResult>;
+    };
+    comment: {
+      list(args: { oid: number; page?: number; sort?: BiliCommentSort }): Promise<BiliCommentPage>;
+      replies(args: { oid: number; root: number; page?: number }): Promise<BiliCommentPage>;
+      add(args: { oid: number; message: string; root?: number; parent?: number }): Promise<BiliComment>;
+      like(args: { oid: number; rpid: number; like: boolean }): Promise<BiliOperationResult>;
+      dislike(args: { oid: number; rpid: number; dislike: boolean }): Promise<BiliOperationResult>;
+      delete(args: { oid: number; rpid: number }): Promise<BiliOperationResult>;
+      top(args: { oid: number; rpid: number; top: boolean }): Promise<BiliOperationResult>;
+      report(args: {
+        oid: number;
+        rpid: number;
+        reason: BiliReportReason;
+        content?: string;
+      }): Promise<BiliOperationResult>;
+    };
+    library: {
+      historyList(page?: number): Promise<BiliHistoryItem[]>;
+      toViewList(): Promise<BiliToViewItem[]>;
+      addToView(args: { aid: number; bvid?: string }): Promise<BiliOperationResult>;
+      removeToView(args: { aid: number }): Promise<BiliOperationResult>;
+      favoriteFolders(rid?: number): Promise<BiliFavoriteFolder[]>;
+      favoriteItems(mediaId: number, page?: number): Promise<BiliFavoriteItem[]>;
+      favoriteVideo(args: {
+        rid: number;
+        addMediaIds?: string[];
+        delMediaIds?: string[];
+      }): Promise<BiliOperationResult>;
+    };
+    interaction: {
+      state(args: { aid?: number; bvid?: string; ownerMid?: number }): Promise<BiliVideoInteractionState>;
+      like(args: { aid?: number; bvid?: string; liked: boolean }): Promise<BiliVideoInteractionState>;
+      coin(args: {
+        aid?: number;
+        bvid?: string;
+        multiply: 1 | 2;
+        alsoLike: boolean;
+      }): Promise<BiliVideoInteractionState>;
+      favorite(args: {
+        rid: number;
+        addMediaIds?: string[];
+        delMediaIds?: string[];
+      }): Promise<BiliVideoInteractionState>;
+      toView(args: { aid: number; bvid?: string; toView: boolean }): Promise<BiliVideoInteractionState>;
+      followOwner(args: {
+        mid: number;
+        following: boolean;
+        aid?: number;
+        bvid?: string;
+      }): Promise<BiliVideoInteractionState>;
+      copyShareLink(args: { bvid: string }): Promise<BiliOperationResult>;
+      openReport(args: { bvid: string }): Promise<BiliOperationResult>;
+    };
+    cache: {
+      saveScreenshot(args: { fileName: string; dataBase64: string }): Promise<string>;
+      openScreenshotFolder(): Promise<BiliOperationResult>;
+      clearCache(): Promise<number>;
+      coverProxyUrl(rawUrl: string): Promise<string>;
+    };
+  };
 }
 
 /// Build the SDK instance handed to a plugin at load time. The allowlist is
@@ -178,6 +550,11 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
         `PermissionDenied: plugin "${pluginId}" lacks permission "${perm}" (${apiName})`
       );
     }
+  }
+  function biliInvoke<T>(command: string, args?: Record<string, unknown>): Promise<T> {
+    return invoke<T>(command, args).catch((error) => {
+      throw parseBiliError(error);
+    });
   }
 
   return {
@@ -364,5 +741,239 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
         return invoke("music_clear_cover_cache");
       },
     },
+
+    bilibili: {
+      account: {
+        loginQrKey() {
+          requirePerm("bilibili", "bilibili.account.loginQrKey");
+          return biliInvoke("bilibili_login_qr_key");
+        },
+        loginQrCheck(key) {
+          requirePerm("bilibili", "bilibili.account.loginQrCheck");
+          return biliInvoke("bilibili_login_qr_check", { key });
+        },
+        loginStatus() {
+          requirePerm("bilibili", "bilibili.account.loginStatus");
+          return biliInvoke("bilibili_login_status");
+        },
+        logout() {
+          requirePerm("bilibili", "bilibili.account.logout");
+          return biliInvoke("bilibili_logout");
+        },
+      },
+      home: {
+        recommendVideos(page, refresh) {
+          requirePerm("bilibili", "bilibili.home.recommendVideos");
+          return biliInvoke("bilibili_recommend_videos", { page, refresh });
+        },
+        searchVideos(keywords, page, refresh) {
+          requirePerm("bilibili", "bilibili.home.searchVideos");
+          return biliInvoke("bilibili_search_videos", { keywords, page, refresh });
+        },
+        popularVideos(page, refresh) {
+          requirePerm("bilibili", "bilibili.home.popularVideos");
+          return biliInvoke("bilibili_popular_videos", { page, refresh });
+        },
+      },
+      video: {
+        detail(args) {
+          requirePerm("bilibili", "bilibili.video.detail");
+          return biliInvoke("bilibili_video_detail", args);
+        },
+        related(args) {
+          requirePerm("bilibili", "bilibili.video.related");
+          return biliInvoke("bilibili_related_videos", args);
+        },
+        openExternal(bvid) {
+          requirePerm("bilibili", "bilibili.video.openExternal");
+          return biliInvoke("bilibili_open_video", { bvid });
+        },
+      },
+      playback: {
+        proxyPort() {
+          requirePerm("bilibili", "bilibili.playback.proxyPort");
+          return biliInvoke("bilibili_proxy_port");
+        },
+        createPlayback(args) {
+          requirePerm("bilibili", "bilibili.playback.createPlayback");
+          return biliInvoke("bilibili_create_playback", args);
+        },
+        saveLocalProgress(args) {
+          requirePerm("bilibili", "bilibili.playback.saveLocalProgress");
+          return biliInvoke("bilibili_save_local_progress", args);
+        },
+        loadLocalProgress(args) {
+          requirePerm("bilibili", "bilibili.playback.loadLocalProgress");
+          return biliInvoke("bilibili_load_local_progress", args);
+        },
+        reportProgress(args) {
+          requirePerm("bilibili", "bilibili.playback.reportProgress");
+          return biliInvoke("bilibili_report_progress", args);
+        },
+      },
+      danmaku: {
+        list(args) {
+          requirePerm("bilibili", "bilibili.danmaku.list");
+          return biliInvoke("bilibili_danmaku_list", args);
+        },
+        send(args) {
+          requirePerm("bilibili", "bilibili.danmaku.send");
+          return biliInvoke("bilibili_send_danmaku", args);
+        },
+      },
+      comment: {
+        list(args) {
+          requirePerm("bilibili", "bilibili.comment.list");
+          return biliInvoke("bilibili_comment_list", args);
+        },
+        replies(args) {
+          requirePerm("bilibili", "bilibili.comment.replies");
+          return biliInvoke("bilibili_comment_replies", args);
+        },
+        add(args) {
+          requirePerm("bilibili", "bilibili.comment.add");
+          return biliInvoke("bilibili_comment_add", args);
+        },
+        like(args) {
+          requirePerm("bilibili", "bilibili.comment.like");
+          return biliInvoke("bilibili_comment_like", args);
+        },
+        dislike(args) {
+          requirePerm("bilibili", "bilibili.comment.dislike");
+          return biliInvoke("bilibili_comment_dislike", args);
+        },
+        delete(args) {
+          requirePerm("bilibili", "bilibili.comment.delete");
+          return biliInvoke("bilibili_comment_delete", args);
+        },
+        top(args) {
+          requirePerm("bilibili", "bilibili.comment.top");
+          return biliInvoke("bilibili_comment_top", args);
+        },
+        report(args) {
+          requirePerm("bilibili", "bilibili.comment.report");
+          return biliInvoke("bilibili_comment_report", args);
+        },
+      },
+      library: {
+        historyList(page) {
+          requirePerm("bilibili", "bilibili.library.historyList");
+          return biliInvoke("bilibili_history_list", { page });
+        },
+        toViewList() {
+          requirePerm("bilibili", "bilibili.library.toViewList");
+          return biliInvoke("bilibili_toview_list");
+        },
+        addToView(args) {
+          requirePerm("bilibili", "bilibili.library.addToView");
+          return biliInvoke("bilibili_toview_add", args);
+        },
+        removeToView(args) {
+          requirePerm("bilibili", "bilibili.library.removeToView");
+          return biliInvoke("bilibili_toview_remove", args);
+        },
+        favoriteFolders(rid) {
+          requirePerm("bilibili", "bilibili.library.favoriteFolders");
+          return biliInvoke("bilibili_favorite_folders", { rid });
+        },
+        favoriteItems(mediaId, page) {
+          requirePerm("bilibili", "bilibili.library.favoriteItems");
+          return biliInvoke("bilibili_favorite_items", { mediaId, page });
+        },
+        favoriteVideo(args) {
+          requirePerm("bilibili", "bilibili.library.favoriteVideo");
+          return biliInvoke("bilibili_favorite_video", {
+            rid: args.rid,
+            addMediaIds: args.addMediaIds ?? [],
+            delMediaIds: args.delMediaIds ?? [],
+          });
+        },
+      },
+      interaction: {
+        state(args) {
+          requirePerm("bilibili", "bilibili.interaction.state");
+          return biliInvoke("bilibili_interaction_state", args);
+        },
+        like(args) {
+          requirePerm("bilibili", "bilibili.interaction.like");
+          return biliInvoke("bilibili_like_video", args);
+        },
+        coin(args) {
+          requirePerm("bilibili", "bilibili.interaction.coin");
+          return biliInvoke("bilibili_coin_video", args);
+        },
+        favorite(args) {
+          requirePerm("bilibili", "bilibili.interaction.favorite");
+          return biliInvoke("bilibili_favorite_video_interaction", {
+            rid: args.rid,
+            addMediaIds: args.addMediaIds ?? [],
+            delMediaIds: args.delMediaIds ?? [],
+          });
+        },
+        toView(args) {
+          requirePerm("bilibili", "bilibili.interaction.toView");
+          return biliInvoke("bilibili_toview_video_interaction", args);
+        },
+        followOwner(args) {
+          requirePerm("bilibili", "bilibili.interaction.followOwner");
+          return biliInvoke("bilibili_follow_owner", args);
+        },
+        copyShareLink(args) {
+          requirePerm("bilibili", "bilibili.interaction.copyShareLink");
+          return biliInvoke("bilibili_copy_share_link", args);
+        },
+        openReport(args) {
+          requirePerm("bilibili", "bilibili.interaction.openReport");
+          return biliInvoke("bilibili_open_report", args);
+        },
+      },
+      cache: {
+        saveScreenshot(args) {
+          requirePerm("bilibili", "bilibili.cache.saveScreenshot");
+          return biliInvoke("bilibili_save_screenshot", args);
+        },
+        openScreenshotFolder() {
+          requirePerm("bilibili", "bilibili.cache.openScreenshotFolder");
+          return biliInvoke("bilibili_open_screenshot_folder");
+        },
+        clearCache() {
+          requirePerm("bilibili", "bilibili.cache.clearCache");
+          return biliInvoke("bilibili_clear_cache");
+        },
+        async coverProxyUrl(rawUrl) {
+          requirePerm("bilibili", "bilibili.cache.coverProxyUrl");
+          if (!rawUrl) return "";
+          const port = await biliInvoke<number>("bilibili_proxy_port");
+          return `http://127.0.0.1:${port}/bilibili/cover/${coverKey(rawUrl)}?url=${encodeURIComponent(rawUrl)}`;
+        },
+      },
+    },
   };
+}
+
+function parseBiliError(error: unknown): Error {
+  const raw = error instanceof Error ? error.message : String(error);
+  try {
+    const dto = JSON.parse(raw) as Partial<BiliErrorDto>;
+    if (typeof dto.kind === "string" && typeof dto.message === "string") {
+      return new BiliSdkError({
+        kind: dto.kind as BiliErrorKind,
+        message: dto.message,
+        retryable: Boolean(dto.retryable),
+        externalUrl: typeof dto.externalUrl === "string" ? dto.externalUrl : undefined,
+      });
+    }
+  } catch {
+    // Fall through to a plain API error.
+  }
+  return new BiliSdkError({ kind: "api", message: raw, retryable: false });
+}
+
+function coverKey(rawUrl: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < rawUrl.length; index += 1) {
+    hash ^= rawUrl.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `c${(hash >>> 0).toString(16)}`;
 }

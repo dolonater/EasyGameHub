@@ -1,5 +1,6 @@
 pub mod backgrounds;
 pub mod backup;
+pub mod bilibili;
 pub mod config;
 pub mod db;
 pub mod music;

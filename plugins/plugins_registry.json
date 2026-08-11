@@ -104,6 +104,23 @@
       "error_count": 0,
       "icon": null,
       "description": null
+    },
+    {
+      "id": "com.easygamehub.bilibili",
+      "name": "Bilibili",
+      "version": "0.1.0",
+      "api_version": 1,
+      "entry": "bundle.js",
+      "permissions": [
+        "ui",
+        "bilibili"
+      ],
+      "enabled": true,
+      "installed_at": "2026-08-10T19:57:24.179809300+08:00",
+      "last_error": null,
+      "error_count": 0,
+      "icon": "assets/bilibili.png",
+      "description": "内置 Bilibili 视频播放插件"
     }
   ]
 }

@@ -32,9 +32,9 @@ impl SteamSession {
     /// the given grace period (default: 5 minutes).
     pub fn is_expired(&self) -> bool {
         let grace = 300; // 5 minutes
-        // The token's own `exp` claim is authoritative — Steam access-token
-        // lifetimes drift, and sessions written by older builds may carry a
-        // stale `expires_in_seconds` estimate (e.g. a hardcoded 3600).
+                         // The token's own `exp` claim is authoritative — Steam access-token
+                         // lifetimes drift, and sessions written by older builds may carry a
+                         // stale `expires_in_seconds` estimate (e.g. a hardcoded 3600).
         if let Some((_, exp)) = crate::auth::token::jwt_timestamps(&self.access_token) {
             let now = chrono::Utc::now().timestamp().max(0) as u64;
             return now.saturating_add(grace) >= exp;

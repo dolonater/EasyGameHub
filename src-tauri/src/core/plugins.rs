@@ -7,7 +7,14 @@ use std::path::Path;
 pub const MAX_API_VERSION: u32 = 1;
 
 /// Permission names understood by the SDK allowlist.
-pub const KNOWN_PERMISSIONS: [&str; 5] = ["core.read", "core.backup", "events", "ui", "music"];
+pub const KNOWN_PERMISSIONS: [&str; 6] = [
+    "core.read",
+    "core.backup",
+    "events",
+    "ui",
+    "music",
+    "bilibili",
+];
 
 const MAX_ENTRY_SIZE: u64 = 50 * 1024 * 1024;
 const MAX_ENTRIES: usize = 30;
@@ -481,7 +488,10 @@ mod tests {
             r#"{{"id":"a.b","name":"T","version":"1.0","api_version":1,"entry":"bundle.js","description":"{}"}}"#,
             long
         );
-        assert!(parse_manifest(json.as_bytes()).is_err(), "long description must fail");
+        assert!(
+            parse_manifest(json.as_bytes()).is_err(),
+            "long description must fail"
+        );
     }
 
     #[test]
@@ -491,6 +501,15 @@ mod tests {
         );
         let m = parse_manifest(&json).unwrap();
         assert_eq!(m.permissions, vec!["ui", "music"]);
+    }
+
+    #[test]
+    fn accepts_bilibili_permission() {
+        let json = manifest_from_json(
+            r#"{"id":"com.example.bilibili","name":"Bilibili","version":"1.0.0","api_version":1,"entry":"bundle.js","permissions":["ui","bilibili"]}"#,
+        );
+        let m = parse_manifest(&json).unwrap();
+        assert_eq!(m.permissions, vec!["ui", "bilibili"]);
     }
 
     #[test]

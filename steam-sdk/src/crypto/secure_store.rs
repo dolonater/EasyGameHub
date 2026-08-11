@@ -206,11 +206,7 @@ impl SecureStore {
 }
 
 /// Encrypt a value into a stored entry with the given key.
-fn encrypt_with(
-    key: &LessSafeKey,
-    rng: &SystemRandom,
-    value: &[u8],
-) -> Result<EncryptedEntry> {
+fn encrypt_with(key: &LessSafeKey, rng: &SystemRandom, value: &[u8]) -> Result<EncryptedEntry> {
     // Generate a random nonce
     let mut nonce_bytes = [0u8; NONCE_LEN];
     rng.fill(&mut nonce_bytes)
@@ -237,7 +233,9 @@ fn decrypt_with(key: &LessSafeKey, entry: &EncryptedEntry) -> Result<Vec<u8>> {
 
     let decrypted = key
         .open_in_place(nonce, Aad::empty(), &mut ciphertext)
-        .map_err(|_| SteamError::Crypto("decryption failed (wrong key or corrupted data)".into()))?;
+        .map_err(|_| {
+            SteamError::Crypto("decryption failed (wrong key or corrupted data)".into())
+        })?;
     Ok(decrypted.to_vec())
 }
 
@@ -282,7 +280,10 @@ fn dpapi_protect(data: &[u8]) -> Result<Vec<u8>> {
         cbData: data.len() as u32,
         pbData: data.as_ptr() as *mut u8,
     };
-    let mut output = CRYPT_INTEGER_BLOB { cbData: 0, pbData: std::ptr::null_mut() };
+    let mut output = CRYPT_INTEGER_BLOB {
+        cbData: 0,
+        pbData: std::ptr::null_mut(),
+    };
     let ok = unsafe {
         CryptProtectData(
             &input,
@@ -319,7 +320,10 @@ fn dpapi_unprotect(blob: &[u8]) -> Result<[u8; 32]> {
         cbData: blob.len() as u32,
         pbData: blob.as_ptr() as *mut u8,
     };
-    let mut output = CRYPT_INTEGER_BLOB { cbData: 0, pbData: std::ptr::null_mut() };
+    let mut output = CRYPT_INTEGER_BLOB {
+        cbData: 0,
+        pbData: std::ptr::null_mut(),
+    };
     let ok = unsafe {
         CryptUnprotectData(
             &input,
@@ -346,12 +350,16 @@ fn dpapi_unprotect(blob: &[u8]) -> Result<[u8; 32]> {
 
 #[cfg(not(target_os = "windows"))]
 fn dpapi_protect(_data: &[u8]) -> Result<Vec<u8>> {
-    Err(SteamError::Crypto("DPAPI unavailable on this platform".into()))
+    Err(SteamError::Crypto(
+        "DPAPI unavailable on this platform".into(),
+    ))
 }
 
 #[cfg(not(target_os = "windows"))]
 fn dpapi_unprotect(_blob: &[u8]) -> Result<[u8; 32]> {
-    Err(SteamError::Crypto("DPAPI unavailable on this platform".into()))
+    Err(SteamError::Crypto(
+        "DPAPI unavailable on this platform".into(),
+    ))
 }
 
 /// Get a machine identifier for the legacy key derivation.
@@ -498,7 +506,10 @@ mod tests {
         }
         let raw = fs::read_to_string(&path).unwrap();
         #[cfg(target_os = "windows")]
-        assert!(raw.contains("master_key"), "Windows stores must carry a DPAPI master key");
+        assert!(
+            raw.contains("master_key"),
+            "Windows stores must carry a DPAPI master key"
+        );
         #[cfg(not(target_os = "windows"))]
         assert!(!raw.contains("master_key"));
 
@@ -534,7 +545,10 @@ mod tests {
         assert!(store.get("does-not-matter").is_ok() || store.get("does-not-matter").is_err());
         let raw = fs::read_to_string(&path).unwrap();
         #[cfg(target_os = "windows")]
-        assert!(raw.contains("master_key"), "legacy store must be migrated to DPAPI");
+        assert!(
+            raw.contains("master_key"),
+            "legacy store must be migrated to DPAPI"
+        );
 
         let _ = fs::remove_file(&path);
     }

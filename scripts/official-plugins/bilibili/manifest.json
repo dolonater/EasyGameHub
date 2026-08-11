@@ -1,0 +1,10 @@
+{
+  "id": "com.easygamehub.bilibili",
+  "name": "Bilibili",
+  "version": "0.1.0",
+  "api_version": 1,
+  "entry": "bundle.js",
+  "permissions": ["ui", "bilibili"],
+  "icon": "assets/bilibili.png",
+  "description": "内置 Bilibili 视频播放插件"
+}

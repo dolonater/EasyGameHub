@@ -17,15 +17,16 @@ use tokio::sync::{mpsc, oneshot, Mutex};
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 
+use crate::client::SteamHttpClient;
 use crate::cm::bootstrap;
 use crate::cm::frame::{
-    self, Envelope, JOB_ID_NONE, EMSG_CLIENT_FRIENDS_LIST, EMSG_CLIENT_HEARTBEAT, EMSG_CLIENT_LOGON,
-    EMSG_CLIENT_LOGON_RESPONSE, EMSG_CLIENT_LOGGED_OFF, EMSG_CLIENT_LOG_OFF, EMSG_CLIENT_PERSONA_STATE,
-    EMSG_CLIENT_EMOTICON_LIST, EMSG_CLIENT_GET_EMOTICON_LIST, EMSG_SERVICE_METHOD,
-    EMSG_SERVICE_METHOD_RESPONSE, EMSG_SERVICE_METHOD_SEND_TO_CLIENT,
+    self, Envelope, EMSG_CLIENT_EMOTICON_LIST, EMSG_CLIENT_FRIENDS_LIST,
+    EMSG_CLIENT_GET_EMOTICON_LIST, EMSG_CLIENT_HEARTBEAT, EMSG_CLIENT_LOGGED_OFF,
+    EMSG_CLIENT_LOGON, EMSG_CLIENT_LOGON_RESPONSE, EMSG_CLIENT_LOG_OFF, EMSG_CLIENT_PERSONA_STATE,
+    EMSG_SERVICE_METHOD, EMSG_SERVICE_METHOD_RESPONSE, EMSG_SERVICE_METHOD_SEND_TO_CLIENT,
+    JOB_ID_NONE,
 };
 use crate::cm::proto_wire::{self, Writer};
-use crate::client::SteamHttpClient;
 use crate::proto_gen;
 use prost::Message as _;
 
@@ -135,7 +136,8 @@ pub async fn connect_with_seed(
     let http = SteamHttpClient::new();
     let token = bootstrap::fetch_web_logon_token(&http, access_token, steam_id)
         .map_err(|e| format!("CM bootstrap failed: {}", e))?;
-    let endpoints = bootstrap::fetch_endpoints(&http).map_err(|e| format!("CM list failed: {}", e))?;
+    let endpoints =
+        bootstrap::fetch_endpoints(&http).map_err(|e| format!("CM list failed: {}", e))?;
 
     // eresult=5 = LoggedInElsewhere: Steam still holds the previous session
     // (e.g. after abrupt restarts or the desktop client being online). It
@@ -224,7 +226,9 @@ impl CmClient {
     /// service method.
     pub async fn send_message(&self, partner: u64, text: &str) -> Result<(), String> {
         let body = build_send_message_body(partner, text);
-        self.call_service("FriendMessages.SendMessage#1", body).await.map(|_| ())
+        self.call_service("FriendMessages.SendMessage#1", body)
+            .await
+            .map(|_| ())
     }
 
     /// Send a sticker to a friend. Steam renders the `/sticker <name>` body
@@ -232,7 +236,9 @@ impl CmClient {
     /// just `send_message` with the slash-command body.
     pub async fn send_sticker(&self, partner: u64, name: &str) -> Result<(), String> {
         let body = build_send_message_body(partner, &format!("/sticker {}", name));
-        self.call_service("FriendMessages.SendMessage#1", body).await.map(|_| ())
+        self.call_service("FriendMessages.SendMessage#1", body)
+            .await
+            .map(|_| ())
     }
 
     /// Fetch the account's owned sticker catalogue (`ClientEmoticonList`).
@@ -335,7 +341,9 @@ async fn open_logged_on(
     .map_err(|_| "CM logon timed out".to_string())??;
 
     // Reassemble the stream (split → merged) for the run task.
-    let ws = sink.reunite(stream).map_err(|_| "CM stream reunite failed".to_string())?;
+    let ws = sink
+        .reunite(stream)
+        .map_err(|_| "CM stream reunite failed".to_string())?;
     Ok((ws, logon.0, logon.1))
 }
 
@@ -368,7 +376,12 @@ fn spawn_task(
     }
 }
 
-async fn run(mut ws: WsStream, mut cmd_rx: mpsc::Receiver<Cmd>, data: Arc<Mutex<CmData>>, steam_id: u64) {
+async fn run(
+    mut ws: WsStream,
+    mut cmd_rx: mpsc::Receiver<Cmd>,
+    data: Arc<Mutex<CmData>>,
+    steam_id: u64,
+) {
     let mut heartbeat = tokio::time::interval(Duration::from_secs(45));
     heartbeat.tick().await; // skip the immediate first tick
     loop {
@@ -485,7 +498,10 @@ async fn handle_envelope(envelope: Envelope, data: &Arc<Mutex<CmData>>) -> Resul
                     if let Some(id) = f.ulfriendid {
                         d.friends.insert(
                             id,
-                            FriendState { steam_id: id, relationship: f.efriendrelationship.unwrap_or(0) },
+                            FriendState {
+                                steam_id: id,
+                                relationship: f.efriendrelationship.unwrap_or(0),
+                            },
                         );
                     }
                 }
@@ -534,7 +550,9 @@ async fn handle_envelope(envelope: Envelope, data: &Arc<Mutex<CmData>>) -> Resul
                     let result = match envelope.header.transport_error {
                         Some(te) if te != 1 => Err(format!("CM transport error {}", te)),
                         _ => match envelope.header.eresult {
-                            Some(er) if er != 1 => Err(format!("CM service failed (eresult={})", er)),
+                            Some(er) if er != 1 => {
+                                Err(format!("CM service failed (eresult={})", er))
+                            }
                             _ => Ok(envelope.body),
                         },
                     };
@@ -605,8 +623,8 @@ fn parse_incoming_group_message(body: &[u8]) -> Option<GroupIncoming> {
     let group_id = proto_wire::get_number(&fields, 1)?;
     let chat_id = proto_wire::get_number(&fields, 2)?;
     let sender = proto_wire::get_fixed64(&fields, 3)?;
-    let message = proto_wire::get_string(&fields, 4)
-        .or_else(|| proto_wire::get_string(&fields, 9))?;
+    let message =
+        proto_wire::get_string(&fields, 4).or_else(|| proto_wire::get_string(&fields, 9))?;
     if message.is_empty() {
         return None;
     }
@@ -705,7 +723,10 @@ mod tests {
         let stickers = parse_sticker_list(&body).unwrap();
         assert_eq!(stickers.len(), 2);
         assert_eq!(stickers[0].name, "cool_dog");
-        assert_eq!(stickers[0].image_url, "https://steamcommunity.com/economy/sticker/cool_dog");
+        assert_eq!(
+            stickers[0].image_url,
+            "https://steamcommunity.com/economy/sticker/cool_dog"
+        );
         assert_eq!(
             stickers[1].image_url,
             "https://steamcommunity.com/economy/sticker/party%20parrot"

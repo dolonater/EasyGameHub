@@ -1,4 +1,4 @@
-export type PluginPermission = "core.read" | "core.backup" | "events" | "ui" | "music";
+export type PluginPermission = "core.read" | "core.backup" | "events" | "ui" | "music" | "bilibili";
 
 export interface PluginManifest {
   id: string;

@@ -191,7 +191,9 @@ pub struct LocalGameDto {
 /// Cross-references with Doona's game index for proper names.
 /// Also merges custom names from steam_game_names.json.
 #[tauri::command]
-pub async fn get_local_steam_games(state: State<'_, AppState>) -> Result<Vec<LocalGameDto>, String> {
+pub async fn get_local_steam_games(
+    state: State<'_, AppState>,
+) -> Result<Vec<LocalGameDto>, String> {
     let name_map = build_steam_name_map(&state.games_index_path);
     let hidden = load_hidden_games(&state.tool_dir);
     // Steam appinfo.vdf binary cache — local, covers ALL Steam apps
@@ -402,12 +404,14 @@ pub struct TopGameDto {
 /// Resolve the library game list: web inventory when an API key + Steam ID are
 /// configured (covers non-installed games), otherwise local Steam files.
 /// Returns `(source, (appid, name, minutes, icon_url) rows)`.
-fn library_game_rows(state: &AppState) -> (String, Vec<(u32, Option<String>, u64, Option<String>)>) {
+fn library_game_rows(
+    state: &AppState,
+) -> (String, Vec<(u32, Option<String>, u64, Option<String>)>) {
     let client = shared_client();
     match (get_api_key(state), get_steam_id(state)) {
         (Ok(key), Ok(steam_id)) => {
-            let owned = inventory::get_owned_games(&client, steam_id, &key, true, true)
-                .unwrap_or_default();
+            let owned =
+                inventory::get_owned_games(&client, steam_id, &key, true, true).unwrap_or_default();
             let rows = owned
                 .into_iter()
                 .map(|g| (g.appid, g.name, g.playtime_forever, g.img_icon_url))
@@ -566,9 +570,9 @@ pub async fn get_library_completion(
         };
 
         if let (Some(key), Some(sid)) = (&api_key, &steam_id) {
-            if let Ok((_, list)) =
-                steam_sdk::client::achievements::get_achievements_with_info(&client, *sid, app_id, key)
-            {
+            if let Ok((_, list)) = steam_sdk::client::achievements::get_achievements_with_info(
+                &client, *sid, app_id, key,
+            ) {
                 if !list.is_empty() {
                     let total = list.len();
                     let achieved = list.iter().filter(|a| a.achieved).count();

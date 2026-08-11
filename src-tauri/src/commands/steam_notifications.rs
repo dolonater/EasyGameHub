@@ -59,7 +59,11 @@ fn save_read_ids(path: &Path, read_ids: &HashSet<String>) {
 
 fn format_unix_ts(ts: u64) -> String {
     chrono::DateTime::from_timestamp(ts as i64, 0)
-        .map(|dt| dt.with_timezone(&chrono::Local).format("%Y-%m-%d %H:%M:%S").to_string())
+        .map(|dt| {
+            dt.with_timezone(&chrono::Local)
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string()
+        })
         .unwrap_or_default()
 }
 
@@ -76,8 +80,9 @@ pub async fn get_notifications(
     let mut notifs: Vec<SteamNotificationDto> = Vec::new();
 
     // 1. Price drops (persisted, newest last in the file).
-    let drops =
-        crate::commands::steam_community::load_drop_events(&crate::commands::steam_community::drop_events_path(&tool_dir));
+    let drops = crate::commands::steam_community::load_drop_events(
+        &crate::commands::steam_community::drop_events_path(&tool_dir),
+    );
     for d in drops {
         notifs.push(SteamNotificationDto {
             id: format!("drop:{}:{}", d.app_id, d.date),
@@ -91,7 +96,9 @@ pub async fn get_notifications(
 
     // 2. News for the watched games.
     if !app_ids.is_empty() {
-        if let Ok(news) = crate::commands::steam_community::get_news_feed(state.clone(), app_ids, Some(2)).await {
+        if let Ok(news) =
+            crate::commands::steam_community::get_news_feed(state.clone(), app_ids, Some(2)).await
+        {
             for n in news {
                 notifs.push(SteamNotificationDto {
                     id: format!("news:{}:{}", n.app_id, n.date),

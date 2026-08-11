@@ -11,21 +11,21 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
-use steam_sdk::cm::client as cm;
-use steam_sdk::cm::proto_wire;
 use steam_sdk::client::social;
 use steam_sdk::client::social::steamid64_from_account_id;
+use steam_sdk::cm::client as cm;
+use steam_sdk::cm::proto_wire;
 use tauri::{AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder};
 
-use crate::core::social_cache::{
-    append_friend_incoming, append_group_incoming, bound_thread, correlate_friend_echo,
-    new_local_id, merge_friend_thread, merge_group_thread, recover_friend_states,
-    recover_group_states, CachedMessage, ChatSessionEntry, ChatSessionsSnapshot, DeliveryState,
-    FriendCacheEntry, FriendThreadSnapshot, FriendsSnapshot, GroupCacheEntry, GroupRoomCacheEntry,
-    GroupsSnapshot, GroupThreadSnapshot, ServerMsg, SocialCache,
-};
 use crate::commands::steam_api::shared_client;
 use crate::commands::steam_auth;
+use crate::core::social_cache::{
+    append_friend_incoming, append_group_incoming, bound_thread, correlate_friend_echo,
+    merge_friend_thread, merge_group_thread, new_local_id, recover_friend_states,
+    recover_group_states, CachedMessage, ChatSessionEntry, ChatSessionsSnapshot, DeliveryState,
+    FriendCacheEntry, FriendThreadSnapshot, FriendsSnapshot, GroupCacheEntry, GroupRoomCacheEntry,
+    GroupThreadSnapshot, GroupsSnapshot, ServerMsg, SocialCache,
+};
 use crate::AppState;
 
 #[derive(Debug, Clone, Serialize)]
@@ -167,16 +167,16 @@ pub async fn open_chat_window(
         _ => format!("chat-f-{}", id),
     };
     // Record the params before reuse/create so a just-focused window can read them.
-    chat_window_params()
-        .lock()
-        .unwrap()
-        .insert(label.clone(), ChatWindowParams {
+    chat_window_params().lock().unwrap().insert(
+        label.clone(),
+        ChatWindowParams {
             kind: kind.clone(),
             id: id.clone(),
             chat_id: chat_id.clone(),
             name: name.clone(),
             avatar: avatar.clone(),
-        });
+        },
+    );
 
     if let Some(window) = app.get_webview_window(&label) {
         let _ = window.show();
@@ -539,7 +539,10 @@ async fn ensure_cm(steam_id: u64, access_token: &str) -> Result<cm::CmClient, St
     // never carry messages over. Either way the stale connection is closed.
     let (seed_messages, seed_group_messages) = match active_client() {
         Some((sid, client)) if sid == steam_id => {
-            let seed = (client.take_messages().await, client.take_group_messages().await);
+            let seed = (
+                client.take_messages().await,
+                client.take_group_messages().await,
+            );
             client.close().await;
             seed
         }
@@ -550,13 +553,8 @@ async fn ensure_cm(steam_id: u64, access_token: &str) -> Result<cm::CmClient, St
         None => (Vec::new(), Vec::new()),
     };
 
-    let result = cm::connect_with_seed(
-        access_token,
-        steam_id,
-        seed_messages,
-        seed_group_messages,
-    )
-    .await;
+    let result =
+        cm::connect_with_seed(access_token, steam_id, seed_messages, seed_group_messages).await;
     let client = match result {
         Ok(client) => {
             *cm_connect_cooldown().lock().unwrap() = None;
@@ -669,8 +667,7 @@ async fn process_friend_incoming(
         if m.local_echo {
             let partner = m.partner_steam_id.to_string();
             if let Some(mut thread) = cache.load_friend_thread(account, &partner) {
-                if correlate_friend_echo(&mut thread, &m.message, m.timestamp as u64, m.ordinal)
-                {
+                if correlate_friend_echo(&mut thread, &m.message, m.timestamp as u64, m.ordinal) {
                     let (bounded, _) = bound_thread(thread.messages);
                     thread.messages = bounded;
                     cache.save_friend_thread(&thread);
@@ -746,7 +743,12 @@ pub async fn load_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, 
     };
     let snapshot = cache.load_friends(&account);
     Ok(snapshot
-        .map(|s| s.friends.into_iter().map(cache_entry_to_friend_dto).collect())
+        .map(|s| {
+            s.friends
+                .into_iter()
+                .map(cache_entry_to_friend_dto)
+                .collect()
+        })
         .unwrap_or_default())
 }
 
@@ -756,8 +758,8 @@ pub async fn load_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, 
 pub async fn refresh_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto>, String> {
     let (steam_id, access_token) = resolve_session(&state.tool_dir)?;
     let client = shared_client();
-    let relations = social::get_friend_list(&client, &access_token, steam_id)
-        .map_err(|e| e.to_string())?;
+    let relations =
+        social::get_friend_list(&client, &access_token, steam_id).map_err(|e| e.to_string())?;
     let friend_ids: Vec<String> = relations
         .iter()
         .filter(|r| r.relationship == "friend")
@@ -768,7 +770,10 @@ pub async fn refresh_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto
     } else {
         let summaries = social::get_user_summaries(&client, &access_token, &friend_ids)
             .map_err(|e| e.to_string())?;
-        summaries.into_iter().map(|s| (s.steamid.clone(), s)).collect()
+        summaries
+            .into_iter()
+            .map(|s| (s.steamid.clone(), s))
+            .collect()
     };
 
     let dtos: Vec<FriendDto> = relations
@@ -792,7 +797,10 @@ pub async fn refresh_friends(state: State<'_, AppState>) -> Result<Vec<FriendDto
 
 /// Single friend's persona summary.
 #[tauri::command]
-pub async fn get_friend_profile(state: State<'_, AppState>, steam_id: String) -> Result<FriendDto, String> {
+pub async fn get_friend_profile(
+    state: State<'_, AppState>,
+    steam_id: String,
+) -> Result<FriendDto, String> {
     let (_, access_token) = resolve_session(&state.tool_dir)?;
     let client = shared_client();
     let summaries = social::get_user_summaries(&client, &access_token, &[steam_id.clone()])
@@ -802,7 +810,8 @@ pub async fn get_friend_profile(state: State<'_, AppState>, steam_id: String) ->
         steam_id,
         persona_name: s.as_ref().and_then(|x| x.personaname.clone()),
         avatar_url: s.as_ref().and_then(|x| x.avatarfull.clone()),
-        online_state: online_state(s.as_ref().and_then(|x| x.personastate).unwrap_or(0)).to_string(),
+        online_state: online_state(s.as_ref().and_then(|x| x.personastate).unwrap_or(0))
+            .to_string(),
         in_game_name: s.as_ref().and_then(|x| x.gameextrainfo.clone()),
         last_logoff: s.as_ref().and_then(|x| x.lastlogoff).map(|v| v),
     })
@@ -819,7 +828,9 @@ pub async fn send_chat_message(
     text: String,
 ) -> Result<ChatMessageDto, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
-    let partner = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    let partner = steam_id
+        .parse::<u64>()
+        .map_err(|_| "invalid steam id".to_string())?;
     let client = ensure_cm(sid, &access_token).await?;
     let account = sid.to_string();
     let body = text.trim().to_string();
@@ -884,7 +895,10 @@ pub async fn open_chat(
     let account = sid.to_string();
     let _guard = social_cache_lock().lock().await;
     let Some(mut cache) = open_cache(&state.tool_dir, sid) else {
-        return Ok(ChatThreadDto { messages: Vec::new(), more_available: false });
+        return Ok(ChatThreadDto {
+            messages: Vec::new(),
+            more_available: false,
+        });
     };
     let (messages, more_available) = match cache.load_friend_thread(&account, &steam_id) {
         Some(mut snap) => {
@@ -896,7 +910,10 @@ pub async fn open_chat(
         }
         None => (Vec::new(), false),
     };
-    let _ = app.emit("social:read", serde_json::json!({ "kind": "friend", "id": steam_id }));
+    let _ = app.emit(
+        "social:read",
+        serde_json::json!({ "kind": "friend", "id": steam_id }),
+    );
     Ok(ChatThreadDto {
         messages: messages.iter().map(cached_msg_to_chat_dto).collect(),
         more_available,
@@ -917,7 +934,9 @@ pub async fn refresh_chat(
     older_than: Option<u64>,
 ) -> Result<ChatThreadDto, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
-    let partner = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    let partner = steam_id
+        .parse::<u64>()
+        .map_err(|_| "invalid steam id".to_string())?;
     let account = sid.to_string();
     let client = shared_client();
     let result = social::get_recent_messages(
@@ -957,7 +976,10 @@ pub async fn refresh_chat(
                 delivery_state: "sent".into(),
             })
             .collect();
-        return Ok(ChatThreadDto { messages: msgs, more_available: false });
+        return Ok(ChatThreadDto {
+            messages: msgs,
+            more_available: false,
+        });
     };
     let cached = cache.load_friend_thread(&account, &steam_id);
     // Preserve the cached unread: only `open_chat` (the explicit "user opened
@@ -1009,7 +1031,12 @@ pub async fn load_sessions(state: State<'_, AppState>) -> Result<Vec<ChatSession
     };
     let snapshot = cache.load_sessions(&account);
     Ok(snapshot
-        .map(|s| s.sessions.into_iter().map(cache_entry_to_session_dto).collect())
+        .map(|s| {
+            s.sessions
+                .into_iter()
+                .map(cache_entry_to_session_dto)
+                .collect()
+        })
         .unwrap_or_default())
 }
 
@@ -1223,7 +1250,12 @@ pub async fn load_groups(state: State<'_, AppState>) -> Result<Vec<ChatGroupDto>
     };
     let snapshot = cache.load_groups(&account);
     let dtos: Vec<ChatGroupDto> = snapshot
-        .map(|s| s.groups.into_iter().map(cache_entry_to_chat_group_dto).collect())
+        .map(|s| {
+            s.groups
+                .into_iter()
+                .map(cache_entry_to_chat_group_dto)
+                .collect()
+        })
         .unwrap_or_default();
     Ok(augment_group_unread(&cache, &account, dtos))
 }
@@ -1272,7 +1304,10 @@ pub async fn open_group_chat(
     let account = sid.to_string();
     let _guard = social_cache_lock().lock().await;
     let Some(mut cache) = open_cache(&state.tool_dir, sid) else {
-        return Ok(GroupThreadDto { messages: Vec::new(), more_available: false });
+        return Ok(GroupThreadDto {
+            messages: Vec::new(),
+            more_available: false,
+        });
     };
     let (messages, more_available) = match cache.load_group_thread(&account, &group_id, &chat_id) {
         Some(mut snap) => {
@@ -1325,8 +1360,8 @@ pub async fn refresh_group_chat(
     let parsed_msgs = parse_group_messages(&group_id, &chat_id, &body);
     let server_full_page = parsed_msgs.len() >= 50;
     // Server-authoritative "more history" flag (response field 4).
-    let server_more = proto_wire::get_bool(&proto_wire::parse(&body).unwrap_or_default(), 4)
-        .unwrap_or(false);
+    let server_more =
+        proto_wire::get_bool(&proto_wire::parse(&body).unwrap_or_default(), 4).unwrap_or(false);
     let server: Vec<ServerMsg> = parsed_msgs
         .into_iter()
         .map(|m| ServerMsg {
@@ -1352,7 +1387,10 @@ pub async fn refresh_group_chat(
                 delivery_state: "sent".into(),
             })
             .collect();
-        return Ok(GroupThreadDto { messages: msgs, more_available: false });
+        return Ok(GroupThreadDto {
+            messages: msgs,
+            more_available: false,
+        });
     };
     let cached = cache.load_group_thread(&account, &group_id, &chat_id);
     // Preserve unread — only `open_group_chat` clears it (see refresh_chat).
@@ -1457,7 +1495,9 @@ pub async fn upload_chat_image(
     steam_id: String,
 ) -> Result<String, String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
-    let partner = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    let partner = steam_id
+        .parse::<u64>()
+        .map_err(|_| "invalid steam id".to_string())?;
     let client = shared_client();
     let (w, h) = image_dimensions(&path)?;
     social::upload_chat_image(
@@ -1489,8 +1529,12 @@ pub async fn upload_group_image(
         &access_token,
         Path::new(&path),
         &social::ChatImageTarget::GroupRoom {
-            group_id: group_id.parse::<u64>().map_err(|_| "invalid group id".to_string())?,
-            chat_id: chat_id.parse::<u64>().map_err(|_| "invalid chat id".to_string())?,
+            group_id: group_id
+                .parse::<u64>()
+                .map_err(|_| "invalid group id".to_string())?,
+            chat_id: chat_id
+                .parse::<u64>()
+                .map_err(|_| "invalid chat id".to_string())?,
         },
         w,
         h,
@@ -1522,13 +1566,17 @@ pub async fn send_sticker_message(
 ) -> Result<(), String> {
     let (sid, access_token) = resolve_session(&state.tool_dir)?;
     let client = ensure_cm(sid, &access_token).await?;
-    let id = steam_id.parse::<u64>().map_err(|_| "invalid steam id".to_string())?;
+    let id = steam_id
+        .parse::<u64>()
+        .map_err(|_| "invalid steam id".to_string())?;
     client.send_sticker(id, &name).await
 }
 
 /// Read an image file's pixel dimensions (Steam requires them on upload).
 fn image_dimensions(path: &str) -> Result<(u32, u32), String> {
     let reader = image::ImageReader::open(path).map_err(|e| format!("无法读取图片: {}", e))?;
-    let (w, h) = reader.into_dimensions().map_err(|e| format!("无法解析图片尺寸: {}", e))?;
+    let (w, h) = reader
+        .into_dimensions()
+        .map_err(|e| format!("无法解析图片尺寸: {}", e))?;
     Ok((w, h))
 }

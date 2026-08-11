@@ -20,30 +20,141 @@ pub struct FxInfo {
 /// Approximate mid-2026 rates per 1 CNY.
 fn table() -> &'static [(&'static str, FxInfo)] {
     &[
-        ("CNY", FxInfo { per_cny: 1.0, base_is_cents: true }),
-        ("USD", FxInfo { per_cny: 7.20, base_is_cents: true }),
-        ("EUR", FxInfo { per_cny: 7.80, base_is_cents: true }),
-        ("GBP", FxInfo { per_cny: 9.10, base_is_cents: true }),
-        ("JPY", FxInfo { per_cny: 0.048, base_is_cents: true }),
-        ("KRW", FxInfo { per_cny: 0.0052, base_is_cents: true }),
-        ("RUB", FxInfo { per_cny: 0.078, base_is_cents: true }),
-        ("CAD", FxInfo { per_cny: 5.25, base_is_cents: true }),
-        ("AUD", FxInfo { per_cny: 4.70, base_is_cents: true }),
-        ("BRL", FxInfo { per_cny: 1.30, base_is_cents: true }),
-        ("HKD", FxInfo { per_cny: 0.92, base_is_cents: true }),
-        ("TWD", FxInfo { per_cny: 0.22, base_is_cents: true }),
-        ("SGD", FxInfo { per_cny: 5.30, base_is_cents: true }),
-        ("MXN", FxInfo { per_cny: 0.40, base_is_cents: true }),
-        ("INR", FxInfo { per_cny: 0.086, base_is_cents: true }),
-        ("TRY", FxInfo { per_cny: 0.21, base_is_cents: true }),
-        ("PLN", FxInfo { per_cny: 1.83, base_is_cents: true }),
-        ("NZD", FxInfo { per_cny: 4.30, base_is_cents: true }),
+        (
+            "CNY",
+            FxInfo {
+                per_cny: 1.0,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "USD",
+            FxInfo {
+                per_cny: 7.20,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "EUR",
+            FxInfo {
+                per_cny: 7.80,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "GBP",
+            FxInfo {
+                per_cny: 9.10,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "JPY",
+            FxInfo {
+                per_cny: 0.048,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "KRW",
+            FxInfo {
+                per_cny: 0.0052,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "RUB",
+            FxInfo {
+                per_cny: 0.078,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "CAD",
+            FxInfo {
+                per_cny: 5.25,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "AUD",
+            FxInfo {
+                per_cny: 4.70,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "BRL",
+            FxInfo {
+                per_cny: 1.30,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "HKD",
+            FxInfo {
+                per_cny: 0.92,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "TWD",
+            FxInfo {
+                per_cny: 0.22,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "SGD",
+            FxInfo {
+                per_cny: 5.30,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "MXN",
+            FxInfo {
+                per_cny: 0.40,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "INR",
+            FxInfo {
+                per_cny: 0.086,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "TRY",
+            FxInfo {
+                per_cny: 0.21,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "PLN",
+            FxInfo {
+                per_cny: 1.83,
+                base_is_cents: true,
+            },
+        ),
+        (
+            "NZD",
+            FxInfo {
+                per_cny: 4.30,
+                base_is_cents: true,
+            },
+        ),
     ]
 }
 
 /// Look up FX info for a currency code; `None` for unknown currencies.
 pub fn currency_info(currency: &str) -> Option<&'static FxInfo> {
-    table().iter().find(|(code, _)| *code == currency).map(|(_, info)| info)
+    table()
+        .iter()
+        .find(|(code, _)| *code == currency)
+        .map(|(_, info)| info)
 }
 
 /// Convert a Steam price amount (in the given currency's reported base unit)

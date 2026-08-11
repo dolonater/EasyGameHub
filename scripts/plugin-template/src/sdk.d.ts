@@ -75,6 +75,185 @@ declare module "sdk" {
     lyric: string;
     translation: string;
   }
+
+  export interface BiliOperationResult {
+    ok: boolean;
+    message: string;
+  }
+  export type BiliErrorKind =
+    | "notLoggedIn"
+    | "loginExpired"
+    | "vipRequired"
+    | "permissionDenied"
+    | "regionRestricted"
+    | "copyrightRestricted"
+    | "riskControl"
+    | "network"
+    | "proxy"
+    | "playback"
+    | "api"
+    | "unknown";
+
+  export interface BiliErrorDto {
+    kind: BiliErrorKind;
+    message: string;
+    retryable: boolean;
+    externalUrl?: string;
+  }
+
+  export class BiliSdkError extends Error {
+    kind: BiliErrorKind;
+    retryable: boolean;
+    externalUrl?: string;
+    constructor(dto: BiliErrorDto);
+  }
+
+  export interface BiliLocalProgress {
+    bvid: string;
+    aid: number;
+    cid: number;
+    progressSeconds: number;
+    updatedAt: number;
+  }
+
+  export interface BiliDanmakuItem {
+    id: string;
+    time: number;
+    text: string;
+    color: string;
+    mode: number;
+    fontSize: number;
+    timestamp: number;
+  }
+
+  export interface BiliVideoCard {
+    bvid: string;
+    aid: number;
+    cid: number;
+    title: string;
+    cover: string;
+    ownerName: string;
+    ownerMid: number;
+    duration: number;
+    viewCount: number;
+    danmakuCount: number;
+    publishedAt: number;
+    progress: number;
+  }
+
+  export interface BiliHistoryItem {
+    video: BiliVideoCard;
+    viewedAt: number;
+    page: number;
+    pageTitle: string;
+  }
+
+  export interface BiliToViewItem {
+    video: BiliVideoCard;
+    addedAt: number;
+  }
+
+  export interface BiliFavoriteFolder {
+    id: number;
+    title: string;
+    cover: string;
+    ownerMid: number;
+    ownerName: string;
+    mediaCount: number;
+    owned: boolean;
+    favState: number;
+  }
+
+  export interface BiliVideoInteractionStats {
+    likeCount: number;
+    coinCount: number;
+    favoriteCount: number;
+    shareCount: number;
+  }
+
+  export interface BiliOwnerInteractionState {
+    mid: number;
+    name: string;
+    avatar: string;
+    followerCount: number;
+    following: boolean;
+  }
+
+  export interface BiliVideoInteractionState {
+    aid: number;
+    bvid: string;
+    liked: boolean;
+    coinCount: number;
+    favorited: boolean;
+    toView: boolean;
+    stats: BiliVideoInteractionStats;
+    owner: BiliOwnerInteractionState;
+    favoriteFolders: BiliFavoriteFolder[];
+  }
+
+  export interface BiliFavoriteItem {
+    video: BiliVideoCard;
+    mediaId: number;
+    favoriteTime: number;
+  }
+  export type BiliCommentSort = "time" | "like" | "replies";
+  export type BiliReportReason =
+    | "other"
+    | "ad"
+    | "porn"
+    | "spam"
+    | "flame"
+    | "spoiler"
+    | "politics"
+    | "abuse"
+    | "irrelevant"
+    | "illegal"
+    | "vulgar"
+    | "phishing"
+    | "scam"
+    | "rumor"
+    | "incitement"
+    | "privacy"
+    | "floorSnatching"
+    | "harmfulToYouth";
+
+  export interface BiliCommentMember {
+    mid: number;
+    name: string;
+    avatar: string;
+  }
+
+  export interface BiliCommentContent {
+    message: string;
+    pictures: string[];
+  }
+
+  export interface BiliComment {
+    rpid: number;
+    root: number;
+    parent: number;
+    ctime: number;
+    likeCount: number;
+    liked: boolean;
+    disliked: boolean;
+    repliesCount: number;
+    member: BiliCommentMember;
+    content: BiliCommentContent;
+    replies: BiliComment[];
+    canDelete: boolean;
+    canTop: boolean;
+    isTop: boolean;
+  }
+
+  export interface BiliCommentPage {
+    page: number;
+    pageSize: number;
+    total: number;
+    hasMore: boolean;
+    sort: string;
+    comments: BiliComment[];
+    topComments: BiliComment[];
+  }
   export function createElement(
     type: unknown,
     props?: Record<string, unknown> | null,
@@ -144,6 +323,91 @@ declare module "sdk" {
       proxyPort(): Promise<number>;
       audioProxyUrl(rawUrl: string): Promise<string>;
       coverProxyUrl(rawUrl: string): Promise<string>;
+    };
+    bilibili: {
+      account: {};
+      home: {};
+      video: {
+        openExternal(bvid: string): Promise<BiliOperationResult>;
+      };
+      playback: {
+        saveLocalProgress(args: {
+          bvid: string;
+          aid: number;
+          cid: number;
+          progressSeconds: number;
+        }): Promise<BiliLocalProgress>;
+        loadLocalProgress(args: { bvid: string; cid?: number }): Promise<BiliLocalProgress | null>;
+        reportProgress(args: { aid: number; cid: number; progress: number }): Promise<BiliOperationResult>;
+      };
+      danmaku: {
+        list(args: { cid: number; aid?: number; bvid?: string }): Promise<BiliDanmakuItem[]>;
+        send(args: {
+          aid: number;
+          bvid: string;
+          cid: number;
+          message: string;
+          progress: number;
+        }): Promise<BiliOperationResult>;
+      };
+      comment: {
+        list(args: { oid: number; page?: number; sort?: BiliCommentSort }): Promise<BiliCommentPage>;
+        replies(args: { oid: number; root: number; page?: number }): Promise<BiliCommentPage>;
+        add(args: { oid: number; message: string; root?: number; parent?: number }): Promise<BiliComment>;
+        like(args: { oid: number; rpid: number; like: boolean }): Promise<BiliOperationResult>;
+        dislike(args: { oid: number; rpid: number; dislike: boolean }): Promise<BiliOperationResult>;
+        delete(args: { oid: number; rpid: number }): Promise<BiliOperationResult>;
+        top(args: { oid: number; rpid: number; top: boolean }): Promise<BiliOperationResult>;
+        report(args: {
+          oid: number;
+          rpid: number;
+          reason: BiliReportReason;
+          content?: string;
+        }): Promise<BiliOperationResult>;
+      };
+      library: {
+        historyList(page?: number): Promise<BiliHistoryItem[]>;
+        toViewList(): Promise<BiliToViewItem[]>;
+        addToView(args: { aid: number; bvid?: string }): Promise<BiliOperationResult>;
+        removeToView(args: { aid: number }): Promise<BiliOperationResult>;
+        favoriteFolders(rid?: number): Promise<BiliFavoriteFolder[]>;
+        favoriteItems(mediaId: number, page?: number): Promise<BiliFavoriteItem[]>;
+        favoriteVideo(args: {
+          rid: number;
+          addMediaIds?: string[];
+          delMediaIds?: string[];
+        }): Promise<BiliOperationResult>;
+      };
+      interaction: {
+        state(args: { aid?: number; bvid?: string; ownerMid?: number }): Promise<BiliVideoInteractionState>;
+        like(args: { aid?: number; bvid?: string; liked: boolean }): Promise<BiliVideoInteractionState>;
+        coin(args: {
+          aid?: number;
+          bvid?: string;
+          multiply: 1 | 2;
+          alsoLike: boolean;
+        }): Promise<BiliVideoInteractionState>;
+        favorite(args: {
+          rid: number;
+          addMediaIds?: string[];
+          delMediaIds?: string[];
+        }): Promise<BiliVideoInteractionState>;
+        toView(args: { aid: number; bvid?: string; toView: boolean }): Promise<BiliVideoInteractionState>;
+        followOwner(args: {
+          mid: number;
+          following: boolean;
+          aid?: number;
+          bvid?: string;
+        }): Promise<BiliVideoInteractionState>;
+        copyShareLink(args: { bvid: string }): Promise<BiliOperationResult>;
+        openReport(args: { bvid: string }): Promise<BiliOperationResult>;
+      };
+      cache: {
+        saveScreenshot(args: { fileName: string; dataBase64: string }): Promise<string>;
+        openScreenshotFolder(): Promise<BiliOperationResult>;
+        clearCache(): Promise<number>;
+        coverProxyUrl(rawUrl: string): Promise<string>;
+      };
     };
   }
 

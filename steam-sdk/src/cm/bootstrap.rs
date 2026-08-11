@@ -21,7 +21,10 @@ pub fn fetch_web_logon_token(
         &[
             ("Cookie", cookie.as_str()),
             ("Referer", "https://steamcommunity.com/chat/"),
-            ("X-Requested-With", "com.valvesoftware.android.steam.community"),
+            (
+                "X-Requested-With",
+                "com.valvesoftware.android.steam.community",
+            ),
         ],
     )?;
     if response.status() != 200 {
@@ -52,7 +55,10 @@ pub fn fetch_endpoints(client: &SteamHttpClient) -> Result<Vec<String>> {
         return Err(status_error(response.status()));
     }
     let json: serde_json::Value = response.into_json()?;
-    let list = json["response"]["serverlist"].as_array().cloned().unwrap_or_default();
+    let list = json["response"]["serverlist"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default();
 
     let mut endpoints: Vec<(String, f64)> = list
         .into_iter()
@@ -68,7 +74,10 @@ pub fn fetch_endpoints(client: &SteamHttpClient) -> Result<Vec<String>> {
             if port != 443 {
                 return None;
             }
-            let load = server.get("wtd_load").and_then(|v| v.as_f64()).unwrap_or(f64::MAX);
+            let load = server
+                .get("wtd_load")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(f64::MAX);
             Some((host, load))
         })
         .collect();
@@ -91,7 +100,8 @@ fn split_host_port(endpoint: &str) -> Option<(String, u16)> {
     }
     if let Some(idx) = trimmed.rfind(':') {
         let (host, port_str) = (&trimmed[..idx], &trimmed[idx + 1..]);
-        if !host.is_empty() && !port_str.is_empty() && port_str.chars().all(|c| c.is_ascii_digit()) {
+        if !host.is_empty() && !port_str.is_empty() && port_str.chars().all(|c| c.is_ascii_digit())
+        {
             return Some((host.to_string(), port_str.parse::<u16>().ok()?));
         }
     }
@@ -112,9 +122,17 @@ mod tests {
 
     #[test]
     fn host_port_split() {
-        assert_eq!(split_host_port("cm1-ord1.steamserver.net").unwrap().0, "cm1-ord1.steamserver.net");
+        assert_eq!(
+            split_host_port("cm1-ord1.steamserver.net").unwrap().0,
+            "cm1-ord1.steamserver.net"
+        );
         assert_eq!(split_host_port("cm1-ord1.steamserver.net").unwrap().1, 443);
-        assert_eq!(split_host_port("cmp2-seo1.steamserver.net:27020").unwrap().1, 27020);
+        assert_eq!(
+            split_host_port("cmp2-seo1.steamserver.net:27020")
+                .unwrap()
+                .1,
+            27020
+        );
         assert_eq!(split_host_port("cm3.steamserver.net:443").unwrap().1, 443);
         assert!(split_host_port("").is_none());
     }
@@ -131,17 +149,35 @@ mod tests {
         });
         // Simulate the filtering logic by re-running the same parse inline.
         let list = servers["response"]["serverlist"].as_array().unwrap();
-        let mut picked: Vec<(String, f64)> = list.iter().filter_map(|s| {
-            let endpoint = s.get("endpoint").and_then(|v| v.as_str())?;
-            let kind = s.get("type").and_then(|v| v.as_str()).unwrap_or("");
-            let realm = s.get("realm").and_then(|v| v.as_str()).unwrap_or("");
-            if kind != "websockets" || realm != "steamglobal" { return None; }
-            let (host, port) = split_host_port(endpoint)?;
-            if port != 443 { return None; }
-            Some((host, s.get("wtd_load").and_then(|v| v.as_f64()).unwrap_or(f64::MAX)))
-        }).collect();
+        let mut picked: Vec<(String, f64)> = list
+            .iter()
+            .filter_map(|s| {
+                let endpoint = s.get("endpoint").and_then(|v| v.as_str())?;
+                let kind = s.get("type").and_then(|v| v.as_str()).unwrap_or("");
+                let realm = s.get("realm").and_then(|v| v.as_str()).unwrap_or("");
+                if kind != "websockets" || realm != "steamglobal" {
+                    return None;
+                }
+                let (host, port) = split_host_port(endpoint)?;
+                if port != 443 {
+                    return None;
+                }
+                Some((
+                    host,
+                    s.get("wtd_load")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(f64::MAX),
+                ))
+            })
+            .collect();
         picked.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
         let hosts: Vec<String> = picked.into_iter().map(|(h, _)| h).collect();
-        assert_eq!(hosts, vec!["cm5.steamserver.net".to_string(), "cm1-ord1.steamserver.net".to_string()]);
+        assert_eq!(
+            hosts,
+            vec![
+                "cm5.steamserver.net".to_string(),
+                "cm1-ord1.steamserver.net".to_string()
+            ]
+        );
     }
 }

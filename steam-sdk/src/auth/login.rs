@@ -194,8 +194,10 @@ pub fn check_device_for_email(
         "https://login.steampowered.com/jwt/checkdevice/{}",
         steam_id
     );
-    let response =
-        client.post_form(&url, &[("clientid", &client_id_str), ("steamid", &steam_id_str)])?;
+    let response = client.post_form(
+        &url,
+        &[("clientid", &client_id_str), ("steamid", &steam_id_str)],
+    )?;
 
     let status = response.status();
     let body = response.into_string()?;
@@ -214,7 +216,10 @@ pub fn check_device_for_email(
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&body) {
         if !json["success"].as_bool().unwrap_or(true) {
             let result = json["result"].as_i64().unwrap_or(0);
-            log::debug!("checkdevice: success=false result={} (email still sent)", result);
+            log::debug!(
+                "checkdevice: success=false result={} (email still sent)",
+                result
+            );
         }
     }
 
@@ -292,7 +297,9 @@ fn base64url_decode(input: &str) -> Option<Vec<u8>> {
     while b64.len() % 4 != 0 {
         b64.push('=');
     }
-    base64::engine::general_purpose::STANDARD.decode(b64.as_bytes()).ok()
+    base64::engine::general_purpose::STANDARD
+        .decode(b64.as_bytes())
+        .ok()
 }
 
 /// Send a SteamGuard code to complete authentication.

@@ -1,13 +1,90 @@
 # Development Progress
 
 ## Current Workflow Request
+- Topic: Bilibili 播放页互动增强（参考 wiliwili/Web 端交互，优先普通视频客户端增强）
+- Stage 1 Requirement Exploration: Completed at 2026-08-11（经 grill-me 逐项确认）
+- Design doc: docs/superpowers/specs/2026-08-11-bilibili-interactions-design.md
+- 用户已确认的关键范围：先做普通视频客户端增强，不做番剧/直播；第一批做点赞/取消点赞、投币、收藏、稍后再看、分享/复制链接、举报外部打开、更多低频操作、关注/取消关注 UP；互动条放播放页主区播放器下方，显示和操作合一；关注 UP 放 UP 信息行；互动状态播放页初始加载；B 站协议优先补进 `bpi-rs`；点赞/收藏/稍后再看/关注可乐观更新失败回滚，投币不乐观更新；当前播放页即时更新，相关缓存失效，不做全局复杂同步；本轮不做 UP 主空间页。
+- Stage 2 Implementation Planning: Completed at 2026-08-11
+- Plan doc: docs/superpowers/plans/2026-08-11-bilibili-interactions-plan.md
+- Stage 3 Plan Execution: Completed at 2026-08-11（自动验证通过，Tauri 手测待补）
+- Completed scope: P0 review 确认 `bpi-rs` 已有点赞、投币、投币状态、收藏、稍后再看、关注/取关和 UP 卡片能力，本轮未重复改协议层；新增 EasyGameHub `BiliVideoInteractionState` / stats / owner DTO、`core::bilibili::interaction` 聚合服务和 interaction commands；宿主 SDK、官方插件声明和插件模板声明新增 `sdk.bilibili.interaction.*`；播放页新增播放器下方网页式互动条、投币确认面板、收藏夹面板、UP 信息/关注行；右侧 `更多` Tab 移除收藏/稍后再看主互动，只保留外部打开、复制链接、截图目录；点赞、稍后再看、关注做乐观更新失败回滚，投币不乐观更新；收藏/稍后再看/视频详情相关缓存写操作后失效；官方插件 bundle 已写回内置插件目录。
+- Scope guard: 未修改播放代理、MPD、DASH/MP4 fallback、清晰度切换、弹幕、评论和进度同步；未实现番剧、直播、动态、UP 主空间页、笔记、三连或复杂举报表单。当前普通视频“是否已点赞”的可靠读取接口尚未补充，初始状态保守为未点赞，用户点击后按本轮操作状态展示。
+- Verification: `cargo fmt`；`cargo check` passed（仅既有 warnings）；`cargo test bilibili` passed（34 passed，1 ignored legacy live API test）；`cargo test --manifest-path bpi-rs/Cargo.toml video` passed（122 passed，44 ignored）；`cargo test --manifest-path bpi-rs/Cargo.toml user` passed（100 passed，30 ignored）；`cd scripts/official-plugins/bilibili && npm run build` passed；`npm run build` passed（仅既有 Vite dynamic import/chunk size warnings）；`cd scripts/official-plugins/bilibili && npm run pack` passed and wrote back `plugins/com.easygamehub.bilibili` plus `resources/defaults/plugins/com.easygamehub.bilibili`。
+- Pending hand-test: `npm run tauri dev` 后检查播放页互动条显示、登录态点赞/投币/收藏/稍后再看/关注、分享复制、举报外跳、右侧更多低频操作，以及 DASH 高清/兼容播放/清晰度切换/弹幕/评论不回退。
+
+## Current Workflow Request
+- Topic: Bilibili 插件 UI 布局优化（从功能面板堆叠调整为视频客户端布局）
+- Stage 1 Requirement Exploration: Completed at 2026-08-11（经 grill-me 逐项确认）
+- Design doc: docs/superpowers/specs/2026-08-11-bilibili-ui-redesign.md
+- 用户已确认的关键 UI 决策：插件定位为内容消费客户端；首页第一屏只服务找视频/看视频；首页使用 `推荐` / `热门` Tab；账号内容进入独立 `我的` 视图；播放页使用播放器主区 + 右侧单任务 Tabs；评论默认进入播放页 `评论` Tab；播放器内只保留高频控制；低频控制进入右侧 Tabs；小屏下 Tabs 移到播放器下方；视觉融合 Bilibili/wiliwili 客户端布局与 EasyGameHub 玻璃主题。
+- Stage 2 Implementation Planning: Completed at 2026-08-11
+- Plan doc: docs/superpowers/plans/2026-08-11-bilibili-ui-redesign-plan.md
+- Stage 3 Plan Execution: UI implementation completed at 2026-08-11（自动验证通过，Tauri 手测待补）
+- Completed scope: 新增 `BiliAppShell` / `BiliTopNav` / `HomeFeed` / `HomeFeedTabs` / `WatchSidebarTabs` / `MinePage`；首页移除常驻登录和账号库侧栏，改为视频 feed 优先；新增独立 `mine` 页面集中登录、历史、稍后再看和收藏夹；播放页保留播放内核，右侧改为 `分P` / `清晰度` / `弹幕` / `评论` / `更多` 单任务 Tabs；评论从播放器下方移入 `评论` Tab；低频外部打开、截图目录、稍后再看和收藏操作移入 `更多` Tab；补齐顶栏、首页 feed、我的页、播放页 Tabs 和小屏播放器下方 Tabs 样式。
+- Scope guard: 未修改 Rust 后端、Bilibili SDK 方法、播放代理、MPD、DASH/MP4 fallback、进度 reporter、弹幕读取/发送、评论 API、收藏/稍后再看 API。
+- Verification: `cd scripts/official-plugins/bilibili && npm run build` passed；`cd scripts/official-plugins/bilibili && npm run pack` passed and wrote back `plugins/com.easygamehub.bilibili` plus `resources/defaults/plugins/com.easygamehub.bilibili`；`npm run build` passed（仅既有 Vite dynamic import/chunk size warnings）。
+- Component-library follow-up: 用户确认组件可以使用组件库后，已改为从插件 SDK 使用宿主导出的 `Button` / `TextField` / `Toggle` / `Slider` / `Select`，覆盖首页搜索与按钮、顶栏/Tab、登录面板、弹幕输入、播放页弹幕设置、更多操作和插件设置区；播放器控制条仍保留专用控件以维持视频控制密度和行为稳定。验证：`cd scripts/official-plugins/bilibili && npm run build` passed；`npm run pack` wrote back built-in plugin；`npm run build` passed（仅既有 Vite warnings）。
+- Pending hand-test: `npm run tauri dev` 后检查首页推荐/热门/搜索、我的页登录和账号内容、播放页 DASH 高清/兼容模式/清晰度切换/分P/弹幕/评论/更多操作、小屏 Tabs。
+
+## Current Workflow Request
 - Topic: Bilibili 内置视频插件（参考 wiliwili 产品能力，接入 bpi-rs，内置 DASH 播放）
 - Stage 1 Requirement Exploration: Design draft completed at 2026-08-10
 - Design doc: docs/superpowers/specs/2026-08-10-bilibili-plugin-design.md
 - 用户已确认的关键范围：内置插件；直接打通 SDK 和专用代理；首页/播放页分离；普通投稿视频优先；二维码登录；DASH 内置播放；默认 ABR；播放中无缝清晰度切换；写回并读取 B 站观看进度；历史/稍后再看/收藏夹；评论读写；普通文本弹幕发送；快捷键、倍速、截图、外部打开、轻量缓存。
 - Stage 2 Implementation Planning: Completed at 2026-08-10
 - Plan doc: docs/superpowers/plans/2026-08-10-bilibili-plugin-plan.md
-- Active stage: Stage 2 gate，等待用户批准计划后进入 Stage 3 Plan Execution
+- Stage 3 Plan Execution: P0 completed at 2026-08-10
+- P0 completed scope: `bpi-rs` path dependency; Bilibili Rust core/command skeleton; `bilibili_ping` command registration; plugin `bilibili` permission allowlist and SDK empty namespace; official `com.easygamehub.bilibili` plugin skeleton; build/pack sync to `plugins/` and `resources/defaults/plugins/`.
+- P0 review notes: `bpi-rs` features match the plan and local `rustc 1.97.1` satisfies `rust-version = "1.85"`; `video` icon is not present in `src/lib/icons.ts`, so the P0 skeleton uses existing `playFilled` icon until a formal icon mapping is added.
+- P0 verification: `cargo fmt`; `cargo check`; `cargo test plugins`（18 passed）；`cargo test bilibili`（1 passed, 1 ignored legacy live API test）；`npm run build`; `cd scripts/official-plugins/bilibili && npm install && npm run build && npm run pack`; bundle imports only from `"sdk"`.
+- Stage 3 Plan Execution: P1 completed at 2026-08-10
+- P1 review notes: 严格限制在账号登录与 Cookie 存储；未提前实现 P2 首页数据、P3 播放代理、DASH 播放、评论、弹幕、历史、稍后再看或收藏夹；账号 store 使用 `AppState.tool_dir` 下的 `bilibili_account.enc.json`，Cookie 只在 Rust 侧经 `SecureStore` 加密保存，不返回前端。
+- P1 completed scope: `core::bilibili::account` 实现二维码 key/check、Cookie 规范化保存/读取/清理和单测；`core::bilibili::client` 实现匿名/登录态 client 构建与 `login_status`；Tauri 注册 `bilibili_login_qr_key` / `bilibili_login_qr_check` / `bilibili_login_status` / `bilibili_logout`；`sdk.bilibili.account` 暴露登录方法并强制 `bilibili` 权限；官方 Bilibili 插件首页新增登录面板和 runtime 轮询状态，播放页保持 P1 骨架。
+- P1 verification: `cargo fmt`（随后收回非 P1 rustfmt 差异）；`cargo test bilibili`（4 passed，1 ignored legacy live API test）；`cargo check`; `npm run build`; `cd scripts/official-plugins/bilibili && npm run build && npm run pack`; bundle imports only from `"sdk"`。
+- P1 hand-test fix: 用户扫码登录后报 `account requires DedeUserID, SESSDATA, bili_jct, and buvid3`；根因是二维码登录 Set-Cookie 可能不带 `buvid3`，保存前过早按完整 `Account` 校验。已改为登录成功后 Rust 侧通过 `misc.buvid` / `misc.buvid3` 补齐 `buvid3` 再加密保存，并加回归测试 `normalize_cookie_header_accepts_login_cookie_with_buvid_fallback`。验证：该测试通过、`cargo test bilibili`（5 passed，1 ignored legacy live API test）、`cargo check` 通过。
+- P1 startup fix: `npm run tauri dev` 使用 `cargo run --no-default-features`，而补 `buvid3` 依赖 `bpi-rs` 的 `misc` feature；已把 `"misc"` 加入 `src-tauri/Cargo.toml` 的显式 feature 列表。验证：`cargo check --no-default-features --manifest-path src-tauri/Cargo.toml` 通过；清理残留 Vite 进程占用 1420 后，`npm run tauri dev` 成功编译并运行 `EasyGameHub.exe`。
+- Stage 3 Plan Execution: P2 completed at 2026-08-10
+- P2 review notes: 严格限制在首页主链路；只接入匿名公开视频搜索和热门列表、视频卡片、首页 Tab 占位与跳转到播放页空壳；未实现 P3 视频详情/播放代理、P4 DASH、P5 进度、P6 弹幕、P7 历史/稍后再看/收藏夹真实数据、P8 评论或 P9 缓存。
+- P2 completed scope: 新增 `BiliVideoCard` 稳定 DTO；`core::bilibili::video` 提供 search result / popular item / ranking item 映射和缺字段 fallback 单测；新增 `bilibili_search_videos` / `bilibili_popular_videos` 命令并注册；`sdk.bilibili.home` 暴露 `searchVideos` / `popularVideos` 并强制 `bilibili` 权限；官方 Bilibili 插件首页实现搜索框、热门默认加载、刷新、视频卡片、外部打开 B 站、账号登录栏、历史/稍后再看/收藏夹占位 Tab、`watchUrl(video)` 跳转封装；播放页仍只显示传入 bvid/cid。
+- P2 verification: `cargo test bilibili`（7 passed，1 ignored legacy live API test）；`cargo check --no-default-features --manifest-path src-tauri/Cargo.toml`; `cargo check`; `npm run build`; `cd scripts/official-plugins/bilibili && npm run build && npm run pack`; bundle imports only from `"sdk"`。
+- P2 hand-test: 打开首页、查看热门、搜索关键词、点击视频进入播放页空壳路由尚未执行。
+- Stage 3 Plan Execution: P3 completed at 2026-08-10
+- P3 review notes: 严格限制在视频详情、分 P、续播字段、取流 session、MPD、本地代理、SDK 扩展和播放页详情空壳；未提前实现 P4 dash.js attach/播放器控制/播放中清晰度切换 UI，未实现 P5 进度写回与截图，未实现 P6 弹幕、P7 账号内容、P8 评论或 P9 缓存/结构化错误完善。
+- P3 completed scope: 新增 `BiliVideoDetail` / `BiliVideoPage` / `BiliVideoStats` / `BiliOwner` / `BiliPlaybackSource` / `BiliQualityOption` DTO；`core::bilibili::video` 接入 `view`、`page_list`、`player_info_v2`（未登录/失败时详情仍返回且续播为空）和 `related_videos`；新增 `select_initial_page` 纯函数测试；新增 `core::bilibili::playback` 内存播放会话、2 小时过期、track 查询、MPD 生成和清晰度选项；新增 `core::bilibili::proxy` 专用 `127.0.0.1` 代理，提供 manifest/media/cover 路由，media 只转发已登记 session track 并转发 Range/Referer/UA/CORS；新增 `bilibili_video_detail` / `bilibili_related_videos` / `bilibili_proxy_port` / `bilibili_create_playback` commands 并注册；`sdk.bilibili.video` 和 `sdk.bilibili.playback` 已扩展；官方插件新增独立 `WatchPage`、`PlayerShell`、`QualityMenu`，展示详情、分 P、manifest URL 和清晰度列表，不 attach dash.js。
+- P3 verification: `rustfmt --edition 2021`（仅 P3 Rust 文件）；`cargo test bilibili`（11 passed，1 ignored legacy live API test）；`cargo check --no-default-features --manifest-path src-tauri/Cargo.toml`; `cargo check`; `npm run build`; `cd scripts/official-plugins/bilibili && npm run build && npm run pack`; bundle 头部确认仍从 `"sdk"` external 导入，未发现 `@tauri` 直连。
+- Stage 3 Plan Execution: P4 completed at 2026-08-10
+- P4 review notes: 严格限制在 DASH 播放器接入、ABR/手动清晰度切换、播放器控制、倍速、音量、快捷键和网页内全屏；未实现 P5 持久进度/B 站进度写回/截图，未实现 P6 弹幕数据读取或发送，未实现 P7-P9 账号内容、评论、缓存和结构化错误扩展。T27 中“保存旧进度”按 P4 边界解释为播放页内存态，仅用于当前页面切 P 续播。
+- P4 completed scope: 新增 `scripts/official-plugins/bilibili/src/player/dashPlayer.ts`，封装 dash.js 初始化、fast switch、默认 ABR、手动 representation 切换、实际清晰度读取、错误转换、倍速设置和销毁；新增 `scripts/official-plugins/bilibili/src/player/keyboard.ts`，实现 Space、方向键、M、F、D、Esc 快捷键且输入控件聚焦时禁用；`PlayerShell` 接入真实 `<video>`、dash player 生命周期、自定义控制条、播放/暂停、seek、音量、静音、倍速、网页内全屏、错误重载和外部打开入口；`QualityMenu` 改为自动/手动清晰度交互菜单且切换不重新取流；`WatchPage` 增加当前页面生命周期内的 cid 播放时间记录、切 P 前记忆时间、重载 playback source，并优先使用页内进度或 B 站详情返回的续播时间初始化播放器；`styles.ts` 补齐播放器、控制条、清晰度按钮和移动端样式。
+- P4 verification: `cd scripts/official-plugins/bilibili && npm run build` 通过；`cd scripts/official-plugins/bilibili && npm run build && npm run pack` 通过并同步 `plugins/com.easygamehub.bilibili` 与 `resources/defaults/plugins/com.easygamehub.bilibili`；`cargo check` 通过（仅既有 warnings）；`npm run build` 通过（仅 Vite 既有动态导入/chunk size warnings）；bundle 检查未发现 `@tauri` 直连，且保留 `from "sdk"` external 导入。额外执行 `npx tsc --noEmit` 时因插件当前缺少全局 JSX 声明，既有组件批量报 `JSX.IntrinsicElements`，该检查不是计划验证命令且未作为 P4 阻塞项。
+- P4 hand-test: 播放普通视频、暂停/seek/音量/倍速、自动/手动清晰度、切 P、网页内全屏/Esc 尚未执行。
+- P4 playback fix: 用户实测报告 `DASH 播放错误 31: Must have @mediaPresentationDuration on MPD or an explicit @duration on the last period.`；根因是 Rust 侧生成的静态 MPD 未写入点播总时长。已在 `PlaybackSession` 保存 `PlayUrlResponseData.timelength`，并在 MPD 根节点写入 `mediaPresentationDuration`、在 `Period` 写入 `duration`。先添加失败断言复现，再修复。验证：`cargo test bilibili::playback::tests::mpd_uses_local_track_urls_without_remote_urls` 通过；`cargo test bilibili` 11 passed、1 ignored；`cargo check` 通过（仅既有 warnings）。
+- Stage 3 Plan Execution: P5 completed at 2026-08-10
+- P5 review notes: 严格限制在本地进度保存、B 站观看进度节流上报、读取本地进度续播、外部打开和当前帧截图；未实现 P6 弹幕读取/渲染/发送，未实现 P7 历史/稍后再看/收藏夹，未实现 P8 评论，未实现 P9 通用缓存清理、完整设置区和结构化错误统一收敛。`syncProgress` 只读取插件 storage 中可能存在的布尔值，默认 true，正式设置区留给 P9。
+- P5 completed scope: 新增 `core::bilibili::cache`，用 `tool_dir/bilibili/progress.json` 保存 `bvid`/`aid`/`cid`/`progressSeconds`/`updatedAt`，同一视频分 P覆盖更新、不同 cid 隔离；截图保存到 `tool_dir/bilibili/screenshots`，base64 支持 data URL 前缀，文件名做白名单清理并固定 `.png`；新增并注册 `bilibili_save_local_progress` / `bilibili_load_local_progress` / `bilibili_report_progress` / `bilibili_open_video` / `bilibili_save_screenshot` / `bilibili_open_screenshot_folder`；`bilibili_report_progress` 使用 `VideoWatchProgressParams`，未登录返回 `ok=false,message=notLoggedIn`，前端不阻断播放；宿主 SDK、官方插件声明和插件模板声明同步 P5 Bilibili API；官方插件新增 `progressReporter.ts`、`frameCapture.ts`、`ScreenshotButton.tsx`，播放页加载详情后按“请求 cid > B 站进度 > 本地进度 > 第一 P”选页，播放器每 5 秒保存本地进度、每 20 秒尝试写回 B 站，pause/ended/切 P/unmount 补一次，seek 后 3 秒内跳过普通周期写回；播放失败和侧栏外部打开改走 SDK command，播放器控制条新增截图按钮，侧栏新增截图目录入口。
+- P5 verification: `cargo test bilibili` 14 passed、1 ignored legacy live API test；`cargo check` 通过（仅既有 warnings）；`npm run build` 通过（仅 Vite 既有动态导入/chunk size warnings，构建产物随后恢复不纳入源码修改）；`cd scripts/official-plugins/bilibili && npm run build` 通过；`cd scripts/official-plugins/bilibili && npm run pack` 通过并同步 `plugins/com.easygamehub.bilibili` 与 `resources/defaults/plugins/com.easygamehub.bilibili`；bundle 检查显示 P5 API 已打入官方插件产物，未发现 `@tauri` 直连。
+- P5 hand-test: 播放到 30 秒后离开再进入续播、登录后 B 站历史进度写回、截图保存并打开截图目录、外部打开视频尚未执行。
+- Stage 3 Plan Execution: P6 completed at 2026-08-10
+- P6 review notes: 严格限制在弹幕读取、普通滚动弹幕 overlay、播放器内弹幕设置和普通文本弹幕发送；未实现 P7 历史/稍后再看/收藏夹，未实现 P8 评论，未实现 P9 轻量缓存清理、完整设置区和结构化错误统一收敛。后端读取采用 `bpi-rs` XML 弹幕能力，因当前仓库未生成 protobuf dm 模型，避免在 EasyGameHub 内手写不稳定协议解析。
+- P6 completed scope: 新增 `BiliDanmakuItem` DTO；新增 `core::bilibili::danmaku`，实现当前分 P弹幕读取、弹幕文本最小清理、颜色格式化、普通文本弹幕发送、空/超长消息拒绝和单测；新增并注册 `bilibili_danmaku_list` / `bilibili_send_danmaku`；宿主 SDK、官方插件声明和插件模板声明同步 `sdk.bilibili.danmaku.list/send` 并强制 `bilibili` 权限；官方插件新增 `danmaku/layout.ts`、`danmaku/renderer.ts`、`DanmakuOverlay.tsx`、`DanmakuInput.tsx`，播放页按分 P拉取弹幕，overlay 根据 `video.currentTime` 推进并在 seek 后重置游标，轨道布局限制同屏数量；播放器侧栏提供弹幕开关、字号、透明度、密度、速度；播放器下方输入条支持未登录禁用、回车发送、100 字限制、成功本地插入、失败保留输入和 4 秒冷却，弹幕隐藏时仍可发送并提示。
+- P6 verification: `cd scripts/official-plugins/bilibili && npm run test:danmaku` 通过（同时间不同轨道、超过同屏上限丢弃）；`cd scripts/official-plugins/bilibili && npm run build` 通过；`cargo test bilibili` 17 passed、1 ignored legacy live API test；`cargo check` 通过（仅既有 warnings）；`npm run build` 通过（仅 Vite 既有动态导入/chunk size warnings，构建产物随后恢复不纳入源码修改）；`cd scripts/official-plugins/bilibili && npm run pack` 通过并同步 `plugins/com.easygamehub.bilibili` 与 `resources/defaults/plugins/com.easygamehub.bilibili`；bundle 检查未发现官方插件直连 `@tauri`。
+- P6 hand-test: 播放页加载弹幕、开关弹幕、调字号/透明度/密度/速度、seek 后同步、登录后发送普通弹幕尚未执行。
+- Stage 3 Plan Execution: P7 completed at 2026-08-10
+- P7 review notes: 严格限制在账号内容读取和当前视频的小范围账号操作；未实现 P8 评论区，也未实现 P9 缓存清理、完整设置区或结构化错误统一收敛。收藏夹只开放列表、资源读取和当前视频收藏/取消收藏；未暴露清空历史、清空稍后再看、批量删除、移动资源、删除收藏夹等高风险能力。
+- P7 completed scope: 新增 `BiliHistoryItem` / `BiliToViewItem` / `BiliFavoriteFolder` / `BiliFavoriteItem` DTO；新增 `core::bilibili::library`，通过 `bpi-rs` 读取稿件历史、稍后再看、用户创建/收藏的收藏夹和收藏夹视频资源，并实现稍后再看添加/移除与当前视频收藏/取消收藏；新增并注册 `bilibili_history_list` / `bilibili_toview_list` / `bilibili_toview_add` / `bilibili_toview_remove` / `bilibili_favorite_folders` / `bilibili_favorite_items` / `bilibili_favorite_video`；宿主 SDK、官方插件声明和插件模板声明同步 `sdk.bilibili.library.*`；首页账号 Tab 接入历史、稍后再看、收藏夹左侧 folder list + 右侧资源列表，复用 `VideoCard` 并显示观看进度；播放页侧栏新增稍后再看添加/移除、收藏夹选择器、目标收藏夹收藏/取消收藏和失败回滚提示。
+- P7 verification: `cargo check` 通过（仅既有 warnings）；`cargo test bilibili` 18 passed、1 ignored legacy live API test；`npm run build` 通过（仅 Vite 既有动态导入/chunk size warnings，构建产物随后恢复不纳入源码修改）；`cd scripts/official-plugins/bilibili && npm run build` 通过；`cd scripts/official-plugins/bilibili && npm run pack` 通过并同步 `plugins/com.easygamehub.bilibili` 与 `resources/defaults/plugins/com.easygamehub.bilibili`；bundle 检查未发现官方插件直连 `@tauri`。
+- P7 hand-test: 登录后打开历史、稍后再看、收藏夹，从账号内容进入播放页，添加/移除稍后再看，收藏/取消收藏当前视频尚未执行。
+- Stage 3 Plan Execution: P8 completed at 2026-08-10
+- P8 review notes: 严格限制在评论区；未实现 P9 轻量缓存清理、完整设置区、结构化错误统一收敛或分发验收扩展。评论读取可匿名携带可选登录态，评论写操作统一要求登录 Cookie/CSRF；删除、举报、置顶等敏感操作只由 UI 二次确认后触发。
+- P8 completed scope: 新增 `BiliComment` / `BiliCommentMember` / `BiliCommentContent` / `BiliCommentPage` / `BiliReportReason` DTO；新增 `core::bilibili::comment`，接入 `bpi-rs` 评论列表、楼中楼回复、发布、点赞/点踩、删除、置顶和举报，`type` 固定为视频 `1`，空评论/空举报补充内容后端拒绝；新增并注册 `bilibili_comment_list` / `bilibili_comment_replies` / `bilibili_comment_add` / `bilibili_comment_like` / `bilibili_comment_dislike` / `bilibili_comment_delete` / `bilibili_comment_top` / `bilibili_comment_report`；宿主 SDK、官方插件声明和插件模板声明同步 `sdk.bilibili.comment.*`；官方插件新增 `CommentPanel` 并挂到播放页下方，支持热门/最新/最多赞切换、分页、楼中楼展开、主评论与回复、点赞/点踩乐观更新失败回滚、删除确认、举报原因选择与确认、置顶权限按钮和失败保留输入。
+- P8 verification: `cargo fmt` 通过；`cargo check` 通过（仅既有 warnings）；`cargo test bilibili` 21 passed、1 ignored legacy live API test；`npm run build` 通过（仅 Vite 既有动态导入/chunk size warnings）；`cd scripts/official-plugins/bilibili && npm run build` 通过；`cd scripts/official-plugins/bilibili && npm run pack` 通过并同步 `plugins/com.easygamehub.bilibili` 与 `resources/defaults/plugins/com.easygamehub.bilibili`；bundle 检查未发现官方插件直连 `@tauri`。
+- P8 hand-test: 播放页读取评论、展开楼中楼、发布评论/回复、点赞/点踩、删除自己的评论、举报取消与确认、UP 主置顶/取消置顶尚未执行，需登录真实账号后手测。
+- Stage 3 Plan Execution: P9 completed at 2026-08-10
+- P9 review notes: 严格限制在缓存、结构化错误、设置区、内置分发同步和文档收尾；未新增视频下载、离线缓存、番剧/直播播放、权限绕过或额外高风险账号整理能力。播放 URL 仍只存在 Rust 内存 playback session；Cookie/CSRF 仍只在 Rust 侧使用，不进入插件 storage、轻量缓存或日志。
+- P9 completed scope: `core::bilibili::cache` 增加轻量 JSON 缓存、封面磁盘缓存、过期判断、封面总量裁剪、namespace 清理和 `clear_cache`；搜索/热门、视频详情、历史、稍后再看、收藏夹、评论列表/回复接入 TTL 缓存，账号相关缓存 key 均带当前 B 站 mid 以避免切换账号串读，评论/收藏/稍后再看写操作后清理相关缓存；`proxy.rs` 的 `/bilibili/cover/:cache_key` 接入封面缓存并限制 B 站图片 host；新增并注册 `bilibili_clear_cache`；commands 统一将 `BiliErrorDto` 序列化为稳定错误字符串，SDK 统一解析为 `BiliSdkError`，官方插件 runtime 按错误 kind 显示登录/VIP/风控/网络/代理/API 等提示；官方插件注册 Bilibili settings section，设置同步进度、默认弹幕开关/字号/透明度/密度/速度、默认倍速、默认自动清晰度，并提供清理缓存和打开截图目录；`VideoCard` 使用本地封面代理 URL；`pack.mjs` 已确认同步 manifest、bundle、assets，`core/plugins.rs` 已确认内置更新保留 `config.json` 和 disabled 状态；`docs/plugin-development.md` 补充 `bilibili` 权限说明。
+- P9 verification: `cargo fmt` 通过；`cargo test bilibili` 27 passed、1 ignored legacy live API test；`cargo test plugins` 18 passed；`cargo check` 通过（仅既有 warnings）；`npm run build` 通过（仅 Vite 既有动态导入/chunk size warnings）；`cd scripts/official-plugins/bilibili && npm run build` 通过；`cd scripts/official-plugins/bilibili && npm run pack` 通过并同步 `plugins/com.easygamehub.bilibili` 与 `resources/defaults/plugins/com.easygamehub.bilibili`；bundle 检查未发现官方插件直连 `@tauri`。
+- P9 hand-test: T58 的 17 项 Tauri 桌面端到端真实账号手测尚未执行；需要人工在 `npm run tauri dev` 中完成二维码登录、真实播放、评论/弹幕/收藏/进度写回/截图/禁用重载清理等验收。
+- Active stage: Stage 3 P9 自动化实现与验证完成，Tauri 真实账号手测待人工执行。
 
 ## Current Workflow Request
 - Topic: Monica Steam 参考功能增强（A 移动确认 / B Guard 强化 / C 库统计 / D 商城详情+多区价格 / E 好友·聊天·通知）

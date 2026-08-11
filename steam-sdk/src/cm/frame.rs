@@ -100,8 +100,7 @@ fn decode_into(payload: &[u8], depth: u32, out: &mut Vec<Envelope>) -> Result<()
         };
         let mut i = 0;
         while i + 4 <= unpacked.len() {
-            let len =
-                u32::from_le_bytes(unpacked[i..i + 4].try_into().unwrap()) as usize;
+            let len = u32::from_le_bytes(unpacked[i..i + 4].try_into().unwrap()) as usize;
             i += 4;
             if i + len > unpacked.len() {
                 return Err("CMsgMulti item truncated".into());
@@ -133,8 +132,12 @@ fn decode_single(payload: &[u8]) -> Result<Envelope, String> {
     let header = CmHeader {
         steam_id: proto_wire::get_fixed64(&fields, 1).unwrap_or(0),
         session_id: proto_wire::get_varint(&fields, 2).unwrap_or(0) as u32,
-        job_id_source: proto_wire::get_fixed64(&fields, 10).map(|v| v as i64).unwrap_or(JOB_ID_NONE),
-        job_id_target: proto_wire::get_fixed64(&fields, 11).map(|v| v as i64).unwrap_or(JOB_ID_NONE),
+        job_id_source: proto_wire::get_fixed64(&fields, 10)
+            .map(|v| v as i64)
+            .unwrap_or(JOB_ID_NONE),
+        job_id_target: proto_wire::get_fixed64(&fields, 11)
+            .map(|v| v as i64)
+            .unwrap_or(JOB_ID_NONE),
         target_job_name: proto_wire::get_string(&fields, 12),
         eresult: proto_wire::get_varint(&fields, 13).map(|v| v as i32),
         error_message: proto_wire::get_string(&fields, 14),
@@ -160,7 +163,14 @@ mod tests {
         body.bool(4, true);
         let body = body.finish();
 
-        let wire = encode_envelope(EMSG_CLIENT_LOGON, 76561198000000000, 7, 42, Some("X.Y#1"), &body);
+        let wire = encode_envelope(
+            EMSG_CLIENT_LOGON,
+            76561198000000000,
+            7,
+            42,
+            Some("X.Y#1"),
+            &body,
+        );
         let decoded = decode_envelopes(&wire).unwrap();
         assert_eq!(decoded.len(), 1);
         let env = &decoded[0];

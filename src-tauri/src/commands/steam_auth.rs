@@ -144,8 +144,6 @@ pub fn login_step1(username: String, password: String) -> Result<LoginStep1Resul
 
     *LOGIN_STATE.lock().unwrap() = Some(state);
 
-    
-
     Ok(result_dto)
 }
 
@@ -410,8 +408,7 @@ pub(crate) fn resolve_session_cached(tool_dir: &Path) -> Result<(u64, String), S
     if let Err(e) = refresh_session_if_needed(&session_path) {
         log::warn!("Steam access token refresh failed: {}", e);
     }
-    let mgr = SessionManager::open(&session_path)
-        .map_err(|e| format!("会话存储错误: {}", e))?;
+    let mgr = SessionManager::open(&session_path).map_err(|e| format!("会话存储错误: {}", e))?;
     let session = mgr
         .active_session()
         .ok_or_else(|| "未登录 Steam，请先在 Steam 页面登录".to_string())?;

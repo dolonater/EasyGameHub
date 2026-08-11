@@ -162,8 +162,7 @@ fn confirmation_kind_name(kind: i32) -> &'static str {
 fn resolve_mobile_conf_context(tool_dir: &std::path::Path) -> Result<MobileConfContext, String> {
     let session_path = session_store_path(tool_dir);
     let _ = refresh_session_if_needed(&session_path);
-    let mgr = SessionManager::open(&session_path)
-        .map_err(|e| format!("会话存储错误: {}", e))?;
+    let mgr = SessionManager::open(&session_path).map_err(|e| format!("会话存储错误: {}", e))?;
     let session = mgr
         .active_session()
         .ok_or_else(|| "未登录 Steam，请先在 Steam 页面登录".to_string())?;
@@ -179,7 +178,8 @@ fn resolve_mobile_conf_context(tool_dir: &std::path::Path) -> Result<MobileConfC
                 && e.steam_id.as_deref() == Some(steam_id_str.as_str())
         })
         .ok_or_else(|| {
-            "该账号未绑定 Steam 验证器（maFile），请先在「认证器」页导入对应账号的 maFile".to_string()
+            "该账号未绑定 Steam 验证器（maFile），请先在「认证器」页导入对应账号的 maFile"
+                .to_string()
         })?;
 
     let device_id = entry

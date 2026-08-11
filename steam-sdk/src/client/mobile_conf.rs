@@ -116,7 +116,11 @@ pub fn respond(
 
 /// Perform the GET with the session cookie; map a 403 (expired session) to a
 /// clearer error.
-fn request(client: &SteamHttpClient, url: &str, cookie: &str) -> Result<crate::client::SteamResponse> {
+fn request(
+    client: &SteamHttpClient,
+    url: &str,
+    cookie: &str,
+) -> Result<crate::client::SteamResponse> {
     match client.get_with_headers_ureq(url, &[("Cookie", cookie)]) {
         Ok(resp) => Ok(resp),
         Err(ureq::Error::Status(403, _)) => Err(SteamError::Auth(

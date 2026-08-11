@@ -47,9 +47,12 @@ plugin.zip
 | `events` | `on` `off` |
 | `ui` | `registerPage` `registerSettingsSection` `notify` |
 | `music` | 网易云音乐只读/播放 SDK：登录状态、搜索、歌单、歌曲 URL、歌词、本地代理 |
+| `bilibili` | 官方内置 Bilibili SDK：登录、视频、播放、弹幕、评论和账号内容 |
 | （始终开放） | `storage` `log` `lifecycle.onDispose` |
 
 未声明的权限调用即抛 `PermissionDenied`。
+
+`bilibili` 权限面向随应用分发的官方内置插件，包含登录态读写、播放代理、评论/弹幕/收藏/稍后再看/进度上报等账号相关能力。第三方插件不应默认申请该权限；若后续开放，需要单独评审权限范围、用户提示和风控处理。
 
 官方音乐插件 manifest 示例：
 

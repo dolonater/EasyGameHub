@@ -287,7 +287,9 @@ pub fn merge_group_thread(
     now_ts: u64,
 ) -> Vec<CachedMessage> {
     merge_thread(cached, server, self_id, now_ts, |m, sm| {
-        m.timestamp == sm.timestamp && m.ordinal == sm.ordinal && m.sender_steam_id == sm.sender_steam_id
+        m.timestamp == sm.timestamp
+            && m.ordinal == sm.ordinal
+            && m.sender_steam_id == sm.sender_steam_id
     })
 }
 
@@ -307,8 +309,8 @@ where
     let mut available: Vec<ServerMsg> = server.clone();
 
     for mut m in cached {
-        let local_self = m.sender_steam_id == self_id
-            && !server.iter().any(|sm| matches_identity(&m, sm));
+        let local_self =
+            m.sender_steam_id == self_id && !server.iter().any(|sm| matches_identity(&m, sm));
         if local_self {
             if let Some(idx) = find_self_twin(&available, self_id, &m.body, m.timestamp) {
                 let twin = available.remove(idx);
@@ -418,7 +420,9 @@ pub fn append_group_incoming(
     active_group: Option<(&str, &str)>,
 ) {
     let already = thread.messages.iter().any(|c| {
-        c.timestamp == m.timestamp && c.ordinal == m.ordinal && c.sender_steam_id == m.sender_steam_id
+        c.timestamp == m.timestamp
+            && c.ordinal == m.ordinal
+            && c.sender_steam_id == m.sender_steam_id
     });
     if already {
         return;
@@ -456,8 +460,7 @@ impl SocialCache {
     // Friends.
 
     pub fn load_friends(&self, account: &str) -> Option<FriendsSnapshot> {
-        load(&self.store, "friends")
-            .filter(|s: &FriendsSnapshot| s.account_steam_id == account)
+        load(&self.store, "friends").filter(|s: &FriendsSnapshot| s.account_steam_id == account)
     }
 
     pub fn save_friends(&mut self, snapshot: &FriendsSnapshot) {
@@ -467,8 +470,7 @@ impl SocialCache {
     // Groups.
 
     pub fn load_groups(&self, account: &str) -> Option<GroupsSnapshot> {
-        load(&self.store, "groups")
-            .filter(|s: &GroupsSnapshot| s.account_steam_id == account)
+        load(&self.store, "groups").filter(|s: &GroupsSnapshot| s.account_steam_id == account)
     }
 
     pub fn save_groups(&mut self, snapshot: &GroupsSnapshot) {
@@ -510,13 +512,11 @@ impl SocialCache {
         group_id: &str,
         chat_id: &str,
     ) -> Option<GroupThreadSnapshot> {
-        load(
-            &self.store,
-            &format!("thread_g|{}|{}", group_id, chat_id),
+        load(&self.store, &format!("thread_g|{}|{}", group_id, chat_id)).filter(
+            |s: &GroupThreadSnapshot| {
+                s.account_steam_id == account && s.group_id == group_id && s.chat_id == chat_id
+            },
         )
-        .filter(|s: &GroupThreadSnapshot| {
-            s.account_steam_id == account && s.group_id == group_id && s.chat_id == chat_id
-        })
     }
 
     pub fn save_group_thread(&mut self, snapshot: &GroupThreadSnapshot) {
@@ -575,7 +575,9 @@ mod tests {
 
     #[test]
     fn bound_keeps_recent_sent_window() {
-        let all: Vec<CachedMessage> = (0..501).map(|i| msg(i, 0, "f", &format!("m{}", i))).collect();
+        let all: Vec<CachedMessage> = (0..501)
+            .map(|i| msg(i, 0, "f", &format!("m{}", i)))
+            .collect();
         let (bounded, more) = bound_thread(all);
         assert_eq!(bounded.len(), MAX_RECENT_MESSAGES);
         assert!(more);
@@ -594,9 +596,15 @@ mod tests {
             m.delivery_state = DeliveryState::Pending;
         }
         let (bounded, _) = bound_thread(all);
-        let unconfirmed = bounded.iter().filter(|m| m.delivery_state != DeliveryState::Sent).count();
+        let unconfirmed = bounded
+            .iter()
+            .filter(|m| m.delivery_state != DeliveryState::Sent)
+            .count();
         assert_eq!(unconfirmed, MAX_RETAINED_UNCONFIRMED);
-        assert_eq!(bounded.len(), MAX_RECENT_MESSAGES + MAX_RETAINED_UNCONFIRMED);
+        assert_eq!(
+            bounded.len(),
+            MAX_RECENT_MESSAGES + MAX_RETAINED_UNCONFIRMED
+        );
     }
 
     #[test]
@@ -611,7 +619,11 @@ mod tests {
 
     #[test]
     fn friend_recovery_maps_pending_to_verifying() {
-        let msgs = vec![msg(1, 0, "f", "ok"), pending(2, "me", "hi"), msg(3, 0, "f", "ok2")];
+        let msgs = vec![
+            msg(1, 0, "f", "ok"),
+            pending(2, "me", "hi"),
+            msg(3, 0, "f", "ok2"),
+        ];
         let recovered = recover_friend_states(&msgs);
         assert_eq!(recovered[0].delivery_state, DeliveryState::Sent);
         assert_eq!(recovered[1].delivery_state, DeliveryState::Verifying);
@@ -665,7 +677,9 @@ mod tests {
         let merged = merge_friend_thread(cached, server, "me", 1000);
         let self_msg = merged.iter().find(|m| m.sender_steam_id == "me").unwrap();
         assert_eq!(self_msg.delivery_state, DeliveryState::FailedRetryable);
-        assert!(merged.iter().all(|m| m.sender_steam_id != "me" || m.timestamp == 100));
+        assert!(merged
+            .iter()
+            .all(|m| m.sender_steam_id != "me" || m.timestamp == 100));
     }
 
     #[test]
@@ -684,9 +698,15 @@ mod tests {
         // Two identical local sends (same body) must each adopt a distinct
         // server twin, not both claim the first one (no duplicate).
         let cached = vec![pending(100, "me", "hi"), pending(102, "me", "hi")];
-        let server = vec![server_msg(130, 0, "me", "hi"), server_msg(133, 0, "me", "hi")];
+        let server = vec![
+            server_msg(130, 0, "me", "hi"),
+            server_msg(133, 0, "me", "hi"),
+        ];
         let merged = merge_friend_thread(cached, server, "me", 1000);
-        let self_msgs: Vec<_> = merged.iter().filter(|m| m.sender_steam_id == "me").collect();
+        let self_msgs: Vec<_> = merged
+            .iter()
+            .filter(|m| m.sender_steam_id == "me")
+            .collect();
         assert_eq!(self_msgs.len(), 2);
         assert_eq!(self_msgs[0].timestamp, 130);
         assert_eq!(self_msgs[1].timestamp, 133);
@@ -697,10 +717,7 @@ mod tests {
     fn group_merge_uses_ordinal_identity() {
         // Same second, same sender, different bodies — ordinal distinguishes.
         let cached = Vec::new();
-        let server = vec![
-            server_msg(5, 1, "f", "one"),
-            server_msg(5, 2, "f", "two"),
-        ];
+        let server = vec![server_msg(5, 1, "f", "one"), server_msg(5, 2, "f", "two")];
         let merged = merge_group_thread(cached, server, "me", 1000);
         assert_eq!(merged.len(), 2);
         assert_eq!(merged[0].ordinal, 1);
@@ -714,7 +731,10 @@ mod tests {
         let mut self_local = msg(10, 0, "me", "group hi");
         self_local.local_id = Some("g-local".into());
         let cached = vec![self_local];
-        let server = vec![server_msg(12, 7, "me", "group hi"), server_msg(11, 1, "f", "other")];
+        let server = vec![
+            server_msg(12, 7, "me", "group hi"),
+            server_msg(11, 1, "f", "other"),
+        ];
         let merged = merge_group_thread(cached, server, "me", 1000);
         let self_msg = merged.iter().find(|m| m.sender_steam_id == "me").unwrap();
         assert_eq!((self_msg.timestamp, self_msg.ordinal), (12, 7));

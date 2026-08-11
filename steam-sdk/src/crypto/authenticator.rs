@@ -156,7 +156,8 @@ impl AuthEntryManager {
             let secret_key = format!("secret_{}", entry.id);
             self.store.set(&secret_key, &entry.secret_encrypted)?;
             let identity_key = format!("identity_secret_{}", entry.id);
-            self.store.set(&identity_key, &entry.identity_secret_encrypted)?;
+            self.store
+                .set(&identity_key, &entry.identity_secret_encrypted)?;
         }
 
         Ok(())

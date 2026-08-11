@@ -1,5 +1,6 @@
 pub mod authenticator;
 pub mod backup;
+pub mod bilibili;
 pub mod config;
 pub mod files;
 pub mod games;

@@ -26,7 +26,10 @@ pub struct WishlistItem {
 /// Returns `Err(SteamError::NotFound)` when the wishlist is private or has no
 /// readable entries — the caller should fall back to a local watchlist.
 pub fn get_wishlist(client: &SteamHttpClient, steam_id64: u64) -> Result<Vec<WishlistItem>> {
-    let url = format!("{}/wishlist/profiles/{}/wishlistdata/", STORE_BASE, steam_id64);
+    let url = format!(
+        "{}/wishlist/profiles/{}/wishlistdata/",
+        STORE_BASE, steam_id64
+    );
     let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
     if response.status() != 200 {
         return Err(SteamError::ApiError {
@@ -266,11 +269,7 @@ pub fn get_app_details(
 
 /// Fetch a single app's detail with one retry and a short backoff; returns
 /// `None` when the request or parse fails so the caller degrades gracefully.
-fn fetch_app_detail(
-    client: &SteamHttpClient,
-    app_id: u32,
-    language: &str,
-) -> Option<AppDetail> {
+fn fetch_app_detail(client: &SteamHttpClient, app_id: u32, language: &str) -> Option<AppDetail> {
     let url = format!(
         "{}/api/appdetails?appids={}&l={}&cc=cn",
         STORE_BASE, app_id, language
@@ -461,7 +460,10 @@ mod tests {
     #[test]
     fn test_percent_encode() {
         assert_eq!(percent_encode("cyberpunk"), "cyberpunk");
-        assert_eq!(percent_encode("艾尔登法环"), "%E8%89%BE%E5%B0%94%E7%99%BB%E6%B3%95%E7%8E%AF");
+        assert_eq!(
+            percent_encode("艾尔登法环"),
+            "%E8%89%BE%E5%B0%94%E7%99%BB%E6%B3%95%E7%8E%AF"
+        );
         assert_eq!(percent_encode("counter strike"), "counter%20strike");
     }
 
@@ -597,13 +599,30 @@ mod tests {
         // New full-detail fields.
         assert_eq!(detail.screenshots.len(), 1);
         assert_eq!(detail.screenshots[0].id, 730001);
-        assert_eq!(detail.pc_requirements.as_ref().unwrap().minimum.as_deref(), Some("<br>OS: Win10"));
-        assert!(detail.supported_languages.as_deref().unwrap().contains("English"));
-        assert!(detail.supported_languages.as_deref().unwrap().contains("schinese"));
+        assert_eq!(
+            detail.pc_requirements.as_ref().unwrap().minimum.as_deref(),
+            Some("<br>OS: Win10")
+        );
+        assert!(detail
+            .supported_languages
+            .as_deref()
+            .unwrap()
+            .contains("English"));
+        assert!(detail
+            .supported_languages
+            .as_deref()
+            .unwrap()
+            .contains("schinese"));
         assert_eq!(detail.metacritic.as_ref().unwrap().score, 92);
         assert_eq!(detail.recommendations_total, Some(12345));
         assert_eq!(detail.dlc, vec![730003, 730004]);
-        assert_eq!(detail.detailed_description.as_deref(), Some("<h1>Long HTML</h1>"));
-        assert_eq!(detail.website.as_deref(), Some("https://counter-strike.net"));
+        assert_eq!(
+            detail.detailed_description.as_deref(),
+            Some("<h1>Long HTML</h1>")
+        );
+        assert_eq!(
+            detail.website.as_deref(),
+            Some("https://counter-strike.net")
+        );
     }
 }
