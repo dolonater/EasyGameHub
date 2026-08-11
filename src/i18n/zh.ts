@@ -170,6 +170,8 @@ const zh = {
     sidebarPositionTop: "顶部",
     sidebarPositionBottom: "底部",
     sidebarPositionRight: "右侧",
+    sidebarAutoHide: "导航栏自动隐藏",
+    sidebarAutoHideDesc: "开启后，顶部/底部导航栏在向下滚动或鼠标移出时自动隐藏。",
     sidebarDragReorder: "允许侧栏拖拽排序",
     sidebarDragReorderDesc: "开启后可拖拽左侧栏选项调整顺序",
     sidebarVisibleItems: "侧栏显示项",

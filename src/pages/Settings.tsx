@@ -19,8 +19,10 @@ import {
   PluginManagerSection,
 } from "../components/settings";
 import {
+  getSidebarAutoHide,
   getSidebarIconsOnly,
   getSidebarPosition,
+  setSidebarAutoHide,
   setSidebarIconsOnly,
   setSidebarPosition,
   type SidebarPosition,
@@ -100,6 +102,7 @@ export default function Settings() {
   const [sidebarIconsOnly, setSidebarIconsOnlyState] = useState(getSidebarIconsOnly);
   const [sidebarPosition, setSidebarPositionState] = useState<SidebarPosition>(getSidebarPosition);
   const [sidebarDragReorderEnabled, setSidebarDragReorderEnabledState] = useState(getSidebarDragReorderEnabled);
+  const [sidebarAutoHide, setSidebarAutoHideState] = useState(getSidebarAutoHide);
   const [sidebarVisibility, setSidebarVisibilityState] = useState<Record<string, boolean>>(() => getSidebarVisibility());
   const [fontOptions, setFontOptions] = useState<string[]>(DEFAULT_FONT_OPTIONS);
   const [importConflict, setImportConflict] = useState<{ themes: Theme[]; conflicts: string[] } | null>(null);
@@ -453,6 +456,7 @@ export default function Settings() {
             sidebarIconsOnly={sidebarIconsOnly}
             sidebarPosition={sidebarPosition}
             sidebarDragReorderEnabled={sidebarDragReorderEnabled}
+            sidebarAutoHide={sidebarAutoHide}
             sidebarVisibilityGroups={sidebarVisibilityGroups}
             fontFamily={config.appearance.font_family}
             fontOptions={resolvedFontOptions}
@@ -473,6 +477,14 @@ export default function Settings() {
               setSidebarDragReorderEnabled(value);
               window.dispatchEvent(new StorageEvent("storage", {
                 key: "doona-sidebar-drag-reorder",
+                newValue: String(value),
+              }));
+            }}
+            onSidebarAutoHideChange={(value) => {
+              setSidebarAutoHideState(value);
+              setSidebarAutoHide(value);
+              window.dispatchEvent(new StorageEvent("storage", {
+                key: "doona-sidebar-autohide",
                 newValue: String(value),
               }));
             }}

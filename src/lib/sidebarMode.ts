@@ -1,5 +1,6 @@
 const KEY = "doona-sidebar-icons-only";
 const POSITION_KEY = "doona-sidebar-position";
+const AUTOHIDE_KEY = "doona-sidebar-autohide";
 const CHANGE_EVENT = "doona-sidebar-mode-change";
 
 export type SidebarPosition = "left" | "right" | "top" | "bottom";
@@ -40,9 +41,20 @@ export function setSidebarPosition(position: SidebarPosition) {
   } catch {}
 }
 
+export function getSidebarAutoHide(): boolean {
+  try { return localStorage.getItem(AUTOHIDE_KEY) === "true"; } catch { return false; }
+}
+
+export function setSidebarAutoHide(v: boolean) {
+  try {
+    localStorage.setItem(AUTOHIDE_KEY, String(v));
+    dispatchSidebarModeChange();
+  } catch {}
+}
+
 export function onSidebarChange(cb: () => void) {
   const storageHandler = (e: StorageEvent) => {
-    if (e.key === KEY || e.key === POSITION_KEY) cb();
+    if (e.key === KEY || e.key === POSITION_KEY || e.key === AUTOHIDE_KEY) cb();
   };
   const eventHandler = () => cb();
   window.addEventListener("storage", storageHandler);

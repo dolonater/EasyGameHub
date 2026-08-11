@@ -6,7 +6,12 @@ import { invoke } from "@tauri-apps/api/core";
 import { useAnimation } from "../hooks/useAnimation";
 import { useAppearance } from "../hooks/useAppearance";
 import { useActiveTheme, useGlobalThemeStyle } from "../hooks/useThemeData";
-import { getSidebarIconsOnly, getSidebarPosition, onSidebarChange } from "../lib/sidebarMode";
+import {
+  getSidebarAutoHide,
+  getSidebarIconsOnly,
+  getSidebarPosition,
+  onSidebarChange,
+} from "../lib/sidebarMode";
 import {
   getSidebarDragReorderEnabled,
   onSidebarDragReorderChange,
@@ -39,6 +44,9 @@ export default function Layout() {
   const [iconsOnly, setIconsOnly] = useState(getSidebarIconsOnly);
   const [sidebarPosition, setSidebarPosition] = useState(getSidebarPosition);
   const [sidebarDragReorderEnabled, setSidebarDragReorderEnabled] = useState(getSidebarDragReorderEnabled());
+  const [autoHide, setAutoHide] = useState(getSidebarAutoHide);
+  const [navVisible, setNavVisible] = useState(true);
+  const hideTimer = useRef<number | null>(null);
   const [fullscreen, setFullscreen] = useState(isFullscreen());
   const mainRef = useRef<HTMLElement | null>(null);
 
@@ -46,6 +54,7 @@ export default function Layout() {
     return onSidebarChange(() => {
       setIconsOnly(getSidebarIconsOnly());
       setSidebarPosition(getSidebarPosition());
+      setAutoHide(getSidebarAutoHide());
     });
   }, []);
 
@@ -120,8 +129,19 @@ export default function Layout() {
     : "text-gray-400 dark:text-muted-foreground";
 
   const horizontalSidebar = sidebarPosition === "top" || sidebarPosition === "bottom";
+  const autoHideOn = autoHide && horizontalSidebar;
   const pluginRoute = location.pathname.startsWith("/plugin/");
   const effectiveIconsOnly = iconsOnly || horizontalSidebar;
+
+  // ── Auto-hide helpers (top/bottom nav) ──
+  const cancelHide = () => {
+    if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = null; }
+  };
+  const scheduleHide = () => {
+    if (!autoHideOn) return;
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = window.setTimeout(() => setNavVisible(false), 500);
+  };
   const navBtnClass = ({ isActive }: { isActive: boolean }) =>
     `app-glass-nav-item flex items-center ${effectiveIconsOnly ? "h-10 w-10 justify-center p-0" : "gap-2 p-3 py-2.5"} rounded-[var(--radius)] text-sm font-semibold transition-all ease-linear ${
       isActive
@@ -134,7 +154,28 @@ export default function Layout() {
     const el = mainRef.current;
     if (!el) return;
     el.scrollTop = 0;
+    setNavVisible(true);
+    cancelHide();
   }, [location.pathname]);
+
+  // Auto-hide scroll tracking: scroll-down past a threshold hides the top/bottom
+  // nav, scroll-up (or reaching the very top) reveals it. Only active when the
+  // toggle is on AND the sidebar is in a horizontal position.
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el || !autoHideOn) return;
+    let last = el.scrollTop;
+    const onScroll = () => {
+      const st = el.scrollTop;
+      const delta = st - last;
+      last = st;
+      if (st <= 4) { cancelHide(); setNavVisible(true); return; }
+      if (delta > 8) setNavVisible(false);
+      else if (delta < -8) { cancelHide(); setNavVisible(true); }
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [autoHideOn, location.pathname]);
 
   // ── Big Picture mode: full-screen overlay ──
   if (fullscreen) return <BigPictureUI />;
@@ -152,8 +193,18 @@ export default function Layout() {
       : "pl-1.5 pr-3.5 dark:border-r dark:border-border rounded-r-md",
   ].join(" ");
   const horizontalNavClass = [
-    "pointer-events-none absolute left-0 right-0 z-20 h-16 px-3 py-2 flex items-center justify-center overflow-visible",
+    "absolute left-0 right-0 z-20 h-16 px-3 py-2 flex items-center justify-center overflow-visible",
     sidebarPosition === "bottom" ? "bottom-0" : "top-0",
+    autoHideOn
+      ? [
+          "transition-transform duration-300 ease-out",
+          navVisible
+            ? "translate-y-0 pointer-events-auto"
+            : sidebarPosition === "bottom"
+              ? "translate-y-[100%] pointer-events-none"
+              : "translate-y-[-100%] pointer-events-none",
+        ].join(" ")
+      : "pointer-events-none",
   ].join(" ");
   const logoClass = horizontalSidebar
     ? "mr-2 flex h-10 w-8 flex-none items-center justify-center"
@@ -214,9 +265,10 @@ export default function Layout() {
             "relative app-scrollbar app-page-surface flex-1 min-w-0 min-h-0 overflow-y-auto overflow-x-hidden p-6",
             horizontalSidebar ? "[&>*]:mx-auto" : "",
             pluginRoute ? "app-plugin-page" : "",
-            pluginRoute && sidebarPosition === "top" ? "app-plugin-page-top-nav pt-6" : sidebarPosition === "top" ? "pt-24" : "",
-            pluginRoute && sidebarPosition === "bottom" ? "app-plugin-page-bottom-nav pb-6" : sidebarPosition === "bottom" ? "pb-24" : "",
+            pluginRoute && sidebarPosition === "top" ? "app-plugin-page-top-nav pt-6" : sidebarPosition === "top" ? (autoHideOn && !navVisible ? "" : "pt-24") : "",
+            pluginRoute && sidebarPosition === "bottom" ? "app-plugin-page-bottom-nav pb-6" : sidebarPosition === "bottom" ? (autoHideOn && !navVisible ? "" : "pb-24") : "",
             sidebarPosition === "right" ? "[&>*]:ml-auto [&>*]:mr-0" : "",
+            autoHideOn ? "transition-[padding] duration-300 ease-out" : "",
             animEnabled ? "animate-fade-slide-up" : "",
           ].join(" ").trim()}
           style={mergedPageStyle}
@@ -224,7 +276,11 @@ export default function Layout() {
           <Outlet />
         </main>
         {horizontalSidebar && (
-          <aside className={horizontalNavClass}>
+          <aside
+            className={horizontalNavClass}
+            onMouseEnter={() => { cancelHide(); setNavVisible(true); }}
+            onMouseLeave={() => { if (autoHideOn) scheduleHide(); }}
+          >
             <SidebarMenu
               iconsOnly={effectiveIconsOnly}
               orientation="horizontal"
@@ -254,6 +310,18 @@ export default function Layout() {
               pluginLabel={t("plugins.navLabel", { defaultValue: "Plugins" })}
             />
           </aside>
+        )}
+        {/* Edge hot-zone: 6px strip at the window edge that reveals the hidden
+            nav on hover (only meaningful when auto-hide is active). When the nav
+            is shown this strip sits behind it (z-20 > z-10) and is a no-op. */}
+        {autoHideOn && (
+          <div
+            onMouseEnter={() => { cancelHide(); setNavVisible(true); }}
+            className={[
+              "absolute left-0 right-0 z-10 h-1.5",
+              sidebarPosition === "bottom" ? "bottom-0" : "top-0",
+            ].join(" ")}
+          />
         )}
       </div>
       <Notification />

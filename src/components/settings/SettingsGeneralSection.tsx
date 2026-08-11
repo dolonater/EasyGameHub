@@ -15,6 +15,7 @@ interface SettingsGeneralSectionProps {
   sidebarIconsOnly: boolean;
   sidebarPosition: "left" | "right" | "top" | "bottom";
   sidebarDragReorderEnabled: boolean;
+  sidebarAutoHide: boolean;
   fontFamily: string;
   fontOptions: string[];
   sidebarVisibilityGroups: {
@@ -32,6 +33,7 @@ interface SettingsGeneralSectionProps {
   onSidebarIconsOnlyChange: (value: boolean) => void;
   onSidebarPositionChange: (value: "left" | "right" | "top" | "bottom") => void;
   onSidebarDragReorderChange: (value: boolean) => void;
+  onSidebarAutoHideChange: (value: boolean) => void;
   onFontFamilyChange: (value: string) => void;
   onSidebarVisibilityChange: (key: string, value: boolean) => void;
   onConfigChange: (next: Config) => void;
@@ -46,6 +48,7 @@ export default function SettingsGeneralSection({
   sidebarIconsOnly,
   sidebarPosition,
   sidebarDragReorderEnabled,
+  sidebarAutoHide,
   fontFamily,
   fontOptions,
   sidebarVisibilityGroups,
@@ -55,6 +58,7 @@ export default function SettingsGeneralSection({
   onSidebarIconsOnlyChange,
   onSidebarPositionChange,
   onSidebarDragReorderChange,
+  onSidebarAutoHideChange,
   onFontFamilyChange,
   onSidebarVisibilityChange,
   onConfigChange,
@@ -130,6 +134,13 @@ export default function SettingsGeneralSection({
               { value: "right", label: t("settings.sidebarPositionRight", { defaultValue: "右侧" }) },
             ]}
           />
+        </GlassCard>
+        <GlassCard className="px-4 py-3 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-sm font-medium">{t("settings.sidebarAutoHide")}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{t("settings.sidebarAutoHideDesc")}</div>
+          </div>
+          <Toggle on={sidebarAutoHide} onChange={onSidebarAutoHideChange} />
         </GlassCard>
         <GlassCard className="px-4 py-3 flex items-center justify-between gap-3">
           <div>

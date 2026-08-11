@@ -171,6 +171,8 @@ const en: Record<string, any> = {
     sidebarPositionTop: "Top",
     sidebarPositionBottom: "Bottom",
     sidebarPositionRight: "Right",
+    sidebarAutoHide: "Auto-hide navigation bar",
+    sidebarAutoHideDesc: "When enabled, the top/bottom nav hides on scroll-down or mouse-leave.",
     sidebarDragReorder: "Enable sidebar drag sorting",
     sidebarDragReorderDesc: "When enabled, you can drag sidebar items to change their order",
     sidebarVisibleItems: "Sidebar visible items",
