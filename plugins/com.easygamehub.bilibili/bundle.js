@@ -20420,13 +20420,14 @@ function usePagedFeed(fetcher, options = {}) {
 }
 
 // src/pages/HomePage.tsx
+var RECOMMEND_SEED = Math.floor(Math.random() * 30) + 1;
 function HomePage() {
   const [query, setQuery] = useState4("");
   const [mode, setMode] = useState4("recommend");
   const [popularActive, setPopularActive] = useState4(false);
   const [searchKeyword, setSearchKeyword] = useState4("");
   const recommend = usePagedFeed(
-    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.recommendVideos(page, refresh)),
+    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.recommendVideos(RECOMMEND_SEED + page, refresh)),
     { key: "recommend" }
   );
   const popular = usePagedFeed(

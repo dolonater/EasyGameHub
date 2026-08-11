@@ -7,15 +7,22 @@ import type { PluginSdk } from "../types";
 
 type Mode = "recommend" | "popular" | "search";
 
+/**
+ * 推荐"换一批"随机会话种子。
+ * B站 rcmd 对同一 fresh_idx 返回固定批次；加随机起点后，每次插件加载从不同批次开始，
+ * 重启后首页内容不再固定不变。模块级常量在插件加载时生成一次。
+ */
+const RECOMMEND_SEED = Math.floor(Math.random() * 30) + 1;
+
 export function HomePage() {
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<Mode>("recommend");
   const [popularActive, setPopularActive] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  // 推荐：mount 即加载第一页
+  // 推荐：mount 即加载第一页；fresh_idx = 种子 + 页（种子随机 → 重启后起点不同）
   const recommend = usePagedFeed(
-    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.recommendVideos(page, refresh)),
+    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.recommendVideos(RECOMMEND_SEED + page, refresh)),
     { key: "recommend" },
   );
   // 热门：懒加载，首次切到热门 Tab 才请求（对齐现有行为）
