@@ -2,6 +2,7 @@ import React, { Button, useEffect, useState } from "sdk";
 import { BiliAppShell } from "../components/BiliAppShell";
 import { HomePage } from "./HomePage";
 import { MinePage } from "./MinePage";
+import { SeasonPage } from "./SeasonPage";
 import { SpacePage } from "./SpacePage";
 import { WatchPage } from "./WatchPage";
 import { clearViewScroll, getNavView, getViewScroll, goBackNav, subscribeNav, type BiliNavView } from "../navigation";
@@ -69,7 +70,7 @@ export function MainPage() {
       </div>
       {view.name === "watch" ? <WatchPage key={watchKey(view)} target={view} /> : null}
       {view.name === "space" ? <SpacePage key={`space-${view.mid}`} mid={view.mid} /> : null}
-      {view.name === "season" ? <PlaceholderPage label="番剧详情" /> : null}
+      {view.name === "season" ? <SeasonPage key={`season-${view.seasonId}`} seasonId={view.seasonId} /> : null}
       {view.name === "live" ? <PlaceholderPage label="直播间" /> : null}
       {view.name === "settings" ? <PlaceholderPage label="设置" /> : null}
       {view.name === "dynDetail" ? <PlaceholderPage label="动态详情" /> : null}
@@ -90,5 +91,7 @@ function PlaceholderPage({ label }: { label: string }) {
 
 /** 不同视频用不同 key，确保连点相关推荐时播放页整体重挂载而不是复用旧状态 */
 function watchKey(view: BiliNavView) {
-  return view.name === "watch" ? `watch-${view.bvid ?? ""}-${view.aid ?? ""}-${view.cid ?? ""}` : "";
+  if (view.name !== "watch") return "";
+  if (view.seasonId) return `watch-season-${view.seasonId}-${view.epId ?? ""}-${view.cid ?? ""}`;
+  return `watch-${view.bvid ?? ""}-${view.aid ?? ""}-${view.cid ?? ""}`;
 }

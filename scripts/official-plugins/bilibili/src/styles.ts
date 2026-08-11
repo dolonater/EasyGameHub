@@ -1923,6 +1923,227 @@ export const cssText = `
 .bili-space-load-more:hover {
   color: hsl(var(--foreground, 0 0% 98%));
 }
+.bili-pgc-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.bili-pgc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bili-pgc-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-pgc-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+.bili-pgc-track-wrap {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+.bili-pgc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 168px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: hsl(var(--foreground, 0 0% 98%));
+  cursor: pointer;
+  text-align: left;
+}
+.bili-pgc-cover {
+  width: 168px;
+  height: 224px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 240 5% 64%)) 40%, transparent);
+}
+.bili-pgc-card strong {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bili-pgc-card small {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+}
+.bili-pgc-score {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+}
+.bili-rank-tabs {
+  display: inline-flex;
+  gap: 6px;
+}
+.bili-season-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.bili-season-header {
+  display: flex;
+  gap: 16px;
+}
+.bili-season-cover {
+  width: 140px;
+  height: 190px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 12px;
+  background: color-mix(in srgb, hsl(var(--muted, 240 5% 64%)) 40%, transparent);
+}
+.bili-season-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.bili-season-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: hsl(var(--foreground, 0 0% 98%));
+  line-height: 1.4;
+}
+.bili-season-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+}
+.bili-season-evaluate {
+  font-size: 13px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bili-season-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-season-episodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.bili-season-episode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 240 5% 64%)) 45%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
+  cursor: pointer;
+  text-align: left;
+}
+.bili-season-episode:hover {
+  border-color: color-mix(in srgb, var(--bili-accent) 50%, transparent);
+}
+.bili-season-episode-title {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-season-episode-duration {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+}
+.bili-season-followbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 240 5% 64%)) 45%, transparent);
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+}
+.bili-season-followbar-score {
+  color: hsl(var(--foreground, 0 0% 98%));
+  font-weight: 600;
+}
+.bili-season-followbar-new {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-season-follow-btn {
+  padding: 5px 14px;
+  border: 1px solid color-mix(in srgb, var(--bili-accent) 60%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bili-accent) 20%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
+  cursor: pointer;
+  font-size: 12px;
+}
+.bili-season-follow-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.bili-bangumi-follow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.bili-bangumi-follow-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: hsl(var(--foreground, 0 0% 98%));
+  cursor: pointer;
+  text-align: left;
+}
+.bili-bangumi-follow-card strong {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bili-bangumi-follow-card small {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+}
 .bili-feed-tab {
   min-width: 72px;
   min-height: 34px;

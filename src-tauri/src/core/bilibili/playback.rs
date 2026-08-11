@@ -2,7 +2,13 @@ use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use bpi_rs::video::videostream_url::{DashStream, PlayUrlResponseData};
+use bpi_rs::bangumi::videostream_url::BangumiVideoStreamData;
+use bpi_rs::models::stream::{
+    DashDolby as StreamDashDolby, DashFlac as StreamDashFlac, DashTrack, Durl, SegmentBase,
+};
+use bpi_rs::video::videostream_url::{
+    DashDolby, DashFlac, DashInfo, DashStream, DurlInfo, PlayUrlResponseData, SupportFormat,
+};
 use bpi_rs::BpiError;
 use rand::RngCore;
 use url::Url;
@@ -107,6 +113,116 @@ pub fn create_session_from_stream_with_options(
     let source = source_for_session(&session, proxy_port);
 
     Ok((session, source))
+}
+
+/// 番剧取流创建播放会话：先把 `BangumiVideoStreamData` 字段级转换为视频播放
+/// 通用的 `PlayUrlResponseData`（dash/durl/timelength 结构一致但类型不同），
+/// 再复用现有会话/MPD/代理流程。视频播放路径不受影响。
+pub fn create_session_from_bangumi_stream(
+    data: &BangumiVideoStreamData,
+    bvid: impl Into<String>,
+    aid: u64,
+    cid: u64,
+    proxy_port: u16,
+    prefer_direct: bool,
+) -> Result<(PlaybackSession, BiliPlaybackSource), BpiError> {
+    let play_url = bangumi_stream_to_play_url(data)?;
+    create_session_from_stream_with_options(&play_url, bvid, aid, cid, proxy_port, prefer_direct)
+}
+
+fn bangumi_stream_to_play_url(
+    data: &BangumiVideoStreamData,
+) -> Result<PlayUrlResponseData, BpiError> {
+    let base = &data.base;
+    let dash = base.dash.as_ref().map(|d| DashInfo {
+        video: d.video.iter().map(dash_track_to_stream).collect(),
+        audio: d.audio.iter().map(dash_track_to_stream).collect(),
+        dolby: d.dolby.as_ref().map(stream_dolby_to_dolby),
+        flac: d.flac.as_ref().map(stream_flac_to_flac),
+        duration: d.duration,
+    });
+    let durl = base
+        .durl
+        .as_ref()
+        .map(|urls| urls.iter().map(durl_to_durl_info).collect());
+    let timelength = dash
+        .as_ref()
+        .map(|d| d.duration)
+        .or_else(|| {
+            durl.as_ref()
+                .and_then(|urls: &Vec<DurlInfo>| urls.first().map(|d| d.length))
+        })
+        .ok_or_else(|| {
+            BpiError::unsupported_response("bangumi play url has no playable duration")
+        })?;
+    Ok(PlayUrlResponseData {
+        from: "bangumi".to_string(),
+        result: "succeed".to_string(),
+        message: String::new(),
+        quality: base.quality as u64,
+        format: base.format.clone(),
+        timelength,
+        accept_format: base.accept_format.clone(),
+        accept_description: Vec::new(),
+        accept_quality: Vec::new(),
+        video_codecid: base.video_codecid as u8,
+        seek_param: String::new(),
+        seek_type: String::new(),
+        durl,
+        dash,
+        support_formats: Vec::<SupportFormat>::new(),
+        high_format: None,
+        last_play_time: -1,
+        last_play_cid: -1,
+    })
+}
+
+fn dash_track_to_stream(track: &DashTrack) -> DashStream {
+    DashStream {
+        id: track.id as u64,
+        base_url: track.base_url.clone(),
+        backup_url: track.backup_url.clone(),
+        bandwidth: track.bandwidth as u64,
+        mime_type: track.mime_type.clone(),
+        codecs: track.codecs.clone(),
+        width: Some(track.width),
+        height: Some(track.height),
+        frame_rate: Some(track.frame_rate.clone()),
+        sar: Some(track.sar.clone()),
+        start_with_sap: Some(track.start_with_sap as u8),
+        segment_base: serde_json::to_value(&track.segment_base).ok(),
+        md5: None,
+        size: Some(track.size),
+        db_type: Some(track.codecid as u8),
+        r#type: None,
+        stream_name: None,
+        orientation: None,
+    }
+}
+
+fn stream_dolby_to_dolby(dolby: &StreamDashDolby) -> DashDolby {
+    DashDolby {
+        r#type: dolby.r#type as u8,
+        audio: Some(dolby.audio.iter().map(dash_track_to_stream).collect()),
+    }
+}
+
+fn stream_flac_to_flac(flac: &StreamDashFlac) -> DashFlac {
+    DashFlac {
+        audio: vec![dash_track_to_stream(&flac.audio)],
+    }
+}
+
+fn durl_to_durl_info(durl: &Durl) -> DurlInfo {
+    DurlInfo {
+        order: durl.order,
+        length: durl.length,
+        size: durl.size,
+        ahead: durl.ahead.clone(),
+        vhead: durl.vhead.clone(),
+        url: durl.url.clone(),
+        backup_url: durl.backup_url.clone(),
+    }
 }
 
 pub fn source_for_session(session: &PlaybackSession, proxy_port: u16) -> BiliPlaybackSource {

@@ -17,9 +17,9 @@ const TABS: Array<{ key: HomeMode; label: string; available: boolean }> = [
   { key: "recommend", label: "推荐", available: true },
   { key: "popular", label: "热门", available: true },
   { key: "search", label: "搜索", available: true },
-  // 追番/影视/直播由 P2/P6 填充，当前为禁用占位
-  { key: "bangumi", label: "追番", available: false },
-  { key: "cinema", label: "影视", available: false },
+  { key: "bangumi", label: "追番", available: true },
+  { key: "cinema", label: "影视", available: true },
+  // 直播由 P6 填充，当前为禁用占位
   { key: "live", label: "直播", available: false },
 ];
 

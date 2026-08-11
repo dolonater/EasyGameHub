@@ -59,6 +59,12 @@ export function openSpace(mid: number): void {
   switchView({ name: "space", mid });
 }
 
+/** 打开番剧详情：压入当前视图，可逐级返回 */
+export function openSeason(seasonId: number): void {
+  stack.push(memory);
+  switchView({ name: "season", seasonId });
+}
+
 /** 播放页返回：弹栈回到上一个视图（空栈则回首页） */
 export function goBackNav(): void {
   const previous = stack.pop();

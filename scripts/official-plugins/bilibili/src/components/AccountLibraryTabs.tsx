@@ -1,6 +1,14 @@
 import React, { Button, useEffect, useState } from "sdk";
 import { errorMessage, getState, subscribe } from "../runtime";
-import type { BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliToViewItem } from "../types";
+import type {
+  BiliBangumiFollow,
+  BiliFavoriteFolder,
+  BiliFavoriteItem,
+  BiliHistoryItem,
+  BiliToViewItem,
+} from "../types";
+import { openSeason } from "../navigation";
+import { BiliImage } from "./BiliImage";
 import { FavoriteManagePanel } from "./FavoriteManagePanel";
 import { VideoCard } from "./VideoCard";
 
@@ -8,9 +16,10 @@ const tabs = [
   { id: "history", label: "历史记录" },
   { id: "watchLater", label: "稍后再看" },
   { id: "favorites", label: "收藏夹" },
+  { id: "bangumi", label: "追番" },
 ];
 
-type LibraryTab = "history" | "watchLater" | "favorites";
+type LibraryTab = "history" | "watchLater" | "favorites" | "bangumi";
 
 export function AccountLibraryTabs() {
   const [state, setState] = useState(getState);
@@ -19,6 +28,7 @@ export function AccountLibraryTabs() {
   const [toViewItems, setToViewItems] = useState<BiliToViewItem[]>([]);
   const [folders, setFolders] = useState<BiliFavoriteFolder[]>([]);
   const [favoriteItems, setFavoriteItems] = useState<BiliFavoriteItem[]>([]);
+  const [bangumiFollows, setBangumiFollows] = useState<BiliBangumiFollow[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [manageMode, setManageMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,6 +45,7 @@ export function AccountLibraryTabs() {
       setToViewItems([]);
       setFolders([]);
       setFavoriteItems([]);
+      setBangumiFollows([]);
       setSelectedFolderId(null);
       setManageMode(false);
       return;
@@ -93,6 +104,31 @@ export function AccountLibraryTabs() {
         <div className="bili-library-list">
           {toViewItems.map((item) => (
             <VideoCard key={`${item.video.bvid}-${item.addedAt}`} video={item.video} />
+          ))}
+        </div>
+      );
+    }
+
+    if (active === "bangumi") {
+      if (bangumiFollows.length === 0) return <LibraryEmpty title="追番" copy="还没有追番" />;
+      return (
+        <div className="bili-bangumi-follow-grid">
+          {bangumiFollows.map((item) => (
+            <button
+              key={item.seasonId}
+              type="button"
+              className="bili-bangumi-follow-card"
+              onClick={() => openSeason(item.seasonId)}
+            >
+              <span className="bili-cover-wrap">
+                {item.cover ? <BiliImage className="bili-pgc-cover" src={item.cover} loading="lazy" /> : <span className="bili-cover-empty">Bilibili</span>}
+                {item.badge ? <span className="bili-pgc-score">{item.badge}</span> : null}
+              </span>
+              <span className="bili-video-body">
+                <strong title={item.title}>{item.title || "未命名番剧"}</strong>
+                <small>{item.isFinish === 1 ? "已完结" : `共 ${item.totalCount} 集`}</small>
+              </span>
+            </button>
           ))}
         </div>
       );
@@ -172,6 +208,8 @@ export function AccountLibraryTabs() {
         setHistoryItems(await sdk.bilibili.library.historyList(1));
       } else if (active === "watchLater") {
         setToViewItems(await sdk.bilibili.library.toViewList());
+      } else if (active === "bangumi") {
+        setBangumiFollows(await sdk.bilibili.season.followList({ page: 1 }));
       } else {
         const nextFolders = await sdk.bilibili.library.favoriteFolders();
         setFolders(nextFolders);

@@ -205,6 +205,60 @@ export interface BiliUserSpaceLive {
   url: string;
 }
 
+export interface BiliSeasonDetail {
+  seasonId: number;
+  mediaId: number;
+  title: string;
+  cover: string;
+  evaluate: string;
+  total: number;
+  isFollowed: boolean;
+  newEp: string;
+  score: BiliSeasonScore | null;
+  episodes: BiliSeasonEpisode[];
+}
+
+export interface BiliSeasonScore {
+  score: number;
+  count: number;
+}
+
+export interface BiliSeasonEpisode {
+  epId: number;
+  aid: number;
+  cid: number;
+  bvid: string;
+  title: string;
+  longTitle: string;
+  cover: string;
+  duration: number;
+}
+
+export interface BiliPgcCard {
+  seasonId: number;
+  seasonType: number;
+  title: string;
+  cover: string;
+  indexShow: string;
+  score: number | null;
+}
+
+export interface BiliPgcSection {
+  title: string;
+  style: string;
+  items: BiliPgcCard[];
+}
+
+export interface BiliBangumiFollow {
+  seasonId: number;
+  mediaId: number;
+  title: string;
+  cover: string;
+  totalCount: number;
+  isFinish: number;
+  badge: string;
+}
+
 export interface BiliOwner {
   mid: number;
   name: string;
@@ -498,6 +552,8 @@ export interface PluginSdk {
         cid: number;
         quality?: number;
         preferProgressive?: boolean;
+        seasonId?: number;
+        epId?: number;
       }): Promise<BiliPlaybackSource>;
       saveLocalProgress(args: {
         bvid: string;
@@ -608,7 +664,13 @@ export interface PluginSdk {
       videos(args: { mid: number; page?: number }): Promise<BiliVideoCard[]>;
       follow(args: { mid: number; follow: boolean }): Promise<BiliOperationResult>;
     };
-    season: Record<string, never>;
+    season: {
+      detail(args: { seasonId: number }): Promise<BiliSeasonDetail>;
+      follow(args: { seasonId: number; follow: boolean }): Promise<BiliOperationResult>;
+      pgcTabs(args: { kind: "bangumi" | "cinema" }): Promise<BiliPgcSection[]>;
+      pgcRank(args: { seasonType: number }): Promise<BiliPgcCard[]>;
+      followList(args: { page?: number; cinema?: boolean }): Promise<BiliBangumiFollow[]>;
+    };
     live: Record<string, never>;
     dynamic: Record<string, never>;
     message: Record<string, never>;
@@ -1097,7 +1159,28 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
           return biliInvoke("bilibili_user_follow", { mid, follow });
         },
       },
-      season: {},
+      season: {
+        detail({ seasonId }) {
+          requirePerm("bilibili", "bilibili.season.detail");
+          return biliInvoke("bilibili_season_detail", { seasonId });
+        },
+        follow({ seasonId, follow }) {
+          requirePerm("bilibili", "bilibili.season.follow");
+          return biliInvoke("bilibili_season_follow", { seasonId, follow });
+        },
+        pgcTabs({ kind }) {
+          requirePerm("bilibili", "bilibili.season.pgcTabs");
+          return biliInvoke("bilibili_pgc_tabs", { kind });
+        },
+        pgcRank({ seasonType }) {
+          requirePerm("bilibili", "bilibili.season.pgcRank");
+          return biliInvoke("bilibili_pgc_rank", { seasonType });
+        },
+        followList({ page, cinema }) {
+          requirePerm("bilibili", "bilibili.season.followList");
+          return biliInvoke("bilibili_bangumi_follow_list", { page, cinema });
+        },
+      },
       live: {},
       dynamic: {},
       message: {},

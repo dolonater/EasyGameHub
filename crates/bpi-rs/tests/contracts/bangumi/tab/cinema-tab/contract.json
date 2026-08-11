@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "name": "bangumi.cinema_tab",
+  "module": "bangumi",
+  "batch": "tab",
+  "endpoint": "cinema-tab",
+  "risk": "public-read",
+  "status": "promoted",
+  "profiles": [
+    "anonymous",
+    "normal",
+    "vip"
+  ],
+  "request": {
+    "method": "GET",
+    "url": "https://api.bilibili.com/pgc/page/pc/cinema/tab",
+    "query": {},
+    "required_headers": [
+      "user-agent",
+      "referer",
+      "origin"
+    ],
+    "headers": {},
+    "auth": {
+      "requires": []
+    }
+  },
+  "sanitize": {
+    "preset": [],
+    "replace": {},
+    "drop": [],
+    "keep": []
+  },
+  "provenance": {
+    "source": "local_probe_output",
+    "privacy": "public cinema tab response body promoted without account headers",
+    "captured_at": "2026-08-11T00:00:00Z"
+  },
+  "cases": [
+    {
+      "name": "anonymous",
+      "profile": "anonymous",
+      "auth": {
+        "requires": []
+      },
+      "response": {
+        "api_code": 0,
+        "fixture": "responses/anonymous.success.json",
+        "fixture_kind": "probe_body",
+        "rust_model": "PgcTabData"
+      }
+    }
+  ]
+}

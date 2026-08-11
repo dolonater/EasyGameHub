@@ -338,7 +338,8 @@ npm run build && npm run pack
 
 编辑：
 
-- 新增 `bangumi_tab()`（`/pgc/page/pc/bangumi/tab`）、`cinema_tab()`（`/pgc/page/pc/cinema/tab`）、`season_rank()`（`/pgc/season/rank/web/list`），modules 结构模型（title/items/style）+ 契约与响应 fixture。
+- 新增 `bangumi_tab()`（`/pgc/page/pc/bangumi/tab`）、`cinema_tab()`（`/pgc/page/pc/cinema/tab`）、`season_rank()`（`/pgc/season/rank/web/list`）。
+- 模型：`PgcTabData { modules: Vec<PgcModule> }`，`PgcModule { title, style, items: Vec<PgcItem> }`，`PgcItem { season_id, season_type, title, cover, new_ep(index_show/long_title), score? }`（对齐 wiliwili PGCResultWrapper 结构）+ 契约与响应 fixture。
 
 验证：
 
@@ -346,20 +347,21 @@ npm run build && npm run pack
 cargo test --manifest-path crates/bpi-rs/Cargo.toml bangumi
 ```
 
-### T15 后端 season 命令
+### T15 后端 season 命令 + 番剧播放转换层
 
 文件：
 
 - `src-tauri/src/core/bilibili/season.rs`
-- `src-tauri/src/core/bilibili/playback.rs`（createPlayback 扩展）
+- `src-tauri/src/core/bilibili/playback.rs`（新增 `create_session_from_bangumi_stream`）
 - `src-tauri/src/commands/bilibili.rs`
 - `src-tauri/src/lib.rs`
 
 编辑：
 
-- 命令：`bilibili_season_detail(season_id)`、`bilibili_season_related(season_id)`、`bilibili_season_follow/unfollow(season_id)`、`bilibili_season_ep_progress`（本地进度按 ep 隔离）。
-- `bilibili_create_playback` 扩展 `season_id`/`ep_id` 参数，走 `bangumi.video_stream`，复用会话/MPD/代理。
-- 评论 oid 用 ep 的 aid；番剧播放源 DTO 与视频共用。
+- **playback.rs 转换层（review R1）**：`create_session_from_bangumi_stream(data: &BangumiVideoStreamData, ...)`——字段级转换为现有 `PlayUrlResponseData`：`from="bangumi"`、`timelength` 取 `dash.duration` 或 `durl[0].length`、`Durl→DurlInfo`（字段全等）、`DashTrack→DashStream`（id/width/height 类型映射、`SegmentBase→Value`、frame_rate/sar/start_with_sap 类型映射）；现有视频路径零改动。
+- 命令：`bilibili_season_detail(season_id)`（`detail_by_season_id`，分集取 `detail.episodes`：aid/bvid/cid/ep_id/duration/cover/long_title，评分取 positive，简介 evaluate，新一集 new_ep）、`bilibili_season_related(season_id)`（SeasonRCMD `/pgc/season/web/related/recommend`——bpi-rs 若无对应方法则后端直连实现或后置，见 review R8）、`bilibili_season_follow/unfollow(season_id)`（`bangumi.follow/unfollow`）。
+- `bilibili_create_playback` 扩展 `season_id`/`ep_id` 参数：走 `bangumi.video_stream(BangumiVideoStreamParams)` → `create_session_from_bangumi_stream`；bvid/aid/cid 用 ep 的 bvid/aid/cid（PlaybackSession 隔离与本地进度复用现有 `bilibili_save/load_local_progress`）。
+- 评论 oid 用 ep 的 aid（type=1 不变）；播放失败回退链与视频一致。
 
 验证：
 
@@ -392,14 +394,19 @@ npm run build
 
 文件：
 
-- `scripts/official-plugins/bilibili/src/components/HomeFeedTabs.tsx`
+- `scripts/official-plugins/bilibili/src/components/HomeFeedTabs.tsx`（激活追番/影视）
 - `scripts/official-plugins/bilibili/src/components/PgcSectionFeed.tsx`（新）
+- `scripts/official-plugins/bilibili/src/components/PgcCard.tsx`（新）
+- `scripts/official-plugins/bilibili/src/components/RankingPanel.tsx`（PGC 榜接入）
 - `scripts/official-plugins/bilibili/src/pages/HomePage.tsx`
+- `src/plugins/sdk.ts`、`scripts/official-plugins/bilibili/src/sdk.d.ts`、`scripts/plugin-template/src/sdk.d.ts`（pgc 类型）
 - `scripts/official-plugins/bilibili/src/styles.ts`
 
 编辑：
 
-- 追番/影视子 tab 激活；`PgcSectionFeed` 按 modules 分区行渲染（标题 + 横向滚动卡片），`double_feed`（猜你喜欢）分区支持加载更多；卡片点击进 season 视图。
+- 追番/影视子 tab 激活（移除禁用占位）；`PgcSectionFeed` 按 modules 分区行渲染（标题 + 横向滚动 PgcCard），`double_feed`（猜你喜欢）分区支持加载更多；`PgcCard` 展示封面/标题/新一集 index_show/评分，点击 `openSeason(seasonId)`（navigation.ts 新增）。
+- **PGC 榜接入 RankingPanel（review R9）**：排行榜 tab 增加"视频榜 / PGC 榜"切换；PGC 榜按 season_rank 分榜（番剧/国创/电影/电视剧/纪录片/综艺）切换渲染。
+- `sdk.bilibili.season` 补充 `pgcTabs` 等数据读取方法（pgc 数据归属见 review R8）。
 
 验证：
 
@@ -419,8 +426,8 @@ npm run build
 
 编辑：
 
-- `season` 视图：大封面、简介、追番/取消追番、分集分区列表、相关推荐；点分集 → `openWatch({type:"season",seasonId,epId})`。
-- `WatchPage` 视频/番剧分支：选集列表替换分 P、互动条显示追番态、评论挂 ep aid、进度按 ep 上报。
+- `season` 视图：大封面、标题/简介（evaluate）、评分、追番/取消追番（乐观更新）、分集列表（episodes：集数/标题/时长/封面），点击分集 → `openWatch({name:"watch",type:"season",seasonId,epId})`。
+- `WatchPage` 分支（review R7）：`target.type==="season"` 时——detail 走 `season.detail`（分集列表替代分 P）、playback 走 `createPlayback({seasonId,epId})`、互动条沿用（ep 的 aid 维度：点赞/投币/收藏可用；追番态由 season 详情数据提供）、评论 oid 用 ep aid、本地进度按 ep aid/cid 复用现有命令；非 season 分支行为零改动。
 
 验证：
 

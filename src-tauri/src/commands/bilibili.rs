@@ -14,15 +14,17 @@ use crate::core::bilibili::fav;
 use crate::core::bilibili::interaction;
 use crate::core::bilibili::library;
 use crate::core::bilibili::models::{
-    BiliComment, BiliCommentPage, BiliDanmakuItem, BiliFavoriteFolder, BiliFavoriteItem,
-    BiliHistoryItem, BiliHotWord, BiliLocalProgress, BiliLoginInfo, BiliOperationResult,
-    BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliToViewItem,
-    BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
+    BiliBangumiFollow, BiliComment, BiliCommentPage, BiliDanmakuItem, BiliFavoriteFolder,
+    BiliFavoriteItem, BiliHistoryItem, BiliHotWord, BiliLocalProgress, BiliLoginInfo,
+    BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource, BiliPreciousVideos,
+    BiliQrLoginKey, BiliQrLoginStatus, BiliSeasonDetail, BiliToViewItem, BiliUserSpace,
+    BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
 };
 use crate::core::bilibili::playback;
 use crate::core::bilibili::proxy;
 use crate::core::bilibili::ranking;
 use crate::core::bilibili::search;
+use crate::core::bilibili::season;
 use crate::core::bilibili::user_space;
 use crate::core::bilibili::video;
 use crate::AppState;
@@ -200,6 +202,8 @@ pub async fn bilibili_create_playback(
     cid: u64,
     quality: Option<u32>,
     prefer_progressive: Option<bool>,
+    season_id: Option<u64>,
+    ep_id: Option<u64>,
 ) -> Result<BiliPlaybackSource, String> {
     let proxy_port = proxy::start_proxy(state.tool_dir.clone())
         .await
@@ -208,6 +212,23 @@ pub async fn bilibili_create_playback(
     let prefer_progressive = prefer_progressive.unwrap_or(false);
     let bvid_value = bvid.unwrap_or_default();
     let aid_value = aid.unwrap_or(0);
+
+    // 番剧单集播放：走 bangumi playurl + 字段级转换复用会话/MPD/代理
+    if let Some(ep_id) = ep_id {
+        let (session, source) = season::season_ep_playback(
+            &state.tool_dir,
+            ep_id,
+            aid_value,
+            cid,
+            bvid_value,
+            proxy_port,
+            prefer_progressive,
+        )
+        .await
+        .map_err(proxy_error)?;
+        playback::insert_session(session);
+        return Ok(source);
+    }
 
     if prefer_progressive {
         let params = video::play_url_params(
@@ -957,6 +978,74 @@ pub async fn bilibili_user_follow(
     follow: bool,
 ) -> Result<(), String> {
     user_space::user_follow(&state.tool_dir, mid, follow)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 番剧详情（含分集列表与追番态）。
+#[tauri::command]
+pub async fn bilibili_season_detail(
+    state: State<'_, AppState>,
+    season_id: u64,
+) -> Result<BiliSeasonDetail, String> {
+    season::season_detail(&state.tool_dir, season_id)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 追番 / 取消追番。
+#[tauri::command]
+pub async fn bilibili_season_follow(
+    state: State<'_, AppState>,
+    season_id: u64,
+    follow: bool,
+) -> Result<(), String> {
+    season::season_follow(&state.tool_dir, season_id, follow)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 追番/影视页聚合数据（kind: "bangumi" | "cinema"）。
+#[tauri::command]
+pub async fn bilibili_pgc_tabs(
+    state: State<'_, AppState>,
+    kind: String,
+) -> Result<Vec<BiliPgcSection>, String> {
+    let kind = match kind.as_str() {
+        "bangumi" => season::PgcTabKind::Bangumi,
+        "cinema" => season::PgcTabKind::Cinema,
+        _ => {
+            return Err(bpi_error(BpiError::invalid_parameter(
+                "kind",
+                "kind must be bangumi or cinema",
+            )))
+        }
+    };
+    season::pgc_tabs(&state.tool_dir, kind)
+        .await
+        .map_err(bpi_error)
+}
+
+/// PGC 排行榜分榜（1=番剧 2=电影 3=纪录片 4=国创 5=电视剧 7=综艺）。
+#[tauri::command]
+pub async fn bilibili_pgc_rank(
+    state: State<'_, AppState>,
+    season_type: u32,
+) -> Result<Vec<BiliPgcCard>, String> {
+    season::pgc_rank(&state.tool_dir, season_type)
+        .await
+        .map_err(bpi_error)
+}
+
+/// 我的追番/追影视列表（cinema=false 番剧，true 影视）。
+#[tauri::command]
+pub async fn bilibili_bangumi_follow_list(
+    state: State<'_, AppState>,
+    page: Option<u32>,
+    cinema: Option<bool>,
+) -> Result<Vec<BiliBangumiFollow>, String> {
+    let mid = current_mid(&state.tool_dir)?;
+    season::bangumi_follow_list(&state.tool_dir, mid, page, cinema.unwrap_or(false))
         .await
         .map_err(bpi_error)
 }

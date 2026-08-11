@@ -6,7 +6,7 @@ pub mod pendant;
 
 // 已有的
 mod sign;
-mod stream;
+pub mod stream;
 pub mod user;
 pub mod vip;
 
@@ -18,10 +18,9 @@ pub use level::{LevelInfo, NextExp};
 pub use nameplate::Nameplate;
 pub use official::{Official, OfficialVerify};
 pub use pendant::Pendant;
-pub use sign::WbiData;
 pub use user::Account;
 
 pub use stream::{
-    AudioQuality, DashStreams, DashTrack, Durl, Fnval, SupportFormat, VideoCodec, VideoQuality,
-    VideoStreamData,
+    AudioQuality, DashDolby, DashFlac, DashStreams, DashTrack, Durl, Fnval, SegmentBase,
+    SupportFormat, VideoCodec, VideoQuality, VideoStreamData,
 };

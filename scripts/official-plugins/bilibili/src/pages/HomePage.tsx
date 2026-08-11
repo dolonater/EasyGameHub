@@ -2,6 +2,7 @@ import React, { Button, useEffect, useState } from "sdk";
 import { HomeFeed } from "../components/HomeFeed";
 import type { HomeMode } from "../components/HomeFeedTabs";
 import { HotSubTabs, type HotSubMode } from "../components/HotSubTabs";
+import { PgcSectionFeed } from "../components/PgcSectionFeed";
 import { PreciousPanel } from "../components/PreciousPanel";
 import { RankingPanel } from "../components/RankingPanel";
 import { SearchBox } from "../components/SearchBox";
@@ -106,7 +107,7 @@ export function HomePage() {
   }
 
   const searchGuide = mode === "search" && searchKeyword.length === 0;
-  const comingSoon = mode === "bangumi" || mode === "cinema" || mode === "live";
+  const comingSoon = mode === "live";
 
   const mainFeed =
     mode === "popular" ? (
@@ -134,6 +135,8 @@ export function HomePage() {
           <PreciousPanel />
         )}
       </>
+    ) : mode === "bangumi" || mode === "cinema" ? (
+      <PgcSectionFeed kind={mode === "bangumi" ? "bangumi" : "cinema"} />
     ) : (
       <HomeFeed
         error={active.error}

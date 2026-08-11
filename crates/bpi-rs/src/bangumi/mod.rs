@@ -12,6 +12,7 @@ pub mod client;
 pub mod follow;
 pub mod info;
 pub mod params;
+pub mod tab;
 pub mod timeline;
 pub mod videostream_url;
 

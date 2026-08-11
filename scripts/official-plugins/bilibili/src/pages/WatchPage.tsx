@@ -10,6 +10,8 @@ import type {
   BiliDanmakuItem,
   BiliLocalProgress,
   BiliPlaybackSource,
+  BiliSeasonDetail,
+  BiliSeasonEpisode,
   BiliVideoDetail,
   BiliVideoPage,
 } from "../types";
@@ -18,6 +20,9 @@ interface QueryState {
   bvid?: string;
   aid?: number;
   cid?: number;
+  type?: "video" | "season";
+  seasonId?: number;
+  epId?: number;
 }
 
 interface WatchPageProps {
@@ -27,9 +32,20 @@ interface WatchPageProps {
 type PlaybackMode = "quality" | "compat";
 
 export function WatchPage({ target }: WatchPageProps) {
-  const [query] = useState<QueryState>(() => ({ bvid: target.bvid, aid: target.aid, cid: target.cid }));
+  const [query] = useState<QueryState>(() => ({
+    bvid: target.bvid,
+    aid: target.aid,
+    cid: target.cid,
+    type: target.type,
+    seasonId: target.seasonId,
+    epId: target.epId,
+  }));
+  const isSeason = query.type === "season" || query.seasonId != null;
   const [detail, setDetail] = useState<BiliVideoDetail | null>(null);
+  const [seasonDetail, setSeasonDetail] = useState<BiliSeasonDetail | null>(null);
   const [selectedPage, setSelectedPage] = useState<BiliVideoPage | null>(null);
+  const [selectedEp, setSelectedEp] = useState<BiliSeasonEpisode | null>(null);
+  const [seasonFollowBusy, setSeasonFollowBusy] = useState(false);
   const [playback, setPlayback] = useState<BiliPlaybackSource | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingPlayback, setLoadingPlayback] = useState(false);
@@ -49,10 +65,16 @@ export function WatchPage({ target }: WatchPageProps) {
   const touchedProgressRef = useRef<Record<number, boolean>>({});
   const fallbackAttemptsRef = useRef<Record<number, number>>({});
 
+  // 番剧：把 season 详情适配为播放页通用的视频详情结构（owner/stats 为空，pages 为选集）
+  const videoDetail: BiliVideoDetail | null = seasonDetail
+    ? seasonToVideoDetail(seasonDetail, selectedEp)
+    : detail;
+  const activePage = isSeason ? (selectedEp ? episodeToPage(selectedEp) : null) : selectedPage;
+
   const interaction = useVideoInteraction({
-    aid: detail?.aid,
-    bvid: detail?.bvid,
-    ownerMid: detail?.owner.mid,
+    aid: videoDetail?.aid,
+    bvid: videoDetail?.bvid,
+    ownerMid: videoDetail?.owner.mid,
     loggedIn: Boolean(runtimeState.loginInfo?.loggedIn),
   });
 
@@ -93,6 +115,54 @@ export function WatchPage({ target }: WatchPageProps) {
   useEffect(() => {
     const sdk = getState().sdk;
     if (!sdk) return;
+    if (isSeason) {
+      if (query.seasonId == null) {
+        setDetailError("缺少 seasonId 参数");
+        return;
+      }
+      let active = true;
+      setLoadingDetail(true);
+      setDetailError("");
+      sdk.bilibili.season
+        .detail({ seasonId: query.seasonId })
+        .then(async (nextSeason) => {
+          if (!active) return;
+          const firstEp = nextSeason.episodes[0] ?? null;
+          let loadedProgress: BiliLocalProgress | null = null;
+          try {
+            loadedProgress = await sdk.bilibili.playback.loadLocalProgress({
+              bvid: firstEp?.bvid ?? "",
+              cid: query.cid ?? firstEp?.cid,
+            });
+          } catch {
+            loadedProgress = null;
+          }
+          if (!active) return;
+          if (loadedProgress) {
+            progressRef.current = {
+              ...progressRef.current,
+              [loadedProgress.cid]: loadedProgress.progressSeconds,
+            };
+          }
+          setLocalProgress(loadedProgress);
+          setSeasonDetail(nextSeason);
+          setSelectedEp(
+            nextSeason.episodes.find((episode) => episode.epId === query.epId) ??
+              (query.cid ? nextSeason.episodes.find((episode) => episode.cid === query.cid) : null) ??
+              firstEp,
+          );
+        })
+        .catch((err) => {
+          if (active) setDetailError(errorMessage(err));
+        })
+        .finally(() => {
+          if (active) setLoadingDetail(false);
+        });
+      return () => {
+        active = false;
+      };
+    }
+
     if (!query.bvid && !query.aid) {
       setDetailError("缺少 bvid 或 aid 参数");
       return;
@@ -135,11 +205,11 @@ export function WatchPage({ target }: WatchPageProps) {
     return () => {
       active = false;
     };
-  }, [query.aid, query.bvid, query.cid]);
+  }, [isSeason, query.aid, query.bvid, query.cid, query.epId, query.seasonId]);
 
   useEffect(() => {
     const sdk = getState().sdk;
-    if (!sdk || !detail || !selectedPage) return;
+    if (!sdk || !videoDetail || !activePage) return;
 
     let active = true;
     setLoadingPlayback(true);
@@ -147,10 +217,11 @@ export function WatchPage({ target }: WatchPageProps) {
     setPlaybackError("");
     sdk.bilibili.playback
       .createPlayback({
-        bvid: detail.bvid,
-        aid: detail.aid,
-        cid: selectedPage.cid,
+        bvid: videoDetail.bvid,
+        aid: videoDetail.aid,
+        cid: activePage.cid,
         preferProgressive: playbackMode === "compat",
+        epId: selectedEp?.epId,
       })
       .then((source) => {
         if (active) setPlayback(source);
@@ -165,11 +236,11 @@ export function WatchPage({ target }: WatchPageProps) {
     return () => {
       active = false;
     };
-  }, [detail?.aid, detail?.bvid, playbackMode, reloadNonce, selectedPage?.cid]);
+  }, [videoDetail?.aid, videoDetail?.bvid, playbackMode, reloadNonce, activePage?.cid, selectedEp?.epId]);
 
   useEffect(() => {
     const sdk = getState().sdk;
-    if (!sdk || !detail || !selectedPage) return;
+    if (!sdk || !videoDetail || !activePage) return;
 
     let active = true;
     setDanmakuLoading(true);
@@ -177,9 +248,9 @@ export function WatchPage({ target }: WatchPageProps) {
     setDanmakuItems([]);
     sdk.bilibili.danmaku
       .list({
-        aid: detail.aid,
-        bvid: detail.bvid,
-        cid: selectedPage.cid,
+        aid: videoDetail.aid,
+        bvid: videoDetail.bvid,
+        cid: activePage.cid,
       })
       .then((items) => {
         if (active) setDanmakuItems(sortDanmaku(items));
@@ -194,7 +265,7 @@ export function WatchPage({ target }: WatchPageProps) {
     return () => {
       active = false;
     };
-  }, [detail?.aid, detail?.bvid, selectedPage?.cid]);
+  }, [videoDetail?.aid, videoDetail?.bvid, activePage?.cid]);
 
   function rememberPlaybackTime(cid: number, seconds: number) {
     if (cid > 0 && Number.isFinite(seconds) && seconds >= 0) {
@@ -204,20 +275,20 @@ export function WatchPage({ target }: WatchPageProps) {
   }
 
   function reloadPlayback() {
-    if (selectedPage) {
-      fallbackAttemptsRef.current = { ...fallbackAttemptsRef.current, [selectedPage.cid]: 0 };
+    if (activePage) {
+      fallbackAttemptsRef.current = { ...fallbackAttemptsRef.current, [activePage.cid]: 0 };
     }
     setReloadNonce((value) => value + 1);
   }
 
   function fallbackPlayback(wasDirect: boolean) {
-    if (!selectedPage) return;
-    const attempts = fallbackAttemptsRef.current[selectedPage.cid] ?? 0;
+    if (!activePage) return;
+    const attempts = fallbackAttemptsRef.current[activePage.cid] ?? 0;
     if (attempts >= 1) {
       setPlaybackError("播放源自动切换后仍失败，请重载或外部打开");
       return;
     }
-    fallbackAttemptsRef.current = { ...fallbackAttemptsRef.current, [selectedPage.cid]: attempts + 1 };
+    fallbackAttemptsRef.current = { ...fallbackAttemptsRef.current, [activePage.cid]: attempts + 1 };
     setPlaybackMode(wasDirect ? "quality" : "compat");
     setReloadNonce((value) => value + 1);
   }
@@ -226,6 +297,30 @@ export function WatchPage({ target }: WatchPageProps) {
     fallbackAttemptsRef.current = { ...fallbackAttemptsRef.current, [page.cid]: 0 };
     setPlaybackMode("quality");
     setSelectedPage(page);
+  }
+
+  function selectEpisode(episode: BiliSeasonEpisode) {
+    fallbackAttemptsRef.current = { ...fallbackAttemptsRef.current, [episode.cid]: 0 };
+    setPlaybackMode("quality");
+    setSelectedEp(episode);
+  }
+
+  function toggleSeasonFollow() {
+    if (!seasonDetail) return;
+    setSeasonFollowBusy(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.season
+      .follow({ seasonId: seasonDetail.seasonId, follow: !seasonDetail.isFollowed })
+      .then(() => {
+        setSeasonDetail({ ...seasonDetail, isFollowed: !seasonDetail.isFollowed });
+      })
+      .catch((reason: Error) => {
+        setDetailError(errorMessage(reason));
+      })
+      .finally(() => {
+        setSeasonFollowBusy(false);
+      });
   }
 
   function changePlaybackMode(mode: PlaybackMode) {
@@ -239,19 +334,35 @@ export function WatchPage({ target }: WatchPageProps) {
   return (
     <section className="bili-watch">
       {detailError ? <div className="bili-state bili-state-error">{detailError}</div> : null}
-      {!detailError && loadingDetail ? <div className="bili-state">正在加载视频详情</div> : null}
-      {!detailError && !loadingDetail && detail ? (
+      {!detailError && loadingDetail ? <div className="bili-state">正在加载详情</div> : null}
+      {!detailError && !loadingDetail && videoDetail ? (
         <section className="bili-watch-grid">
+          {isSeason && seasonDetail ? (
+            <div className="bili-season-followbar">
+              <span className="bili-season-followbar-score">
+                {seasonDetail.score != null ? `评分 ${seasonDetail.score.score.toFixed(1)}` : ""}
+              </span>
+              <span className="bili-season-followbar-new">{seasonDetail.newEp ? `最新：${seasonDetail.newEp}` : ""}</span>
+              <button
+                type="button"
+                className="bili-season-follow-btn"
+                onClick={toggleSeasonFollow}
+                disabled={!runtimeState.loginInfo?.loggedIn || seasonFollowBusy}
+              >
+                {seasonDetail.isFollowed ? "已追番" : "追番"}
+              </button>
+            </div>
+          ) : null}
           <PlayerShell
-            detail={detail}
+            detail={videoDetail}
             sdk={getState().sdk}
-            selectedPage={selectedPage}
+            selectedPage={activePage}
             playback={playback}
             loadingPlayback={loadingPlayback}
             error={playbackError}
             startTime={startTimeForPage(
-              detail,
-              selectedPage,
+              videoDetail,
+              activePage,
               progressRef.current,
               touchedProgressRef.current,
               localProgress,
@@ -281,12 +392,12 @@ export function WatchPage({ target }: WatchPageProps) {
             onDanmakuSettingsChange={setDanmakuSettings}
             onDanmakuSent={(item) => setDanmakuItems((items) => sortDanmaku([...items, item]))}
             commentsPanel={
-              <CommentPanel detail={detail} loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)} sdk={getState().sdk} />
+              <CommentPanel detail={videoDetail} loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)} sdk={getState().sdk} />
             }
           />
           <WatchSidebarTabs
-            aid={detail.aid}
-            bvid={detail.bvid}
+            aid={videoDetail.aid}
+            bvid={videoDetail.bvid}
             followBusy={interaction.busy === "follow"}
             interactionState={interaction.state}
             loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)}
@@ -295,9 +406,14 @@ export function WatchPage({ target }: WatchPageProps) {
               const ownerMid = interaction.state?.owner?.mid;
               if (ownerMid) openSpace(ownerMid);
             }}
-            pages={detail.pages}
-            selectedPageCid={selectedPage?.cid}
-            onSelectPage={selectPage}
+            pages={seasonDetail ? seasonDetail.episodes.map(episodeToPage) : videoDetail.pages}
+            pagesLabel={isSeason ? "选集" : undefined}
+            selectedPageCid={activePage?.cid}
+            onSelectPage={isSeason ? (page) => {
+              const episode = seasonDetail?.episodes.find((item) => item.cid === page.cid);
+              if (episode) selectEpisode(episode);
+            } : selectPage}
+            hideOwner={isSeason}
           />
         </section>
       ) : null}
@@ -337,4 +453,33 @@ function safeStartTime(value: number | undefined, duration: number) {
 
 function sortDanmaku(items: BiliDanmakuItem[]) {
   return [...items].sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
+}
+
+/** 番剧单集 → 播放页分 P 结构（选集列表复用分 P 列表 UI） */
+function episodeToPage(episode: BiliSeasonEpisode): BiliVideoPage {
+  return {
+    cid: episode.cid,
+    page: 0,
+    title: episode.longTitle || episode.title || `ep${episode.epId}`,
+    duration: episode.duration,
+  };
+}
+
+/** 番剧详情 → 播放页通用视频详情结构（owner/stats 为空，互动条按 ep 的 aid 工作） */
+function seasonToVideoDetail(season: BiliSeasonDetail, episode: BiliSeasonEpisode | null): BiliVideoDetail {
+  return {
+    bvid: episode?.bvid ?? "",
+    aid: episode?.aid ?? 0,
+    cid: episode?.cid ?? 0,
+    title: season.title,
+    cover: season.cover,
+    description: season.evaluate,
+    owner: { mid: 0, name: "", face: "" },
+    stats: { viewCount: 0, danmakuCount: 0, replyCount: 0, favoriteCount: 0, coinCount: 0, shareCount: 0, likeCount: 0 },
+    pages: season.episodes.map(episodeToPage),
+    duration: episode?.duration ?? 0,
+    publishedAt: 0,
+    lastPlayCid: 0,
+    lastPlayTime: 0,
+  };
 }

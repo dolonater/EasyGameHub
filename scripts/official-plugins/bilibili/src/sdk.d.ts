@@ -128,6 +128,60 @@ declare module "sdk" {
     url: string;
   }
 
+  export interface BiliSeasonDetail {
+    seasonId: number;
+    mediaId: number;
+    title: string;
+    cover: string;
+    evaluate: string;
+    total: number;
+    isFollowed: boolean;
+    newEp: string;
+    score: BiliSeasonScore | null;
+    episodes: BiliSeasonEpisode[];
+  }
+
+  export interface BiliSeasonScore {
+    score: number;
+    count: number;
+  }
+
+  export interface BiliSeasonEpisode {
+    epId: number;
+    aid: number;
+    cid: number;
+    bvid: string;
+    title: string;
+    longTitle: string;
+    cover: string;
+    duration: number;
+  }
+
+  export interface BiliPgcCard {
+    seasonId: number;
+    seasonType: number;
+    title: string;
+    cover: string;
+    indexShow: string;
+    score: number | null;
+  }
+
+  export interface BiliPgcSection {
+    title: string;
+    style: string;
+    items: BiliPgcCard[];
+  }
+
+  export interface BiliBangumiFollow {
+    seasonId: number;
+    mediaId: number;
+    title: string;
+    cover: string;
+    totalCount: number;
+    isFinish: number;
+    badge: string;
+  }
+
   export interface BiliOwner {
     mid: number;
     name: string;
@@ -460,7 +514,13 @@ declare module "sdk" {
         videos(args: { mid: number; page?: number }): Promise<BiliVideoCard[]>;
         follow(args: { mid: number; follow: boolean }): Promise<BiliOperationResult>;
       };
-      season: Record<string, never>;
+      season: {
+        detail(args: { seasonId: number }): Promise<BiliSeasonDetail>;
+        follow(args: { seasonId: number; follow: boolean }): Promise<BiliOperationResult>;
+        pgcTabs(args: { kind: "bangumi" | "cinema" }): Promise<BiliPgcSection[]>;
+        pgcRank(args: { seasonType: number }): Promise<BiliPgcCard[]>;
+        followList(args: { page?: number; cinema?: boolean }): Promise<BiliBangumiFollow[]>;
+      };
       live: Record<string, never>;
       dynamic: Record<string, never>;
       message: Record<string, never>;

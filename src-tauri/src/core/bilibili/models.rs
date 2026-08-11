@@ -126,6 +126,72 @@ pub struct BiliUserSpaceLive {
     pub url: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliSeasonDetail {
+    pub season_id: u64,
+    pub media_id: u64,
+    pub title: String,
+    pub cover: String,
+    pub evaluate: String,
+    pub total: i64,
+    pub is_followed: bool,
+    pub new_ep: String,
+    pub score: Option<BiliSeasonScore>,
+    pub episodes: Vec<BiliSeasonEpisode>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliSeasonScore {
+    pub score: f64,
+    pub count: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliSeasonEpisode {
+    pub ep_id: u64,
+    pub aid: u64,
+    pub cid: u64,
+    pub bvid: String,
+    pub title: String,
+    pub long_title: String,
+    pub cover: String,
+    pub duration: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliPgcCard {
+    pub season_id: i64,
+    pub season_type: i64,
+    pub title: String,
+    pub cover: String,
+    pub index_show: String,
+    pub score: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliPgcSection {
+    pub title: String,
+    pub style: String,
+    pub items: Vec<BiliPgcCard>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliBangumiFollow {
+    pub season_id: i64,
+    pub media_id: i64,
+    pub title: String,
+    pub cover: String,
+    pub total_count: i64,
+    pub is_finish: i64,
+    pub badge: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct BiliOwner {

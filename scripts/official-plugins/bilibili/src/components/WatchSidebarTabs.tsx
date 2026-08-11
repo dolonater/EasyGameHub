@@ -14,10 +14,14 @@ interface WatchSidebarTabsProps {
   followBusy: boolean;
   onFollowOwner(): void;
   onOpenSpace(): void;
+  /** 分P/选集区块标题（番剧显示"选集"） */
+  pagesLabel?: string;
+  /** 隐藏 UP 行（番剧无 UP） */
+  hideOwner?: boolean;
 }
 
 /**
- * 播放页右侧内容栏：UP 信息行 + 分P 列表 + 相关推荐，堆叠区块。
+ * 播放页右侧内容栏：UP 信息行 + 分P/选集列表 + 相关推荐，堆叠区块。
  * 宽窗口常驻展示；窄窗口（断点内）收起为可展开面板，不常驻占宽。
  */
 export function WatchSidebarTabs({
@@ -31,26 +35,30 @@ export function WatchSidebarTabs({
   followBusy,
   onFollowOwner,
   onOpenSpace,
+  pagesLabel,
+  hideOwner,
 }: WatchSidebarTabsProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <aside className={`bili-watch-side ${open ? "bili-watch-side-open" : ""}`}>
       <button className="bili-watch-side-toggle" type="button" onClick={() => setOpen((value) => !value)}>
-        <span>UP · 分P · 相关推荐</span>
+        <span>{hideOwner ? `${pagesLabel ?? "选集"} · 相关推荐` : `UP · ${pagesLabel ?? "分P"} · 相关推荐`}</span>
         <small>{open ? "收起" : "展开"}</small>
       </button>
       <div className="bili-watch-side-content">
-        <VideoOwnerRow
-          busy={followBusy}
-          loggedIn={loggedIn}
-          state={interactionState}
-          onFollow={onFollowOwner}
-          onOpenSpace={openOwnerSpace}
-        />
+        {!hideOwner ? (
+          <VideoOwnerRow
+            busy={followBusy}
+            loggedIn={loggedIn}
+            state={interactionState}
+            onFollow={onFollowOwner}
+            onOpenSpace={onOpenSpace}
+          />
+        ) : null}
         <section className="bili-sidebar-section">
           <div className="bili-section-title">
-            <strong>分 P</strong>
+            <strong>{pagesLabel ?? "分 P"}</strong>
             <small>{pages.length} 个</small>
           </div>
           <div className="bili-page-list">
