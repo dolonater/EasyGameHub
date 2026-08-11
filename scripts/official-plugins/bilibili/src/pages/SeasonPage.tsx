@@ -101,7 +101,7 @@ export function SeasonPage({ seasonId }: SeasonPageProps) {
             }
           >
             <span className="bili-season-episode-title">{episode.longTitle || episode.title || `ep${episode.epId}`}</span>
-            <span className="bili-season-episode-duration">{formatDuration(episode.duration)}</span>
+            <span className="bili-season-episode-duration">{formatDuration(episode.duration / 1000)}</span>
           </button>
         ))}
       </div>

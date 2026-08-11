@@ -108,6 +108,10 @@ export function PlayerShell({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  // 真实时长：video.duration 在 MPD 毫秒值格式下可能偏大（dashjs 不修正），
+  // 用 selectedPage.duration（后端换算好的秒）保证进度条/时间显示正确
+  const selectedPageRef = useRef(selectedPage);
+  selectedPageRef.current = selectedPage;
   const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(false);
   const [rate, setRate] = useState(defaultPlaybackRate);
@@ -129,7 +133,10 @@ export function PlayerShell({
     if (!video) return;
     setIsPlaying(!video.paused);
     setCurrentTime(Number.isFinite(video.currentTime) ? video.currentTime : 0);
-    setDuration(Number.isFinite(video.duration) ? video.duration : 0);
+    const page = selectedPageRef.current;
+    const realDuration =
+      page && page.duration > 0 ? page.duration : Number.isFinite(video.duration) ? video.duration : 0;
+    setDuration(realDuration);
     setVolume(video.volume);
     setMuted(video.muted);
     setRate(video.playbackRate || 1);

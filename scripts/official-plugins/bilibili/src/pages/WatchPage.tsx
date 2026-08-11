@@ -336,7 +336,7 @@ export function WatchPage({ target }: WatchPageProps) {
       {detailError ? <div className="bili-state bili-state-error">{detailError}</div> : null}
       {!detailError && loadingDetail ? <div className="bili-state">正在加载详情</div> : null}
       {!detailError && !loadingDetail && videoDetail ? (
-        <section className="bili-watch-grid">
+        <>
           {isSeason && seasonDetail ? (
             <div className="bili-season-followbar">
               <span className="bili-season-followbar-score">
@@ -353,6 +353,7 @@ export function WatchPage({ target }: WatchPageProps) {
               </button>
             </div>
           ) : null}
+          <section className="bili-watch-grid">
           <PlayerShell
             detail={videoDetail}
             sdk={getState().sdk}
@@ -415,7 +416,8 @@ export function WatchPage({ target }: WatchPageProps) {
             } : selectPage}
             hideOwner={isSeason}
           />
-        </section>
+          </section>
+        </>
       ) : null}
     </section>
   );
@@ -455,17 +457,17 @@ function sortDanmaku(items: BiliDanmakuItem[]) {
   return [...items].sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
 }
 
-/** 番剧单集 → 播放页分 P 结构（选集列表复用分 P 列表 UI） */
+/** 番剧单集 → 播放页分 P 结构（选集列表复用分 P 列表 UI；duration 毫秒→秒） */
 function episodeToPage(episode: BiliSeasonEpisode): BiliVideoPage {
   return {
     cid: episode.cid,
     page: 0,
     title: episode.longTitle || episode.title || `ep${episode.epId}`,
-    duration: episode.duration,
+    duration: Math.round(episode.duration / 1000),
   };
 }
 
-/** 番剧详情 → 播放页通用视频详情结构（owner/stats 为空，互动条按 ep 的 aid 工作） */
+/** 番剧详情 → 播放页通用视频详情结构（owner/stats 为空，互动条按 ep 的 aid 工作；duration 毫秒→秒） */
 function seasonToVideoDetail(season: BiliSeasonDetail, episode: BiliSeasonEpisode | null): BiliVideoDetail {
   return {
     bvid: episode?.bvid ?? "",
@@ -477,7 +479,7 @@ function seasonToVideoDetail(season: BiliSeasonDetail, episode: BiliSeasonEpisod
     owner: { mid: 0, name: "", face: "" },
     stats: { viewCount: 0, danmakuCount: 0, replyCount: 0, favoriteCount: 0, coinCount: 0, shareCount: 0, likeCount: 0 },
     pages: season.episodes.map(episodeToPage),
-    duration: episode?.duration ?? 0,
+    duration: Math.round((episode?.duration ?? 0) / 1000),
     publishedAt: 0,
     lastPlayCid: 0,
     lastPlayTime: 0,

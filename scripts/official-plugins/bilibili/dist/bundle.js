@@ -22314,7 +22314,7 @@ function SeasonPage({ seasonId }) {
       })
     },
     /* @__PURE__ */ React21.createElement("span", { className: "bili-season-episode-title" }, episode.longTitle || episode.title || `ep${episode.epId}`),
-    /* @__PURE__ */ React21.createElement("span", { className: "bili-season-episode-duration" }, formatDuration2(episode.duration))
+    /* @__PURE__ */ React21.createElement("span", { className: "bili-season-episode-duration" }, formatDuration2(episode.duration / 1e3))
   ))));
 }
 function formatDuration2(seconds) {
@@ -24114,6 +24114,8 @@ function PlayerShell({
   const [isPlaying, setIsPlaying] = useState25(false);
   const [currentTime, setCurrentTime] = useState25(0);
   const [duration2, setDuration] = useState25(0);
+  const selectedPageRef = useRef6(selectedPage);
+  selectedPageRef.current = selectedPage;
   const [volume, setVolume] = useState25(1);
   const [muted, setMuted] = useState25(false);
   const [rate, setRate] = useState25(defaultPlaybackRate);
@@ -24133,7 +24135,9 @@ function PlayerShell({
     if (!video) return;
     setIsPlaying(!video.paused);
     setCurrentTime(Number.isFinite(video.currentTime) ? video.currentTime : 0);
-    setDuration(Number.isFinite(video.duration) ? video.duration : 0);
+    const page = selectedPageRef.current;
+    const realDuration = page && page.duration > 0 ? page.duration : Number.isFinite(video.duration) ? video.duration : 0;
+    setDuration(realDuration);
     setVolume(video.volume);
     setMuted(video.muted);
     setRate(video.playbackRate || 1);
@@ -24977,7 +24981,7 @@ function WatchPage({ target }) {
     }
     setPlaybackMode(mode);
   }
-  return /* @__PURE__ */ React40.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u8BE6\u60C5") : null, !detailError && !loadingDetail && videoDetail ? /* @__PURE__ */ React40.createElement("section", { className: "bili-watch-grid" }, isSeason && seasonDetail ? /* @__PURE__ */ React40.createElement("div", { className: "bili-season-followbar" }, /* @__PURE__ */ React40.createElement("span", { className: "bili-season-followbar-score" }, seasonDetail.score != null ? `\u8BC4\u5206 ${seasonDetail.score.score.toFixed(1)}` : ""), /* @__PURE__ */ React40.createElement("span", { className: "bili-season-followbar-new" }, seasonDetail.newEp ? `\u6700\u65B0\uFF1A${seasonDetail.newEp}` : ""), /* @__PURE__ */ React40.createElement(
+  return /* @__PURE__ */ React40.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u8BE6\u60C5") : null, !detailError && !loadingDetail && videoDetail ? /* @__PURE__ */ React40.createElement(React40.Fragment, null, isSeason && seasonDetail ? /* @__PURE__ */ React40.createElement("div", { className: "bili-season-followbar" }, /* @__PURE__ */ React40.createElement("span", { className: "bili-season-followbar-score" }, seasonDetail.score != null ? `\u8BC4\u5206 ${seasonDetail.score.score.toFixed(1)}` : ""), /* @__PURE__ */ React40.createElement("span", { className: "bili-season-followbar-new" }, seasonDetail.newEp ? `\u6700\u65B0\uFF1A${seasonDetail.newEp}` : ""), /* @__PURE__ */ React40.createElement(
     "button",
     {
       type: "button",
@@ -24986,7 +24990,7 @@ function WatchPage({ target }) {
       disabled: !runtimeState.loginInfo?.loggedIn || seasonFollowBusy
     },
     seasonDetail.isFollowed ? "\u5DF2\u8FFD\u756A" : "\u8FFD\u756A"
-  )) : null, /* @__PURE__ */ React40.createElement(
+  )) : null, /* @__PURE__ */ React40.createElement("section", { className: "bili-watch-grid" }, /* @__PURE__ */ React40.createElement(
     PlayerShell,
     {
       detail: videoDetail,
@@ -25050,7 +25054,7 @@ function WatchPage({ target }) {
       } : selectPage,
       hideOwner: isSeason
     }
-  )) : null);
+  ))) : null);
 }
 function selectInitialPage(detail, requestedCid, localProgress) {
   const targetCid = requestedCid || detail.lastPlayCid || localProgress?.cid || detail.pages[0]?.cid;
@@ -25081,7 +25085,7 @@ function episodeToPage(episode) {
     cid: episode.cid,
     page: 0,
     title: episode.longTitle || episode.title || `ep${episode.epId}`,
-    duration: episode.duration
+    duration: Math.round(episode.duration / 1e3)
   };
 }
 function seasonToVideoDetail(season, episode) {
@@ -25095,7 +25099,7 @@ function seasonToVideoDetail(season, episode) {
     owner: { mid: 0, name: "", face: "" },
     stats: { viewCount: 0, danmakuCount: 0, replyCount: 0, favoriteCount: 0, coinCount: 0, shareCount: 0, likeCount: 0 },
     pages: season.episodes.map(episodeToPage),
-    duration: episode?.duration ?? 0,
+    duration: Math.round((episode?.duration ?? 0) / 1e3),
     publishedAt: 0,
     lastPlayCid: 0,
     lastPlayTime: 0

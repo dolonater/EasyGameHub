@@ -31,6 +31,10 @@
 - P1 pending hand-test（`npm run tauri dev` 人工执行）：首页热门四分类切换（综合热门/排行榜分区/每周必看期切换/入站必刷）、搜索联想/热搜/历史记录与清空、收藏夹管理模式全流程（新建/重命名/删除/多选删除/移动到/二次确认）、播放页点击 UP 进主页、UP 详情页关注/取关与投稿分页、以及登录/播放/弹幕/评论等既有功能不回退。
 
 ## Current Fixes (2026-08-11)
+- **番剧播放修复（dashjs 毫秒猜测）** —— 现象：番剧详情/选集正常但播放 1-2 秒即停（video.duration≈1.5/2.0 秒），普通视频正常。排查过程：Rust 后端端到端验证全通（MPD/init/sidx/媒体段 206，第一段真实时长 5.005 秒）；前端 MediaSource hook 发现 `ms.duration=1.494`（dashjs 显式设置）。**决定性实验**：MPD 时长写死 `PT100S` → 能播 100 秒；真实 `PT1494S` → 1.494。**根因**：dashjs 对 MPD duration 中 **>1000 的值做"毫秒猜测"（÷1000）**（兼容某些工具生成毫秒单位的时长），1494 秒被解析为 1.494 秒 → 只缓冲第一段即 ended；107.25 秒（<1000）不受影响。**修复**（`playback.rs build_mpd`）：反向利用——MPD 时长写**毫秒值**（`PT{duration_ms}S`，真实 1494 秒 → `PT1494000S`），dashjs 猜测 ÷1000 后正好得到真实秒数；视频（PT107250S → 107.25）同样正确。测试断言同步更新。验证：`cargo test bilibili` 37 passed、`cargo test plugins` 18 passed、bpi-rs bangumi 48 passed、src-tauri `--no-default-features` 0 errors、主前端/插件 build+pack 通过、bundle 无 @tauri-apps 直连。
+- **番剧详情反序列化修复（两轮）** —— 现象：打开部分番剧报 `failed to decode response (Data)`（大番剧 1.35MB 必现）。根因与修复见下方条目（tolerant 容错反序列化 + total 类型 i64 + 字段 default）。
+
+
 - **番剧详情反序列化修复（两轮）** —— 现象：打开部分番剧报 `failed to decode response (Data) at line 1 column xxx`（大番剧 1.35MB 必现）。第一轮根因：bpi-rs `BangumiDetailResult` 链路大量字段缺 `#[serde(default)]`，真实响应中字段缺失（如首集 `stat` 为空对象、新番无 `link_type`/`toast_title`）→ 给 detail 链路 30+ 结构体批量补 default（220+ 处）+ 嵌套 struct（BangumiPayType/BangumiMainSection/BangumiBadgeInfo）derive Default。第二轮根因（用户反馈仍有大量番剧失败，参考 wiliwili `from_json` 的 contains+get_to 容错策略）：(1) `result.total = -1`（连载番剧）与模型 `u32` 冲突 → `total` 改 `i64`（bpi-rs + BiliSeasonDetail 同步）；(2) **根治**：在 `bangumi/info.rs` 增加 `tolerant` 容错反序列化模块（`de_string/de_u64/de_u32/de_i64/de_f64/de_bool`，基于 serde_json::Value 中转，null/缺失/类型漂移（数字↔字符串、负数↔无符号）全部回落默认值），批量应用到全部 String/数字/bool 字段（约 260 处）。验证：真实响应 11 部番剧（含 2 部 1.46MB 大番剧）全部解析通过；bpi-rs bangumi 48 passed；src-tauri `--no-default-features` check 0 errors；`cargo test bilibili` 37 passed。另排查期间确认 wiliwili 的 SeasonResultWrapper 用 nlohmann 手动 from_json 逐字段容错，且合集分集缺 bvid/duration/long_title/subtitle 需 contains 检查（serde default 已覆盖缺失场景）。
 
 
