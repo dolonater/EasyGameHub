@@ -158,25 +158,6 @@ export default function Layout() {
     cancelHide();
   }, [location.pathname]);
 
-  // Auto-hide scroll tracking: scroll-down past a threshold hides the top/bottom
-  // nav, scroll-up (or reaching the very top) reveals it. Only active when the
-  // toggle is on AND the sidebar is in a horizontal position.
-  useEffect(() => {
-    const el = mainRef.current;
-    if (!el || !autoHideOn) return;
-    let last = el.scrollTop;
-    const onScroll = () => {
-      const st = el.scrollTop;
-      const delta = st - last;
-      last = st;
-      if (st <= 4) { cancelHide(); setNavVisible(true); return; }
-      if (delta > 8) setNavVisible(false);
-      else if (delta < -8) { cancelHide(); setNavVisible(true); }
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [autoHideOn, location.pathname]);
-
   // ── Big Picture mode: full-screen overlay ──
   if (fullscreen) return <BigPictureUI />;
 
@@ -265,10 +246,9 @@ export default function Layout() {
             "relative app-scrollbar app-page-surface flex-1 min-w-0 min-h-0 overflow-y-auto overflow-x-hidden p-6",
             horizontalSidebar ? "[&>*]:mx-auto" : "",
             pluginRoute ? "app-plugin-page" : "",
-            pluginRoute && sidebarPosition === "top" ? "app-plugin-page-top-nav pt-6" : sidebarPosition === "top" ? (autoHideOn && !navVisible ? "" : "pt-24") : "",
-            pluginRoute && sidebarPosition === "bottom" ? "app-plugin-page-bottom-nav pb-6" : sidebarPosition === "bottom" ? (autoHideOn && !navVisible ? "" : "pb-24") : "",
+            pluginRoute && sidebarPosition === "top" ? "app-plugin-page-top-nav pt-6" : sidebarPosition === "top" ? "pt-24" : "",
+            pluginRoute && sidebarPosition === "bottom" ? "app-plugin-page-bottom-nav pb-6" : sidebarPosition === "bottom" ? "pb-24" : "",
             sidebarPosition === "right" ? "[&>*]:ml-auto [&>*]:mr-0" : "",
-            autoHideOn ? "transition-[padding] duration-300 ease-out" : "",
             animEnabled ? "animate-fade-slide-up" : "",
           ].join(" ").trim()}
           style={mergedPageStyle}
