@@ -278,7 +278,6 @@ export function WatchPage() {
               onFavorite={interaction.favorite}
               onShare={interaction.share}
               onToView={interaction.toggleToView}
-              onFollowOwner={interaction.followOwner}
               onReport={interaction.report}
               onPlaybackTime={rememberPlaybackTime}
               onReloadPlayback={reloadPlayback}
@@ -294,6 +293,10 @@ export function WatchPage() {
             <WatchSidebarTabs
               aid={detail.aid}
               bvid={detail.bvid}
+              followBusy={interaction.busy === "follow"}
+              interactionState={interaction.state}
+              loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)}
+              onFollowOwner={interaction.followOwner}
               pages={detail.pages}
               selectedPageCid={selectedPage?.cid}
               onSelectPage={selectPage}

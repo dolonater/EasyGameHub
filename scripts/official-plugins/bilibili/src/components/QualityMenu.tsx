@@ -83,7 +83,7 @@ export function QualityMenu({
               >
                 <span className="bili-quality-option-main">
                   {active ? <Icon name="check" size={14} /> : null}
-                  <strong>{quality.label || quality.quality}</strong>
+                  <strong>{qualityText(quality)}</strong>
                 </span>
                 <small>
                   {quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video"}
@@ -99,5 +99,46 @@ export function QualityMenu({
 
 function currentLabel(currentQualityId: string, qualities: BiliQualityOption[]) {
   if (!currentQualityId) return "当前清晰度";
-  return qualities.find((quality) => quality.id === currentQualityId)?.label ?? "当前清晰度";
+  const quality = qualities.find((option) => option.id === currentQualityId);
+  return quality ? qualityText(quality) : "当前清晰度";
+}
+
+/** 规范化清晰度文本：360P / 480P / 720P / 1080P / 1080P60 / 4K / 8K（参考网页版）。 */
+function qualityText(quality: BiliQualityOption) {
+  const label = quality.label || "";
+  const pMatch = label.match(/(\d{3,4})P/);
+  if (pMatch) return `${pMatch[1]}P`;
+  if (label.includes("8K")) return "8K";
+  if (label.includes("4K")) return "4K";
+  if (label.includes("HDR")) return "HDR";
+  return codeLabel(quality.quality) || label || String(quality.quality);
+}
+
+function codeLabel(quality: number) {
+  switch (quality) {
+    case 6:
+      return "240P";
+    case 16:
+      return "360P";
+    case 32:
+      return "480P";
+    case 64:
+      return "720P";
+    case 74:
+      return "720P60";
+    case 80:
+      return "1080P";
+    case 112:
+      return "1080P+";
+    case 116:
+      return "1080P60";
+    case 120:
+      return "4K";
+    case 125:
+      return "HDR";
+    case 127:
+      return "8K";
+    default:
+      return "";
+  }
 }

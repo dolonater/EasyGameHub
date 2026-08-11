@@ -19228,9 +19228,11 @@ var cssText = `
   width: 100%;
 }
 .bili-comments {
-  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 60%, transparent);
-  border-radius: 14px;
-  background: hsl(var(--card, 0 0% 100%) / 0.65);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(132%);
+  -webkit-backdrop-filter: blur(18px) saturate(132%);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
   display: grid;
   gap: 14px;
@@ -21337,7 +21339,7 @@ function lowerBoundByTime(items, time) {
 }
 
 // src/components/PlayerShell.tsx
-import React26, { Button as Button13, useCallback as useCallback2, useEffect as useEffect12, useRef as useRef5, useState as useState16 } from "sdk";
+import React25, { Button as Button12, useCallback as useCallback2, useEffect as useEffect12, useRef as useRef5, useState as useState16 } from "sdk";
 
 // src/player/dashPlayer.ts
 var import_dashjs = __toESM(require_dash_all_min(), 1);
@@ -21825,14 +21827,52 @@ function QualityMenu({
         type: "button",
         onClick: () => onManual(quality.id)
       },
-      /* @__PURE__ */ React18.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React18.createElement(Icon, { name: "check", size: 14 }) : null, /* @__PURE__ */ React18.createElement("strong", null, quality.label || quality.quality)),
+      /* @__PURE__ */ React18.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React18.createElement(Icon, { name: "check", size: 14 }) : null, /* @__PURE__ */ React18.createElement("strong", null, qualityText(quality))),
       /* @__PURE__ */ React18.createElement("small", null, quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video")
     );
   })));
 }
 function currentLabel(currentQualityId, qualities) {
   if (!currentQualityId) return "\u5F53\u524D\u6E05\u6670\u5EA6";
-  return qualities.find((quality) => quality.id === currentQualityId)?.label ?? "\u5F53\u524D\u6E05\u6670\u5EA6";
+  const quality = qualities.find((option) => option.id === currentQualityId);
+  return quality ? qualityText(quality) : "\u5F53\u524D\u6E05\u6670\u5EA6";
+}
+function qualityText(quality) {
+  const label = quality.label || "";
+  const pMatch = label.match(/(\d{3,4})P/);
+  if (pMatch) return `${pMatch[1]}P`;
+  if (label.includes("8K")) return "8K";
+  if (label.includes("4K")) return "4K";
+  if (label.includes("HDR")) return "HDR";
+  return codeLabel(quality.quality) || label || String(quality.quality);
+}
+function codeLabel(quality) {
+  switch (quality) {
+    case 6:
+      return "240P";
+    case 16:
+      return "360P";
+    case 32:
+      return "480P";
+    case 64:
+      return "720P";
+    case 74:
+      return "720P60";
+    case 80:
+      return "1080P";
+    case 112:
+      return "1080P+";
+    case 116:
+      return "1080P60";
+    case 120:
+      return "4K";
+    case 125:
+      return "HDR";
+    case 127:
+      return "8K";
+    default:
+      return "";
+  }
 }
 
 // src/components/VideoInteractionBar.tsx
@@ -22101,26 +22141,11 @@ function trim4(value) {
   return value.toFixed(value >= 10 ? 0 : 1).replace(/\.0$/, "");
 }
 
-// src/components/VideoOwnerRow.tsx
-import React23, { Button as Button12 } from "sdk";
-function VideoOwnerRow({ busy, loggedIn, state: state2, onFollow, onOpenSpace }) {
-  const owner = state2?.owner;
-  return /* @__PURE__ */ React23.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React23.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React23.createElement("img", { alt: "", className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React23.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React23.createElement("span", null, /* @__PURE__ */ React23.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React23.createElement("small", null, owner ? `${formatCount5(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React23.createElement(Button12, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
-}
-function formatCount5(value) {
-  if (value >= 1e8) return `${trim5(value / 1e8)}\u4EBF`;
-  if (value >= 1e4) return `${trim5(value / 1e4)}\u4E07`;
-  return String(Math.max(0, Math.floor(value || 0)));
-}
-function trim5(value) {
-  return value.toFixed(value >= 10 ? 0 : 1).replace(/\.0$/, "");
-}
-
 // src/components/VideoPlayerControls.tsx
-import React25, { Icon as Icon6 } from "sdk";
+import React24, { Icon as Icon6 } from "sdk";
 
 // src/components/ScreenshotButton.tsx
-import React24, { Icon as Icon5, useState as useState15 } from "sdk";
+import React23, { Icon as Icon5, useState as useState15 } from "sdk";
 
 // src/player/frameCapture.ts
 function captureVideoFrame(video) {
@@ -22148,7 +22173,7 @@ function screenshotFileName(bvid, cid, seconds) {
 // src/components/ScreenshotButton.tsx
 function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
   const [saving, setSaving] = useState15(false);
-  return /* @__PURE__ */ React24.createElement(
+  return /* @__PURE__ */ React23.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -22157,8 +22182,8 @@ function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
       type: "button",
       onClick: saveScreenshot
     },
-    /* @__PURE__ */ React24.createElement(Icon5, { name: "screenshots", size: 16 }),
-    saving ? /* @__PURE__ */ React24.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
+    /* @__PURE__ */ React23.createElement(Icon5, { name: "screenshots", size: 16 }),
+    saving ? /* @__PURE__ */ React23.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
   );
   async function saveScreenshot() {
     if (!sdk || !selectedPage || !videoRef.current) return;
@@ -22207,7 +22232,7 @@ function VideoPlayerControls({
 }) {
   const progress = duration2 > 0 ? Math.min(100, Math.max(0, currentTime / duration2 * 100)) : 0;
   const seekStyle = { "--progress": `${progress}%` };
-  return /* @__PURE__ */ React25.createElement("div", { className: `bili-player-controls ${visible ? "" : "bili-player-controls-hidden"}` }, /* @__PURE__ */ React25.createElement("div", { className: "bili-player-playbar" }, /* @__PURE__ */ React25.createElement(
+  return /* @__PURE__ */ React24.createElement("div", { className: `bili-player-controls ${visible ? "" : "bili-player-controls-hidden"}` }, /* @__PURE__ */ React24.createElement("div", { className: "bili-player-playbar" }, /* @__PURE__ */ React24.createElement(
     "input",
     {
       "aria-label": "\u64AD\u653E\u8FDB\u5EA6",
@@ -22221,7 +22246,7 @@ function VideoPlayerControls({
       value: Math.min(currentTime, Math.max(1, duration2)),
       onChange: (event) => onSeek(Number(event.currentTarget.value))
     }
-  ), /* @__PURE__ */ React25.createElement("span", { className: "bili-player-time" }, formatDuration2(currentTime)), /* @__PURE__ */ React25.createElement("span", { className: "bili-player-time" }, formatDuration2(duration2))), /* @__PURE__ */ React25.createElement("div", { className: "bili-player-controls-row" }, /* @__PURE__ */ React25.createElement(
+  ), /* @__PURE__ */ React24.createElement("span", { className: "bili-player-time" }, formatDuration2(currentTime)), /* @__PURE__ */ React24.createElement("span", { className: "bili-player-time" }, formatDuration2(duration2))), /* @__PURE__ */ React24.createElement("div", { className: "bili-player-controls-row" }, /* @__PURE__ */ React24.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -22230,8 +22255,8 @@ function VideoPlayerControls({
       type: "button",
       onClick: onTogglePlay
     },
-    /* @__PURE__ */ React25.createElement(Icon6, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
-  ), /* @__PURE__ */ React25.createElement(
+    /* @__PURE__ */ React24.createElement(Icon6, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
+  ), /* @__PURE__ */ React24.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -22240,8 +22265,8 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleMute
     },
-    /* @__PURE__ */ React25.createElement(Icon6, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
-  ), /* @__PURE__ */ React25.createElement(
+    /* @__PURE__ */ React24.createElement(Icon6, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
+  ), /* @__PURE__ */ React24.createElement(
     "input",
     {
       "aria-label": "\u97F3\u91CF",
@@ -22254,7 +22279,7 @@ function VideoPlayerControls({
       value: muted ? 0 : volume,
       onChange: (event) => onChangeVolume(Number(event.currentTarget.value))
     }
-  ), /* @__PURE__ */ React25.createElement("span", { className: "bili-player-rate-wrap" }, /* @__PURE__ */ React25.createElement(
+  ), /* @__PURE__ */ React24.createElement("span", { className: "bili-player-rate-wrap" }, /* @__PURE__ */ React24.createElement(
     "select",
     {
       "aria-label": "\u500D\u901F",
@@ -22263,8 +22288,8 @@ function VideoPlayerControls({
       value: rate,
       onChange: (event) => onChangeRate(Number(event.currentTarget.value))
     },
-    rates.map((value) => /* @__PURE__ */ React25.createElement("option", { key: value, value }, value, "x"))
-  )), /* @__PURE__ */ React25.createElement(
+    rates.map((value) => /* @__PURE__ */ React24.createElement("option", { key: value, value }, value, "x"))
+  )), /* @__PURE__ */ React24.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -22274,9 +22299,9 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleQuality
     },
-    /* @__PURE__ */ React25.createElement(Icon6, { name: "settings", size: 16 }),
-    /* @__PURE__ */ React25.createElement("small", null, qualityLabel)
-  ), /* @__PURE__ */ React25.createElement(
+    /* @__PURE__ */ React24.createElement(Icon6, { name: "settings", size: 16 }),
+    /* @__PURE__ */ React24.createElement("small", null, qualityLabel)
+  ), /* @__PURE__ */ React24.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -22285,9 +22310,9 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleDanmaku
     },
-    /* @__PURE__ */ React25.createElement(Icon6, { name: "playlistFilled", size: 16 }),
-    /* @__PURE__ */ React25.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
-  ), /* @__PURE__ */ React25.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React25.createElement(
+    /* @__PURE__ */ React24.createElement(Icon6, { name: "playlistFilled", size: 16 }),
+    /* @__PURE__ */ React24.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
+  ), /* @__PURE__ */ React24.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React24.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -22296,7 +22321,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleFullscreen
     },
-    /* @__PURE__ */ React25.createElement(Icon6, { name: "fullscreen", size: 18 })
+    /* @__PURE__ */ React24.createElement(Icon6, { name: "fullscreen", size: 18 })
   )));
 }
 function formatDuration2(seconds) {
@@ -22337,7 +22362,6 @@ function PlayerShell({
   onFavorite,
   onShare,
   onToView,
-  onFollowOwner,
   onReport,
   onPlaybackTime,
   onReloadPlayback,
@@ -22511,7 +22535,7 @@ function PlayerShell({
   function toggleDanmaku() {
     setDanmakuOpen((value) => !value);
   }
-  return /* @__PURE__ */ React26.createElement("div", { className: "bili-watch-main" }, /* @__PURE__ */ React26.createElement(
+  return /* @__PURE__ */ React25.createElement("div", { className: "bili-watch-main" }, /* @__PURE__ */ React25.createElement(
     "div",
     {
       className: `bili-player-shell ${fullscreen ? "bili-player-shell-fullscreen" : ""}`,
@@ -22519,10 +22543,10 @@ function PlayerShell({
       onMouseEnter: () => setHovering(true),
       onMouseLeave: () => setHovering(false)
     },
-    /* @__PURE__ */ React26.createElement("video", { className: "bili-video-element", playsInline: true, ref: videoRef }),
-    /* @__PURE__ */ React26.createElement(DanmakuOverlay, { items: danmakuItems, settings: danmakuSettings, videoRef }),
-    loadingPlayback || !playback || playbackError ? /* @__PURE__ */ React26.createElement("div", { className: "bili-player-overlay" }, /* @__PURE__ */ React26.createElement("strong", null, playbackError ? "\u64AD\u653E\u5931\u8D25" : loadingPlayback ? "\u6B63\u5728\u521B\u5EFA\u64AD\u653E\u4F1A\u8BDD" : "\u7B49\u5F85\u64AD\u653E\u6E90"), playbackError ? /* @__PURE__ */ React26.createElement("span", null, playbackError) : null, playbackError ? /* @__PURE__ */ React26.createElement("div", { className: "bili-player-overlay-actions" }, /* @__PURE__ */ React26.createElement(Button13, { size: "sm", type: "button", onClick: onReloadPlayback }, "\u91CD\u8F7D"), /* @__PURE__ */ React26.createElement(Button13, { variant: "outline", size: "sm", type: "button", onClick: openExternal }, "\u5916\u90E8\u6253\u5F00")) : null) : null,
-    /* @__PURE__ */ React26.createElement(
+    /* @__PURE__ */ React25.createElement("video", { className: "bili-video-element", playsInline: true, ref: videoRef }),
+    /* @__PURE__ */ React25.createElement(DanmakuOverlay, { items: danmakuItems, settings: danmakuSettings, videoRef }),
+    loadingPlayback || !playback || playbackError ? /* @__PURE__ */ React25.createElement("div", { className: "bili-player-overlay" }, /* @__PURE__ */ React25.createElement("strong", null, playbackError ? "\u64AD\u653E\u5931\u8D25" : loadingPlayback ? "\u6B63\u5728\u521B\u5EFA\u64AD\u653E\u4F1A\u8BDD" : "\u7B49\u5F85\u64AD\u653E\u6E90"), playbackError ? /* @__PURE__ */ React25.createElement("span", null, playbackError) : null, playbackError ? /* @__PURE__ */ React25.createElement("div", { className: "bili-player-overlay-actions" }, /* @__PURE__ */ React25.createElement(Button12, { size: "sm", type: "button", onClick: onReloadPlayback }, "\u91CD\u8F7D"), /* @__PURE__ */ React25.createElement(Button12, { variant: "outline", size: "sm", type: "button", onClick: openExternal }, "\u5916\u90E8\u6253\u5F00")) : null) : null,
+    /* @__PURE__ */ React25.createElement(
       VideoPlayerControls,
       {
         canControl,
@@ -22552,14 +22576,14 @@ function PlayerShell({
         volume
       }
     ),
-    qualityOpen ? /* @__PURE__ */ React26.createElement(
+    qualityOpen ? /* @__PURE__ */ React25.createElement(
       MenuPopover,
       {
         onClose: () => setQualityOpen(false),
         style: { position: "absolute", right: 12, bottom: 80, zIndex: 50 },
         triggerRef: qualityTriggerRef
       },
-      /* @__PURE__ */ React26.createElement(
+      /* @__PURE__ */ React25.createElement(
         QualityMenu,
         {
           currentQualityId: dashState.currentQualityId,
@@ -22580,7 +22604,7 @@ function PlayerShell({
         }
       )
     ) : null,
-    danmakuOpen ? /* @__PURE__ */ React26.createElement(
+    danmakuOpen ? /* @__PURE__ */ React25.createElement(
       DanmakuSettingsPopover,
       {
         settings: danmakuSettings,
@@ -22593,7 +22617,7 @@ function PlayerShell({
         triggerRef: danmakuTriggerRef
       }
     ) : null
-  ), /* @__PURE__ */ React26.createElement(
+  ), /* @__PURE__ */ React25.createElement(
     DanmakuInput,
     {
       detail,
@@ -22604,7 +22628,7 @@ function PlayerShell({
       videoRef,
       onSent: onDanmakuSent
     }
-  ), /* @__PURE__ */ React26.createElement(
+  ), /* @__PURE__ */ React25.createElement(
     VideoInteractionBar,
     {
       busy: interactionBusy,
@@ -22621,16 +22645,7 @@ function PlayerShell({
       onCopyLink: onShare,
       onOpenScreenshotFolder: openScreenshotFolder
     }
-  ), interactionError ? /* @__PURE__ */ React26.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, interactionError) : null, /* @__PURE__ */ React26.createElement(
-    VideoOwnerRow,
-    {
-      busy: interactionBusy === "follow",
-      loggedIn,
-      state: interactionState,
-      onFollow: onFollowOwner,
-      onOpenSpace: openOwnerSpace
-    }
-  ), /* @__PURE__ */ React26.createElement("section", { className: "bili-video-detail-panel" }, /* @__PURE__ */ React26.createElement("div", { className: "bili-video-heading" }, /* @__PURE__ */ React26.createElement("strong", null, detail.title || "Untitled"), /* @__PURE__ */ React26.createElement("small", null, detail.owner.name || "\u672A\u77E5 UP \u4E3B", " \xB7 ", formatCount6(detail.stats.viewCount), " \u64AD\u653E \xB7", " ", formatCount6(detail.stats.danmakuCount), " \u5F39\u5E55")), /* @__PURE__ */ React26.createElement("p", null, detail.description || "\u6682\u65E0\u7B80\u4ECB")), commentsPanel);
+  ), interactionError ? /* @__PURE__ */ React25.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, interactionError) : null, /* @__PURE__ */ React25.createElement("section", { className: "bili-video-detail-panel" }, /* @__PURE__ */ React25.createElement("div", { className: "bili-video-heading" }, /* @__PURE__ */ React25.createElement("strong", null, detail.title || "Untitled"), /* @__PURE__ */ React25.createElement("small", null, detail.owner.name || "\u672A\u77E5 UP \u4E3B", " \xB7 ", formatCount5(detail.stats.viewCount), " \u64AD\u653E \xB7", " ", formatCount5(detail.stats.danmakuCount), " \u5F39\u5E55")), /* @__PURE__ */ React25.createElement("p", null, detail.description || "\u6682\u65E0\u7B80\u4ECB")), commentsPanel);
   function togglePlay() {
     const video = videoRef.current;
     if (!video) return;
@@ -22685,18 +22700,13 @@ function PlayerShell({
       sdk.ui.notify(errorMessage(err));
     });
   }
-  function openOwnerSpace() {
-    const mid = interactionState?.owner.mid || detail.owner.mid;
-    if (!mid) return;
-    window.open(`https://space.bilibili.com/${mid}`, "_blank");
-  }
 }
-function formatCount6(value) {
-  if (value >= 1e8) return `${trim6(value / 1e8)}\u4EBF`;
-  if (value >= 1e4) return `${trim6(value / 1e4)}\u4E07`;
+function formatCount5(value) {
+  if (value >= 1e8) return `${trim5(value / 1e8)}\u4EBF`;
+  if (value >= 1e4) return `${trim5(value / 1e4)}\u4E07`;
   return String(Math.max(0, Math.floor(value || 0)));
 }
-function trim6(value) {
+function trim5(value) {
   return value.toFixed(value >= 10 ? 0 : 1).replace(/\.0$/, "");
 }
 function shouldRememberTime(video) {
@@ -22730,7 +22740,7 @@ function playSafely2(video) {
 import React28, { useState as useState18 } from "sdk";
 
 // src/components/RelatedPanel.tsx
-import React27, { useEffect as useEffect13, useState as useState17 } from "sdk";
+import React26, { useEffect as useEffect13, useState as useState17 } from "sdk";
 function RelatedPanel({ bvid, aid }) {
   const [items, setItems] = useState17([]);
   const [loading, setLoading] = useState17(false);
@@ -22753,15 +22763,49 @@ function RelatedPanel({ bvid, aid }) {
     };
   }, [aid, bvid]);
   if (error || !loading && items.length === 0) {
-    return /* @__PURE__ */ React27.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React27.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React27.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React27.createElement("small", null, "\u6682\u65E0")), /* @__PURE__ */ React27.createElement("span", { className: "bili-feed-context" }, "\u6682\u65E0\u53EF\u63A8\u8350\u89C6\u9891"));
+    return /* @__PURE__ */ React26.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React26.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React26.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React26.createElement("small", null, "\u6682\u65E0")), /* @__PURE__ */ React26.createElement("span", { className: "bili-feed-context" }, "\u6682\u65E0\u53EF\u63A8\u8350\u89C6\u9891"));
   }
-  return /* @__PURE__ */ React27.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React27.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React27.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React27.createElement("small", null, items.length, " \u6761")), /* @__PURE__ */ React27.createElement("div", { className: "bili-related-list" }, items.map((video) => /* @__PURE__ */ React27.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))));
+  return /* @__PURE__ */ React26.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React26.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React26.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React26.createElement("small", null, items.length, " \u6761")), /* @__PURE__ */ React26.createElement("div", { className: "bili-related-list" }, items.map((video) => /* @__PURE__ */ React26.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))));
+}
+
+// src/components/VideoOwnerRow.tsx
+import React27, { Button as Button13 } from "sdk";
+function VideoOwnerRow({ busy, loggedIn, state: state2, onFollow, onOpenSpace }) {
+  const owner = state2?.owner;
+  return /* @__PURE__ */ React27.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React27.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React27.createElement("img", { alt: "", className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React27.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React27.createElement("span", null, /* @__PURE__ */ React27.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React27.createElement("small", null, owner ? `${formatCount6(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React27.createElement(Button13, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
+}
+function formatCount6(value) {
+  if (value >= 1e8) return `${trim6(value / 1e8)}\u4EBF`;
+  if (value >= 1e4) return `${trim6(value / 1e4)}\u4E07`;
+  return String(Math.max(0, Math.floor(value || 0)));
+}
+function trim6(value) {
+  return value.toFixed(value >= 10 ? 0 : 1).replace(/\.0$/, "");
 }
 
 // src/components/WatchSidebarTabs.tsx
-function WatchSidebarTabs({ pages, selectedPageCid, onSelectPage, bvid, aid }) {
+function WatchSidebarTabs({
+  pages,
+  selectedPageCid,
+  onSelectPage,
+  bvid,
+  aid,
+  loggedIn,
+  interactionState,
+  followBusy,
+  onFollowOwner
+}) {
   const [open, setOpen] = useState18(false);
-  return /* @__PURE__ */ React28.createElement("aside", { className: `bili-watch-side ${open ? "bili-watch-side-open" : ""}` }, /* @__PURE__ */ React28.createElement("button", { className: "bili-watch-side-toggle", type: "button", onClick: () => setOpen((value) => !value) }, /* @__PURE__ */ React28.createElement("span", null, "\u5206P \xB7 \u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React28.createElement("small", null, open ? "\u6536\u8D77" : "\u5C55\u5F00")), /* @__PURE__ */ React28.createElement("div", { className: "bili-watch-side-content" }, /* @__PURE__ */ React28.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React28.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React28.createElement("strong", null, "\u5206 P"), /* @__PURE__ */ React28.createElement("small", null, pages.length, " \u4E2A")), /* @__PURE__ */ React28.createElement("div", { className: "bili-page-list" }, pages.map((page) => /* @__PURE__ */ React28.createElement(
+  return /* @__PURE__ */ React28.createElement("aside", { className: `bili-watch-side ${open ? "bili-watch-side-open" : ""}` }, /* @__PURE__ */ React28.createElement("button", { className: "bili-watch-side-toggle", type: "button", onClick: () => setOpen((value) => !value) }, /* @__PURE__ */ React28.createElement("span", null, "UP \xB7 \u5206P \xB7 \u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React28.createElement("small", null, open ? "\u6536\u8D77" : "\u5C55\u5F00")), /* @__PURE__ */ React28.createElement("div", { className: "bili-watch-side-content" }, /* @__PURE__ */ React28.createElement(
+    VideoOwnerRow,
+    {
+      busy: followBusy,
+      loggedIn,
+      state: interactionState,
+      onFollow: onFollowOwner,
+      onOpenSpace: openOwnerSpace
+    }
+  ), /* @__PURE__ */ React28.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React28.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React28.createElement("strong", null, "\u5206 P"), /* @__PURE__ */ React28.createElement("small", null, pages.length, " \u4E2A")), /* @__PURE__ */ React28.createElement("div", { className: "bili-page-list" }, pages.map((page) => /* @__PURE__ */ React28.createElement(
     "button",
     {
       className: `bili-page-item ${selectedPageCid === page.cid ? "bili-page-item-active" : ""}`,
@@ -22772,6 +22816,11 @@ function WatchSidebarTabs({ pages, selectedPageCid, onSelectPage, bvid, aid }) {
     /* @__PURE__ */ React28.createElement("span", null, page.page, ". ", page.title || `CID ${page.cid}`),
     /* @__PURE__ */ React28.createElement("small", null, formatDuration3(page.duration))
   )))), /* @__PURE__ */ React28.createElement(RelatedPanel, { bvid, aid })));
+  function openOwnerSpace() {
+    const mid = interactionState?.owner.mid;
+    if (!mid) return;
+    window.open(`https://space.bilibili.com/${mid}`, "_blank");
+  }
 }
 function formatDuration3(seconds) {
   const safe = Math.max(0, Math.floor(seconds || 0));
@@ -23168,7 +23217,6 @@ function WatchPage() {
         onFavorite: interaction.favorite,
         onShare: interaction.share,
         onToView: interaction.toggleToView,
-        onFollowOwner: interaction.followOwner,
         onReport: interaction.report,
         onPlaybackTime: rememberPlaybackTime,
         onReloadPlayback: reloadPlayback,
@@ -23184,6 +23232,10 @@ function WatchPage() {
       {
         aid: detail.aid,
         bvid: detail.bvid,
+        followBusy: interaction.busy === "follow",
+        interactionState: interaction.state,
+        loggedIn: Boolean(runtimeState.loginInfo?.loggedIn),
+        onFollowOwner: interaction.followOwner,
         pages: detail.pages,
         selectedPageCid: selectedPage?.cid,
         onSelectPage: selectPage

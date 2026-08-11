@@ -17,7 +17,6 @@ import { DanmakuSettingsPopover } from "./DanmakuSettingsPopover";
 import { MenuPopover } from "./MenuPopover";
 import { QualityMenu } from "./QualityMenu";
 import { VideoInteractionBar } from "./VideoInteractionBar";
-import { VideoOwnerRow } from "./VideoOwnerRow";
 import { VideoPlayerControls } from "./VideoPlayerControls";
 
 interface PlayerShellProps {
@@ -44,7 +43,6 @@ interface PlayerShellProps {
   onFavorite(addMediaIds: string[], delMediaIds: string[]): void;
   onShare(): void;
   onToView(): void;
-  onFollowOwner(): void;
   onReport(): void;
   onPlaybackTime(cid: number, seconds: number): void;
   onReloadPlayback(): void;
@@ -82,7 +80,6 @@ export function PlayerShell({
   onFavorite,
   onShare,
   onToView,
-  onFollowOwner,
   onReport,
   onPlaybackTime,
   onReloadPlayback,
@@ -399,14 +396,6 @@ export function PlayerShell({
 
       {interactionError ? <div className="bili-state bili-state-error bili-state-compact">{interactionError}</div> : null}
 
-      <VideoOwnerRow
-        busy={interactionBusy === "follow"}
-        loggedIn={loggedIn}
-        state={interactionState}
-        onFollow={onFollowOwner}
-        onOpenSpace={openOwnerSpace}
-      />
-
       <section className="bili-video-detail-panel">
         <div className="bili-video-heading">
           <strong>{detail.title || "Untitled"}</strong>
@@ -482,12 +471,6 @@ export function PlayerShell({
     void sdk.bilibili.cache.openScreenshotFolder().catch((err) => {
       sdk.ui.notify(errorMessage(err));
     });
-  }
-
-  function openOwnerSpace() {
-    const mid = interactionState?.owner.mid || detail.owner.mid;
-    if (!mid) return;
-    window.open(`https://space.bilibili.com/${mid}`, "_blank");
   }
 }
 

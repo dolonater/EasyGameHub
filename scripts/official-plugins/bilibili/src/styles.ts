@@ -1037,9 +1037,11 @@ export const cssText = `
   width: 100%;
 }
 .bili-comments {
-  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 60%, transparent);
-  border-radius: 14px;
-  background: hsl(var(--card, 0 0% 100%) / 0.65);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 42%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 78%, transparent);
+  backdrop-filter: blur(18px) saturate(132%);
+  -webkit-backdrop-filter: blur(18px) saturate(132%);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
   display: grid;
   gap: 14px;
