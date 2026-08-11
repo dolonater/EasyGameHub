@@ -1685,6 +1685,41 @@ export const cssText = `
   animation: bili-fade-in 320ms var(--bili-spring);
 }
 
+/* 播放页组件级联进入（主区 播放器→弹幕输入→互动条→详情→评论 依次错峰；侧栏整体上浮 + 行内错峰） */
+.bili-watch-grid {
+  animation: bili-fade-in 240ms var(--bili-spring);
+}
+.bili-player-shell {
+  animation: bili-view-in 380ms var(--bili-spring) backwards;
+}
+.bili-player-overlay {
+  animation: bili-fade-in 240ms var(--bili-spring);
+}
+.bili-danmaku-input {
+  animation: bili-list-in 300ms var(--bili-spring) 50ms backwards;
+}
+.bili-interaction-wrap {
+  animation: bili-list-in 300ms var(--bili-spring) 80ms backwards;
+}
+.bili-video-detail-panel {
+  animation: bili-list-in 300ms var(--bili-spring) 120ms backwards;
+}
+.bili-comments {
+  animation: bili-list-in 320ms var(--bili-spring) 170ms backwards;
+}
+.bili-watch-side {
+  animation: bili-view-in 360ms var(--bili-spring) 60ms backwards;
+}
+.bili-watch-side .bili-owner-row {
+  animation: bili-list-in 280ms var(--bili-spring) 40ms backwards;
+}
+.bili-watch-side .bili-sidebar-section {
+  animation: bili-list-in 280ms var(--bili-spring) backwards;
+}
+.bili-watch-side .bili-sidebar-section:nth-of-type(2) {
+  animation-delay: 90ms;
+}
+
 /* 视频卡片错峰进入（首页网格逐卡延迟，相关推荐/我的页库走基础淡入） */
 .bili-video-card {
   animation: bili-card-in 360ms var(--bili-spring) backwards;
@@ -1736,6 +1771,16 @@ export const cssText = `
   .bili-home,
   .bili-mine,
   .bili-watch,
+  .bili-watch-grid,
+  .bili-player-shell,
+  .bili-player-overlay,
+  .bili-danmaku-input,
+  .bili-interaction-wrap,
+  .bili-video-detail-panel,
+  .bili-comments,
+  .bili-watch-side,
+  .bili-watch-side .bili-owner-row,
+  .bili-watch-side .bili-sidebar-section,
   .bili-video-card,
   .bili-comment-card,
   .bili-menu-popover,

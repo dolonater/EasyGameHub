@@ -19876,6 +19876,41 @@ var cssText = `
   animation: bili-fade-in 320ms var(--bili-spring);
 }
 
+/* \u64AD\u653E\u9875\u7EC4\u4EF6\u7EA7\u8054\u8FDB\u5165\uFF08\u4E3B\u533A \u64AD\u653E\u5668\u2192\u5F39\u5E55\u8F93\u5165\u2192\u4E92\u52A8\u6761\u2192\u8BE6\u60C5\u2192\u8BC4\u8BBA \u4F9D\u6B21\u9519\u5CF0\uFF1B\u4FA7\u680F\u6574\u4F53\u4E0A\u6D6E + \u884C\u5185\u9519\u5CF0\uFF09 */
+.bili-watch-grid {
+  animation: bili-fade-in 240ms var(--bili-spring);
+}
+.bili-player-shell {
+  animation: bili-view-in 380ms var(--bili-spring) backwards;
+}
+.bili-player-overlay {
+  animation: bili-fade-in 240ms var(--bili-spring);
+}
+.bili-danmaku-input {
+  animation: bili-list-in 300ms var(--bili-spring) 50ms backwards;
+}
+.bili-interaction-wrap {
+  animation: bili-list-in 300ms var(--bili-spring) 80ms backwards;
+}
+.bili-video-detail-panel {
+  animation: bili-list-in 300ms var(--bili-spring) 120ms backwards;
+}
+.bili-comments {
+  animation: bili-list-in 320ms var(--bili-spring) 170ms backwards;
+}
+.bili-watch-side {
+  animation: bili-view-in 360ms var(--bili-spring) 60ms backwards;
+}
+.bili-watch-side .bili-owner-row {
+  animation: bili-list-in 280ms var(--bili-spring) 40ms backwards;
+}
+.bili-watch-side .bili-sidebar-section {
+  animation: bili-list-in 280ms var(--bili-spring) backwards;
+}
+.bili-watch-side .bili-sidebar-section:nth-of-type(2) {
+  animation-delay: 90ms;
+}
+
 /* \u89C6\u9891\u5361\u7247\u9519\u5CF0\u8FDB\u5165\uFF08\u9996\u9875\u7F51\u683C\u9010\u5361\u5EF6\u8FDF\uFF0C\u76F8\u5173\u63A8\u8350/\u6211\u7684\u9875\u5E93\u8D70\u57FA\u7840\u6DE1\u5165\uFF09 */
 .bili-video-card {
   animation: bili-card-in 360ms var(--bili-spring) backwards;
@@ -19927,6 +19962,16 @@ var cssText = `
   .bili-home,
   .bili-mine,
   .bili-watch,
+  .bili-watch-grid,
+  .bili-player-shell,
+  .bili-player-overlay,
+  .bili-danmaku-input,
+  .bili-interaction-wrap,
+  .bili-video-detail-panel,
+  .bili-comments,
+  .bili-watch-side,
+  .bili-watch-side .bili-owner-row,
+  .bili-watch-side .bili-sidebar-section,
   .bili-video-card,
   .bili-comment-card,
   .bili-menu-popover,
