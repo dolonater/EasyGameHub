@@ -1,5 +1,4 @@
-import React, { Button, useEffect, useRef, useState } from "sdk";
-import { BiliAppShell } from "../components/BiliAppShell";
+import React, { useEffect, useRef, useState } from "sdk";
 import { CommentPanel } from "../components/CommentPanel";
 import { defaultDanmakuSettings, type DanmakuSettings } from "../components/DanmakuOverlay";
 import { PlayerShell } from "../components/PlayerShell";
@@ -20,10 +19,14 @@ interface QueryState {
   cid?: number;
 }
 
+interface WatchPageProps {
+  target: QueryState;
+}
+
 type PlaybackMode = "quality" | "compat";
 
-export function WatchPage() {
-  const [query] = useState<QueryState>(() => readQuery());
+export function WatchPage({ target }: WatchPageProps) {
+  const [query] = useState<QueryState>(() => ({ bvid: target.bvid, aid: target.aid, cid: target.cid }));
   const [detail, setDetail] = useState<BiliVideoDetail | null>(null);
   const [selectedPage, setSelectedPage] = useState<BiliVideoPage | null>(null);
   const [playback, setPlayback] = useState<BiliPlaybackSource | null>(null);
@@ -233,87 +236,68 @@ export function WatchPage() {
   }
 
   return (
-    <BiliAppShell
-      current="watch"
-      subtitle={query.bvid || (query.aid ? `av${query.aid}` : "播放")}
-      title="播放"
-      actions={
-        <Button variant="outline" size="sm" type="button" onClick={() => history.back()}>
-          返回
-        </Button>
-      }
-    >
-      <section className="bili-watch">
-        {detailError ? <div className="bili-state bili-state-error">{detailError}</div> : null}
-        {!detailError && loadingDetail ? <div className="bili-state">正在加载视频详情</div> : null}
-        {!detailError && !loadingDetail && detail ? (
-          <section className="bili-watch-grid">
-            <PlayerShell
-              detail={detail}
-              sdk={getState().sdk}
-              selectedPage={selectedPage}
-              playback={playback}
-              loadingPlayback={loadingPlayback}
-              error={playbackError}
-              startTime={startTimeForPage(
-                detail,
-                selectedPage,
-                progressRef.current,
-                touchedProgressRef.current,
-                localProgress,
-              )}
-              defaultPlaybackRate={defaultPlaybackRate}
-              syncProgress={syncProgress}
-              danmakuItems={danmakuItems}
-              danmakuLoading={danmakuLoading}
-              danmakuError={danmakuError}
-              danmakuSettings={danmakuSettings}
-              loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)}
-              interactionState={interaction.state}
-              interactionLoading={interaction.loading}
-              interactionError={interaction.error}
-              interactionBusy={interaction.busy}
-              onLike={interaction.like}
-              onCoin={interaction.coin}
-              onFavorite={interaction.favorite}
-              onShare={interaction.share}
-              onToView={interaction.toggleToView}
-              onReport={interaction.report}
-              onPlaybackTime={rememberPlaybackTime}
-              onReloadPlayback={reloadPlayback}
-              onPlaybackFallback={fallbackPlayback}
-              playbackMode={playbackMode}
-              onPlaybackModeChange={changePlaybackMode}
-              onDanmakuSettingsChange={setDanmakuSettings}
-              onDanmakuSent={(item) => setDanmakuItems((items) => sortDanmaku([...items, item]))}
-              commentsPanel={
-                <CommentPanel detail={detail} loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)} sdk={getState().sdk} />
-              }
-            />
-            <WatchSidebarTabs
-              aid={detail.aid}
-              bvid={detail.bvid}
-              followBusy={interaction.busy === "follow"}
-              interactionState={interaction.state}
-              loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)}
-              onFollowOwner={interaction.followOwner}
-              pages={detail.pages}
-              selectedPageCid={selectedPage?.cid}
-              onSelectPage={selectPage}
-            />
-          </section>
-        ) : null}
-      </section>
-    </BiliAppShell>
+    <section className="bili-watch">
+      {detailError ? <div className="bili-state bili-state-error">{detailError}</div> : null}
+      {!detailError && loadingDetail ? <div className="bili-state">正在加载视频详情</div> : null}
+      {!detailError && !loadingDetail && detail ? (
+        <section className="bili-watch-grid">
+          <PlayerShell
+            detail={detail}
+            sdk={getState().sdk}
+            selectedPage={selectedPage}
+            playback={playback}
+            loadingPlayback={loadingPlayback}
+            error={playbackError}
+            startTime={startTimeForPage(
+              detail,
+              selectedPage,
+              progressRef.current,
+              touchedProgressRef.current,
+              localProgress,
+            )}
+            defaultPlaybackRate={defaultPlaybackRate}
+            syncProgress={syncProgress}
+            danmakuItems={danmakuItems}
+            danmakuLoading={danmakuLoading}
+            danmakuError={danmakuError}
+            danmakuSettings={danmakuSettings}
+            loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)}
+            interactionState={interaction.state}
+            interactionLoading={interaction.loading}
+            interactionError={interaction.error}
+            interactionBusy={interaction.busy}
+            onLike={interaction.like}
+            onCoin={interaction.coin}
+            onFavorite={interaction.favorite}
+            onShare={interaction.share}
+            onToView={interaction.toggleToView}
+            onReport={interaction.report}
+            onPlaybackTime={rememberPlaybackTime}
+            onReloadPlayback={reloadPlayback}
+            onPlaybackFallback={fallbackPlayback}
+            playbackMode={playbackMode}
+            onPlaybackModeChange={changePlaybackMode}
+            onDanmakuSettingsChange={setDanmakuSettings}
+            onDanmakuSent={(item) => setDanmakuItems((items) => sortDanmaku([...items, item]))}
+            commentsPanel={
+              <CommentPanel detail={detail} loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)} sdk={getState().sdk} />
+            }
+          />
+          <WatchSidebarTabs
+            aid={detail.aid}
+            bvid={detail.bvid}
+            followBusy={interaction.busy === "follow"}
+            interactionState={interaction.state}
+            loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)}
+            onFollowOwner={interaction.followOwner}
+            pages={detail.pages}
+            selectedPageCid={selectedPage?.cid}
+            onSelectPage={selectPage}
+          />
+        </section>
+      ) : null}
+    </section>
   );
-}
-
-function readQuery(): QueryState {
-  const params = new URLSearchParams(window.location.search);
-  const bvid = params.get("bvid")?.trim() || undefined;
-  const aid = parsePositiveNumber(params.get("aid"));
-  const cid = parsePositiveNumber(params.get("cid"));
-  return { bvid, aid, cid };
 }
 
 function selectInitialPage(detail: BiliVideoDetail, requestedCid?: number, localProgress?: BiliLocalProgress | null) {
@@ -348,9 +332,4 @@ function safeStartTime(value: number | undefined, duration: number) {
 
 function sortDanmaku(items: BiliDanmakuItem[]) {
   return [...items].sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
-}
-
-function parsePositiveNumber(value: string | null) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }

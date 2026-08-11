@@ -1,5 +1,4 @@
 import React, { Button, TextField, useState } from "sdk";
-import { BiliAppShell } from "../components/BiliAppShell";
 import { HomeFeed } from "../components/HomeFeed";
 import { usePagedFeed } from "../hooks/usePagedFeed";
 import { getState } from "../runtime";
@@ -75,37 +74,28 @@ export function HomePage() {
   const searchGuide = mode === "search" && searchKeyword.length === 0;
 
   return (
-    <BiliAppShell
-      current="home"
-      actions={
-        <a className="bili-link-button" href="https://www.bilibili.com" target="_blank" rel="noreferrer">
-          打开 B 站
-        </a>
-      }
-    >
-      <section className="bili-home">
-        <form className="bili-search" onSubmit={(event) => handleSearch(event)}>
-          <TextField value={query} onChange={(event: any) => setQuery(event.currentTarget.value)} placeholder="搜索视频" />
-          <Button type="submit" disabled={active.loading} size="sm">
-            搜索
-          </Button>
-          <Button variant="outline" size="sm" type="button" onClick={refreshCurrent} disabled={active.loading}>
-            刷新
-          </Button>
-        </form>
+    <section className="bili-home">
+      <form className="bili-search" onSubmit={(event) => handleSearch(event)}>
+        <TextField value={query} onChange={(event: any) => setQuery(event.currentTarget.value)} placeholder="搜索视频" />
+        <Button type="submit" disabled={active.loading} size="sm">
+          搜索
+        </Button>
+        <Button variant="outline" size="sm" type="button" onClick={refreshCurrent} disabled={active.loading}>
+          刷新
+        </Button>
+      </form>
 
-        <HomeFeed
-          error={active.error}
-          loading={active.loading}
-          mode={mode}
-          videos={active.items}
-          searchGuide={searchGuide}
-          onPopular={switchToPopular}
-          onRecommend={switchToRecommend}
-          onSearch={switchToSearch}
-        />
-      </section>
-    </BiliAppShell>
+      <HomeFeed
+        error={active.error}
+        loading={active.loading}
+        mode={mode}
+        videos={active.items}
+        searchGuide={searchGuide}
+        onPopular={switchToPopular}
+        onRecommend={switchToRecommend}
+        onSearch={switchToSearch}
+      />
+    </section>
   );
 }
 

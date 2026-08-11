@@ -18180,10 +18180,10 @@ var require_dash_all_min = __commonJS({
 });
 
 // src/index.tsx
-import React30, { Button as Button15, Select, Slider as Slider2, Toggle as Toggle3, useEffect as useEffect16, useState as useState21 } from "sdk";
+import React31, { Button as Button15, Select, Slider as Slider2, Toggle as Toggle3, useEffect as useEffect17, useState as useState22 } from "sdk";
 
-// src/pages/HomePage.tsx
-import React7, { Button as Button3, TextField, useState as useState4 } from "sdk";
+// src/pages/MainPage.tsx
+import React30, { Button as Button14, useEffect as useEffect16, useState as useState21 } from "sdk";
 
 // src/components/BiliAppShell.tsx
 import React3 from "sdk";
@@ -18203,6 +18203,9 @@ var cssText = `
 .bili-shell *::after {
   box-sizing: border-box;
   letter-spacing: 0;
+}
+.bili-hidden {
+  display: none;
 }
 .bili-home {
   display: grid;
@@ -19948,6 +19951,49 @@ var cssText = `
 // src/components/BiliTopNav.tsx
 import React2, { Button, useEffect as useEffect2, useState as useState2 } from "sdk";
 
+// src/navigation.ts
+var listeners = /* @__PURE__ */ new Set();
+var memory = { name: "home" };
+var stack = [];
+var scrollByView = {};
+function getNavView() {
+  return memory;
+}
+function subscribeNav(listener) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+function navigateNav(view) {
+  switchView(view);
+  stack = [];
+}
+function openWatch(view) {
+  stack.push(memory);
+  switchView(view);
+}
+function goBackNav() {
+  const previous = stack.pop();
+  switchView(previous ?? { name: "home" });
+}
+function getViewScroll(name) {
+  return scrollByView[name] ?? 0;
+}
+function clearViewScroll() {
+  delete scrollByView.home;
+  delete scrollByView.mine;
+}
+function switchView(view) {
+  captureScroll();
+  memory = view;
+  listeners.forEach((listener) => listener(view));
+}
+function captureScroll() {
+  const el = document.querySelector(".app-page-surface");
+  if (el) scrollByView[memory.name] = el.scrollTop;
+}
+
 // src/runtime.ts
 var defaultConfig = {
   syncProgress: true,
@@ -19971,14 +20017,14 @@ var initialState = {
 var state = initialState;
 var pollTimer = null;
 var timeoutTimer = null;
-var listeners = /* @__PURE__ */ new Set();
+var listeners2 = /* @__PURE__ */ new Set();
 function getState() {
   return state;
 }
 function subscribe(listener) {
-  listeners.add(listener);
+  listeners2.add(listener);
   return () => {
-    listeners.delete(listener);
+    listeners2.delete(listener);
   };
 }
 function attachSdk(sdk) {
@@ -20079,7 +20125,7 @@ function requireSdk() {
 }
 function setState(next) {
   state = { ...state, ...next };
-  listeners.forEach((listener) => listener());
+  listeners2.forEach((listener) => listener());
 }
 function normalizeConfig(value) {
   const source = value && typeof value === "object" ? value : {};
@@ -20144,21 +20190,6 @@ function errorPrefix(kind) {
     default:
       return "\u672A\u77E5\u9519\u8BEF";
   }
-}
-
-// src/routes.ts
-var PLUGIN_ID = "com.easygamehub.bilibili";
-function homeUrl() {
-  return `/plugin/${PLUGIN_ID}/home`;
-}
-function mineUrl() {
-  return `/plugin/${PLUGIN_ID}/mine`;
-}
-function watchUrl(video) {
-  const params = new URLSearchParams();
-  if (video.bvid) params.set("bvid", video.bvid);
-  if (video.cid > 0) params.set("cid", String(video.cid));
-  return `/plugin/${PLUGIN_ID}/watch?${params.toString()}`;
 }
 
 // src/components/BiliImage.tsx
@@ -20232,7 +20263,7 @@ function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHub", act
   }, []);
   const loginInfo = runtimeState.loginInfo;
   const loggedIn = Boolean(loginInfo?.loggedIn);
-  return /* @__PURE__ */ React2.createElement("header", { className: "bili-top-nav" }, /* @__PURE__ */ React2.createElement("button", { className: "bili-brand", type: "button", onClick: () => navigate(homeUrl()) }, /* @__PURE__ */ React2.createElement("span", { className: "bili-brand-mark" }, "B"), /* @__PURE__ */ React2.createElement("span", null, /* @__PURE__ */ React2.createElement("strong", null, title), /* @__PURE__ */ React2.createElement("small", null, subtitle))), /* @__PURE__ */ React2.createElement("nav", { className: "bili-nav-tabs", "aria-label": "Bilibili \u63D2\u4EF6\u5BFC\u822A" }, /* @__PURE__ */ React2.createElement(
+  return /* @__PURE__ */ React2.createElement("header", { className: "bili-top-nav" }, /* @__PURE__ */ React2.createElement("button", { className: "bili-brand", type: "button", onClick: () => navigateNav({ name: "home" }) }, /* @__PURE__ */ React2.createElement("span", { className: "bili-brand-mark" }, "B"), /* @__PURE__ */ React2.createElement("span", null, /* @__PURE__ */ React2.createElement("strong", null, title), /* @__PURE__ */ React2.createElement("small", null, subtitle))), /* @__PURE__ */ React2.createElement("nav", { className: "bili-nav-tabs", "aria-label": "Bilibili \u63D2\u4EF6\u5BFC\u822A" }, /* @__PURE__ */ React2.createElement(
     Button,
     {
       "aria-current": current === "home" ? "page" : void 0,
@@ -20240,7 +20271,7 @@ function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHub", act
       variant: "ghost",
       size: "sm",
       type: "button",
-      onClick: () => navigate(homeUrl())
+      onClick: () => navigateNav({ name: "home" })
     },
     "\u9996\u9875"
   ), /* @__PURE__ */ React2.createElement(
@@ -20251,19 +20282,19 @@ function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHub", act
       variant: "ghost",
       size: "sm",
       type: "button",
-      onClick: () => navigate(mineUrl())
+      onClick: () => navigateNav({ name: "mine" })
     },
     "\u6211\u7684"
-  )), /* @__PURE__ */ React2.createElement("div", { className: "bili-top-actions" }, actions, /* @__PURE__ */ React2.createElement(Button, { className: "bili-profile-button", variant: "ghost", size: "sm", type: "button", onClick: () => navigate(mineUrl()) }, loggedIn && loginInfo?.avatar ? /* @__PURE__ */ React2.createElement(BiliImage, { className: "bili-profile-avatar", src: loginInfo.avatar, alt: loginInfo.nickname }) : /* @__PURE__ */ React2.createElement("span", { className: "bili-profile-avatar bili-profile-avatar-empty" }, "\u767B"), /* @__PURE__ */ React2.createElement("span", null, loggedIn ? loginInfo?.nickname || "\u5DF2\u767B\u5F55" : "\u767B\u5F55"))));
-}
-function navigate(url) {
-  window.location.assign(url);
+  )), /* @__PURE__ */ React2.createElement("div", { className: "bili-top-actions" }, actions, /* @__PURE__ */ React2.createElement(Button, { className: "bili-profile-button", variant: "ghost", size: "sm", type: "button", onClick: () => navigateNav({ name: "mine" }) }, loggedIn && loginInfo?.avatar ? /* @__PURE__ */ React2.createElement(BiliImage, { className: "bili-profile-avatar", src: loginInfo.avatar, alt: loginInfo.nickname }) : /* @__PURE__ */ React2.createElement("span", { className: "bili-profile-avatar bili-profile-avatar-empty" }, "\u767B"), /* @__PURE__ */ React2.createElement("span", null, loggedIn ? loginInfo?.nickname || "\u5DF2\u767B\u5F55" : "\u767B\u5F55"))));
 }
 
 // src/components/BiliAppShell.tsx
 function BiliAppShell({ current, title, subtitle, children, actions }) {
   return /* @__PURE__ */ React3.createElement("main", { className: "bili-shell" }, /* @__PURE__ */ React3.createElement("style", null, cssText), /* @__PURE__ */ React3.createElement(BiliTopNav, { actions, current, subtitle, title }), children);
 }
+
+// src/pages/HomePage.tsx
+import React7, { Button as Button3, TextField, useState as useState4 } from "sdk";
 
 // src/components/HomeFeed.tsx
 import React6 from "sdk";
@@ -20272,7 +20303,7 @@ import React6 from "sdk";
 import React4 from "sdk";
 function VideoCard({ video }) {
   const openVideo = () => {
-    window.location.assign(watchUrl(video));
+    openWatch({ name: "watch", bvid: video.bvid, aid: video.aid, cid: video.cid });
   };
   return /* @__PURE__ */ React4.createElement("button", { className: "bili-video-card", type: "button", onClick: openVideo }, /* @__PURE__ */ React4.createElement("span", { className: "bili-cover-wrap" }, video.cover ? /* @__PURE__ */ React4.createElement(BiliImage, { className: "bili-cover", src: video.cover, loading: "lazy" }) : /* @__PURE__ */ React4.createElement("span", { className: "bili-cover-empty" }, "Bilibili"), /* @__PURE__ */ React4.createElement("span", { className: "bili-duration" }, formatDuration(video.duration))), /* @__PURE__ */ React4.createElement("span", { className: "bili-video-body" }, /* @__PURE__ */ React4.createElement("strong", { title: video.title }, video.title || "Untitled"), /* @__PURE__ */ React4.createElement("small", null, video.ownerName || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React4.createElement("span", { className: "bili-video-meta" }, /* @__PURE__ */ React4.createElement("span", null, formatCount(video.viewCount), " \u64AD\u653E"), /* @__PURE__ */ React4.createElement("span", null, formatCount(video.danmakuCount), " \u5F39\u5E55")), video.progress > 0 && video.duration > 0 ? /* @__PURE__ */ React4.createElement("span", { className: "bili-video-progress", title: `\u770B\u5230 ${formatDuration(video.progress)}` }, /* @__PURE__ */ React4.createElement("span", { style: { width: `${progressPercent(video)}%` } })) : null));
 }
@@ -20468,26 +20499,19 @@ function HomePage() {
     else recommend.reload();
   }
   const searchGuide = mode === "search" && searchKeyword.length === 0;
-  return /* @__PURE__ */ React7.createElement(
-    BiliAppShell,
+  return /* @__PURE__ */ React7.createElement("section", { className: "bili-home" }, /* @__PURE__ */ React7.createElement("form", { className: "bili-search", onSubmit: (event) => handleSearch(event) }, /* @__PURE__ */ React7.createElement(TextField, { value: query, onChange: (event) => setQuery(event.currentTarget.value), placeholder: "\u641C\u7D22\u89C6\u9891" }), /* @__PURE__ */ React7.createElement(Button3, { type: "submit", disabled: active.loading, size: "sm" }, "\u641C\u7D22"), /* @__PURE__ */ React7.createElement(Button3, { variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, "\u5237\u65B0")), /* @__PURE__ */ React7.createElement(
+    HomeFeed,
     {
-      current: "home",
-      actions: /* @__PURE__ */ React7.createElement("a", { className: "bili-link-button", href: "https://www.bilibili.com", target: "_blank", rel: "noreferrer" }, "\u6253\u5F00 B \u7AD9")
-    },
-    /* @__PURE__ */ React7.createElement("section", { className: "bili-home" }, /* @__PURE__ */ React7.createElement("form", { className: "bili-search", onSubmit: (event) => handleSearch(event) }, /* @__PURE__ */ React7.createElement(TextField, { value: query, onChange: (event) => setQuery(event.currentTarget.value), placeholder: "\u641C\u7D22\u89C6\u9891" }), /* @__PURE__ */ React7.createElement(Button3, { type: "submit", disabled: active.loading, size: "sm" }, "\u641C\u7D22"), /* @__PURE__ */ React7.createElement(Button3, { variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, "\u5237\u65B0")), /* @__PURE__ */ React7.createElement(
-      HomeFeed,
-      {
-        error: active.error,
-        loading: active.loading,
-        mode,
-        videos: active.items,
-        searchGuide,
-        onPopular: switchToPopular,
-        onRecommend: switchToRecommend,
-        onSearch: switchToSearch
-      }
-    ))
-  );
+      error: active.error,
+      loading: active.loading,
+      mode,
+      videos: active.items,
+      searchGuide,
+      onPopular: switchToPopular,
+      onRecommend: switchToRecommend,
+      onSearch: switchToSearch
+    }
+  ));
 }
 function homeCall(call) {
   const sdk = getState().sdk;
@@ -20673,11 +20697,11 @@ function MinePage() {
     return unsubscribe;
   }, []);
   const loggedIn = Boolean(runtimeState.loginInfo?.loggedIn);
-  return /* @__PURE__ */ React11.createElement(BiliAppShell, { current: "mine", subtitle: loggedIn ? runtimeState.loginInfo?.nickname || "\u8D26\u53F7\u4E2D\u5FC3" : "\u8D26\u53F7\u4E2D\u5FC3" }, /* @__PURE__ */ React11.createElement("section", { className: "bili-mine" }, loggedIn ? /* @__PURE__ */ React11.createElement(AccountCard, { loginInfo: runtimeState.loginInfo }) : /* @__PURE__ */ React11.createElement(LoginPanel, null), loggedIn ? /* @__PURE__ */ React11.createElement(AccountLibraryTabs, null) : null));
+  return /* @__PURE__ */ React11.createElement("section", { className: "bili-mine" }, loggedIn ? /* @__PURE__ */ React11.createElement(AccountCard, { loginInfo: runtimeState.loginInfo }) : /* @__PURE__ */ React11.createElement(LoginPanel, null), loggedIn ? /* @__PURE__ */ React11.createElement(AccountLibraryTabs, null) : null);
 }
 
 // src/pages/WatchPage.tsx
-import React29, { Button as Button14, useEffect as useEffect15, useRef as useRef6, useState as useState20 } from "sdk";
+import React29, { useEffect as useEffect15, useRef as useRef6, useState as useState20 } from "sdk";
 
 // src/components/CommentPanel.tsx
 import React13, { useCallback, useEffect as useEffect8, useState as useState9 } from "sdk";
@@ -22998,8 +23022,8 @@ async function copyText(value) {
 }
 
 // src/pages/WatchPage.tsx
-function WatchPage() {
-  const [query] = useState20(() => readQuery());
+function WatchPage({ target }) {
+  const [query] = useState20(() => ({ bvid: target.bvid, aid: target.aid, cid: target.cid }));
   const [detail, setDetail] = useState20(null);
   const [selectedPage, setSelectedPage] = useState20(null);
   const [playback, setPlayback] = useState20(null);
@@ -23176,78 +23200,62 @@ function WatchPage() {
     }
     setPlaybackMode(mode);
   }
-  return /* @__PURE__ */ React29.createElement(
-    BiliAppShell,
+  return /* @__PURE__ */ React29.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React29.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React29.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891\u8BE6\u60C5") : null, !detailError && !loadingDetail && detail ? /* @__PURE__ */ React29.createElement("section", { className: "bili-watch-grid" }, /* @__PURE__ */ React29.createElement(
+    PlayerShell,
     {
-      current: "watch",
-      subtitle: query.bvid || (query.aid ? `av${query.aid}` : "\u64AD\u653E"),
-      title: "\u64AD\u653E",
-      actions: /* @__PURE__ */ React29.createElement(Button14, { variant: "outline", size: "sm", type: "button", onClick: () => history.back() }, "\u8FD4\u56DE")
-    },
-    /* @__PURE__ */ React29.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React29.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React29.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891\u8BE6\u60C5") : null, !detailError && !loadingDetail && detail ? /* @__PURE__ */ React29.createElement("section", { className: "bili-watch-grid" }, /* @__PURE__ */ React29.createElement(
-      PlayerShell,
-      {
+      detail,
+      sdk: getState().sdk,
+      selectedPage,
+      playback,
+      loadingPlayback,
+      error: playbackError,
+      startTime: startTimeForPage(
         detail,
-        sdk: getState().sdk,
         selectedPage,
-        playback,
-        loadingPlayback,
-        error: playbackError,
-        startTime: startTimeForPage(
-          detail,
-          selectedPage,
-          progressRef.current,
-          touchedProgressRef.current,
-          localProgress
-        ),
-        defaultPlaybackRate,
-        syncProgress,
-        danmakuItems,
-        danmakuLoading,
-        danmakuError,
-        danmakuSettings,
-        loggedIn: Boolean(runtimeState.loginInfo?.loggedIn),
-        interactionState: interaction.state,
-        interactionLoading: interaction.loading,
-        interactionError: interaction.error,
-        interactionBusy: interaction.busy,
-        onLike: interaction.like,
-        onCoin: interaction.coin,
-        onFavorite: interaction.favorite,
-        onShare: interaction.share,
-        onToView: interaction.toggleToView,
-        onReport: interaction.report,
-        onPlaybackTime: rememberPlaybackTime,
-        onReloadPlayback: reloadPlayback,
-        onPlaybackFallback: fallbackPlayback,
-        playbackMode,
-        onPlaybackModeChange: changePlaybackMode,
-        onDanmakuSettingsChange: setDanmakuSettings,
-        onDanmakuSent: (item) => setDanmakuItems((items) => sortDanmaku([...items, item])),
-        commentsPanel: /* @__PURE__ */ React29.createElement(CommentPanel, { detail, loggedIn: Boolean(runtimeState.loginInfo?.loggedIn), sdk: getState().sdk })
-      }
-    ), /* @__PURE__ */ React29.createElement(
-      WatchSidebarTabs,
-      {
-        aid: detail.aid,
-        bvid: detail.bvid,
-        followBusy: interaction.busy === "follow",
-        interactionState: interaction.state,
-        loggedIn: Boolean(runtimeState.loginInfo?.loggedIn),
-        onFollowOwner: interaction.followOwner,
-        pages: detail.pages,
-        selectedPageCid: selectedPage?.cid,
-        onSelectPage: selectPage
-      }
-    )) : null)
-  );
-}
-function readQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const bvid = params.get("bvid")?.trim() || void 0;
-  const aid = parsePositiveNumber(params.get("aid"));
-  const cid = parsePositiveNumber(params.get("cid"));
-  return { bvid, aid, cid };
+        progressRef.current,
+        touchedProgressRef.current,
+        localProgress
+      ),
+      defaultPlaybackRate,
+      syncProgress,
+      danmakuItems,
+      danmakuLoading,
+      danmakuError,
+      danmakuSettings,
+      loggedIn: Boolean(runtimeState.loginInfo?.loggedIn),
+      interactionState: interaction.state,
+      interactionLoading: interaction.loading,
+      interactionError: interaction.error,
+      interactionBusy: interaction.busy,
+      onLike: interaction.like,
+      onCoin: interaction.coin,
+      onFavorite: interaction.favorite,
+      onShare: interaction.share,
+      onToView: interaction.toggleToView,
+      onReport: interaction.report,
+      onPlaybackTime: rememberPlaybackTime,
+      onReloadPlayback: reloadPlayback,
+      onPlaybackFallback: fallbackPlayback,
+      playbackMode,
+      onPlaybackModeChange: changePlaybackMode,
+      onDanmakuSettingsChange: setDanmakuSettings,
+      onDanmakuSent: (item) => setDanmakuItems((items) => sortDanmaku([...items, item])),
+      commentsPanel: /* @__PURE__ */ React29.createElement(CommentPanel, { detail, loggedIn: Boolean(runtimeState.loginInfo?.loggedIn), sdk: getState().sdk })
+    }
+  ), /* @__PURE__ */ React29.createElement(
+    WatchSidebarTabs,
+    {
+      aid: detail.aid,
+      bvid: detail.bvid,
+      followBusy: interaction.busy === "follow",
+      interactionState: interaction.state,
+      loggedIn: Boolean(runtimeState.loginInfo?.loggedIn),
+      onFollowOwner: interaction.followOwner,
+      pages: detail.pages,
+      selectedPageCid: selectedPage?.cid,
+      onSelectPage: selectPage
+    }
+  )) : null);
 }
 function selectInitialPage(detail, requestedCid, localProgress) {
   const targetCid = requestedCid || detail.lastPlayCid || localProgress?.cid || detail.pages[0]?.cid;
@@ -23273,9 +23281,33 @@ function safeStartTime(value, duration2) {
 function sortDanmaku(items) {
   return [...items].sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
 }
-function parsePositiveNumber(value) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : void 0;
+
+// src/pages/MainPage.tsx
+function MainPage() {
+  const [view, setView] = useState21(getNavView);
+  const [runtimeState, setRuntimeState] = useState21(getState);
+  useEffect16(() => subscribeNav(setView), []);
+  useEffect16(() => subscribe(() => setRuntimeState(getState())), []);
+  useEffect16(() => {
+    clearViewScroll();
+    return clearViewScroll;
+  }, []);
+  useEffect16(() => {
+    const frame = requestAnimationFrame(() => {
+      const el = document.querySelector(".app-page-surface");
+      if (el) el.scrollTop = getViewScroll(view.name);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [view.name]);
+  const loginInfo = runtimeState.loginInfo;
+  const loggedIn = Boolean(loginInfo?.loggedIn);
+  const title = view.name === "watch" ? "\u64AD\u653E" : "Bilibili";
+  const subtitle = view.name === "watch" ? view.bvid || (view.aid ? `av${view.aid}` : "\u64AD\u653E") : view.name === "mine" ? loggedIn && loginInfo?.nickname ? loginInfo.nickname : "\u8D26\u53F7\u4E2D\u5FC3" : "EasyGameHub";
+  const actions = view.name === "home" ? /* @__PURE__ */ React30.createElement("a", { className: "bili-link-button", href: "https://www.bilibili.com", target: "_blank", rel: "noreferrer" }, "\u6253\u5F00 B \u7AD9") : view.name === "watch" ? /* @__PURE__ */ React30.createElement(Button14, { variant: "outline", size: "sm", type: "button", onClick: goBackNav }, "\u8FD4\u56DE") : void 0;
+  return /* @__PURE__ */ React30.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React30.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React30.createElement(HomePage, null)), /* @__PURE__ */ React30.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React30.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React30.createElement(WatchPage, { key: watchKey(view), target: view }) : null);
+}
+function watchKey(view) {
+  return view.name === "watch" ? `watch-${view.bvid ?? ""}-${view.aid ?? ""}-${view.cid ?? ""}` : "";
 }
 
 // src/index.tsx
@@ -23288,19 +23320,7 @@ function setup(sdk) {
     path: "home",
     title: "Bilibili",
     icon: "playFilled",
-    render: HomePage
-  });
-  sdk.ui.registerPage({
-    path: "watch",
-    title: "\u64AD\u653E",
-    icon: "playFilled",
-    render: WatchPage
-  });
-  sdk.ui.registerPage({
-    path: "mine",
-    title: "\u6211\u7684",
-    icon: "playFilled",
-    render: MinePage
+    render: MainPage
   });
   sdk.ui.registerSettingsSection({
     id: "bilibili",
@@ -23312,10 +23332,10 @@ function teardown() {
   disposeRuntime();
 }
 function BilibiliSettingsSection() {
-  const [config, setConfig] = useState21(defaultConfig);
-  const [saving, setSaving] = useState21(false);
-  const [message, setMessage] = useState21("");
-  useEffect16(() => {
+  const [config, setConfig] = useState22(defaultConfig);
+  const [saving, setSaving] = useState22(false);
+  const [message, setMessage] = useState22("");
+  useEffect17(() => {
     let active = true;
     loadConfig().then((next) => {
       if (active) setConfig(next);
@@ -23326,7 +23346,7 @@ function BilibiliSettingsSection() {
       active = false;
     };
   }, []);
-  return /* @__PURE__ */ React30.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React30.createElement("style", null, cssText), /* @__PURE__ */ React30.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React30.createElement("strong", null, "Bilibili"), /* @__PURE__ */ React30.createElement("small", null, "\u5185\u7F6E\u89C6\u9891\u63D2\u4EF6")), /* @__PURE__ */ React30.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React30.createElement(Toggle3, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) }), /* @__PURE__ */ React30.createElement("span", null, "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9")), /* @__PURE__ */ React30.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React30.createElement(Toggle3, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React30.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React30.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React30.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React30.createElement(
+  return /* @__PURE__ */ React31.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React31.createElement("style", null, cssText), /* @__PURE__ */ React31.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React31.createElement("strong", null, "Bilibili"), /* @__PURE__ */ React31.createElement("small", null, "\u5185\u7F6E\u89C6\u9891\u63D2\u4EF6")), /* @__PURE__ */ React31.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React31.createElement(Toggle3, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) }), /* @__PURE__ */ React31.createElement("span", null, "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9")), /* @__PURE__ */ React31.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React31.createElement(Toggle3, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React31.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React31.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React31.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React31.createElement(
     Slider2,
     {
       max: 32,
@@ -23335,7 +23355,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuFontSize,
       onChange: (danmakuFontSize) => update({ danmakuFontSize })
     }
-  )), /* @__PURE__ */ React30.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React30.createElement("span", null, "\u5F39\u5E55\u900F\u660E\u5EA6 ", Math.round(config.danmakuOpacity * 100), "%"), /* @__PURE__ */ React30.createElement(
+  )), /* @__PURE__ */ React31.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React31.createElement("span", null, "\u5F39\u5E55\u900F\u660E\u5EA6 ", Math.round(config.danmakuOpacity * 100), "%"), /* @__PURE__ */ React31.createElement(
     Slider2,
     {
       max: 1,
@@ -23344,7 +23364,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuOpacity,
       onChange: (danmakuOpacity) => update({ danmakuOpacity })
     }
-  )), /* @__PURE__ */ React30.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React30.createElement("span", null, "\u5F39\u5E55\u5BC6\u5EA6 ", Math.round(config.danmakuDensity * 100), "%"), /* @__PURE__ */ React30.createElement(
+  )), /* @__PURE__ */ React31.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React31.createElement("span", null, "\u5F39\u5E55\u5BC6\u5EA6 ", Math.round(config.danmakuDensity * 100), "%"), /* @__PURE__ */ React31.createElement(
     Slider2,
     {
       max: 1,
@@ -23353,7 +23373,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuDensity,
       onChange: (danmakuDensity) => update({ danmakuDensity })
     }
-  )), /* @__PURE__ */ React30.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React30.createElement("span", null, "\u5F39\u5E55\u901F\u5EA6 ", config.danmakuSpeed.toFixed(1), "x"), /* @__PURE__ */ React30.createElement(
+  )), /* @__PURE__ */ React31.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React31.createElement("span", null, "\u5F39\u5E55\u901F\u5EA6 ", config.danmakuSpeed.toFixed(1), "x"), /* @__PURE__ */ React31.createElement(
     Slider2,
     {
       max: 1.8,
@@ -23362,7 +23382,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuSpeed,
       onChange: (danmakuSpeed) => update({ danmakuSpeed })
     }
-  )), /* @__PURE__ */ React30.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React30.createElement("span", null, "\u9ED8\u8BA4\u500D\u901F"), /* @__PURE__ */ React30.createElement(
+  )), /* @__PURE__ */ React31.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React31.createElement("span", null, "\u9ED8\u8BA4\u500D\u901F"), /* @__PURE__ */ React31.createElement(
     Select,
     {
       name: "defaultPlaybackRate",
@@ -23370,7 +23390,7 @@ function BilibiliSettingsSection() {
       options: [0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => ({ value: String(rate), label: `${rate}x` })),
       onChange: (value) => update({ defaultPlaybackRate: Number(value) })
     }
-  )), /* @__PURE__ */ React30.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React30.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F"), /* @__PURE__ */ React30.createElement(
+  )), /* @__PURE__ */ React31.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React31.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F"), /* @__PURE__ */ React31.createElement(
     Select,
     {
       name: "defaultQualityMode",
@@ -23378,7 +23398,7 @@ function BilibiliSettingsSection() {
       options: [{ value: "auto", label: "\u81EA\u52A8" }],
       onChange: () => update({ defaultQualityMode: "auto" })
     }
-  )), /* @__PURE__ */ React30.createElement("div", { className: "bili-action-row" }, /* @__PURE__ */ React30.createElement(Button15, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406\u7F13\u5B58"), /* @__PURE__ */ React30.createElement(Button15, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u622A\u56FE\u76EE\u5F55")), message ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state bili-state-compact" }, message) : null);
+  )), /* @__PURE__ */ React31.createElement("div", { className: "bili-action-row" }, /* @__PURE__ */ React31.createElement(Button15, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406\u7F13\u5B58"), /* @__PURE__ */ React31.createElement(Button15, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u622A\u56FE\u76EE\u5F55")), message ? /* @__PURE__ */ React31.createElement("div", { className: "bili-state bili-state-compact" }, message) : null);
   function update(next) {
     const merged = { ...config, ...next };
     setConfig(merged);

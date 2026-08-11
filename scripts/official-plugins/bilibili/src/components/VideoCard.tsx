@@ -1,6 +1,6 @@
 import React from "sdk";
+import { openWatch } from "../navigation";
 import type { BiliVideoCard } from "../types";
-import { watchUrl } from "../routes";
 import { BiliImage } from "./BiliImage";
 
 interface VideoCardProps {
@@ -9,7 +9,7 @@ interface VideoCardProps {
 
 export function VideoCard({ video }: VideoCardProps) {
   const openVideo = () => {
-    window.location.assign(watchUrl(video));
+    openWatch({ name: "watch", bvid: video.bvid, aid: video.aid, cid: video.cid });
   };
 
   return (

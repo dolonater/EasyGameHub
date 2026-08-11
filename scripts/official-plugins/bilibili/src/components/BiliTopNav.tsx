@@ -1,6 +1,6 @@
 import React, { Button, useEffect, useState } from "sdk";
+import { navigateNav } from "../navigation";
 import { getState, refreshLoginStatus, subscribe } from "../runtime";
-import { homeUrl, mineUrl } from "../routes";
 import { BiliImage } from "./BiliImage";
 
 export type BiliTopNavPage = "home" | "mine" | "watch";
@@ -26,7 +26,7 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
 
   return (
     <header className="bili-top-nav">
-      <button className="bili-brand" type="button" onClick={() => navigate(homeUrl())}>
+      <button className="bili-brand" type="button" onClick={() => navigateNav({ name: "home" })}>
         <span className="bili-brand-mark">B</span>
         <span>
           <strong>{title}</strong>
@@ -41,7 +41,7 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
           variant="ghost"
           size="sm"
           type="button"
-          onClick={() => navigate(homeUrl())}
+          onClick={() => navigateNav({ name: "home" })}
         >
           首页
         </Button>
@@ -51,7 +51,7 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
           variant="ghost"
           size="sm"
           type="button"
-          onClick={() => navigate(mineUrl())}
+          onClick={() => navigateNav({ name: "mine" })}
         >
           我的
         </Button>
@@ -59,7 +59,7 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
 
       <div className="bili-top-actions">
         {actions}
-        <Button className="bili-profile-button" variant="ghost" size="sm" type="button" onClick={() => navigate(mineUrl())}>
+        <Button className="bili-profile-button" variant="ghost" size="sm" type="button" onClick={() => navigateNav({ name: "mine" })}>
           {loggedIn && loginInfo?.avatar ? (
             <BiliImage className="bili-profile-avatar" src={loginInfo.avatar} alt={loginInfo.nickname} />
           ) : (
@@ -70,8 +70,4 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
       </div>
     </header>
   );
-}
-
-function navigate(url: string) {
-  window.location.assign(url);
 }

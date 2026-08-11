@@ -1,7 +1,5 @@
 import React, { Button, Select, Slider, Toggle, useEffect, useState } from "sdk";
-import { HomePage } from "./pages/HomePage";
-import { MinePage } from "./pages/MinePage";
-import { WatchPage } from "./pages/WatchPage";
+import { MainPage } from "./pages/MainPage";
 import { attachSdk, defaultConfig, disposeRuntime, errorMessage, getState, loadConfig, saveConfig } from "./runtime";
 import { cssText } from "./styles";
 import type { PluginSdk } from "./types";
@@ -17,21 +15,7 @@ export function setup(sdk: PluginSdk) {
     path: "home",
     title: "Bilibili",
     icon: "playFilled",
-    render: HomePage,
-  });
-
-  sdk.ui.registerPage({
-    path: "watch",
-    title: "播放",
-    icon: "playFilled",
-    render: WatchPage,
-  });
-
-  sdk.ui.registerPage({
-    path: "mine",
-    title: "我的",
-    icon: "playFilled",
-    render: MinePage,
+    render: MainPage,
   });
 
   sdk.ui.registerSettingsSection({

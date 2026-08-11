@@ -13,6 +13,9 @@ export const cssText = `
   box-sizing: border-box;
   letter-spacing: 0;
 }
+.bili-hidden {
+  display: none;
+}
 .bili-home {
   display: grid;
   gap: 14px;
