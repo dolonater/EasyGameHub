@@ -244,7 +244,9 @@ pub fn source_for_session(session: &PlaybackSession, proxy_port: u16) -> BiliPla
 }
 
 pub fn build_mpd(session: &PlaybackSession) -> String {
-    let duration = format_presentation_duration(session.duration_ms);
+    // dashjs 对 >1000 的时长做"毫秒猜测"（÷1000），反向利用：写毫秒值，猜测后即真实秒数。
+    // 真实 1494 秒 → PT1494000S → dashjs 解析 1494000 → ÷1000 = 1494 ✓
+    let duration = format!("PT{}S", session.duration_ms);
     let mut output = format!(
         r#"<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static" mediaPresentationDuration="{duration}" minBufferTime="PT1.5S" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011">
@@ -584,8 +586,8 @@ mod tests {
         let mpd = build_mpd(&session);
 
         assert!(mpd.contains("MPD"));
-        assert!(mpd.contains(r#"mediaPresentationDuration="PT3600S""#));
-        assert!(mpd.contains(r#"<Period duration="PT3600S">"#));
+        assert!(mpd.contains(r#"mediaPresentationDuration="PT3600000S""#));
+        assert!(mpd.contains(r#"<Period duration="PT3600000S">"#));
         assert!(mpd.contains("AdaptationSet"));
         assert!(mpd.contains("contentType=\"video\""));
         assert!(mpd.contains("contentType=\"audio\""));
@@ -632,7 +634,7 @@ mod tests {
         let (session, _) = create_session_from_stream(&data, "BV1xx411c7mD", 42, 62131, 14201)?;
 
         assert_eq!(session.duration_ms, 93_000);
-        assert!(build_mpd(&session).contains(r#"mediaPresentationDuration="PT93S""#));
+        assert!(build_mpd(&session).contains(r#"mediaPresentationDuration="PT93000S""#));
         Ok(())
     }
 
