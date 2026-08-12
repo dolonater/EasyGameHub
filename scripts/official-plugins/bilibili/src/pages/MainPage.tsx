@@ -63,11 +63,7 @@ export function MainPage() {
         : "EasyGameHub";
 
   const actions =
-    view.name === "home" ? (
-      <a className="bili-link-button" href="https://www.bilibili.com" target="_blank" rel="noreferrer">
-        打开 B 站
-      </a>
-    ) : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? (
+    view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? (
       <Button aria-label="返回" variant="outline" size="sm" type="button" onClick={goBackNav}>
         <Icon name="skipBackFilled" size={15} />
       </Button>

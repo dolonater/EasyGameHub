@@ -33,12 +33,12 @@ interface SidebarItem {
 
 export const SIDEBAR_ITEMS: SidebarItem[] = [
   { view: { name: "home" }, label: "首页", icon: "home", section: "main" },
-  { view: { name: "dynamic" }, label: "动态", icon: "chartLine", section: "main" },
+  { view: { name: "dynamic" }, label: "动态", icon: "playtime", section: "main" },
   { view: { name: "liveHome" }, label: "直播", icon: "playFilled", section: "main" },
   { view: { name: "favorites" }, label: "收藏", icon: "bookmarkFilled", section: "library" },
-  { view: { name: "history" }, label: "历史", icon: "playtime", section: "library" },
+  { view: { name: "history" }, label: "历史", icon: "clock", section: "library" },
   { view: { name: "watchLater" }, label: "稍后再看", icon: "playlistFilled", section: "library" },
-  { view: { name: "bangumi" }, label: "追番", icon: "starFilled", section: "library" },
+  { view: { name: "bangumi" }, label: "追番", icon: "starFill", section: "library" },
   { view: { name: "settings" }, label: "设置", icon: "settings", section: "main" },
 ];
 
@@ -75,7 +75,7 @@ export function BiliSidebar({ current }: BiliSidebarProps) {
 
   return (
     <aside
-      className={`${collapsed ? "bili-sidebar bili-sidebar-collapsed" : "bili-sidebar"}${positionClass}`}
+      className={`${collapsed ? "bili-sidebar bili-sidebar-collapsed" : "bili-sidebar"} app-surface app-glass-sidebar${positionClass}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >

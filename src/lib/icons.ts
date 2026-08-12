@@ -56,6 +56,7 @@ import bell from "../../assets/regular/bell.svg?raw";
 import archive from "../../assets/regular/archive.svg?raw";
 import floppyDisk from "../../assets/regular/floppy-disk.svg?raw";
 import star from "../../assets/regular/star.svg?raw";
+import starFill from "../../assets/fill/star-fill.svg?raw";
 import heart from "../../assets/regular/heart.svg?raw";
 import heartFill from "../../assets/fill/heart-fill.svg?raw";
 import bookmark from "../../assets/regular/bookmark-simple.svg?raw";
@@ -116,6 +117,7 @@ export const ICONS = {
   warning: warningCircle,
   key,
   starFilled: star,
+  starFill,
   starOutline: star,
   chevronDown,
   download: packageDownload,

@@ -5,6 +5,7 @@ export const cssText = `
   --bili-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --bili-spring: cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -1414,17 +1415,21 @@ export const cssText = `
   height: 36px;
   padding: 0 10px;
 }
+/* P9 悬浮式：顶栏 absolute 覆盖在内容上方（内容滚动时从顶栏下方穿过，
+   对齐主程序 horizontal nav：absolute top-0 z-20 + 内容区 pt 补偿），
+   玻璃类 app-glass-titlebar/sidebar 由组件提供 */
 .bili-top-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
   display: grid;
   grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
   align-items: center;
   gap: 14px;
   min-height: 58px;
   padding: 10px 16px;
-  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 42%, transparent);
-  backdrop-filter: blur(14px);
 }
 .bili-brand,
 .bili-profile-button,
@@ -2422,7 +2427,11 @@ export const cssText = `
   animation: bili-slide-down 340ms var(--bili-spring) 40ms backwards;
 }
 .bili-home,
-.bili-mine {
+.bili-mine,
+.bili-dynamic-page,
+.bili-live-home,
+.bili-page-library,
+.bili-search-page {
   animation: bili-view-in 360ms var(--bili-spring) both;
 }
 .bili-watch {
@@ -4138,12 +4147,13 @@ button.bili-dynamic-stat {
   flex: 1 1 auto;
   min-height: 0;
   gap: 14px;
-  margin-top: 14px;
 }
+/* 内容区从 shell 顶部开始滚动（穿过悬浮顶栏下方），顶部留出顶栏高度 */
 .bili-shell-content {
   flex: 1 1 auto;
   min-width: 0;
   overflow-y: auto;
+  padding-top: 72px;
   border-radius: 14px;
 }
 .bili-sidebar {
@@ -4152,13 +4162,10 @@ button.bili-dynamic-stat {
   justify-content: space-between;
   flex: 0 0 auto;
   width: 184px;
+  margin-top: 72px;
   padding: 10px;
-  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 38%, transparent);
-  backdrop-filter: blur(14px);
+  overflow-y: auto;
   transition: width 240ms var(--bili-spring);
-  overflow: hidden;
 }
 .bili-sidebar-collapsed {
   width: 58px;

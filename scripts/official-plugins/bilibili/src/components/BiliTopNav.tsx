@@ -54,7 +54,7 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
   }
 
   return (
-    <header className="bili-top-nav">
+    <header className="bili-top-nav app-surface app-glass-titlebar">
       <button className="bili-brand" type="button" onClick={() => navigateNav({ name: "home" })}>
         <span className="bili-brand-mark">B</span>
         <span>
@@ -78,8 +78,8 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
           value={searchValue}
           onChange={(event: any) => setSearchValue(event.currentTarget.value)}
         />
-        <Button size="sm" type="submit">
-          搜索
+        <Button aria-label="搜索" size="sm" type="submit">
+          <Icon name="search" size={15} />
         </Button>
       </form>
 

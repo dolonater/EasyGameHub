@@ -28,7 +28,7 @@ export function MinePage() {
         <MineEntry icon="playtime" label="历史记录" onClick={openHistory} />
         <MineEntry icon="bookmarkFilled" label="收藏夹" onClick={openFavorites} />
         <MineEntry icon="playlistFilled" label="稍后再看" onClick={openWatchLater} />
-        <MineEntry icon="starFilled" label="追番" onClick={openBangumi} />
+        <MineEntry icon="starFill" label="追番" onClick={openBangumi} />
         {loggedIn ? <MineEntry icon="edit" label="发布动态" onClick={() => setPublishOpen(true)} /> : null}
       </div>
       <DynamicPublishDialog open={publishOpen} onClose={() => setPublishOpen(false)} />

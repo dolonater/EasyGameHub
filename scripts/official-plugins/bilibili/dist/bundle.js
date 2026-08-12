@@ -23120,6 +23120,7 @@ var cssText = `
   --bili-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --bili-spring: cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -24529,17 +24530,21 @@ var cssText = `
   height: 36px;
   padding: 0 10px;
 }
+/* P9 \u60AC\u6D6E\u5F0F\uFF1A\u9876\u680F absolute \u8986\u76D6\u5728\u5185\u5BB9\u4E0A\u65B9\uFF08\u5185\u5BB9\u6EDA\u52A8\u65F6\u4ECE\u9876\u680F\u4E0B\u65B9\u7A7F\u8FC7\uFF0C
+   \u5BF9\u9F50\u4E3B\u7A0B\u5E8F horizontal nav\uFF1Aabsolute top-0 z-20 + \u5185\u5BB9\u533A pt \u8865\u507F\uFF09\uFF0C
+   \u73BB\u7483\u7C7B app-glass-titlebar/sidebar \u7531\u7EC4\u4EF6\u63D0\u4F9B */
 .bili-top-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
   display: grid;
   grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
   align-items: center;
   gap: 14px;
   min-height: 58px;
   padding: 10px 16px;
-  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 42%, transparent);
-  backdrop-filter: blur(14px);
 }
 .bili-brand,
 .bili-profile-button,
@@ -25537,7 +25542,11 @@ var cssText = `
   animation: bili-slide-down 340ms var(--bili-spring) 40ms backwards;
 }
 .bili-home,
-.bili-mine {
+.bili-mine,
+.bili-dynamic-page,
+.bili-live-home,
+.bili-page-library,
+.bili-search-page {
   animation: bili-view-in 360ms var(--bili-spring) both;
 }
 .bili-watch {
@@ -27253,12 +27262,13 @@ button.bili-dynamic-stat {
   flex: 1 1 auto;
   min-height: 0;
   gap: 14px;
-  margin-top: 14px;
 }
+/* \u5185\u5BB9\u533A\u4ECE shell \u9876\u90E8\u5F00\u59CB\u6EDA\u52A8\uFF08\u7A7F\u8FC7\u60AC\u6D6E\u9876\u680F\u4E0B\u65B9\uFF09\uFF0C\u9876\u90E8\u7559\u51FA\u9876\u680F\u9AD8\u5EA6 */
 .bili-shell-content {
   flex: 1 1 auto;
   min-width: 0;
   overflow-y: auto;
+  padding-top: 72px;
   border-radius: 14px;
 }
 .bili-sidebar {
@@ -27267,13 +27277,10 @@ button.bili-dynamic-stat {
   justify-content: space-between;
   flex: 0 0 auto;
   width: 184px;
+  margin-top: 72px;
   padding: 10px;
-  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 38%, transparent);
-  backdrop-filter: blur(14px);
+  overflow-y: auto;
   transition: width 240ms var(--bili-spring);
-  overflow: hidden;
 }
 .bili-sidebar-collapsed {
   width: 58px;
@@ -27855,12 +27862,12 @@ function loadPrefs() {
 }
 var SIDEBAR_ITEMS = [
   { view: { name: "home" }, label: "\u9996\u9875", icon: "home", section: "main" },
-  { view: { name: "dynamic" }, label: "\u52A8\u6001", icon: "chartLine", section: "main" },
+  { view: { name: "dynamic" }, label: "\u52A8\u6001", icon: "playtime", section: "main" },
   { view: { name: "liveHome" }, label: "\u76F4\u64AD", icon: "playFilled", section: "main" },
   { view: { name: "favorites" }, label: "\u6536\u85CF", icon: "bookmarkFilled", section: "library" },
-  { view: { name: "history" }, label: "\u5386\u53F2", icon: "playtime", section: "library" },
+  { view: { name: "history" }, label: "\u5386\u53F2", icon: "clock", section: "library" },
   { view: { name: "watchLater" }, label: "\u7A0D\u540E\u518D\u770B", icon: "playlistFilled", section: "library" },
-  { view: { name: "bangumi" }, label: "\u8FFD\u756A", icon: "starFilled", section: "library" },
+  { view: { name: "bangumi" }, label: "\u8FFD\u756A", icon: "starFill", section: "library" },
   { view: { name: "settings" }, label: "\u8BBE\u7F6E", icon: "settings", section: "main" }
 ];
 var OPENERS = {
@@ -27886,7 +27893,7 @@ function BiliSidebar({ current }) {
   return /* @__PURE__ */ React.createElement(
     "aside",
     {
-      className: `${collapsed ? "bili-sidebar bili-sidebar-collapsed" : "bili-sidebar"}${positionClass}`,
+      className: `${collapsed ? "bili-sidebar bili-sidebar-collapsed" : "bili-sidebar"} app-surface app-glass-sidebar${positionClass}`,
       onMouseEnter: () => setHovered(true),
       onMouseLeave: () => setHovered(false)
     },
@@ -28017,7 +28024,7 @@ function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHub", act
     setSearchValue("");
     openSearch(keywords || void 0);
   }
-  return /* @__PURE__ */ React3.createElement("header", { className: "bili-top-nav" }, /* @__PURE__ */ React3.createElement("button", { className: "bili-brand", type: "button", onClick: () => navigateNav({ name: "home" }) }, /* @__PURE__ */ React3.createElement("span", { className: "bili-brand-mark" }, "B"), /* @__PURE__ */ React3.createElement("span", null, /* @__PURE__ */ React3.createElement("strong", null, title), /* @__PURE__ */ React3.createElement("small", null, subtitle))), /* @__PURE__ */ React3.createElement(
+  return /* @__PURE__ */ React3.createElement("header", { className: "bili-top-nav app-surface app-glass-titlebar" }, /* @__PURE__ */ React3.createElement("button", { className: "bili-brand", type: "button", onClick: () => navigateNav({ name: "home" }) }, /* @__PURE__ */ React3.createElement("span", { className: "bili-brand-mark" }, "B"), /* @__PURE__ */ React3.createElement("span", null, /* @__PURE__ */ React3.createElement("strong", null, title), /* @__PURE__ */ React3.createElement("small", null, subtitle))), /* @__PURE__ */ React3.createElement(
     "form",
     {
       className: "bili-top-search",
@@ -28037,7 +28044,7 @@ function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHub", act
         onChange: (event) => setSearchValue(event.currentTarget.value)
       }
     ),
-    /* @__PURE__ */ React3.createElement(Button, { size: "sm", type: "submit" }, "\u641C\u7D22")
+    /* @__PURE__ */ React3.createElement(Button, { "aria-label": "\u641C\u7D22", size: "sm", type: "submit" }, /* @__PURE__ */ React3.createElement(Icon2, { name: "search", size: 15 }))
   ), /* @__PURE__ */ React3.createElement("div", { className: "bili-top-actions" }, actions, /* @__PURE__ */ React3.createElement(
     Button,
     {
@@ -30041,7 +30048,7 @@ function MinePage() {
     return unsubscribe;
   }, []);
   const loggedIn = Boolean(runtimeState.loginInfo?.loggedIn);
-  return /* @__PURE__ */ React30.createElement("section", { className: "bili-mine" }, loggedIn ? /* @__PURE__ */ React30.createElement(AccountCard, { loginInfo: runtimeState.loginInfo }) : /* @__PURE__ */ React30.createElement(LoginPanel, null), /* @__PURE__ */ React30.createElement("div", { className: "bili-mine-entries" }, /* @__PURE__ */ React30.createElement(MineEntry, { icon: "playtime", label: "\u5386\u53F2\u8BB0\u5F55", onClick: openHistory }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "bookmarkFilled", label: "\u6536\u85CF\u5939", onClick: openFavorites }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "playlistFilled", label: "\u7A0D\u540E\u518D\u770B", onClick: openWatchLater }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "starFilled", label: "\u8FFD\u756A", onClick: openBangumi }), loggedIn ? /* @__PURE__ */ React30.createElement(MineEntry, { icon: "edit", label: "\u53D1\u5E03\u52A8\u6001", onClick: () => setPublishOpen(true) }) : null), /* @__PURE__ */ React30.createElement(DynamicPublishDialog, { open: publishOpen, onClose: () => setPublishOpen(false) }));
+  return /* @__PURE__ */ React30.createElement("section", { className: "bili-mine" }, loggedIn ? /* @__PURE__ */ React30.createElement(AccountCard, { loginInfo: runtimeState.loginInfo }) : /* @__PURE__ */ React30.createElement(LoginPanel, null), /* @__PURE__ */ React30.createElement("div", { className: "bili-mine-entries" }, /* @__PURE__ */ React30.createElement(MineEntry, { icon: "playtime", label: "\u5386\u53F2\u8BB0\u5F55", onClick: openHistory }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "bookmarkFilled", label: "\u6536\u85CF\u5939", onClick: openFavorites }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "playlistFilled", label: "\u7A0D\u540E\u518D\u770B", onClick: openWatchLater }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "starFill", label: "\u8FFD\u756A", onClick: openBangumi }), loggedIn ? /* @__PURE__ */ React30.createElement(MineEntry, { icon: "edit", label: "\u53D1\u5E03\u52A8\u6001", onClick: () => setPublishOpen(true) }) : null), /* @__PURE__ */ React30.createElement(DynamicPublishDialog, { open: publishOpen, onClose: () => setPublishOpen(false) }));
 }
 function MineEntry({ icon, label, onClick }) {
   return /* @__PURE__ */ React30.createElement("button", { className: "bili-mine-entry", type: "button", onClick }, /* @__PURE__ */ React30.createElement("span", { className: "bili-mine-entry-glyph" }, /* @__PURE__ */ React30.createElement(Icon3, { name: icon, size: 18 })), /* @__PURE__ */ React30.createElement("span", { className: "bili-mine-entry-label" }, label));
@@ -34285,7 +34292,7 @@ function MainPage() {
   const loggedIn = Boolean(loginInfo?.loggedIn);
   const title = view.name === "watch" ? "\u64AD\u653E" : view.name === "space" ? "UP \u4E3B\u9875" : view.name === "season" ? "\u756A\u5267\u8BE6\u60C5" : view.name === "live" ? "\u76F4\u64AD\u95F4" : view.name === "liveHome" ? "\u76F4\u64AD" : view.name === "history" ? "\u5386\u53F2\u8BB0\u5F55" : view.name === "watchLater" ? "\u7A0D\u540E\u518D\u770B" : view.name === "favorites" ? "\u6536\u85CF\u5939" : view.name === "bangumi" ? "\u8FFD\u756A" : view.name === "settings" ? "\u8BBE\u7F6E" : view.name === "search" ? "\u641C\u7D22" : view.name === "dynDetail" ? "\u52A8\u6001\u8BE6\u60C5" : view.name === "article" ? "\u4E13\u680F" : view.name === "chat" ? "\u4F1A\u8BDD" : view.name === "notifications" ? "\u901A\u77E5" : "Bilibili";
   const subtitle = view.name === "watch" ? view.bvid || (view.aid ? `av${view.aid}` : "\u64AD\u653E") : view.name === "mine" ? loggedIn && loginInfo?.nickname ? loginInfo.nickname : "\u8D26\u53F7\u4E2D\u5FC3" : "EasyGameHub";
-  const actions = view.name === "home" ? /* @__PURE__ */ React61.createElement("a", { className: "bili-link-button", href: "https://www.bilibili.com", target: "_blank", rel: "noreferrer" }, "\u6253\u5F00 B \u7AD9") : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React61.createElement(Button24, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React61.createElement(Icon10, { name: "skipBackFilled", size: 15 })) : void 0;
+  const actions = view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React61.createElement(Button24, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React61.createElement(Icon10, { name: "skipBackFilled", size: 15 })) : void 0;
   return /* @__PURE__ */ React61.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React61.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(HomePage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "dynamic" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(DynamicPage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React61.createElement(WatchPage, { key: watchKey(view), target: view }) : null, view.name === "space" ? /* @__PURE__ */ React61.createElement(SpacePage, { key: `space-${view.mid}`, mid: view.mid }) : null, view.name === "season" ? /* @__PURE__ */ React61.createElement(SeasonPage, { key: `season-${view.seasonId}`, seasonId: view.seasonId }) : null, view.name === "live" ? /* @__PURE__ */ React61.createElement(LivePage, { key: `live-${view.roomId}`, roomId: view.roomId }) : null, view.name === "liveHome" ? /* @__PURE__ */ React61.createElement(LiveHomePage, null) : null, view.name === "history" ? /* @__PURE__ */ React61.createElement(HistoryPage, null) : null, view.name === "watchLater" ? /* @__PURE__ */ React61.createElement(WatchLaterPage, null) : null, view.name === "favorites" ? /* @__PURE__ */ React61.createElement(FavoritesPage, null) : null, view.name === "bangumi" ? /* @__PURE__ */ React61.createElement(BangumiPage, null) : null, view.name === "settings" ? /* @__PURE__ */ React61.createElement(SettingsPage, null) : null, view.name === "search" ? /* @__PURE__ */ React61.createElement(SearchPage, { keyword: view.keyword ?? "" }) : null, view.name === "dynDetail" ? /* @__PURE__ */ React61.createElement(DynDetailPage, { key: view.dynId, dynId: view.dynId }) : null, view.name === "article" ? /* @__PURE__ */ React61.createElement(ArticlePage, { key: `article-${view.articleId}`, articleId: view.articleId }) : null, view.name === "chat" ? /* @__PURE__ */ React61.createElement(ChatPage, { key: `chat-${view.uid}`, uid: view.uid }) : null, view.name === "notifications" ? /* @__PURE__ */ React61.createElement(NotificationsPage, null) : null);
 }
 function watchKey(view) {
