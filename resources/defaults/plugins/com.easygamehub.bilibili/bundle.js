@@ -24550,13 +24550,23 @@ var cssText = `
   right: 0;
   z-index: 40;
   display: grid;
-  grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
+  /* \u5DE6\u53F3 1fr \u5BF9\u79F0\uFF1A\u53F3\u4FA7"\u8FD4\u56DE"\u7B49\u6309\u94AE\u51FA\u73B0\u65F6\u641C\u7D22\u6846\u4FDD\u6301\u5C45\u4E2D\uFF0C\u4E0D\u88AB\u5411\u5DE6\u63A8 */
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 14px;
   min-height: 58px;
   padding: 10px 16px;
   /* \u9876\u680F\u6574\u4F53\u4E0A\u79FB 10%\uFF08\u60AC\u6D6E\u8D34\u9876\u66F4\u7D27\u51D1\uFF09 */
   transform: translateY(-10%);
+}
+.bili-brand {
+  justify-self: start;
+}
+.bili-top-search {
+  justify-self: center;
+}
+.bili-top-actions {
+  justify-self: end;
 }
 .bili-brand,
 .bili-profile-button,
@@ -25561,7 +25571,9 @@ var cssText = `
 .bili-dynamic-page,
 .bili-live-home,
 .bili-page-library,
-.bili-search-page {
+.bili-search-page,
+.bili-pgc-feed,
+.bili-live-feed {
   animation: bili-view-in 360ms var(--bili-spring) both;
 }
 .bili-watch {
@@ -30521,9 +30533,11 @@ function PgcListPage({ seasonType }) {
   return /* @__PURE__ */ React34.createElement("section", { className: "bili-pgc-list" }, /* @__PURE__ */ React34.createElement("div", { className: "bili-pgc-list-filters" }, /* @__PURE__ */ React34.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u6392\u5E8F" }, /* @__PURE__ */ React34.createElement(
     Button14,
     {
+      "aria-selected": order === 0,
       className: order === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
       size: "sm",
       variant: "ghost",
+      role: "tab",
       type: "button",
       onClick: () => setOrder(0)
     },
@@ -30531,9 +30545,11 @@ function PgcListPage({ seasonType }) {
   ), /* @__PURE__ */ React34.createElement(
     Button14,
     {
+      "aria-selected": order === 1,
       className: order === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
       size: "sm",
       variant: "ghost",
+      role: "tab",
       type: "button",
       onClick: () => setOrder(1)
     },
@@ -30541,9 +30557,11 @@ function PgcListPage({ seasonType }) {
   )), /* @__PURE__ */ React34.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u8FDE\u8F7D\u72B6\u6001" }, /* @__PURE__ */ React34.createElement(
     Button14,
     {
+      "aria-selected": finish === -1,
       className: finish === -1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
       size: "sm",
       variant: "ghost",
+      role: "tab",
       type: "button",
       onClick: () => setFinish(-1)
     },
@@ -30551,9 +30569,11 @@ function PgcListPage({ seasonType }) {
   ), /* @__PURE__ */ React34.createElement(
     Button14,
     {
+      "aria-selected": finish === 0,
       className: finish === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
       size: "sm",
       variant: "ghost",
+      role: "tab",
       type: "button",
       onClick: () => setFinish(0)
     },
@@ -30561,9 +30581,11 @@ function PgcListPage({ seasonType }) {
   ), /* @__PURE__ */ React34.createElement(
     Button14,
     {
+      "aria-selected": finish === 1,
       className: finish === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
       size: "sm",
       variant: "ghost",
+      role: "tab",
       type: "button",
       onClick: () => setFinish(1)
     },

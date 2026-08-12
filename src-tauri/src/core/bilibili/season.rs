@@ -34,6 +34,7 @@ pub async fn pgc_tabs(
 }
 
 /// PGC 全量列表（season index：排序/连载筛选/分页）。
+/// PGC 全量列表（season/index/result，参考 PiliPlus 完整参数集）。
 pub async fn pgc_index(
     tool_dir: &std::path::Path,
     season_type: u32,
@@ -59,10 +60,16 @@ pub async fn pgc_index(
                 title: item.title,
                 cover: item.cover,
                 index_show: item.index_show,
-                score: item.score.and_then(|score| score.score.parse().ok()),
+                score: item
+                    .score
+                    .as_ref()
+                    .and_then(|score| score.get("score"))
+                    .and_then(|value| value.as_str())
+                    .map(ToString::to_string)
+                    .and_then(|score| score.parse().ok()),
             })
             .collect(),
-        has_more: data.has_next,
+        has_more: data.has_next == 1,
     })
 }
 

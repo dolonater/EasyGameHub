@@ -482,7 +482,31 @@ pub struct BiliReplyFeedPage {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// PGC 筛选条件（condition：order/is_finish/…的合法选项）。
+pub struct BiliPgcCondition {
+    pub filters: Vec<BiliPgcFilter>,
+}
+
+/// 单个筛选维度。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliPgcFilter {
+    pub field: String,
+    pub name: String,
+    pub values: Vec<BiliPgcFilterValue>,
+}
+
+/// 筛选选项（keyword 为请求参数值）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliPgcFilterValue {
+    pub keyword: String,
+    pub name: String,
+}
+
 /// PGC 全量列表分页（season index）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct BiliPgcIndexPage {
     pub items: Vec<BiliPgcCard>,
     pub has_more: bool,

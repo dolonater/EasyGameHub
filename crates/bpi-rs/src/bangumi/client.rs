@@ -95,21 +95,34 @@ impl<'a> BangumiClient<'a> {
             .await
     }
 
-    /// 获取番剧/影视全量列表（season index，支持排序/连载筛选/分页）。
+    /// 获取番剧/影视全量列表（pgc season/index/result，参考 PiliPlus 完整参数集）。
+    /// 注意：缺少 st/type/sort 等辅助参数会返回 -400；无需 wbi 签名。
     pub async fn season_index(
         &self,
         params: crate::bangumi::index::PgcIndexParams,
     ) -> BpiResult<crate::bangumi::index::PgcIndexData> {
+        let query: Vec<(String, String)> = vec![
+            ("st".to_string(), "1".to_string()),
+            ("order".to_string(), params.order.to_string()),
+            ("season_version".to_string(), "-1".to_string()),
+            ("spoken_language_type".to_string(), "-1".to_string()),
+            ("area".to_string(), "-1".to_string()),
+            ("is_finish".to_string(), params.is_finish.to_string()),
+            ("copyright".to_string(), "-1".to_string()),
+            ("season_status".to_string(), "-1".to_string()),
+            ("season_month".to_string(), "-1".to_string()),
+            ("year".to_string(), "-1".to_string()),
+            ("style_id".to_string(), "-1".to_string()),
+            ("sort".to_string(), "0".to_string()),
+            ("season_type".to_string(), params.season_type.to_string()),
+            ("pagesize".to_string(), "20".to_string()),
+            ("type".to_string(), "1".to_string()),
+            ("page".to_string(), params.page.to_string()),
+        ];
         self.client
             .get(crate::bangumi::index::PGC_INDEX_ENDPOINT)
             .with_bilibili_headers()
-            .query(&[
-                ("season_type", params.season_type.to_string()),
-                ("order", params.order.to_string()),
-                ("is_finish", params.is_finish.to_string()),
-                ("page", params.page.to_string()),
-                ("pagesize", params.pagesize.to_string()),
-            ])
+            .query(&query)
             .send_bpi_payload("pgc.index")
             .await
     }

@@ -8,7 +8,7 @@ interface PgcSectionFeedProps {
   kind: "bangumi" | "cinema";
 }
 
-/** kind → season_type（season index）：bangumi=1 番剧、cinema=2 电影。 */
+/** kind → season_type（season/index/result）：bangumi=1 番剧、cinema=2 电影。 */
 const SEASON_TYPE: Record<"bangumi" | "cinema", number> = { bangumi: 1, cinema: 2 };
 
 /**

@@ -10,7 +10,10 @@ interface PgcListPageProps {
 type PgcOrder = 0 | 1;
 type FinishFilter = -1 | 0 | 1;
 
-/** PGC 全量列表页（P9 块 2）：season index 排序/连载筛选 + 分页"加载更多"。 */
+/**
+ * PGC 全量列表页（season/index/result，参考 PiliPlus 参数集）：
+ * 排序（最热/最新）+ 连载状态（全部/连载/完结）+ 分页"加载更多"。
+ */
 export function PgcListPage({ seasonType }: PgcListPageProps) {
   const [order, setOrder] = useState<PgcOrder>(0);
   const [finish, setFinish] = useState<FinishFilter>(-1);
@@ -68,18 +71,22 @@ export function PgcListPage({ seasonType }: PgcListPageProps) {
       <div className="bili-pgc-list-filters">
         <div className="bili-hot-subtabs" role="tablist" aria-label="排序">
           <Button
+            aria-selected={order === 0}
             className={order === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
             size="sm"
             variant="ghost"
+            role="tab"
             type="button"
             onClick={() => setOrder(0)}
           >
             最热
           </Button>
           <Button
+            aria-selected={order === 1}
             className={order === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
             size="sm"
             variant="ghost"
+            role="tab"
             type="button"
             onClick={() => setOrder(1)}
           >
@@ -88,27 +95,33 @@ export function PgcListPage({ seasonType }: PgcListPageProps) {
         </div>
         <div className="bili-hot-subtabs" role="tablist" aria-label="连载状态">
           <Button
+            aria-selected={finish === -1}
             className={finish === -1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
             size="sm"
             variant="ghost"
+            role="tab"
             type="button"
             onClick={() => setFinish(-1)}
           >
             全部
           </Button>
           <Button
+            aria-selected={finish === 0}
             className={finish === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
             size="sm"
             variant="ghost"
+            role="tab"
             type="button"
             onClick={() => setFinish(0)}
           >
             连载中
           </Button>
           <Button
+            aria-selected={finish === 1}
             className={finish === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
             size="sm"
             variant="ghost"
+            role="tab"
             type="button"
             onClick={() => setFinish(1)}
           >

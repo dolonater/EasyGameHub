@@ -6,37 +6,33 @@
   "endpoint": "index",
   "risk": "public-read",
   "status": "promoted",
-  "profiles": [
-    "anonymous",
-    "normal",
-    "vip"
-  ],
+  "profiles": ["anonymous", "normal", "vip"],
   "request": {
     "method": "GET",
     "url": "https://api.bilibili.com/pgc/season/index/result",
     "query": {
-      "season_type": "1",
+      "st": "1",
       "order": "0",
+      "season_version": "-1",
+      "spoken_language_type": "-1",
+      "area": "-1",
       "is_finish": "-1",
-      "page": "1",
-      "pagesize": "30"
+      "copyright": "-1",
+      "season_status": "-1",
+      "season_month": "-1",
+      "year": "-1",
+      "style_id": "-1",
+      "sort": "0",
+      "season_type": "1",
+      "pagesize": "20",
+      "type": "1",
+      "page": "1"
     },
-    "required_headers": [
-      "user-agent",
-      "referer",
-      "origin"
-    ],
+    "required_headers": ["user-agent", "referer", "origin"],
     "headers": {},
-    "auth": {
-      "requires": []
-    }
+    "auth": { "requires": [] }
   },
-  "sanitize": {
-    "preset": [],
-    "replace": {},
-    "drop": [],
-    "keep": []
-  },
+  "sanitize": { "preset": [], "replace": {}, "drop": [], "keep": [] },
   "provenance": {
     "source": "manual_fixture",
     "privacy": "synthetic fixture trimmed to one season",
@@ -47,13 +43,8 @@
     {
       "name": "anonymous",
       "profile": "anonymous",
-      "description": "番剧列表（最热排序）",
-      "response": {
-        "api_code": 0,
-        "message": "success",
-        "rust_model": "PgcIndexData",
-        "fixture": "success.json"
-      }
+      "description": "番剧列表（season index，PiliPlus 参数集）",
+      "response": { "api_code": 0, "message": "success", "rust_model": "PgcIndexData", "fixture": "success.json" }
     }
   ]
 }

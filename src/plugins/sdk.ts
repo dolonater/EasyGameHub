@@ -543,6 +543,21 @@ export interface BiliPgcSection {
   items: BiliPgcCard[];
 }
 
+
+export interface BiliPgcCondition {
+  filters: BiliPgcFilter[];
+}
+
+export interface BiliPgcFilter {
+  field: string;
+  name: string;
+  values: BiliPgcFilterValue[];
+}
+
+export interface BiliPgcFilterValue {
+  keyword: string;
+  name: string;
+}
 export interface BiliPgcIndexPage {
   items: BiliPgcCard[];
   hasMore: boolean;

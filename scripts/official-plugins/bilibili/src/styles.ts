@@ -1435,13 +1435,23 @@ export const cssText = `
   right: 0;
   z-index: 40;
   display: grid;
-  grid-template-columns: minmax(180px, auto) minmax(0, 1fr) auto;
+  /* 左右 1fr 对称：右侧"返回"等按钮出现时搜索框保持居中，不被向左推 */
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 14px;
   min-height: 58px;
   padding: 10px 16px;
   /* 顶栏整体上移 10%（悬浮贴顶更紧凑） */
   transform: translateY(-10%);
+}
+.bili-brand {
+  justify-self: start;
+}
+.bili-top-search {
+  justify-self: center;
+}
+.bili-top-actions {
+  justify-self: end;
 }
 .bili-brand,
 .bili-profile-button,
@@ -2446,7 +2456,9 @@ export const cssText = `
 .bili-dynamic-page,
 .bili-live-home,
 .bili-page-library,
-.bili-search-page {
+.bili-search-page,
+.bili-pgc-feed,
+.bili-live-feed {
   animation: bili-view-in 360ms var(--bili-spring) both;
 }
 .bili-watch {

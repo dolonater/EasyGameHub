@@ -1,24 +1,51 @@
-//! 番剧/影视全量列表（pgc season index）。
+//! 番剧/影视全量列表（pgc page index，参考 wiliwili）。
 //!
-//! [查看 API 文档](https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/pgc/index.md)
+//! - 筛选条件：`/pgc/page/index/condition`（type=2 + index_type，动态返回合法参数）
+//! - 列表：`/pgc/page/index/result`（index_type + 条件 keyword + 分页）
+//! index_type：1=追番 2=电影 5=电视剧 3=纪录片 7=综艺 102=影视综合
 use serde::{Deserialize, Serialize};
 
-use crate::bangumi::tab::PgcScore;
 use crate::{BpiError, BpiResult};
 
 pub(crate) const PGC_INDEX_ENDPOINT: &str = "https://api.bilibili.com/pgc/season/index/result";
 
-/// PGC 列表查询参数。
+/// 筛选条件响应（condition）。
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct PgcPageConditionData {
+    #[serde(default)]
+    pub filter: Vec<PgcConditionFilter>,
+}
+
+/// 单个筛选维度（order/is_finish/year/…）。
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct PgcConditionFilter {
+    #[serde(default)]
+    pub field: String,
+    #[serde(default)]
+    pub name: String,
+    #[serde(default)]
+    pub values: Vec<PgcConditionValue>,
+}
+
+/// 筛选选项（keyword 为请求参数值）。
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct PgcConditionValue {
+    #[serde(default)]
+    pub keyword: String,
+    #[serde(default)]
+    pub name: String,
+}
+
+/// PGC 列表查询参数（参考 PiliPlus：season/index/result 需完整辅助参数，缺省返回 -400）。
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PgcIndexParams {
     /// Season 类型（1=番剧 2=电影 3=纪录片 4=国创 5=电视剧 7=综艺）。
     pub season_type: u32,
-    /// 排序：0=最热 1=最新 2=开播时间。
+    /// 排序（0=最热 1=最新 2=开播时间；PiliPlus 默认 3）。
     pub order: u32,
-    /// -1=全部 0=未完结 1=已完结。
+    /// -1=全部 0=未完结 1=已完结（实测 -1 合法）。
     pub is_finish: i32,
     pub page: u32,
-    pub pagesize: u32,
 }
 
 impl PgcIndexParams {
@@ -34,7 +61,6 @@ impl PgcIndexParams {
             order: 0,
             is_finish: -1,
             page: 1,
-            pagesize: 30,
         })
     }
 
@@ -59,8 +85,9 @@ impl PgcIndexParams {
 pub struct PgcIndexData {
     #[serde(default)]
     pub list: Vec<PgcIndexItem>,
+    /// 真实响应为数字 1/0（非 bool）。
     #[serde(rename = "has_next", default)]
-    pub has_next: bool,
+    pub has_next: u8,
 }
 
 /// PGC 列表条目。
@@ -77,7 +104,7 @@ pub struct PgcIndexItem {
     #[serde(rename = "index_show", default)]
     pub index_show: String,
     #[serde(default)]
-    pub score: Option<PgcScore>,
+    pub score: Option<serde_json::Value>,
 }
 
 fn validate_positive(field: &'static str, value: u32) -> BpiResult<u32> {
@@ -115,6 +142,14 @@ mod tests {
             Some("1")
         );
         assert_eq!(
+            contract.request.query.get("page").map(String::as_str),
+            Some("1")
+        );
+        assert_eq!(
+            contract.request.query.get("pagesize").map(String::as_str),
+            Some("20")
+        );
+        assert_eq!(
             contract.request.query.get("order").map(String::as_str),
             Some("0")
         );
@@ -123,12 +158,16 @@ mod tests {
             Some("-1")
         );
         assert_eq!(
-            contract.request.query.get("page").map(String::as_str),
+            contract.request.query.get("st").map(String::as_str),
             Some("1")
         );
         assert_eq!(
-            contract.request.query.get("pagesize").map(String::as_str),
-            Some("30")
+            contract.request.query.get("type").map(String::as_str),
+            Some("1")
+        );
+        assert_eq!(
+            contract.request.query.get("sort").map(String::as_str),
+            Some("0")
         );
         assert!(contract.cases.iter().all(|case| case.response.api_code == Some(0)));
         Ok(())
@@ -146,7 +185,7 @@ mod tests {
             BpiError::unsupported_response("fixture should contain at least one season")
         })?;
         assert!(first.season_id > 0);
-        info!("PGC 列表示例: {} score={:?}", first.title, first.score);
+        info!("PGC 列表示例: {}", first.title);
         Ok(())
     }
 

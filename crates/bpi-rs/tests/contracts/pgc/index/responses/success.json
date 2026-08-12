@@ -3,21 +3,17 @@
   "message": "success",
   "ttl": 1,
   "data": {
+    "num": 1,
     "list": [
       {
         "season_id": 467063,
         "season_type": 1,
-        "season_status": 0,
         "title": "示例动画第一季",
         "cover": "https://i0.hdslb.com/bfs/bangumi/example.jpg",
         "index_show": "更新至第12话",
-        "total_count": 12,
-        "score": {
-          "score": "9.7",
-          "user_count": 123456
-        }
+        "score": "9.7"
       }
     ],
-    "has_next": true
+    "has_next": 1
   }
 }
