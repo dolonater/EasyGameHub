@@ -168,15 +168,28 @@ pub struct MessageItem {
     pub raw_content: String,
 }
 
-/// 私信 content 解析：content 字段是 JSON 字符串（{"content":"你好"}），
-/// 提取其中的 content 文本；解析失败回退原文。
+/// 私信 content 解析：content 字段是 JSON 字符串，兼容多种结构：
+/// - {"content":"你好"}（普通文本）
+/// - {"title":"...","text":"..."}（系统通知等复杂 JSON）
+/// - {"content":{"text":"..."}}（嵌套）
+/// 全部提取失败回退原文。
 fn deserialize_message_content<'de, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
     let raw = String::deserialize(deserializer).unwrap_or_default();
     if let Ok(value) = serde_json::from_str::<serde_json::Value>(&raw) {
-        if let Some(text) = value.get("content").and_then(serde_json::Value::as_str) {
+        if let Some(text) = value
+            .get("content")
+            .and_then(serde_json::Value::as_str)
+            .or_else(|| value.get("text").and_then(serde_json::Value::as_str))
+            .or_else(|| {
+                value
+                    .get("content")
+                    .and_then(|content| content.get("text"))
+                    .and_then(serde_json::Value::as_str)
+            })
+        {
             return Ok(text.to_string());
         }
     }
@@ -291,6 +304,20 @@ mod tests {
         let item: MessageItem =
             serde_json::from_str(r#"{"content":"纯文本"}"#).expect("should parse");
         assert_eq!(item.content, "纯文本");
+
+        // 系统通知复杂 JSON：取 text 字段
+        let item: MessageItem = serde_json::from_str(
+            r#"{"content":"{\"title\":\"登录操作通知\",\"text\":\"你的账号在新设备登录成功\"}"}"#,
+        )
+        .expect("should parse");
+        assert_eq!(item.content, "你的账号在新设备登录成功");
+
+        // 嵌套 content.text
+        let item: MessageItem = serde_json::from_str(
+            r#"{"content":"{\"content\":{\"text\":\"嵌套文本\"}}"}"#,
+        )
+        .expect("should parse");
+        assert_eq!(item.content, "嵌套文本");
     }
 
     #[test]
