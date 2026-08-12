@@ -2670,4 +2670,435 @@ export const cssText = `
 .bili-placeholder-hint {
   font-size: 13px;
 }
+/* ===== 动态页（P4） ===== */
+.bili-dynamic-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 24px;
+}
+.bili-dynamic-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 55%, transparent);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 160ms var(--bili-ease), box-shadow 160ms var(--bili-ease);
+}
+.bili-dynamic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+.bili-dynamic-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bili-dynamic-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 80%, transparent);
+}
+.bili-dynamic-avatar-sm {
+  width: 28px;
+  height: 28px;
+}
+.bili-dynamic-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.bili-dynamic-meta strong {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-dynamic-meta small {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-dynamic-top-badge {
+  margin-left: auto;
+  font-size: 11px;
+  color: hsl(var(--primary, 240 100% 60%));
+  border: 1px solid hsl(var(--primary, 240 100% 60%));
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.bili-dynamic-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: break-word;
+}
+.bili-dynamic-video {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 60%, transparent);
+  padding: 8px;
+}
+.bili-dynamic-video-cover {
+  width: 140px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #05070c;
+}
+.bili-dynamic-video-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.bili-dynamic-video-info strong {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.bili-dynamic-video-info small {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-dynamic-images {
+  display: grid;
+  gap: 6px;
+}
+.bili-dynamic-images-1 {
+  grid-template-columns: 1fr;
+}
+.bili-dynamic-images-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.bili-dynamic-images-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.bili-dynamic-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  object-fit: cover;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 60%, transparent);
+}
+.bili-dynamic-live {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 60%, transparent);
+  padding: 8px;
+}
+.bili-dynamic-live-cover {
+  width: 140px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #05070c;
+}
+.bili-dynamic-live-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.bili-dynamic-live-badge {
+  align-self: flex-start;
+  font-size: 11px;
+  color: #fff;
+  background: #fb7299;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+.bili-dynamic-live-info strong {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-dynamic-live-info small {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-dynamic-forward {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 3px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  padding-left: 10px;
+}
+.bili-dynamic-forward-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bili-dynamic-forward-head strong {
+  font-size: 13px;
+}
+.bili-dynamic-forward-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.bili-dynamic-stats {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding-top: 4px;
+}
+.bili-dynamic-stat {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  cursor: pointer;
+}
+button.bili-dynamic-stat {
+  color: hsl(var(--foreground, 0 0% 100%));
+}
+.bili-dynamic-stat:hover {
+  color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-dynamic-load-more {
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 8px;
+  background: transparent;
+  color: hsl(var(--foreground, 0 0% 100%));
+  padding: 8px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bili-dynamic-load-more:hover {
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 40%, transparent);
+}
+.bili-dynamic-load-more:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+/* 发布动态 */
+.bili-mine-publish {
+  padding: 0 20px 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+.bili-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+.bili-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(520px, calc(100vw - 48px));
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 12px;
+  background: hsl(var(--card, 0 0% 100%));
+  padding: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+}
+.bili-dialog-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.bili-dynamic-publish-input {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 40%, transparent);
+  color: hsl(var(--foreground, 0 0% 100%));
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+.bili-dynamic-publish-count {
+  text-align: right;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+/* 动态详情 */
+.bili-dyn-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 24px;
+}
+.bili-dyn-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bili-dyn-detail-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.bili-dyn-detail-images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.bili-dyn-detail-image-wrap {
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0;
+  cursor: zoom-in;
+  background: transparent;
+}
+.bili-dyn-detail-image {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  display: block;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 60%, transparent);
+}
+.bili-dyn-detail-forward {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bili-dyn-forwards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bili-dyn-forward-entry {
+  display: flex;
+  gap: 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 40%, transparent);
+  padding: 10px;
+}
+.bili-dyn-forward-entry-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.bili-dyn-forward-entry-body strong {
+  font-size: 13px;
+}
+.bili-dyn-forward-entry-body small {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-dyn-forward-entry-body p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+/* 图片大图预览 */
+.bili-image-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  cursor: zoom-out;
+}
+.bili-image-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  max-width: min(900px, calc(100vw - 48px));
+}
+.bili-image-preview {
+  max-width: 100%;
+  max-height: 78vh;
+  border-radius: 8px;
+  object-fit: contain;
+}
+.bili-image-preview-nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 13px;
+  color: #fff;
+}
+.bili-image-preview-nav-btn {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.bili-image-preview-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+/* 空间动态 tab */
+.bili-space-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 8px;
+}
+.bili-space-tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.bili-space-tab-active {
+  color: hsl(var(--foreground, 0 0% 100%));
+  border-bottom-color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-dynamic-card-wrap {
+  position: relative;
+}
+.bili-dynamic-top-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 85%, transparent);
+  color: hsl(var(--foreground, 0 0% 100%));
+  font-size: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.bili-dynamic-top-button:hover {
+  background: hsl(var(--primary, 240 100% 60%));
+  color: #fff;
+}
+.bili-dynamic-top-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 `;

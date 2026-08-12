@@ -14,6 +14,7 @@
 
 export type BiliNavView =
   | { name: "home" }
+  | { name: "dynamic" }
   | { name: "mine" }
   | { name: "watch"; type?: "video" | "season"; bvid?: string; aid?: number; cid?: number; seasonId?: number; epId?: number }
   | { name: "space"; mid: number }
@@ -65,6 +66,12 @@ export function openSeason(seasonId: number): void {
   switchView({ name: "season", seasonId });
 }
 
+/** 打开动态详情：压入当前视图，可逐级返回 */
+export function openDynDetail(dynId: string): void {
+  stack.push(memory);
+  switchView({ name: "dynDetail", dynId });
+}
+
 /** 播放页返回：弹栈回到上一个视图（空栈则回首页） */
 export function goBackNav(): void {
   const previous = stack.pop();
@@ -78,6 +85,7 @@ export function getViewScroll(name: BiliNavView["name"]): number {
 /** 插件页每次（重新）挂载时清掉残留滚动，避免旧高度错位 */
 export function clearViewScroll(): void {
   delete scrollByView.home;
+  delete scrollByView.dynamic;
   delete scrollByView.mine;
 }
 

@@ -9,16 +9,19 @@ use crate::core::bilibili::cache;
 use crate::core::bilibili::client;
 use crate::core::bilibili::comment;
 use crate::core::bilibili::danmaku;
+use crate::core::bilibili::dynamic;
 use crate::core::bilibili::errors;
 use crate::core::bilibili::fav;
 use crate::core::bilibili::interaction;
 use crate::core::bilibili::library;
 use crate::core::bilibili::models::{
     BiliBangumiFollow, BiliComment, BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult,
-    BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliHotWord, BiliLocalProgress,
-    BiliLoginInfo, BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource,
-    BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliSeasonDetail, BiliToViewItem,
-    BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
+    BiliDynamicCard, BiliDynamicCreated, BiliDynamicForwardEntry, BiliDynamicForwardsPage,
+    BiliDynamicPage, BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliHotWord,
+    BiliLocalProgress, BiliLoginInfo, BiliOperationResult, BiliPgcCard, BiliPgcSection,
+    BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliSeasonDetail,
+    BiliToViewItem, BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState,
+    BiliWeeklySeries,
 };
 use crate::core::bilibili::playback;
 use crate::core::bilibili::proxy;
@@ -714,18 +717,91 @@ pub fn bilibili_open_report(bvid: String) -> Result<BiliOperationResult, String>
 }
 
 #[tauri::command]
+pub async fn bilibili_dynamic_all(
+    state: State<'_, AppState>,
+    offset: Option<String>,
+    host_mid: Option<u64>,
+) -> Result<BiliDynamicPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    let is_space = host_mid.is_some();
+    dynamic::dynamic_all(&client, offset, is_space, host_mid)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_dynamic_detail(
+    state: State<'_, AppState>,
+    dyn_id: String,
+) -> Result<BiliDynamicCard, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    dynamic::dynamic_detail(&client, dyn_id)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_dynamic_like(
+    state: State<'_, AppState>,
+    dyn_id: String,
+    like: bool,
+) -> Result<BiliOperationResult, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    dynamic::dynamic_like(&client, dyn_id, like)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_dynamic_create_text(
+    state: State<'_, AppState>,
+    content: String,
+) -> Result<BiliDynamicCreated, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    dynamic::dynamic_create_text(&client, content)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_dynamic_top(
+    state: State<'_, AppState>,
+    dyn_id: String,
+    top: bool,
+) -> Result<BiliOperationResult, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    dynamic::dynamic_top(&client, dyn_id, top)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_dynamic_forwards(
+    state: State<'_, AppState>,
+    dyn_id: String,
+    offset: Option<String>,
+) -> Result<BiliDynamicForwardsPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    dynamic::dynamic_forwards(&client, dyn_id, offset)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
 pub async fn bilibili_comment_list(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     page: Option<u32>,
     sort: Option<String>,
+    r#type: Option<i64>,
 ) -> Result<BiliCommentPage, String> {
     let cache_key = format!(
-        "{}:{}:{}:{}",
+        "{}:{}:{}:{}:{}",
         current_mid_optional(&state.tool_dir)?.unwrap_or(0),
         oid,
         page.unwrap_or(1),
-        sort.as_deref().unwrap_or("replies")
+        sort.as_deref().unwrap_or("replies"),
+        r#type.unwrap_or(1),
     );
     if let Some(cached) =
         cache::load_json(&state.tool_dir, "comments", &cache_key).map_err(bpi_error)?
@@ -734,9 +810,16 @@ pub async fn bilibili_comment_list(
     }
     let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
     let current_mid = current_mid_optional(&state.tool_dir)?;
-    let data = comment::list(&client, oid, page, sort, current_mid)
-        .await
-        .map_err(bpi_error)?;
+    let data = comment::list(
+        &client,
+        parse_comment_oid(oid)?,
+        page,
+        sort,
+        current_mid,
+        r#type,
+    )
+    .await
+    .map_err(bpi_error)?;
     cache::save_json(
         &state.tool_dir,
         "comments",
@@ -751,7 +834,7 @@ pub async fn bilibili_comment_list(
 #[tauri::command]
 pub async fn bilibili_comment_replies(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     root: u64,
     page: Option<u32>,
 ) -> Result<BiliCommentPage, String> {
@@ -769,7 +852,7 @@ pub async fn bilibili_comment_replies(
     }
     let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
     let current_mid = current_mid_optional(&state.tool_dir)?;
-    let data = comment::replies(&client, oid, root, page, current_mid)
+    let data = comment::replies(&client, parse_comment_oid(oid)?, root, page, current_mid)
         .await
         .map_err(bpi_error)?;
     cache::save_json(
@@ -786,16 +869,23 @@ pub async fn bilibili_comment_replies(
 #[tauri::command]
 pub async fn bilibili_comment_add(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     message: String,
     root: Option<u64>,
     parent: Option<u64>,
 ) -> Result<BiliComment, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
     let current_mid = Some(current_mid(&state.tool_dir)?);
-    let data = comment::add(&client, oid, message, root, parent, current_mid)
-        .await
-        .map_err(bpi_error)?;
+    let data = comment::add(
+        &client,
+        parse_comment_oid(oid)?,
+        message,
+        root,
+        parent,
+        current_mid,
+    )
+    .await
+    .map_err(bpi_error)?;
     clear_comment_cache(&state.tool_dir);
     Ok(data)
 }
@@ -803,12 +893,12 @@ pub async fn bilibili_comment_add(
 #[tauri::command]
 pub async fn bilibili_comment_like(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     rpid: u64,
     like: bool,
 ) -> Result<BiliOperationResult, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
-    let result = comment::like(&client, oid, rpid, like)
+    let result = comment::like(&client, parse_comment_oid(oid)?, rpid, like)
         .await
         .map_err(bpi_error)?;
     clear_comment_cache(&state.tool_dir);
@@ -818,12 +908,12 @@ pub async fn bilibili_comment_like(
 #[tauri::command]
 pub async fn bilibili_comment_dislike(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     rpid: u64,
     dislike: bool,
 ) -> Result<BiliOperationResult, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
-    let result = comment::dislike(&client, oid, rpid, dislike)
+    let result = comment::dislike(&client, parse_comment_oid(oid)?, rpid, dislike)
         .await
         .map_err(bpi_error)?;
     clear_comment_cache(&state.tool_dir);
@@ -833,11 +923,11 @@ pub async fn bilibili_comment_dislike(
 #[tauri::command]
 pub async fn bilibili_comment_delete(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     rpid: u64,
 ) -> Result<BiliOperationResult, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
-    let result = comment::delete(&client, oid, rpid)
+    let result = comment::delete(&client, parse_comment_oid(oid)?, rpid)
         .await
         .map_err(bpi_error)?;
     clear_comment_cache(&state.tool_dir);
@@ -847,12 +937,12 @@ pub async fn bilibili_comment_delete(
 #[tauri::command]
 pub async fn bilibili_comment_top(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     rpid: u64,
     top: bool,
 ) -> Result<BiliOperationResult, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
-    let result = comment::top(&client, oid, rpid, top)
+    let result = comment::top(&client, parse_comment_oid(oid)?, rpid, top)
         .await
         .map_err(bpi_error)?;
     clear_comment_cache(&state.tool_dir);
@@ -862,13 +952,13 @@ pub async fn bilibili_comment_top(
 #[tauri::command]
 pub async fn bilibili_comment_report(
     state: State<'_, AppState>,
-    oid: u64,
+    oid: String,
     rpid: u64,
     reason: String,
     content: Option<String>,
 ) -> Result<BiliOperationResult, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
-    comment::report(&client, oid, rpid, reason, content)
+    comment::report(&client, parse_comment_oid(oid)?, rpid, reason, content)
         .await
         .map_err(bpi_error)
 }
@@ -1154,6 +1244,14 @@ fn clear_video_interaction_cache(tool_dir: &std::path::Path) {
 
 fn bpi_error(error: BpiError) -> String {
     serde_json::to_string(&errors::to_error_dto(&error)).unwrap_or_else(|_| error.to_string())
+}
+
+/// 评论 oid 解析：dyn_id 超过 2^53（JS Number 丢精度），前端统一传字符串。
+fn parse_comment_oid(value: String) -> Result<u64, String> {
+    value
+        .trim()
+        .parse::<u64>()
+        .map_err(|_| format!("invalid oid: {value}"))
 }
 
 fn proxy_error(error: impl std::fmt::Display) -> String {

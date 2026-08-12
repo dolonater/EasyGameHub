@@ -113,6 +113,72 @@ export interface BiliDanmakuSendResult {
   dmid?: number;
 }
 
+export interface BiliDynamicCard {
+  dynId: string;
+  cardType: string;
+  uid: number;
+  name: string;
+  face: string;
+  pubTime: string;
+  content: string;
+  video?: BiliDynamicVideo | null;
+  images: string[];
+  live?: BiliDynamicLive | null;
+  forward?: BiliDynamicCard | null;
+  likeCount: number;
+  liked: boolean;
+  forwardCount: number;
+  commentCount: number;
+  commentId: string;
+  commentType: number;
+  visible: boolean;
+  isTop: boolean;
+}
+
+export interface BiliDynamicVideo {
+  aid: number;
+  bvid: string;
+  cover: string;
+  title: string;
+  durationText: string;
+  desc: string;
+  play: number;
+  danmaku: number;
+}
+
+export interface BiliDynamicLive {
+  roomId: number;
+  title: string;
+  cover: string;
+  areaName: string;
+}
+
+export interface BiliDynamicPage {
+  cards: BiliDynamicCard[];
+  hasMore: boolean;
+  offset: string;
+}
+
+export interface BiliDynamicForwardEntry {
+  dynId: string;
+  pubTime: string;
+  name: string;
+  face: string;
+  content: string;
+}
+
+export interface BiliDynamicForwardsPage {
+  entries: BiliDynamicForwardEntry[];
+  hasMore: boolean;
+  offset: string;
+}
+
+export interface BiliDynamicCreated {
+  ok: boolean;
+  message: string;
+  dynId: string;
+}
+
 export type BiliErrorKind =
   | "notLoggedIn"
   | "loginExpired"
@@ -594,15 +660,20 @@ export interface PluginSdk {
       }): Promise<BiliDanmakuSendResult>;
     };
     comment: {
-      list(args: { oid: number; page?: number; sort?: BiliCommentSort }): Promise<BiliCommentPage>;
-      replies(args: { oid: number; root: number; page?: number }): Promise<BiliCommentPage>;
-      add(args: { oid: number; message: string; root?: number; parent?: number }): Promise<BiliComment>;
-      like(args: { oid: number; rpid: number; like: boolean }): Promise<BiliOperationResult>;
-      dislike(args: { oid: number; rpid: number; dislike: boolean }): Promise<BiliOperationResult>;
-      delete(args: { oid: number; rpid: number }): Promise<BiliOperationResult>;
-      top(args: { oid: number; rpid: number; top: boolean }): Promise<BiliOperationResult>;
+      list(args: {
+        oid: string | number;
+        page?: number;
+        sort?: BiliCommentSort;
+        type?: number;
+      }): Promise<BiliCommentPage>;
+      replies(args: { oid: string | number; root: number; page?: number }): Promise<BiliCommentPage>;
+      add(args: { oid: string | number; message: string; root?: number; parent?: number }): Promise<BiliComment>;
+      like(args: { oid: string | number; rpid: number; like: boolean }): Promise<BiliOperationResult>;
+      dislike(args: { oid: string | number; rpid: number; dislike: boolean }): Promise<BiliOperationResult>;
+      delete(args: { oid: string | number; rpid: number }): Promise<BiliOperationResult>;
+      top(args: { oid: string | number; rpid: number; top: boolean }): Promise<BiliOperationResult>;
       report(args: {
-        oid: number;
+        oid: string | number;
         rpid: number;
         reason: BiliReportReason;
         content?: string;
@@ -691,7 +762,14 @@ export interface PluginSdk {
       followList(args: { page?: number; cinema?: boolean }): Promise<BiliBangumiFollow[]>;
     };
     live: Record<string, never>;
-    dynamic: Record<string, never>;
+    dynamic: {
+      all(args: { offset?: string; hostMid?: number }): Promise<BiliDynamicPage>;
+      detail(args: { dynId: string }): Promise<BiliDynamicCard>;
+      like(args: { dynId: string; like: boolean }): Promise<BiliOperationResult>;
+      createText(args: { content: string }): Promise<BiliDynamicCreated>;
+      top(args: { dynId: string; top: boolean }): Promise<BiliOperationResult>;
+      forwards(args: { dynId: string; offset?: string }): Promise<BiliDynamicForwardsPage>;
+    };
     message: Record<string, never>;
     note: Record<string, never>;
     article: Record<string, never>;
@@ -999,35 +1077,35 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
       comment: {
         list(args) {
           requirePerm("bilibili", "bilibili.comment.list");
-          return biliInvoke("bilibili_comment_list", args);
+          return biliInvoke("bilibili_comment_list", { ...args, oid: String(args.oid) });
         },
         replies(args) {
           requirePerm("bilibili", "bilibili.comment.replies");
-          return biliInvoke("bilibili_comment_replies", args);
+          return biliInvoke("bilibili_comment_replies", { ...args, oid: String(args.oid) });
         },
         add(args) {
           requirePerm("bilibili", "bilibili.comment.add");
-          return biliInvoke("bilibili_comment_add", args);
+          return biliInvoke("bilibili_comment_add", { ...args, oid: String(args.oid) });
         },
         like(args) {
           requirePerm("bilibili", "bilibili.comment.like");
-          return biliInvoke("bilibili_comment_like", args);
+          return biliInvoke("bilibili_comment_like", { ...args, oid: String(args.oid) });
         },
         dislike(args) {
           requirePerm("bilibili", "bilibili.comment.dislike");
-          return biliInvoke("bilibili_comment_dislike", args);
+          return biliInvoke("bilibili_comment_dislike", { ...args, oid: String(args.oid) });
         },
         delete(args) {
           requirePerm("bilibili", "bilibili.comment.delete");
-          return biliInvoke("bilibili_comment_delete", args);
+          return biliInvoke("bilibili_comment_delete", { ...args, oid: String(args.oid) });
         },
         top(args) {
           requirePerm("bilibili", "bilibili.comment.top");
-          return biliInvoke("bilibili_comment_top", args);
+          return biliInvoke("bilibili_comment_top", { ...args, oid: String(args.oid) });
         },
         report(args) {
           requirePerm("bilibili", "bilibili.comment.report");
-          return biliInvoke("bilibili_comment_report", args);
+          return biliInvoke("bilibili_comment_report", { ...args, oid: String(args.oid) });
         },
       },
       library: {
@@ -1217,7 +1295,32 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
         },
       },
       live: {},
-      dynamic: {},
+      dynamic: {
+        all(args) {
+          requirePerm("bilibili", "bilibili.dynamic.all");
+          return biliInvoke("bilibili_dynamic_all", args);
+        },
+        detail(args) {
+          requirePerm("bilibili", "bilibili.dynamic.detail");
+          return biliInvoke("bilibili_dynamic_detail", args);
+        },
+        like(args) {
+          requirePerm("bilibili", "bilibili.dynamic.like");
+          return biliInvoke("bilibili_dynamic_like", args);
+        },
+        createText(args) {
+          requirePerm("bilibili", "bilibili.dynamic.createText");
+          return biliInvoke("bilibili_dynamic_create_text", args);
+        },
+        top(args) {
+          requirePerm("bilibili", "bilibili.dynamic.top");
+          return biliInvoke("bilibili_dynamic_top", args);
+        },
+        forwards(args) {
+          requirePerm("bilibili", "bilibili.dynamic.forwards");
+          return biliInvoke("bilibili_dynamic_forwards", args);
+        },
+      },
       message: {},
       note: {},
       article: {},

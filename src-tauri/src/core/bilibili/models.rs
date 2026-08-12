@@ -191,6 +191,103 @@ pub struct BiliPgcCard {
     pub score: Option<f64>,
 }
 
+/// 动态流/详情统一卡片 DTO（四类：视频/图文/直播/转发，纯文字降级 text）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDynamicCard {
+    pub dyn_id: String,
+    pub card_type: String,
+    pub uid: i64,
+    pub name: String,
+    pub face: String,
+    pub pub_time: String,
+    pub content: String,
+    pub video: Option<BiliDynamicVideo>,
+    pub images: Vec<String>,
+    pub live: Option<BiliDynamicLive>,
+    pub forward: Option<Box<BiliDynamicCard>>,
+    pub like_count: i64,
+    pub liked: bool,
+    pub forward_count: i64,
+    pub comment_count: i64,
+    pub comment_id: String,
+    pub comment_type: i64,
+    pub visible: bool,
+    pub is_top: bool,
+}
+
+/// 动态内嵌视频卡片（MAJOR_TYPE_ARCHIVE）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDynamicVideo {
+    pub aid: i64,
+    pub bvid: String,
+    pub cover: String,
+    pub title: String,
+    pub duration_text: String,
+    pub desc: String,
+    pub play: i64,
+    pub danmaku: i64,
+}
+
+/// 动态内嵌直播卡片（MAJOR_TYPE_LIVE_RCMD）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDynamicLive {
+    pub room_id: i64,
+    pub title: String,
+    pub cover: String,
+    pub area_name: String,
+}
+
+/// 动态流分页（offset 游标）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDynamicPage {
+    pub cards: Vec<BiliDynamicCard>,
+    pub has_more: bool,
+    pub offset: String,
+}
+
+/// 转发列表单条。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDynamicForwardEntry {
+    pub dyn_id: String,
+    pub pub_time: String,
+    pub name: String,
+    pub face: String,
+    pub content: String,
+}
+
+/// 转发列表分页（offset 游标）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDynamicForwardsPage {
+    pub entries: Vec<BiliDynamicForwardEntry>,
+    pub has_more: bool,
+    pub offset: String,
+}
+
+/// 动态发布结果。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliDynamicCreated {
+    pub ok: bool,
+    pub message: String,
+    pub dyn_id: String,
+}
+
+impl BiliDynamicCreated {
+    pub fn ok(dyn_id: impl Into<String>) -> Self {
+        Self {
+            ok: true,
+            message: "dynamic published".to_string(),
+            dyn_id: dyn_id.into(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BiliPgcSection {

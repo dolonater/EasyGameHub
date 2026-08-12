@@ -23,9 +23,10 @@ pub async fn list(
     page: Option<u32>,
     sort: Option<String>,
     current_mid: Option<u64>,
+    comment_type: Option<i64>,
 ) -> Result<BiliCommentPage, BpiError> {
     let sort = parse_sort(sort.as_deref());
-    let params = CommentListParams::new(target(oid)?)
+    let params = CommentListParams::new(typed_target(comment_type, oid)?)
         .with_page(page.unwrap_or(1))?
         .with_page_size(COMMENT_PAGE_SIZE)?
         .with_sort(sort)
@@ -285,6 +286,15 @@ fn target(oid: u64) -> Result<CommentTarget, BpiError> {
     let oid =
         i64::try_from(oid).map_err(|_| BpiError::invalid_parameter("oid", "value is too large"))?;
     CommentTarget::new(COMMENT_TYPE_VIDEO, oid)
+}
+
+/// 构造带类型的评论区目标（默认视频 type=1；动态 type=17 等）。
+fn typed_target(comment_type: Option<i64>, oid: u64) -> Result<CommentTarget, BpiError> {
+    let oid =
+        i64::try_from(oid).map_err(|_| BpiError::invalid_parameter("oid", "value is too large"))?;
+    let r#type = i32::try_from(comment_type.unwrap_or(COMMENT_TYPE_VIDEO as i64))
+        .map_err(|_| BpiError::invalid_parameter("type", "value is too large"))?;
+    CommentTarget::new(r#type, oid)
 }
 
 fn parse_sort(value: Option<&str>) -> CommentSort {

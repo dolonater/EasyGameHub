@@ -7,14 +7,17 @@ use crate::dynamic::detail::{
 };
 use crate::dynamic::get_dynamic_detail::RecentUpData;
 use crate::dynamic::nav::DynamicNavData;
+use crate::dynamic::space::SpaceDynamicData;
 use crate::dynamic::{
     DynamicAllParams, DynamicCheckNewParams, DynamicDetailParams, DynamicForwardItemParams,
     DynamicForwardsParams, DynamicLiveUsersParams, DynamicLotteryNoticeParams,
     DynamicNavFeedParams, DynamicPicsParams, DynamicReactionsParams, DynamicUpUsersParams,
+    SpaceDynamicParams,
 };
 use crate::{BilibiliRequest, BpiClient, BpiResult};
 
 const ALL_ENDPOINT: &str = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all";
+const SPACE_ENDPOINT: &str = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space";
 const CHECK_NEW_ENDPOINT: &str =
     "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all/update";
 const NAV_FEED_ENDPOINT: &str = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/nav";
@@ -116,6 +119,15 @@ impl<'a> DynamicClient<'a> {
             .get(ALL_ENDPOINT)
             .query(&params.query_pairs())
             .send_bpi_payload("dynamic.feed_all")
+            .await
+    }
+
+    /// 获取指定用户（UP 主页）的动态流。
+    pub async fn space_dynamics(&self, params: SpaceDynamicParams) -> BpiResult<SpaceDynamicData> {
+        self.client
+            .get(SPACE_ENDPOINT)
+            .query(&params.query_pairs())
+            .send_bpi_payload("dynamic.feed_space")
             .await
     }
 

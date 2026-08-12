@@ -63,11 +63,11 @@ export function SearchEmptyPanel({ history, onPick, onClearHistory }: SearchEmpt
           <ol className="bili-hotword-list">
             {hotwords.slice(0, 20).map((item, index) => (
               <li key={item.keyword}>
-                <button type="button" className="bili-hotword-item" onClick={() => onPick(item.show_name || item.keyword)}>
+                <button type="button" className="bili-hotword-item" onClick={() => onPick(item.showName || item.keyword)}>
                   <span className={index < 3 ? "bili-hotword-rank bili-hotword-rank-top" : "bili-hotword-rank"}>
                     {index + 1}
                   </span>
-                  {item.show_name || item.keyword}
+                  {item.showName || item.keyword}
                 </button>
               </li>
             ))}

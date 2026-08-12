@@ -1,10 +1,12 @@
 import React, { Button, useEffect, useState } from "sdk";
 import { BiliAppShell } from "../components/BiliAppShell";
+import { DynamicPage } from "./DynamicPage";
 import { HomePage } from "./HomePage";
 import { MinePage } from "./MinePage";
 import { SeasonPage } from "./SeasonPage";
 import { SpacePage } from "./SpacePage";
 import { WatchPage } from "./WatchPage";
+import { DynDetailPage } from "./DynDetailPage";
 import { clearViewScroll, getNavView, getViewScroll, goBackNav, subscribeNav, type BiliNavView } from "../navigation";
 import { getState, subscribe } from "../runtime";
 
@@ -65,6 +67,9 @@ export function MainPage() {
       <div className={view.name === "home" ? "" : "bili-hidden"}>
         <HomePage />
       </div>
+      <div className={view.name === "dynamic" ? "" : "bili-hidden"}>
+        <DynamicPage />
+      </div>
       <div className={view.name === "mine" ? "" : "bili-hidden"}>
         <MinePage />
       </div>
@@ -73,7 +78,7 @@ export function MainPage() {
       {view.name === "season" ? <SeasonPage key={`season-${view.seasonId}`} seasonId={view.seasonId} /> : null}
       {view.name === "live" ? <PlaceholderPage label="直播间" /> : null}
       {view.name === "settings" ? <PlaceholderPage label="设置" /> : null}
-      {view.name === "dynDetail" ? <PlaceholderPage label="动态详情" /> : null}
+      {view.name === "dynDetail" ? <DynDetailPage key={view.dynId} dynId={view.dynId} /> : null}
       {view.name === "article" ? <PlaceholderPage label="专栏" /> : null}
     </BiliAppShell>
   );

@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "name": "dynamic.feed_space",
+  "module": "dynamic",
+  "batch": "feed",
+  "endpoint": "space",
+  "risk": "authenticated-read",
+  "status": "promoted",
+  "profiles": [
+    "anonymous",
+    "normal",
+    "vip"
+  ],
+  "request": {
+    "method": "GET",
+    "url": "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space",
+    "query": {
+      "host_mid": "2084572",
+      "features": "itemOpusStyle,listOnlyfans,opusBigCover,onlyfansVote,decorationCard,onlyfansAssetsV2,forwardListHidden,ugcDelete"
+    },
+    "required_headers": [
+      "user-agent",
+      "referer",
+      "origin"
+    ],
+    "headers": {},
+    "auth": {
+      "requires": []
+    }
+  },
+  "response": {
+    "code": 0,
+    "data": {
+      "has_more": true,
+      "items": [
+        {
+          "basic": {
+            "comment_id_str": "12345",
+            "comment_type": 1,
+            "like_icon": {},
+            "rid_str": "0",
+            "is_only_fans": false,
+            "jump_url": ""
+          },
+          "id_str": "12345",
+          "modules": {
+            "module_author": {
+              "face": "https://i0.hdslb.com/bfs/face/example.jpg",
+              "pub_ts": 1710000000,
+              "pub_time": "2024-03-10 12:00:00",
+              "name": "示例UP",
+              "mid": 2084572
+            },
+            "module_dynamic": {
+              "type": "DYNAMIC_TYPE_AV",
+              "desc": {
+                "text": "新视频发布"
+              },
+              "major": {
+                "type": "MAJOR_TYPE_ARCHIVE",
+                "archive": {
+                  "aid": "1001",
+                  "bvid": "BV1xx411c7mD",
+                  "cover": "https://i0.hdslb.com/bfs/archive/example.jpg",
+                  "title": "示例视频",
+                  "duration_text": "10:30",
+                  "stat": {
+                    "play": 100,
+                    "danmaku": 10
+                  },
+                  "desc": "视频简介",
+                  "epid": 0,
+                  "type": 1
+                }
+              }
+            },
+            "module_stat": {
+              "comment": {
+                "count": 2,
+                "type": 1,
+                "comment_id": "12345",
+                "comment_type": 1
+              },
+              "forward": {
+                "count": 1,
+                "type": 1
+              },
+              "like": {
+                "count": 5,
+                "type": 1,
+                "like_state": false
+              }
+            }
+          },
+          "type": "DYNAMIC_TYPE_AV",
+          "visible": true
+        }
+      ],
+      "offset": "abc123"
+    }
+  },
+  "cases": [
+    {
+      "name": "normal",
+      "profile": "normal",
+      "auth": {
+        "profile": "normal",
+        "requires": [
+          "cookie"
+        ]
+      },
+      "response": {
+        "api_code": 0,
+        "fixture": "responses/normal.success.json",
+        "fixture_kind": "sanitized_probe_body",
+        "rust_model": "SpaceDynamicData"
+      }
+    }
+  ]
+}

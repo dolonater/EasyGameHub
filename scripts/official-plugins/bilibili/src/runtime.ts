@@ -8,6 +8,8 @@ export interface BilibiliRuntimeState {
   loginPolling: boolean;
   loginError: string;
   config: BilibiliPluginConfig;
+  /** 动态发布计数：发布成功 +1，动态页订阅后重载首屏 */
+  dynamicPublished: number;
 }
 
 export interface BilibiliPluginConfig {
@@ -42,6 +44,7 @@ const initialState: BilibiliRuntimeState = {
   loginPolling: false,
   loginError: "",
   config: defaultConfig,
+  dynamicPublished: 0,
 };
 
 let state = initialState;
@@ -171,6 +174,11 @@ function requireSdk() {
 function setState(next: Partial<BilibiliRuntimeState>) {
   state = { ...state, ...next };
   listeners.forEach((listener) => listener());
+}
+
+/** 动态发布成功通知：动态页订阅此计数变化后重载首屏 */
+export function markDynamicPublished() {
+  setState({ dynamicPublished: state.dynamicPublished + 1 });
 }
 
 function normalizeConfig(value: unknown): BilibiliPluginConfig {

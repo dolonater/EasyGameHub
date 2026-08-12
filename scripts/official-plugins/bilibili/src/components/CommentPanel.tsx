@@ -13,6 +13,10 @@ interface CommentPanelProps {
   detail: BiliVideoDetail;
   loggedIn: boolean;
   sdk: PluginSdk | null;
+  /** 覆盖评论 oid（动态等非视频场景；默认 detail.aid）。dyn_id 超过 2^53 需传字符串 */
+  oid?: string | number;
+  /** 评论区类型（默认 1 视频；动态为 17） */
+  type?: number;
 }
 
 interface ReplyState {
@@ -29,7 +33,9 @@ const sortOptions: Array<{ value: BiliCommentSort; label: string }> = [
   { value: "like", label: "最多赞" },
 ];
 
-export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
+export function CommentPanel({ detail, loggedIn, sdk, oid, type }: CommentPanelProps) {
+  const commentOid = oid ?? detail.aid;
+  const commentType = type ?? 1;
   const [sort, setSort] = useState<BiliCommentSort>("replies");
   const [comments, setComments] = useState<BiliComment[]>([]);
   const [topComments, setTopComments] = useState<BiliComment[]>([]);
@@ -53,7 +59,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
       setLoading(true);
       setError("");
       try {
-        const result = await sdk.bilibili.comment.list({ oid: detail.aid, page: nextPage, sort });
+        const result = await sdk.bilibili.comment.list({ oid: commentOid, page: nextPage, sort, type: commentType });
         setPage(result.page || nextPage);
         setTotal(result.total || 0);
         setHasMore(result.hasMore);
@@ -65,7 +71,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
         setLoading(false);
       }
     },
-    [detail.aid, sdk, sort],
+    [commentOid, sdk, sort],
   );
 
   useEffect(() => {
@@ -271,7 +277,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
     setBusyRpid(0);
     setError("");
     try {
-      const created = await sdk.bilibili.comment.add({ oid: detail.aid, message: mainMessage });
+      const created = await sdk.bilibili.comment.add({ oid: commentOid, message: mainMessage });
       setComments((items) => [created, ...items]);
       setMainMessage("");
       await loadPage(1, false);
@@ -292,7 +298,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
     setBusyRpid(comment.rpid);
     try {
       const created = await sdk.bilibili.comment.add({
-        oid: detail.aid,
+        oid: commentOid,
         message: draft,
         root: comment.root || comment.rpid,
         parent: replyTargets[comment.rpid] || comment.rpid,
@@ -337,7 +343,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
       [root]: { ...(states[root] ?? emptyReplyState([])), loading: true, error: "" },
     }));
     try {
-      const result = await sdk.bilibili.comment.replies({ oid: detail.aid, root, page: nextPage });
+      const result = await sdk.bilibili.comment.replies({ oid: commentOid, root, page: nextPage });
       setReplyStates((states) => ({
         ...states,
         [root]: {
@@ -368,7 +374,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
     }));
     setBusyRpid(comment.rpid);
     try {
-      await sdk.bilibili.comment.like({ oid: detail.aid, rpid: comment.rpid, like: nextLike });
+      await sdk.bilibili.comment.like({ oid: commentOid, rpid: comment.rpid, like: nextLike });
     } catch (err) {
       restore(previous);
       notify(errorMessage(err));
@@ -389,7 +395,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
     }));
     setBusyRpid(comment.rpid);
     try {
-      await sdk.bilibili.comment.dislike({ oid: detail.aid, rpid: comment.rpid, dislike: nextDislike });
+      await sdk.bilibili.comment.dislike({ oid: commentOid, rpid: comment.rpid, dislike: nextDislike });
     } catch (err) {
       restore(previous);
       notify(errorMessage(err));
@@ -402,7 +408,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
     if (!sdk || !window.confirm("确认删除这条评论？")) return;
     setBusyRpid(comment.rpid);
     try {
-      await sdk.bilibili.comment.delete({ oid: detail.aid, rpid: comment.rpid });
+      await sdk.bilibili.comment.delete({ oid: commentOid, rpid: comment.rpid });
       setComments((items) => removeComment(items, comment.rpid));
       setTopComments((items) => removeComment(items, comment.rpid));
       setReplyStates((states) => mapReplyStates(states, (items) => removeComment(items, comment.rpid)));
@@ -419,7 +425,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
     const nextTop = !comment.isTop;
     setBusyRpid(comment.rpid);
     try {
-      await sdk.bilibili.comment.top({ oid: detail.aid, rpid: comment.rpid, top: nextTop });
+      await sdk.bilibili.comment.top({ oid: commentOid, rpid: comment.rpid, top: nextTop });
       await loadPage(1, false);
       notify(nextTop ? "评论已置顶" : "已取消置顶");
     } catch (err) {
@@ -434,7 +440,7 @@ export function CommentPanel({ detail, loggedIn, sdk }: CommentPanelProps) {
     setBusyRpid(comment.rpid);
     try {
       await sdk.bilibili.comment.report({
-        oid: detail.aid,
+        oid: commentOid,
         rpid: comment.rpid,
         reason: draft.reason,
         content: draft.content.trim() || undefined,

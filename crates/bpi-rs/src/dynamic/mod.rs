@@ -27,3 +27,4 @@ pub use params::{
     DynamicNavFeedParams, DynamicPicsParams, DynamicReactionsParams, DynamicUpUsersParams,
 };
 pub use publish::{DynamicComplexCreateParams, DynamicTextCreateParams, DynamicUploadPicParams};
+pub use space::{SpaceDynamicData, SpaceDynamicParams};

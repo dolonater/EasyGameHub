@@ -3,7 +3,7 @@ import { cssText } from "../styles";
 import { BiliTopNav, type BiliTopNavPage } from "./BiliTopNav";
 
 interface BiliAppShellProps {
-  current: BiliTopNavPage;
+  current: string;
   title?: string;
   subtitle?: string;
   children?: any;

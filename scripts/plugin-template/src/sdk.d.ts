@@ -85,6 +85,78 @@ declare module "sdk" {
     message: string;
     dmid?: number;
   }
+
+  export interface BiliDynamicCard {
+    dynId: string;
+    cardType: string;
+    uid: number;
+    name: string;
+    face: string;
+    pubTime: string;
+    content: string;
+    video?: BiliDynamicVideo | null;
+    images: string[];
+    live?: BiliDynamicLive | null;
+    forward?: BiliDynamicCard | null;
+    likeCount: number;
+    liked: boolean;
+    forwardCount: number;
+    commentCount: number;
+    commentId: string;
+    commentType: number;
+    visible: boolean;
+    isTop: boolean;
+  }
+
+  export interface BiliDynamicVideo {
+    aid: number;
+    bvid: string;
+    cover: string;
+    title: string;
+    durationText: string;
+    desc: string;
+    play: number;
+    danmaku: number;
+  }
+
+  export interface BiliDynamicLive {
+    roomId: number;
+    title: string;
+    cover: string;
+    areaName: string;
+  }
+
+  export interface BiliDynamicPage {
+    cards: BiliDynamicCard[];
+    hasMore: boolean;
+    offset: string;
+  }
+
+  export interface BiliDynamicForwardEntry {
+    dynId: string;
+    pubTime: string;
+    name: string;
+    face: string;
+    content: string;
+  }
+
+  export interface BiliDynamicForwardsPage {
+    entries: BiliDynamicForwardEntry[];
+    hasMore: boolean;
+    offset: string;
+  }
+
+  export interface BiliDynamicForwardsPage {
+  entries: BiliDynamicForwardEntry[];
+  hasMore: boolean;
+  offset: string;
+}
+
+export interface BiliDynamicCreated {
+    ok: boolean;
+    message: string;
+    dynId: string;
+  }
   export type BiliErrorKind =
     | "notLoggedIn"
     | "loginExpired"
@@ -463,13 +535,18 @@ declare module "sdk" {
         }): Promise<BiliDanmakuSendResult>;
       };
       comment: {
-        list(args: { oid: number; page?: number; sort?: BiliCommentSort }): Promise<BiliCommentPage>;
-        replies(args: { oid: number; root: number; page?: number }): Promise<BiliCommentPage>;
-        add(args: { oid: number; message: string; root?: number; parent?: number }): Promise<BiliComment>;
-        like(args: { oid: number; rpid: number; like: boolean }): Promise<BiliOperationResult>;
-        dislike(args: { oid: number; rpid: number; dislike: boolean }): Promise<BiliOperationResult>;
-        delete(args: { oid: number; rpid: number }): Promise<BiliOperationResult>;
-        top(args: { oid: number; rpid: number; top: boolean }): Promise<BiliOperationResult>;
+        list(args: {
+          oid: number;
+          page?: number;
+          sort?: BiliCommentSort;
+          type?: number;
+        }): Promise<BiliCommentPage>;
+        replies(args: { oid: string | number; root: number; page?: number }): Promise<BiliCommentPage>;
+        add(args: { oid: string | number; message: string; root?: number; parent?: number }): Promise<BiliComment>;
+        like(args: { oid: string | number; rpid: number; like: boolean }): Promise<BiliOperationResult>;
+        dislike(args: { oid: string | number; rpid: number; dislike: boolean }): Promise<BiliOperationResult>;
+        delete(args: { oid: string | number; rpid: number }): Promise<BiliOperationResult>;
+        top(args: { oid: string | number; rpid: number; top: boolean }): Promise<BiliOperationResult>;
         report(args: {
           oid: number;
           rpid: number;
@@ -560,7 +637,14 @@ declare module "sdk" {
         followList(args: { page?: number; cinema?: boolean }): Promise<BiliBangumiFollow[]>;
       };
       live: Record<string, never>;
-      dynamic: Record<string, never>;
+      dynamic: {
+        all(args: { offset?: string; hostMid?: number }): Promise<BiliDynamicPage>;
+        detail(args: { dynId: string }): Promise<BiliDynamicCard>;
+        like(args: { dynId: string; like: boolean }): Promise<BiliOperationResult>;
+        createText(args: { content: string }): Promise<BiliDynamicCreated>;
+        top(args: { dynId: string; top: boolean }): Promise<BiliOperationResult>;
+        forwards(args: { dynId: string; offset?: string }): Promise<BiliDynamicForwardsPage>;
+      };
       message: Record<string, never>;
       note: Record<string, never>;
       article: Record<string, never>;

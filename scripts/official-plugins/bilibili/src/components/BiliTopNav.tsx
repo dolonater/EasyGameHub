@@ -3,10 +3,10 @@ import { navigateNav } from "../navigation";
 import { getState, refreshLoginStatus, subscribe } from "../runtime";
 import { BiliImage } from "./BiliImage";
 
-export type BiliTopNavPage = "home" | "mine" | "watch";
+export type BiliTopNavPage = "home" | "dynamic" | "mine" | "watch";
 
 interface BiliTopNavProps {
-  current: BiliTopNavPage;
+  current: string;
   title?: string;
   subtitle?: string;
   actions?: any;
@@ -44,6 +44,16 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
           onClick={() => navigateNav({ name: "home" })}
         >
           首页
+        </Button>
+        <Button
+          aria-current={current === "dynamic" ? "page" : undefined}
+          className={current === "dynamic" ? "bili-nav-tab bili-nav-tab-active" : "bili-nav-tab"}
+          variant="ghost"
+          size="sm"
+          type="button"
+          onClick={() => navigateNav({ name: "dynamic" })}
+        >
+          动态
         </Button>
         <Button
           aria-current={current === "mine" ? "page" : undefined}
