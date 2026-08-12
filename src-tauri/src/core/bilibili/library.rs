@@ -11,8 +11,8 @@ use bpi_rs::video::VideoFavoriteParams;
 use bpi_rs::{BpiClient, BpiError};
 
 use super::models::{
-    BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliOperationResult, BiliToViewItem,
-    BiliVideoCard,
+    BiliFavoriteFolder, BiliFavoriteItem, BiliFavoritePage, BiliHistoryItem, BiliOperationResult,
+    BiliToViewItem, BiliVideoCard,
 };
 use super::video;
 
@@ -85,17 +85,20 @@ pub async fn favorite_items(
     client: &BpiClient,
     media_id: u64,
     page: Option<u32>,
-) -> Result<Vec<BiliFavoriteItem>, BpiError> {
+) -> Result<BiliFavoritePage, BpiError> {
     let params = FavListDetailParams::new(MediaId::new(media_id)?)
         .content_type(2)
         .page_size(LIBRARY_PAGE_SIZE)?
         .page(page.unwrap_or(1))?;
     let detail = client.fav().list_detail(params).await?;
-    Ok(detail
-        .medias
-        .iter()
-        .filter_map(favorite_media_to_dto)
-        .collect())
+    Ok(BiliFavoritePage {
+        items: detail
+            .medias
+            .iter()
+            .filter_map(favorite_media_to_dto)
+            .collect(),
+        has_more: detail.has_more,
+    })
 }
 
 pub async fn favorite_video(

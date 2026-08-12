@@ -23503,6 +23503,12 @@ var cssText = `
 .bili-folder-videos {
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
+/* \u6536\u85CF\u5939\u5206\u9875\u7F51\u683C\uFF1Avideo-grid \u4E0E"\u52A0\u8F7D\u66F4\u591A"\u8DE8\u6EE1 .bili-folder-videos \u5168\u90E8\u5217\uFF0C
+   \u907F\u514D\u88AB\u5F53\u6210 150px \u5355\u5217\u7684\u5B50\u9879\u6324\u5728\u5DE6\u4FA7 */
+.bili-folder-videos > .bili-video-grid,
+.bili-folder-videos > .bili-dynamic-load-more {
+  grid-column: 1 / -1;
+}
 .bili-folder-item {
   display: grid;
   gap: 3px;
@@ -29457,6 +29463,8 @@ function FavoritesPage() {
   const [favoriteItems, setFavoriteItems] = useState16([]);
   const [selectedFolderId, setSelectedFolderId] = useState16(null);
   const [manageMode, setManageMode] = useState16(false);
+  const [page, setPage] = useState16(1);
+  const [hasMore, setHasMore] = useState16(false);
   const [loading, setLoading] = useState16(false);
   const [error, setError] = useState16("");
   const loggedIn = Boolean(state2.loginInfo?.loggedIn);
@@ -29467,6 +29475,8 @@ function FavoritesPage() {
       setFavoriteItems([]);
       setSelectedFolderId(null);
       setManageMode(false);
+      setPage(1);
+      setHasMore(false);
       return;
     }
     let cancelled = false;
@@ -29480,9 +29490,14 @@ function FavoritesPage() {
       const nextSelected = nextFolders[0]?.id ?? null;
       setSelectedFolderId(nextSelected);
       if (nextSelected) {
-        setFavoriteItems(await sdk.bilibili.library.favoriteItems(nextSelected, 1));
+        const first = await sdk.bilibili.library.favoriteItems(nextSelected, 1);
+        if (cancelled) return;
+        setFavoriteItems(first.items);
+        setPage(1);
+        setHasMore(first.hasMore);
       } else {
         setFavoriteItems([]);
+        setHasMore(false);
       }
     }).catch((err) => {
       if (!cancelled) setError(errorMessage(err));
@@ -29501,7 +29516,11 @@ function FavoritesPage() {
     const sdk = getState().sdk;
     if (!sdk) return;
     sdk.bilibili.library.favoriteItems(selectedFolderId, 1).then((data) => {
-      if (!cancelled) setFavoriteItems(data);
+      if (!cancelled) {
+        setFavoriteItems(data.items);
+        setPage(1);
+        setHasMore(data.hasMore);
+      }
     }).catch((err) => {
       if (!cancelled) setError(errorMessage(err));
     }).finally(() => {
@@ -29511,6 +29530,18 @@ function FavoritesPage() {
       cancelled = true;
     };
   }, [loggedIn, selectedFolderId]);
+  function loadMore() {
+    if (!selectedFolderId || loading || !hasMore) return;
+    const targetPage = page + 1;
+    setLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.library.favoriteItems(selectedFolderId, targetPage).then((data) => {
+      setFavoriteItems((previous) => [...previous, ...data.items]);
+      setPage(targetPage);
+      setHasMore(data.hasMore);
+    }).catch((err) => setError(errorMessage(err))).finally(() => setLoading(false));
+  }
   async function reloadFolders() {
     const sdk = getState().sdk;
     if (!sdk) return;
@@ -29563,7 +29594,7 @@ function FavoritesPage() {
         void reloadFolders();
       }
     }
-  ) : favoriteItems.length === 0 ? /* @__PURE__ */ React23.createElement("div", { className: "bili-state" }, "\u8BE5\u6536\u85CF\u5939\u6682\u65E0\u89C6\u9891") : favoriteItems.map((item) => /* @__PURE__ */ React23.createElement(VideoCard, { key: `${item.video.bvid}-${item.favoriteTime}`, video: item.video })))));
+  ) : favoriteItems.length === 0 ? /* @__PURE__ */ React23.createElement("div", { className: "bili-state" }, "\u8BE5\u6536\u85CF\u5939\u6682\u65E0\u89C6\u9891") : /* @__PURE__ */ React23.createElement(React23.Fragment, null, /* @__PURE__ */ React23.createElement("div", { className: "bili-video-grid" }, favoriteItems.map((item) => /* @__PURE__ */ React23.createElement(VideoCard, { key: `${item.video.bvid}-${item.favoriteTime}`, video: item.video }))), hasMore ? /* @__PURE__ */ React23.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null))));
 }
 
 // src/pages/HistoryPage.tsx

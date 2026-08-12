@@ -11,6 +11,8 @@ export function FavoritesPage() {
   const [favoriteItems, setFavoriteItems] = useState<BiliFavoriteItem[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [manageMode, setManageMode] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const loggedIn = Boolean(state.loginInfo?.loggedIn);
@@ -23,6 +25,8 @@ export function FavoritesPage() {
       setFavoriteItems([]);
       setSelectedFolderId(null);
       setManageMode(false);
+      setPage(1);
+      setHasMore(false);
       return;
     }
     let cancelled = false;
@@ -38,9 +42,14 @@ export function FavoritesPage() {
         const nextSelected = nextFolders[0]?.id ?? null;
         setSelectedFolderId(nextSelected);
         if (nextSelected) {
-          setFavoriteItems(await sdk.bilibili.library.favoriteItems(nextSelected, 1));
+          const first = await sdk.bilibili.library.favoriteItems(nextSelected, 1);
+          if (cancelled) return;
+          setFavoriteItems(first.items);
+          setPage(1);
+          setHasMore(first.hasMore);
         } else {
           setFavoriteItems([]);
+          setHasMore(false);
         }
       })
       .catch((err) => {
@@ -54,6 +63,7 @@ export function FavoritesPage() {
     };
   }, [loggedIn]);
 
+  // 切收藏夹：重载第一页（计数重置）
   useEffect(() => {
     if (!loggedIn || !selectedFolderId) return;
     let cancelled = false;
@@ -64,7 +74,11 @@ export function FavoritesPage() {
     sdk.bilibili.library
       .favoriteItems(selectedFolderId, 1)
       .then((data) => {
-        if (!cancelled) setFavoriteItems(data);
+        if (!cancelled) {
+          setFavoriteItems(data.items);
+          setPage(1);
+          setHasMore(data.hasMore);
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(errorMessage(err));
@@ -76,6 +90,24 @@ export function FavoritesPage() {
       cancelled = true;
     };
   }, [loggedIn, selectedFolderId]);
+
+  // 加载更多：追加下一页
+  function loadMore() {
+    if (!selectedFolderId || loading || !hasMore) return;
+    const targetPage = page + 1;
+    setLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.library
+      .favoriteItems(selectedFolderId, targetPage)
+      .then((data) => {
+        setFavoriteItems((previous) => [...previous, ...data.items]);
+        setPage(targetPage);
+        setHasMore(data.hasMore);
+      })
+      .catch((err) => setError(errorMessage(err)))
+      .finally(() => setLoading(false));
+  }
 
   async function reloadFolders() {
     const sdk = getState().sdk;
@@ -152,9 +184,18 @@ export function FavoritesPage() {
             ) : favoriteItems.length === 0 ? (
               <div className="bili-state">该收藏夹暂无视频</div>
             ) : (
-              favoriteItems.map((item) => (
-                <VideoCard key={`${item.video.bvid}-${item.favoriteTime}`} video={item.video} />
-              ))
+              <>
+                <div className="bili-video-grid">
+                  {favoriteItems.map((item) => (
+                    <VideoCard key={`${item.video.bvid}-${item.favoriteTime}`} video={item.video} />
+                  ))}
+                </div>
+                {hasMore ? (
+                  <button type="button" className="bili-dynamic-load-more" onClick={loadMore} disabled={loading}>
+                    {loading ? "正在加载" : "加载更多"}
+                  </button>
+                ) : null}
+              </>
             )}
           </div>
         </div>

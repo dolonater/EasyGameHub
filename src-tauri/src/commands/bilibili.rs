@@ -23,13 +23,13 @@ use crate::core::bilibili::models::{
     BiliArticleSearchPage, BiliArticleStats, BiliArticleView, BiliBangumiFollow, BiliComment,
     BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult, BiliDynamicCard, BiliDynamicCreated,
     BiliDynamicForwardEntry, BiliDynamicForwardsPage, BiliDynamicPage, BiliFavoriteFolder,
-    BiliFavoriteItem, BiliHistoryItem, BiliHotWord, BiliLiveArea, BiliLiveRecommendPage,
-    BiliLiveRoom, BiliLiveSendDanmakuResult, BiliLiveStream, BiliLocalProgress, BiliLoginInfo,
-    BiliMessageHistoryPage, BiliMessageSessionsPage, BiliMessageUnread, BiliNoteDetail,
-    BiliNoteItem, BiliNoteListPage, BiliOperationResult, BiliPgcCard, BiliPgcSection,
-    BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage,
-    BiliSeasonDetail, BiliToViewItem, BiliUserSpace, BiliVideoCard, BiliVideoDetail,
-    BiliVideoInteractionState, BiliWeeklySeries,
+    BiliFavoriteItem, BiliFavoritePage, BiliHistoryItem, BiliHotWord, BiliLiveArea,
+    BiliLiveRecommendPage, BiliLiveRoom, BiliLiveSendDanmakuResult, BiliLiveStream,
+    BiliLocalProgress, BiliLoginInfo, BiliMessageHistoryPage, BiliMessageSessionsPage,
+    BiliMessageUnread, BiliNoteDetail, BiliNoteItem, BiliNoteListPage, BiliOperationResult,
+    BiliPgcCard, BiliPgcSection, BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey,
+    BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail, BiliToViewItem, BiliUserSpace,
+    BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
 };
 use crate::core::bilibili::note;
 use crate::core::bilibili::playback;
@@ -592,7 +592,7 @@ pub async fn bilibili_favorite_items(
     state: State<'_, AppState>,
     media_id: u64,
     page: Option<u32>,
-) -> Result<Vec<BiliFavoriteItem>, String> {
+) -> Result<BiliFavoritePage, String> {
     let cache_key = format!(
         "{}:{}:{}",
         current_mid(&state.tool_dir)?,

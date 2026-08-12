@@ -649,6 +649,14 @@ pub struct BiliVideoInteractionState {
     pub favorite_folders: Vec<BiliFavoriteFolder>,
 }
 
+/// 收藏夹内容分页（P9：items + has_more 驱动"加载更多"）。
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliFavoritePage {
+    pub items: Vec<BiliFavoriteItem>,
+    pub has_more: bool,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct BiliFavoriteItem {

@@ -50,8 +50,15 @@ where
         return Ok(None);
     }
     let bytes = fs::read(&path).map_err(io_error)?;
-    let entry: CacheEntry<T> = serde_json::from_slice(&bytes)
-        .map_err(|err| BpiError::parse(format!("invalid cache entry: {err}")))?;
+    let entry: CacheEntry<T> = match serde_json::from_slice(&bytes) {
+        Ok(entry) => entry,
+        Err(_) => {
+            // 缓存是尽力而为层：文件损坏或结构不兼容（如收藏夹 items 缓存从数组升级为
+            // 对象）时丢弃重建，而不是让调用方看到解析错误
+            let _ = fs::remove_file(path);
+            return Ok(None);
+        }
+    };
     if entry.expires_at <= now_unix() {
         let _ = fs::remove_file(path);
         return Ok(None);
@@ -445,6 +452,24 @@ mod tests {
             Some("BV1_100.png")
         );
         assert_eq!(fs::read(path).map_err(io_error)?, b"hello");
+        Ok(())
+    }
+
+    #[test]
+    fn corrupt_cache_entry_is_discarded_not_errored() -> Result<(), BpiError> {
+        let dir = tempdir("corrupt-cache");
+        let namespace = "favorite-items";
+        let key = "mid:1:1";
+        let path = data_cache_path(&dir, namespace, key);
+        fs::create_dir_all(path.parent().unwrap()).map_err(io_error)?;
+        // 旧版数组格式的缓存（新版期望对象）：应被丢弃并重建，而非报错
+        fs::write(&path, r#"{"expiresAt": 9999999999, "data": []}"#).map_err(io_error)?;
+
+        let cached: Option<super::super::models::BiliFavoritePage> =
+            load_json(&dir, namespace, key)?;
+
+        assert!(cached.is_none());
+        assert!(!path.exists());
         Ok(())
     }
 

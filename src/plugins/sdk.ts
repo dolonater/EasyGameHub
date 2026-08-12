@@ -671,6 +671,11 @@ export interface BiliFavoriteItem {
   favoriteTime: number;
 }
 
+export interface BiliFavoritePage {
+  items: BiliFavoriteItem[];
+  hasMore: boolean;
+}
+
 export type BiliCommentSort = "time" | "like" | "replies";
 export type BiliReportReason =
   | "other"
@@ -905,7 +910,7 @@ export interface PluginSdk {
       addToView(args: { aid: number; bvid?: string }): Promise<BiliOperationResult>;
       removeToView(args: { aid: number }): Promise<BiliOperationResult>;
       favoriteFolders(rid?: number): Promise<BiliFavoriteFolder[]>;
-      favoriteItems(mediaId: number, page?: number): Promise<BiliFavoriteItem[]>;
+      favoriteItems(mediaId: number, page?: number): Promise<BiliFavoritePage>;
       favoriteVideo(args: {
         rid: number;
         addMediaIds?: string[];

@@ -388,6 +388,12 @@ export const cssText = `
 .bili-folder-videos {
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
+/* 收藏夹分页网格：video-grid 与"加载更多"跨满 .bili-folder-videos 全部列，
+   避免被当成 150px 单列的子项挤在左侧 */
+.bili-folder-videos > .bili-video-grid,
+.bili-folder-videos > .bili-dynamic-load-more {
+  grid-column: 1 / -1;
+}
 .bili-folder-item {
   display: grid;
   gap: 3px;

@@ -103,7 +103,8 @@ impl VideoRankingListParams {
     }
 
     pub fn with_rid(mut self, rid: u32) -> BpiResult<Self> {
-        self.rid = Some(validate_positive("rid", rid)?);
+        // rid=0 为全站榜（B 站 ranking/v2 合法参数），仅需 u32 类型保证非负
+        self.rid = Some(rid);
         Ok(self)
     }
 
