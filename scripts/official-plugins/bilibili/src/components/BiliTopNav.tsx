@@ -14,12 +14,34 @@ interface BiliTopNavProps {
 
 export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHub", actions }: BiliTopNavProps) {
   const [runtimeState, setRuntimeState] = useState(getState);
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     const unsubscribe = subscribe(() => setRuntimeState(getState()));
     void refreshLoginStatus().catch(() => undefined);
     return unsubscribe;
   }, []);
+
+  // 未读角标：30s 轮询（仅登录态）
+  useEffect(() => {
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    let cancelled = false;
+    const refresh = () => {
+      sdk.bilibili.message
+        .unread()
+        .then((data) => {
+          if (!cancelled) setUnread(data.reply + data.at + data.privateMsg + data.sysMsg);
+        })
+        .catch(() => undefined);
+    };
+    refresh();
+    const timer = setInterval(refresh, 30 * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [Boolean(runtimeState.loginInfo?.loggedIn)]);
 
   const loginInfo = runtimeState.loginInfo;
   const loggedIn = Boolean(loginInfo?.loggedIn);
@@ -65,6 +87,7 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
         >
           我的
         </Button>
+        {loggedIn && unread > 0 ? <span className="bili-nav-badge">{unread > 99 ? "99+" : unread}</span> : null}
       </nav>
 
       <div className="bili-top-actions">

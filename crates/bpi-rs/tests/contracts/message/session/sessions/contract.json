@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "name": "message.sessions",
+  "module": "message",
+  "batch": "session",
+  "endpoint": "sessions",
+  "risk": "authenticated-read",
+  "status": "promoted",
+  "profiles": [
+    "normal",
+    "vip"
+  ],
+  "request": {
+    "method": "GET",
+    "url": "https://api.bilibili.com/x/session/web/v1/session/sessions",
+    "query": {
+      "cursor": "abc"
+    },
+    "required_headers": [
+      "user-agent",
+      "referer",
+      "origin"
+    ],
+    "headers": {},
+    "auth": {
+      "requires": [
+        "cookie"
+      ]
+    }
+  },
+  "response": {
+    "code": 0,
+    "data": {
+      "session_list": [
+        {
+          "talker_id": 2084572,
+          "session_type": 1,
+          "unread_count": 3,
+          "last_msg": {
+            "msg_id": 1001,
+            "content": "你好",
+            "sender_uid": 2084572,
+            "timestamp": 1710000000,
+            "msg_type": 2
+          }
+        }
+      ],
+      "has_more": true,
+      "next_offset": "next-token"
+    }
+  },
+  "cases": [
+    {
+      "name": "normal",
+      "profile": "normal",
+      "auth": {
+        "profile": "normal",
+        "requires": [
+          "cookie"
+        ]
+      },
+      "response": {
+        "api_code": 0,
+        "fixture": "responses/normal.success.json",
+        "fixture_kind": "sanitized_probe_body",
+        "rust_model": "MessageSessionsData"
+      }
+    }
+  ]
+}

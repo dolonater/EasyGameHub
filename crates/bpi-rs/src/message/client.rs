@@ -3,12 +3,18 @@ use crate::message::params::{
     MessageReplyFeedParams, MessageSingleUnreadParams, MessageUnreadCountParams,
 };
 use crate::message::private_msg::SingleUnreadData;
+use crate::message::session::{MessageHistoryData, MessageSessionsData};
+use crate::message::{
+    MessageHistoryParams, MessageSessionsParams,
+};
 use crate::{BilibiliRequest, BpiClient, BpiResult};
 
 const UNREAD_COUNT_ENDPOINT: &str = "https://api.vc.bilibili.com/x/im/web/msgfeed/unread";
 const REPLY_FEED_ENDPOINT: &str = "https://api.bilibili.com/x/msgfeed/reply";
 const SINGLE_UNREAD_ENDPOINT: &str =
     "https://api.vc.bilibili.com/session_svr/v1/session_svr/single_unread";
+const SESSIONS_ENDPOINT: &str = "https://api.bilibili.com/x/session/web/v1/session/sessions";
+const HISTORY_ENDPOINT: &str = "https://api.bilibili.com/x/session/web/v1/session/msg";
 
 /// 消息 API 客户端。
 #[derive(Clone, Copy)]
@@ -66,6 +72,24 @@ impl<'a> MessageClient<'a> {
             .get(SINGLE_UNREAD_ENDPOINT)
             .query(&params.query_pairs())
             .send_bpi_payload("message.single_unread")
+            .await
+    }
+
+    /// 获取私信会话列表（cursor 分页）。
+    pub async fn sessions(&self, params: MessageSessionsParams) -> BpiResult<MessageSessionsData> {
+        self.client
+            .get(SESSIONS_ENDPOINT)
+            .query(&params.query_pairs())
+            .send_bpi_payload("message.sessions")
+            .await
+    }
+
+    /// 获取会话历史消息（cursor 分页）。
+    pub async fn messages(&self, params: MessageHistoryParams) -> BpiResult<MessageHistoryData> {
+        self.client
+            .get(HISTORY_ENDPOINT)
+            .query(&params.query_pairs())
+            .send_bpi_payload("message.history")
             .await
     }
 }

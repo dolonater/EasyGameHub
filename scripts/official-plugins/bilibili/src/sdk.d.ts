@@ -626,7 +626,13 @@ export interface BiliDynamicCreated {
       top(args: { dynId: string; top: boolean }): Promise<BiliOperationResult>;
       forwards(args: { dynId: string; offset?: string }): Promise<BiliDynamicForwardsPage>;
     };
-    message: Record<string, never>;
+    message: {
+      sessions(args: { cursor?: string }): Promise<BiliMessageSessionsPage>;
+      history(args: { talkerUid: number; cursor?: number }): Promise<BiliMessageHistoryPage>;
+      send(args: { uid: number; content: string }): Promise<BiliOperationResult>;
+      unread(): Promise<BiliMessageUnread>;
+      replyFeed(args: { startId?: number; startTime?: number }): Promise<BiliReplyFeedPage>;
+    };
       note: Record<string, never>;
       article: Record<string, never>;
     };

@@ -179,6 +179,57 @@ export interface BiliDynamicCreated {
   dynId: string;
 }
 
+export interface BiliMessageSession {
+  talkerId: number;
+  unreadCount: number;
+  lastMsg?: BiliMessageItem | null;
+}
+
+export interface BiliMessageItem {
+  msgId: number;
+  senderUid: number;
+  content: string;
+  timestamp: number;
+  msgType: number;
+}
+
+export interface BiliMessageSessionsPage {
+  sessions: BiliMessageSession[];
+  hasMore: boolean;
+  nextOffset?: string | null;
+}
+
+export interface BiliMessageHistoryPage {
+  messages: BiliMessageItem[];
+  hasMore: boolean;
+  nextOffset?: number | null;
+}
+
+export interface BiliMessageUnread {
+  reply: number;
+  at: number;
+  like: number;
+  privateMsg: number;
+  sysMsg: number;
+}
+
+export interface BiliReplyFeedEntry {
+  id: number;
+  userName: string;
+  userFace: string;
+  replyTime: number;
+  title: string;
+  desc: string;
+  uri: string;
+  replyType: string;
+}
+
+export interface BiliReplyFeedPage {
+  entries: BiliReplyFeedEntry[];
+  isEnd: boolean;
+  cursorId?: number | null;
+}
+
 export type BiliErrorKind =
   | "notLoggedIn"
   | "loginExpired"
@@ -770,7 +821,13 @@ export interface PluginSdk {
       top(args: { dynId: string; top: boolean }): Promise<BiliOperationResult>;
       forwards(args: { dynId: string; offset?: string }): Promise<BiliDynamicForwardsPage>;
     };
-    message: Record<string, never>;
+    message: {
+      sessions(args: { cursor?: string }): Promise<BiliMessageSessionsPage>;
+      history(args: { talkerUid: number; cursor?: number }): Promise<BiliMessageHistoryPage>;
+      send(args: { uid: number; content: string }): Promise<BiliOperationResult>;
+      unread(): Promise<BiliMessageUnread>;
+      replyFeed(args: { startId?: number; startTime?: number }): Promise<BiliReplyFeedPage>;
+    };
     note: Record<string, never>;
     article: Record<string, never>;
   };
@@ -1321,7 +1378,28 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
           return biliInvoke("bilibili_dynamic_forwards", args);
         },
       },
-      message: {},
+      message: {
+        sessions(args) {
+          requirePerm("bilibili", "bilibili.message.sessions");
+          return biliInvoke("bilibili_message_sessions", args);
+        },
+        history(args) {
+          requirePerm("bilibili", "bilibili.message.history");
+          return biliInvoke("bilibili_message_history", args);
+        },
+        send(args) {
+          requirePerm("bilibili", "bilibili.message.send");
+          return biliInvoke("bilibili_message_send", args);
+        },
+        unread() {
+          requirePerm("bilibili", "bilibili.message.unread");
+          return biliInvoke("bilibili_message_unread");
+        },
+        replyFeed(args) {
+          requirePerm("bilibili", "bilibili.message.replyFeed");
+          return biliInvoke("bilibili_message_reply_feed", args);
+        },
+      },
       note: {},
       article: {},
     },

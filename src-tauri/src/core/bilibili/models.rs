@@ -288,6 +288,78 @@ impl BiliDynamicCreated {
     }
 }
 
+/// 私信会话。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliMessageSession {
+    pub talker_id: u64,
+    pub unread_count: u32,
+    pub last_msg: Option<BiliMessageItem>,
+}
+
+/// 私信消息。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliMessageItem {
+    pub msg_id: u64,
+    pub sender_uid: u64,
+    pub content: String,
+    pub timestamp: i64,
+    pub msg_type: u32,
+}
+
+/// 私信会话列表分页（cursor 游标）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliMessageSessionsPage {
+    pub sessions: Vec<BiliMessageSession>,
+    pub has_more: bool,
+    pub next_offset: Option<String>,
+}
+
+/// 私信历史消息分页（cursor 游标）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliMessageHistoryPage {
+    pub messages: Vec<BiliMessageItem>,
+    pub has_more: bool,
+    pub next_offset: Option<u64>,
+}
+
+/// 未读消息计数。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliMessageUnread {
+    pub reply: u32,
+    pub at: u32,
+    pub like: u32,
+    pub private_msg: u32,
+    pub sys_msg: u32,
+}
+
+/// 通知流条目（回复/@）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliReplyFeedEntry {
+    pub id: u64,
+    pub user_name: String,
+    pub user_face: String,
+    pub reply_time: u64,
+    pub title: String,
+    pub desc: String,
+    pub uri: String,
+    pub reply_type: String,
+}
+
+/// 通知流分页。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliReplyFeedPage {
+    pub entries: Vec<BiliReplyFeedEntry>,
+    pub is_end: bool,
+    pub cursor_id: Option<u64>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BiliPgcSection {

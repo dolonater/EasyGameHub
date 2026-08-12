@@ -22,7 +22,10 @@ export type BiliNavView =
   | { name: "live"; roomId: number }
   | { name: "settings" }
   | { name: "dynDetail"; dynId: string }
-  | { name: "article"; articleId: number };
+  | { name: "article"; articleId: number }
+  | { name: "messages" }
+  | { name: "chat"; uid: number }
+  | { name: "notifications" };
 
 type NavListener = (view: BiliNavView) => void;
 
@@ -70,6 +73,24 @@ export function openSeason(seasonId: number): void {
 export function openDynDetail(dynId: string): void {
   stack.push(memory);
   switchView({ name: "dynDetail", dynId });
+}
+
+/** 打开私信会话列表 */
+export function openMessages(): void {
+  stack.push(memory);
+  switchView({ name: "messages" });
+}
+
+/** 打开与某用户的私信会话 */
+export function openChat(uid: number): void {
+  stack.push(memory);
+  switchView({ name: "chat", uid });
+}
+
+/** 打开通知流 */
+export function openNotifications(): void {
+  stack.push(memory);
+  switchView({ name: "notifications" });
 }
 
 /** 播放页返回：弹栈回到上一个视图（空栈则回首页） */

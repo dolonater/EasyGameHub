@@ -1,0 +1,23 @@
+{
+  "code": 0,
+  "data": {
+    "session_list": [
+      {
+        "talker_id": 2084572,
+        "session_type": 1,
+        "unread_count": 3,
+        "last_msg": {
+          "msg_id": 1001,
+          "content": "你好",
+          "sender_uid": 2084572,
+          "timestamp": 1710000000,
+          "msg_type": 2
+        }
+      }
+    ],
+    "has_more": true,
+    "next_offset": "<redacted-offset>"
+  },
+  "message": "0",
+  "ttl": 1
+}

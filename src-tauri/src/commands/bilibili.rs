@@ -14,12 +14,14 @@ use crate::core::bilibili::errors;
 use crate::core::bilibili::fav;
 use crate::core::bilibili::interaction;
 use crate::core::bilibili::library;
+use crate::core::bilibili::message;
 use crate::core::bilibili::models::{
     BiliBangumiFollow, BiliComment, BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult,
     BiliDynamicCard, BiliDynamicCreated, BiliDynamicForwardEntry, BiliDynamicForwardsPage,
     BiliDynamicPage, BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliHotWord,
-    BiliLocalProgress, BiliLoginInfo, BiliOperationResult, BiliPgcCard, BiliPgcSection,
-    BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliSeasonDetail,
+    BiliLocalProgress, BiliLoginInfo, BiliMessageHistoryPage, BiliMessageSessionsPage,
+    BiliMessageUnread, BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource,
+    BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail,
     BiliToViewItem, BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState,
     BiliWeeklySeries,
 };
@@ -783,6 +785,61 @@ pub async fn bilibili_dynamic_forwards(
 ) -> Result<BiliDynamicForwardsPage, String> {
     let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
     dynamic::dynamic_forwards(&client, dyn_id, offset)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_message_sessions(
+    state: State<'_, AppState>,
+    cursor: Option<String>,
+) -> Result<BiliMessageSessionsPage, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    message::message_sessions(&client, cursor)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_message_history(
+    state: State<'_, AppState>,
+    talker_uid: u64,
+    cursor: Option<u64>,
+) -> Result<BiliMessageHistoryPage, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    message::message_history(&client, talker_uid, cursor)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_message_send(
+    state: State<'_, AppState>,
+    uid: u64,
+    content: String,
+) -> Result<BiliOperationResult, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    message::message_send(&client, uid, content)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_message_unread(
+    state: State<'_, AppState>,
+) -> Result<BiliMessageUnread, String> {
+    let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
+    message::message_unread(&client).await.map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_message_reply_feed(
+    state: State<'_, AppState>,
+    start_id: Option<u64>,
+    start_time: Option<u64>,
+) -> Result<BiliReplyFeedPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    message::message_reply_feed(&client, start_id, start_time)
         .await
         .map_err(bpi_error)
 }

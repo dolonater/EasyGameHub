@@ -3101,4 +3101,219 @@ button.bili-dynamic-stat {
   opacity: 0.6;
   cursor: default;
 }
+/* ===== 私信/通知（P5） ===== */
+.bili-nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #fb7299;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  padding: 0 4px;
+}
+.bili-nav-tabs {
+  position: relative;
+}
+.bili-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px 24px;
+}
+.bili-message-session {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 55%, transparent);
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  color: hsl(var(--foreground, 0 0% 100%));
+  transition: transform 160ms var(--bili-ease), box-shadow 160ms var(--bili-ease);
+}
+.bili-message-session:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+.bili-message-session-avatar {
+  flex-shrink: 0;
+}
+.bili-message-session-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.bili-message-session-body strong {
+  font-size: 14px;
+}
+.bili-message-session-body small {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-message-badge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #fb7299;
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  padding: 0 5px;
+  flex-shrink: 0;
+}
+.bili-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px 24px;
+  height: 100%;
+  min-height: 0;
+}
+.bili-chat-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.bili-chat-load-more {
+  align-self: center;
+  border: 0;
+  background: transparent;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 10px;
+}
+.bili-chat-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 72%;
+  align-self: flex-start;
+}
+.bili-chat-bubble-mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.bili-chat-bubble-content {
+  border-radius: 12px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 60%, transparent);
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.bili-chat-bubble-mine .bili-chat-bubble-content {
+  background: hsl(var(--primary, 240 100% 60%));
+  color: #fff;
+}
+.bili-chat-bubble small {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-chat-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.bili-chat-input-field {
+  flex: 1;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 40%, transparent);
+  color: hsl(var(--foreground, 0 0% 100%));
+  padding: 8px 12px;
+  font-size: 14px;
+  outline: none;
+}
+.bili-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px 24px;
+}
+.bili-notify-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.bili-notify-filter {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  padding: 5px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bili-notify-filter-active {
+  color: hsl(var(--foreground, 0 0% 100%));
+  border-bottom-color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-notify-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 45%, transparent);
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  color: hsl(var(--foreground, 0 0% 100%));
+}
+.bili-notify-entry:hover {
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 90%)) 65%, transparent);
+}
+.bili-notify-entry-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.bili-notify-entry-body strong {
+  font-size: 13px;
+}
+.bili-notify-entry-desc {
+  font-size: 13px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bili-notify-entry-body small {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-notify-tag {
+  margin-left: 6px;
+  font-size: 10px;
+  color: hsl(var(--primary, 240 100% 60%));
+  border: 1px solid hsl(var(--primary, 240 100% 60%));
+  border-radius: 4px;
+  padding: 0 4px;
+  vertical-align: 1px;
+}
+.bili-mine-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 0 20px 8px;
+}
 `;

@@ -95,7 +95,7 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
   return (
     <section className="bili-dyn-detail">
       <div className="bili-dyn-detail-card">
-        <DynamicCard card={card} onLike={handleLike} onOpenVideo={() => undefined} />
+        <DynamicCard card={card} onLike={handleLike} onOpenVideo={() => undefined} hideImages />
         {images.length > 0 ? (
           <div className="bili-dyn-detail-images">
             {images.map((src, index) => (

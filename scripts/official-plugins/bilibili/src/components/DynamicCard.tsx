@@ -9,12 +9,16 @@ interface DynamicCardProps {
   onLike(card: BiliDynamicCard, liked: boolean): Promise<void> | void;
   /** 视频卡片点击（默认 openWatch，空间场景可覆盖为占位） */
   onOpenVideo?(card: BiliDynamicCard): void;
+  /** 隐藏卡片内图片（详情页用大图网格替代，避免重复显示） */
+  hideImages?: boolean;
 }
 
-export function DynamicCard({ card, onLike, onOpenVideo }: DynamicCardProps) {
+export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCardProps) {
   const [liking, setLiking] = React.useState(false);
 
   function openCard() {
+    // 无 dyn_id 的卡片（部分转发原文等）不可跳详情
+    if (!card.dynId && card.cardType !== "video") return;
     if (card.cardType === "video") {
       if (onOpenVideo) {
         onOpenVideo(card);
@@ -47,7 +51,9 @@ export function DynamicCard({ card, onLike, onOpenVideo }: DynamicCardProps) {
       {card.content ? <p className="bili-dynamic-text">{card.content}</p> : null}
 
       {card.cardType === "video" && card.video ? <VideoBody video={card.video} /> : null}
-      {card.cardType === "image" && card.images.length > 0 ? <ImageBody images={card.images} /> : null}
+      {card.cardType === "image" && card.images.length > 0 && !hideImages ? (
+        <ImageBody images={card.images} />
+      ) : null}
       {card.cardType === "live" && card.live ? <LiveBody live={card.live} /> : null}
       {card.cardType === "forward" && card.forward ? <ForwardBody card={card.forward} /> : null}
 
