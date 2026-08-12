@@ -75,6 +75,12 @@ export function openDynDetail(dynId: string): void {
   switchView({ name: "dynDetail", dynId });
 }
 
+/** 打开直播间：压入当前视图，可逐级返回 */
+export function openLive(roomId: number): void {
+  stack.push(memory);
+  switchView({ name: "live", roomId });
+}
+
 /** 打开私信会话列表 */
 export function openMessages(): void {
   stack.push(memory);

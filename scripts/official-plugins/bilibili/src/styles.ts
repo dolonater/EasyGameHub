@@ -3316,4 +3316,404 @@ button.bili-dynamic-stat {
   justify-content: flex-end;
   padding: 0 20px 8px;
 }
+
+/* ---------- P6 直播 feed ---------- */
+.bili-live-feed {
+  display: grid;
+  gap: 12px;
+}
+.bili-live-areas {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 2px;
+}
+.bili-live-subareas {
+  margin-top: -6px;
+}
+.bili-live-area {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-area-active {
+  background: color-mix(in srgb, hsl(var(--primary, 240 100% 60%)) 14%, transparent);
+  border-color: hsl(var(--primary, 240 100% 60%));
+  color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-live-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.bili-live-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 220ms var(--bili-spring), box-shadow 220ms var(--bili-ease);
+}
+.bili-live-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+}
+.bili-live-card-cover {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 40%, transparent);
+}
+.bili-live-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bili-live-card-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(240, 71, 71, 0.9);
+}
+.bili-live-card-online {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+}
+.bili-live-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.7em;
+}
+.bili-live-card-owner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.bili-live-card-face {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+.bili-live-card-name {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-live-card-area {
+  font-size: 11px;
+  color: hsl(var(--primary, 240 100% 60%));
+  margin-left: auto;
+  flex: none;
+}
+.bili-live-empty {
+  padding: 28px 0;
+  text-align: center;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-more {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+/* ---------- P6 直播间视图 ---------- */
+.bili-live {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+  padding: 12px;
+  align-items: start;
+}
+.bili-live-main {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.bili-live-player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+}
+.bili-live-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+.bili-live-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.55);
+  text-align: center;
+  padding: 16px;
+}
+.bili-live-room-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+}
+.bili-live-room-head {
+  display: grid;
+  gap: 6px;
+}
+.bili-live-room-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.bili-live-room-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-room-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: rgba(120, 120, 120, 0.25);
+}
+.bili-live-room-status-on {
+  background: rgba(240, 71, 71, 0.16);
+  color: #f04747;
+}
+.bili-live-room-desc {
+  font-size: 13px;
+  color: hsl(var(--muted-foreground, 0 0% 55%));
+  line-height: 1.6;
+  margin: 0;
+  max-height: 3.2em;
+  overflow: hidden;
+}
+.bili-live-room-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-room-uid {
+  border: none;
+  background: none;
+  color: hsl(var(--primary, 240 100% 60%));
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+.bili-live-side {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 8px;
+  min-height: 420px;
+  max-height: calc(100vh - 140px);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  padding: 10px;
+}
+.bili-live-danmaku-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  padding-bottom: 6px;
+  border-bottom: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 40%, transparent);
+}
+.bili-live-ws {
+  font-size: 11px;
+  font-weight: 400;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-ws-on {
+  color: #46b250;
+}
+.bili-live-danmaku-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 2px;
+  font-size: 13px;
+  min-height: 0;
+}
+.bili-live-danmaku-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  line-height: 1.5;
+  animation: bili-fade-in 220ms var(--bili-ease);
+}
+.bili-live-danmaku-user {
+  font-weight: 600;
+  color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-live-danmaku-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bili-live-danmaku-gift {
+  background: rgba(255, 215, 64, 0.1);
+  border: 1px solid rgba(255, 215, 64, 0.35);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+.bili-live-danmaku-gift .bili-live-danmaku-user {
+  color: #e0a800;
+}
+.bili-live-danmaku-sc {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.bili-live-danmaku-sc .bili-live-danmaku-user {
+  color: #60a5fa;
+}
+.bili-live-danmaku-detail {
+  color: #e0a800;
+  font-weight: 700;
+}
+.bili-live-danmaku-system {
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  font-size: 12px;
+  width: 100%;
+  text-align: center;
+}
+.bili-live-send {
+  display: flex;
+  gap: 8px;
+}
+.bili-live-send-input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 40%, transparent);
+  color: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.bili-live-send-input:focus {
+  border-color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-live-send-btn {
+  flex: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  background: hsl(var(--primary, 240 100% 60%));
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bili-live-send-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.bili-live-send-error {
+  font-size: 12px;
+  color: #f04747;
+}
+.bili-live-quality {
+  position: relative;
+}
+.bili-live-quality-btn {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.bili-live-quality-menu {
+  position: absolute;
+  right: 0;
+  bottom: 110%;
+  z-index: 30;
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  padding: 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  animation: bili-popover-in 160ms var(--bili-ease);
+}
+.bili-live-quality-option {
+  text-align: left;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.bili-live-quality-option:hover {
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 50%, transparent);
+}
+.bili-live-quality-option-active {
+  color: hsl(var(--primary, 240 100% 60%));
+  font-weight: 600;
+}
+@media (max-width: 900px) {
+  .bili-live {
+    grid-template-columns: 1fr;
+  }
+  .bili-live-side {
+    max-height: 480px;
+    min-height: 360px;
+  }
+}
 `;

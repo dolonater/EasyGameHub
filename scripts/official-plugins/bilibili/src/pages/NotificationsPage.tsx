@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "sdk";
 import type { BiliReplyFeedEntry } from "../types";
 import { errorMessage, getState } from "../runtime";
-import { openDynDetail, openWatch } from "../navigation";
+import { openDynDetail, openLive, openWatch } from "../navigation";
 import { BiliImage } from "../components/BiliImage";
 
 type NotifyFilter = "all" | "reply" | "at";
@@ -83,6 +83,12 @@ export function NotificationsPage() {
     const dynMatch = uri.match(/(?:opus|dynamic)\/(\d+)/);
     if (dynMatch) {
       openDynDetail(dynMatch[1]);
+      return;
+    }
+    // 通知跳转直播间（P6）：live.bilibili.com/{roomId}
+    const liveMatch = uri.match(/live\.bilibili\.com\/(\d+)/);
+    if (liveMatch) {
+      openLive(Number(liveMatch[1]));
       return;
     }
   }

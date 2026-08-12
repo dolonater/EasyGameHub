@@ -217,10 +217,7 @@ where
 fn normalize_non_blank(field: &'static str, value: String) -> BpiResult<String> {
     let trimmed = value.trim().to_string();
     if trimmed.is_empty() {
-        return Err(BpiError::invalid_parameter(
-            field,
-            "value cannot be blank",
-        ));
+        return Err(BpiError::invalid_parameter(field, "value cannot be blank"));
     }
     Ok(trimmed)
 }
@@ -267,8 +264,18 @@ mod tests {
 
     #[test]
     fn history_params_rejects_bad_size() {
-        assert!(MessageHistoryParams::new(123, 1).unwrap().with_size(0).is_err());
-        assert!(MessageHistoryParams::new(123, 1).unwrap().with_size(201).is_err());
+        assert!(
+            MessageHistoryParams::new(123, 1)
+                .unwrap()
+                .with_size(0)
+                .is_err()
+        );
+        assert!(
+            MessageHistoryParams::new(123, 1)
+                .unwrap()
+                .with_size(201)
+                .is_err()
+        );
     }
 
     #[test]
@@ -278,7 +285,10 @@ mod tests {
         )
         .expect("should parse");
         assert_eq!(
-            sessions.session_list[0].last_msg.as_ref().map(|m| m.content.as_str()),
+            sessions.session_list[0]
+                .last_msg
+                .as_ref()
+                .map(|m| m.content.as_str()),
             Some("你好")
         );
     }
@@ -296,10 +306,12 @@ mod tests {
     #[test]
     fn has_more_accepts_number() {
         let sessions: MessageSessionsData =
-            serde_json::from_str(r#"{"session_list":[],"has_more":1}"#).expect("number should parse");
+            serde_json::from_str(r#"{"session_list":[],"has_more":1}"#)
+                .expect("number should parse");
         assert!(sessions.has_more);
         let history: MessageHistoryData =
-            serde_json::from_str(r#"{"messages":[],"has_more":0,"max_seqno":5}"#).expect("number should parse");
+            serde_json::from_str(r#"{"messages":[],"has_more":0,"max_seqno":5}"#)
+                .expect("number should parse");
         assert!(!history.has_more);
         assert_eq!(history.max_seqno, 5);
     }
@@ -326,10 +338,9 @@ mod tests {
         assert_eq!(item.content, "你的账号在新设备登录成功");
 
         // 嵌套 content.text
-        let item: MessageItem = serde_json::from_str(
-            r#"{"content":"{\"content\":{\"text\":\"嵌套文本\"}}"}"#,
-        )
-        .expect("should parse");
+        let item: MessageItem =
+            serde_json::from_str(r#"{"content":"{\"content\":{\"text\":\"嵌套文本\"}}"}"#)
+                .expect("should parse");
         assert_eq!(item.content, "嵌套文本");
     }
 
@@ -338,17 +349,18 @@ mod tests {
         use crate::probe::contract::HttpMethod;
         use crate::probe::endpoint_contract::EndpointContract;
 
-        let bytes =
-            include_bytes!("../../tests/contracts/message/session/sessions/contract.json");
+        let bytes = include_bytes!("../../tests/contracts/message/session/sessions/contract.json");
         let contract = EndpointContract::from_slice(bytes)?;
         assert_eq!(contract.module.as_deref(), Some("message"));
         assert_eq!(contract.endpoint.as_deref(), Some("sessions"));
         assert_eq!(contract.request.method, HttpMethod::Get);
-        assert!(contract
-            .request
-            .url
-            .as_str()
-            .contains("/session_svr/v1/session_svr/new_sessions"));
+        assert!(
+            contract
+                .request
+                .url
+                .as_str()
+                .contains("/session_svr/v1/session_svr/new_sessions")
+        );
         Ok(())
     }
 
@@ -362,11 +374,13 @@ mod tests {
         assert_eq!(contract.module.as_deref(), Some("message"));
         assert_eq!(contract.endpoint.as_deref(), Some("history"));
         assert_eq!(contract.request.method, HttpMethod::Get);
-        assert!(contract
-            .request
-            .url
-            .as_str()
-            .contains("/svr_sync/v1/svr_sync/fetch_session_msgs"));
+        assert!(
+            contract
+                .request
+                .url
+                .as_str()
+                .contains("/svr_sync/v1/svr_sync/fetch_session_msgs")
+        );
         Ok(())
     }
 }

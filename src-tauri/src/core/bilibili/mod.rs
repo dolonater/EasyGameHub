@@ -10,6 +10,7 @@ pub mod fav;
 pub mod interaction;
 pub mod library;
 pub mod live;
+pub mod live_bridge;
 pub mod message;
 pub mod models;
 pub mod note;

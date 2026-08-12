@@ -4,9 +4,7 @@ use crate::message::params::{
 };
 use crate::message::private_msg::SingleUnreadData;
 use crate::message::session::{MessageHistoryData, MessageSessionsData};
-use crate::message::{
-    MessageHistoryParams, MessageSessionsParams,
-};
+use crate::message::{MessageHistoryParams, MessageSessionsParams};
 use crate::{BilibiliRequest, BpiClient, BpiResult};
 
 const UNREAD_COUNT_ENDPOINT: &str = "https://api.vc.bilibili.com/x/im/web/msgfeed/unread";

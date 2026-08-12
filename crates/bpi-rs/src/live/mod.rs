@@ -18,5 +18,7 @@ pub mod redpocket;
 pub mod report;
 pub mod silent_user_manage;
 pub mod user;
+#[cfg(feature = "live")]
+pub mod ws;
 
 pub use client::LiveClient;

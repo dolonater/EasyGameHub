@@ -50,6 +50,11 @@ pub async fn start_proxy(data_dir: PathBuf) -> Result<u16, anyhow::Error> {
         )
         .route("/bilibili/media/:playback_id/:track_id", get(proxy_media))
         .route("/bilibili/cover/:cache_key", get(proxy_cover))
+        .route(
+            "/bilibili/live/:room_id/danmaku",
+            get(super::live_bridge::live_danmaku_ws),
+        )
+        .route("/bilibili/live_stream/:key", get(proxy_live_stream))
         .with_state(HttpState { data_dir });
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let port = listener.local_addr()?.port();
@@ -158,6 +163,22 @@ async fn request_media(
     fallback_content_type: &str,
     headers: &HeaderMap,
 ) -> Result<Response, (StatusCode, String)> {
+    request_media_with_referer(
+        raw_url,
+        fallback_content_type,
+        headers,
+        "https://www.bilibili.com/",
+    )
+    .await
+}
+
+/// 转发媒体请求（带浏览器 UA 与指定 Referer，支持 Range 与 CORS 头）。
+async fn request_media_with_referer(
+    raw_url: &str,
+    fallback_content_type: &str,
+    headers: &HeaderMap,
+    referer: &str,
+) -> Result<Response, (StatusCode, String)> {
     let client = reqwest::Client::builder()
         .user_agent(BROWSER_UA)
         .connect_timeout(Duration::from_secs(5))
@@ -165,7 +186,7 @@ async fn request_media(
         .map_err(internal)?;
     let mut request = client
         .get(raw_url)
-        .header("Referer", "https://www.bilibili.com/")
+        .header("Referer", referer)
         .header("User-Agent", BROWSER_UA);
     if let Some(range) = headers.get(RANGE) {
         request = request.header(RANGE, range);
@@ -201,6 +222,16 @@ async fn request_media(
         .header("Cross-Origin-Resource-Policy", "cross-origin");
 
     builder.body(Body::from_stream(stream)).map_err(internal)
+}
+
+/// 直播流代理：取登记过的 URL 后带直播 Referer 转发（浏览器无法直连 B 站直播 CDN）。
+async fn proxy_live_stream(
+    Path(key): Path<String>,
+    headers: HeaderMap,
+) -> Result<Response, (StatusCode, String)> {
+    let url = super::live::take_stream_url(&key)
+        .ok_or_else(|| (StatusCode::NOT_FOUND, "unknown live stream".to_string()))?;
+    request_media_with_referer(&url, "video/x-flv", &headers, "https://live.bilibili.com/").await
 }
 
 fn validate_remote_url(raw_url: &str) -> Result<(), (StatusCode, String)> {

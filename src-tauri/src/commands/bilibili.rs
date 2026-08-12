@@ -14,11 +14,14 @@ use crate::core::bilibili::errors;
 use crate::core::bilibili::fav;
 use crate::core::bilibili::interaction;
 use crate::core::bilibili::library;
+use crate::core::bilibili::live;
+use crate::core::bilibili::live_bridge;
 use crate::core::bilibili::message;
 use crate::core::bilibili::models::{
     BiliBangumiFollow, BiliComment, BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult,
     BiliDynamicCard, BiliDynamicCreated, BiliDynamicForwardEntry, BiliDynamicForwardsPage,
     BiliDynamicPage, BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliHotWord,
+    BiliLiveArea, BiliLiveRecommendPage, BiliLiveRoom, BiliLiveSendDanmakuResult, BiliLiveStream,
     BiliLocalProgress, BiliLoginInfo, BiliMessageHistoryPage, BiliMessageSessionsPage,
     BiliMessageUnread, BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource,
     BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail,
@@ -1358,4 +1361,74 @@ fn open_external_target(target: &str) -> Result<(), String> {
             .map_err(|e| format!("Failed to open target: {e}"))?;
     }
     Ok(())
+}
+
+// ---------- P6 直播 ----------
+
+#[tauri::command]
+pub async fn bilibili_live_room(
+    state: State<'_, AppState>,
+    room_id: i64,
+) -> Result<BiliLiveRoom, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    live::room(&client, room_id).await.map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_live_stream(
+    state: State<'_, AppState>,
+    room_id: i64,
+    qn: Option<i32>,
+) -> Result<BiliLiveStream, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    let mut result = live::stream(&client, room_id, qn)
+        .await
+        .map_err(bpi_error)?;
+    // 浏览器无法直连 B 站直播 CDN（Referer 校验 403）：主线路换成本地代理地址
+    let port = proxy::start_proxy(state.tool_dir.clone())
+        .await
+        .map_err(proxy_error)?;
+    if let Some(first) = result.durl.first_mut() {
+        if let Some(proxy_url) = live::register_proxied_stream(first.url.clone(), port) {
+            first.url = proxy_url;
+        }
+    }
+    Ok(result)
+}
+
+#[tauri::command]
+pub async fn bilibili_live_recommend(
+    state: State<'_, AppState>,
+    page: Option<u32>,
+) -> Result<BiliLiveRecommendPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    live::recommend(&client, page).await.map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_live_areas(state: State<'_, AppState>) -> Result<Vec<BiliLiveArea>, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    live::areas(&client).await.map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_live_send_danmaku(
+    state: State<'_, AppState>,
+    room_id: u64,
+    text: String,
+) -> Result<BiliLiveSendDanmakuResult, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    live::send_danmaku(&client, room_id, &text)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_live_heartbeat(
+    state: State<'_, AppState>,
+    room_id: u64,
+) -> Result<BiliOperationResult, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    live::heartbeat(&client, room_id).await.map_err(bpi_error)?;
+    Ok(BiliOperationResult::ok("live heartbeat"))
 }

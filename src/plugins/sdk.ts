@@ -107,6 +107,74 @@ export interface BiliOperationResult {
   message: string;
 }
 
+export interface BiliLiveQuality {
+  qn: number;
+  desc: string;
+}
+
+export interface BiliLiveStreamUrl {
+  url: string;
+  order: number;
+}
+
+export interface BiliLiveStream {
+  currentQuality: number;
+  currentQn: number;
+  qualityDescription: BiliLiveQuality[];
+  durl: BiliLiveStreamUrl[];
+}
+
+export interface BiliLiveRoom {
+  roomId: number;
+  uid: number;
+  title: string;
+  cover: string;
+  liveStatus: number;
+  online: number;
+  areaName: string;
+  parentAreaName: string;
+  description: string;
+  tags: string;
+  liveTime: string;
+  attention: number;
+}
+
+export interface BiliLiveRecommendRoom {
+  roomId: number;
+  uid: number;
+  title: string;
+  cover: string;
+  uname: string;
+  face: string;
+  online: number;
+  areaName: string;
+  areaParentName: string;
+  status: boolean;
+  followers: number;
+}
+
+export interface BiliLiveRecommendPage {
+  rooms: BiliLiveRecommendRoom[];
+  topRoomId: number;
+}
+
+export interface BiliLiveSubArea {
+  id: number;
+  name: string;
+  pic: string;
+}
+
+export interface BiliLiveArea {
+  id: number;
+  name: string;
+  children: BiliLiveSubArea[];
+}
+
+export interface BiliLiveSendDanmakuResult {
+  ok: boolean;
+  message: string;
+}
+
 export interface BiliDanmakuSendResult {
   ok: boolean;
   message: string;
@@ -814,7 +882,15 @@ export interface PluginSdk {
       pgcRank(args: { seasonType: number }): Promise<BiliPgcCard[]>;
       followList(args: { page?: number; cinema?: boolean }): Promise<BiliBangumiFollow[]>;
     };
-    live: Record<string, never>;
+    live: {
+      room(args: { roomId: number }): Promise<BiliLiveRoom>;
+      stream(args: { roomId: number; qn?: number }): Promise<BiliLiveStream>;
+      recommend(args: { page?: number }): Promise<BiliLiveRecommendPage>;
+      areas(): Promise<BiliLiveArea[]>;
+      sendDanmaku(args: { roomId: number; text: string }): Promise<BiliLiveSendDanmakuResult>;
+      heartbeat(args: { roomId: number }): Promise<BiliOperationResult>;
+      danmakuWsUrl(args: { roomId: number }): Promise<string>;
+    };
     dynamic: {
       all(args: { offset?: string; hostMid?: number }): Promise<BiliDynamicPage>;
       detail(args: { dynId: string }): Promise<BiliDynamicCard>;
@@ -1353,7 +1429,37 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
           return biliInvoke("bilibili_bangumi_follow_list", { page, cinema });
         },
       },
-      live: {},
+      live: {
+        room(args) {
+          requirePerm("bilibili", "bilibili.live.room");
+          return biliInvoke("bilibili_live_room", args);
+        },
+        stream(args) {
+          requirePerm("bilibili", "bilibili.live.stream");
+          return biliInvoke("bilibili_live_stream", args);
+        },
+        recommend(args) {
+          requirePerm("bilibili", "bilibili.live.recommend");
+          return biliInvoke("bilibili_live_recommend", args);
+        },
+        areas() {
+          requirePerm("bilibili", "bilibili.live.areas");
+          return biliInvoke("bilibili_live_areas");
+        },
+        sendDanmaku(args) {
+          requirePerm("bilibili", "bilibili.live.sendDanmaku");
+          return biliInvoke("bilibili_live_send_danmaku", args);
+        },
+        heartbeat(args) {
+          requirePerm("bilibili", "bilibili.live.heartbeat");
+          return biliInvoke("bilibili_live_heartbeat", args);
+        },
+        async danmakuWsUrl({ roomId }) {
+          requirePerm("bilibili", "bilibili.live.danmakuWsUrl");
+          const port = await biliInvoke<number>("bilibili_proxy_port");
+          return `ws://127.0.0.1:${port}/bilibili/live/${roomId}/danmaku`;
+        },
+      },
       dynamic: {
         all(args) {
           requirePerm("bilibili", "bilibili.dynamic.all");

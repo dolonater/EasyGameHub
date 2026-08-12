@@ -54,6 +54,15 @@ export type {
   BiliPreciousVideos,
   BiliSeasonDetail,
   BiliSeasonEpisode,
+  BiliLiveArea,
+  BiliLiveQuality,
+  BiliLiveRecommendPage,
+  BiliLiveRecommendRoom,
+  BiliLiveRoom,
+  BiliLiveSendDanmakuResult,
+  BiliLiveStream,
+  BiliLiveStreamUrl,
+  BiliLiveSubArea,
 } from "sdk";
 
 export interface BilibiliRuntime {

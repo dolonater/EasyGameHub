@@ -3,6 +3,7 @@ import { BiliAppShell } from "../components/BiliAppShell";
 import { ChatPage } from "./ChatPage";
 import { DynamicPage } from "./DynamicPage";
 import { HomePage } from "./HomePage";
+import { LivePage } from "./LivePage";
 import { MessagesPage } from "./MessagesPage";
 import { MinePage } from "./MinePage";
 import { NotificationsPage } from "./NotificationsPage";
@@ -79,7 +80,7 @@ export function MainPage() {
       {view.name === "watch" ? <WatchPage key={watchKey(view)} target={view} /> : null}
       {view.name === "space" ? <SpacePage key={`space-${view.mid}`} mid={view.mid} /> : null}
       {view.name === "season" ? <SeasonPage key={`season-${view.seasonId}`} seasonId={view.seasonId} /> : null}
-      {view.name === "live" ? <PlaceholderPage label="直播间" /> : null}
+      {view.name === "live" ? <LivePage key={`live-${view.roomId}`} roomId={view.roomId} /> : null}
       {view.name === "settings" ? <PlaceholderPage label="设置" /> : null}
       {view.name === "dynDetail" ? <DynDetailPage key={view.dynId} dynId={view.dynId} /> : null}
       {view.name === "article" ? <PlaceholderPage label="专栏" /> : null}

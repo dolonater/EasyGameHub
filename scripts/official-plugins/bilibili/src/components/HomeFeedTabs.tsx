@@ -19,8 +19,7 @@ const TABS: Array<{ key: HomeMode; label: string; available: boolean }> = [
   { key: "search", label: "搜索", available: true },
   { key: "bangumi", label: "追番", available: true },
   { key: "cinema", label: "影视", available: true },
-  // 直播由 P6 填充，当前为禁用占位
-  { key: "live", label: "直播", available: false },
+  { key: "live", label: "直播", available: true },
 ];
 
 export function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onSearch, onBangumi, onCinema, onLive }: HomeFeedTabsProps) {

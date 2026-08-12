@@ -288,6 +288,109 @@ impl BiliDynamicCreated {
     }
 }
 
+/// 直播画质选项。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveQuality {
+    pub qn: i32,
+    pub desc: String,
+}
+
+/// 直播流地址。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveStreamUrl {
+    pub url: String,
+    pub order: i32,
+}
+
+/// 直播流信息。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveStream {
+    pub current_quality: i32,
+    pub current_qn: i32,
+    pub quality_description: Vec<BiliLiveQuality>,
+    pub durl: Vec<BiliLiveStreamUrl>,
+}
+
+/// 直播间信息。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveRoom {
+    pub room_id: i64,
+    pub uid: i64,
+    pub title: String,
+    pub cover: String,
+    pub live_status: i32,
+    pub online: i64,
+    pub area_name: String,
+    pub parent_area_name: String,
+    pub description: String,
+    pub tags: String,
+    pub live_time: String,
+    pub attention: i64,
+}
+
+/// 直播推荐房间卡片。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveRecommendRoom {
+    pub room_id: i64,
+    pub uid: i64,
+    pub title: String,
+    pub cover: String,
+    pub uname: String,
+    pub face: String,
+    pub online: i32,
+    pub area_name: String,
+    pub area_parent_name: String,
+    pub status: bool,
+    pub followers: i32,
+}
+
+/// 直播推荐分页。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveRecommendPage {
+    pub rooms: Vec<BiliLiveRecommendRoom>,
+    pub top_room_id: i64,
+}
+
+/// 直播分区（含子分区）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveArea {
+    pub id: i32,
+    pub name: String,
+    pub children: Vec<BiliLiveSubArea>,
+}
+
+/// 直播子分区。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveSubArea {
+    pub id: i32,
+    pub name: String,
+    pub pic: String,
+}
+
+/// 直播弹幕发送结果。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveSendDanmakuResult {
+    pub ok: bool,
+    pub message: String,
+}
+
+/// 直播弹幕 WS 桥下发的消息（桥把 cmd + 原始 JSON 转发给插件）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveDanmakuMessage {
+    pub cmd: String,
+    pub data: serde_json::Value,
+}
+
 /// 私信会话。
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

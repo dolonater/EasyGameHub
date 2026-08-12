@@ -149,6 +149,23 @@ impl<'a> LiveClient<'a> {
             .await
     }
 
+    /// 获取 Web 首页直播推荐列表（分页）。
+    pub async fn recommend_page(&self, page: i32, page_size: i32) -> BpiResult<RecommendData> {
+        let page = page.to_string();
+        let page_size = page_size.to_string();
+        self.client
+            .get(RECOMMEND_ENDPOINT)
+            .with_bilibili_headers()
+            .query(&[
+                ("platform", "web"),
+                ("web_location", "333.1007"),
+                ("page", page.as_str()),
+                ("page_size", page_size.as_str()),
+            ])
+            .send_bpi_payload("live.recommend")
+            .await
+    }
+
     /// 获取当前 PC 直播客户端版本元数据。
     pub async fn version(&self) -> BpiResult<PcLiveVersionData> {
         self.client

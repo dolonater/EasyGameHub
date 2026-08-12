@@ -80,6 +80,65 @@ declare module "sdk" {
     ok: boolean;
     message: string;
   }
+  export interface BiliLiveQuality {
+    qn: number;
+    desc: string;
+  }
+  export interface BiliLiveStreamUrl {
+    url: string;
+    order: number;
+  }
+  export interface BiliLiveStream {
+    currentQuality: number;
+    currentQn: number;
+    qualityDescription: BiliLiveQuality[];
+    durl: BiliLiveStreamUrl[];
+  }
+  export interface BiliLiveRoom {
+    roomId: number;
+    uid: number;
+    title: string;
+    cover: string;
+    liveStatus: number;
+    online: number;
+    areaName: string;
+    parentAreaName: string;
+    description: string;
+    tags: string;
+    liveTime: string;
+    attention: number;
+  }
+  export interface BiliLiveRecommendRoom {
+    roomId: number;
+    uid: number;
+    title: string;
+    cover: string;
+    uname: string;
+    face: string;
+    online: number;
+    areaName: string;
+    areaParentName: string;
+    status: boolean;
+    followers: number;
+  }
+  export interface BiliLiveRecommendPage {
+    rooms: BiliLiveRecommendRoom[];
+    topRoomId: number;
+  }
+  export interface BiliLiveSubArea {
+    id: number;
+    name: string;
+    pic: string;
+  }
+  export interface BiliLiveArea {
+    id: number;
+    name: string;
+    children: BiliLiveSubArea[];
+  }
+  export interface BiliLiveSendDanmakuResult {
+    ok: boolean;
+    message: string;
+  }
   export interface BiliDanmakuSendResult {
     ok: boolean;
     message: string;
@@ -636,7 +695,15 @@ export interface BiliDynamicCreated {
         pgcRank(args: { seasonType: number }): Promise<BiliPgcCard[]>;
         followList(args: { page?: number; cinema?: boolean }): Promise<BiliBangumiFollow[]>;
       };
-      live: Record<string, never>;
+      live: {
+        room(args: { roomId: number }): Promise<BiliLiveRoom>;
+        stream(args: { roomId: number; qn?: number }): Promise<BiliLiveStream>;
+        recommend(args: { page?: number }): Promise<BiliLiveRecommendPage>;
+        areas(): Promise<BiliLiveArea[]>;
+        sendDanmaku(args: { roomId: number; text: string }): Promise<BiliLiveSendDanmakuResult>;
+        heartbeat(args: { roomId: number }): Promise<BiliOperationResult>;
+        danmakuWsUrl(args: { roomId: number }): Promise<string>;
+      };
       dynamic: {
         all(args: { offset?: string; hostMid?: number }): Promise<BiliDynamicPage>;
         detail(args: { dynId: string }): Promise<BiliDynamicCard>;

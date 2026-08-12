@@ -24,6 +24,4933 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// node_modules/mpegts.js/dist/mpegts.js
+var require_mpegts = __commonJS({
+  "node_modules/mpegts.js/dist/mpegts.js"(exports, module) {
+    !function(e, t) {
+      "object" == typeof exports && "object" == typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define([], t) : "object" == typeof exports ? exports.mpegts = t() : e.mpegts = t();
+    }(exports, function() {
+      return function() {
+        var e = { 964: function(e2, t2, i2) {
+          e2.exports = function() {
+            "use strict";
+            function e3(e4) {
+              return "function" == typeof e4;
+            }
+            var t3 = Array.isArray ? Array.isArray : function(e4) {
+              return "[object Array]" === Object.prototype.toString.call(e4);
+            }, n = 0, a2 = void 0, r = void 0, o = function(e4, t4) {
+              u[n] = e4, u[n + 1] = t4, 2 === (n += 2) && (r ? r(f) : y());
+            };
+            var s2 = "undefined" != typeof window ? window : void 0, d = s2 || {}, _ = d.MutationObserver || d.WebKitMutationObserver, h = "undefined" == typeof self && "undefined" != typeof process && "[object process]" === {}.toString.call(process), c = "undefined" != typeof Uint8ClampedArray && "undefined" != typeof importScripts && "undefined" != typeof MessageChannel;
+            function l() {
+              var e4 = setTimeout;
+              return function() {
+                return e4(f, 1);
+              };
+            }
+            var u = new Array(1e3);
+            function f() {
+              for (var e4 = 0; e4 < n; e4 += 2) (0, u[e4])(u[e4 + 1]), u[e4] = void 0, u[e4 + 1] = void 0;
+              n = 0;
+            }
+            var p, m, g, v, y = void 0;
+            function A(e4, t4) {
+              var i3 = this, n2 = new this.constructor(E);
+              void 0 === n2[b] && x(n2);
+              var a3 = i3._state;
+              if (a3) {
+                var r2 = arguments[a3 - 1];
+                o(function() {
+                  return I(a3, n2, r2, i3._result);
+                });
+              } else B(i3, n2, e4, t4);
+              return n2;
+            }
+            function S(e4) {
+              if (e4 && "object" == typeof e4 && e4.constructor === this) return e4;
+              var t4 = new this(E);
+              return w(t4, e4), t4;
+            }
+            y = h ? function() {
+              return process.nextTick(f);
+            } : _ ? (m = 0, g = new _(f), v = document.createTextNode(""), g.observe(v, { characterData: true }), function() {
+              v.data = m = ++m % 2;
+            }) : c ? ((p = new MessageChannel()).port1.onmessage = f, function() {
+              return p.port2.postMessage(0);
+            }) : void 0 === s2 ? function() {
+              try {
+                var e4 = Function("return this")().require("vertx");
+                return void 0 !== (a2 = e4.runOnLoop || e4.runOnContext) ? function() {
+                  a2(f);
+                } : l();
+              } catch (e5) {
+                return l();
+              }
+            }() : l();
+            var b = Math.random().toString(36).substring(2);
+            function E() {
+            }
+            var R = void 0, T = 1, L = 2;
+            function k(t4, i3, n2) {
+              i3.constructor === t4.constructor && n2 === A && i3.constructor.resolve === S ? function(e4, t5) {
+                t5._state === T ? M(e4, t5._result) : t5._state === L ? D(e4, t5._result) : B(t5, void 0, function(t6) {
+                  return w(e4, t6);
+                }, function(t6) {
+                  return D(e4, t6);
+                });
+              }(t4, i3) : void 0 === n2 ? M(t4, i3) : e3(n2) ? function(e4, t5, i4) {
+                o(function(e5) {
+                  var n3 = false, a3 = function(e6, t6, i5, n4) {
+                    try {
+                      e6.call(t6, i5, n4);
+                    } catch (e7) {
+                      return e7;
+                    }
+                  }(i4, t5, function(i5) {
+                    n3 || (n3 = true, t5 !== i5 ? w(e5, i5) : M(e5, i5));
+                  }, function(t6) {
+                    n3 || (n3 = true, D(e5, t6));
+                  }, e5._label);
+                  !n3 && a3 && (n3 = true, D(e5, a3));
+                }, e4);
+              }(t4, i3, n2) : M(t4, i3);
+            }
+            function w(e4, t4) {
+              if (e4 === t4) D(e4, new TypeError("You cannot resolve a promise with itself"));
+              else if (a3 = typeof (n2 = t4), null === n2 || "object" !== a3 && "function" !== a3) M(e4, t4);
+              else {
+                var i3 = void 0;
+                try {
+                  i3 = t4.then;
+                } catch (t5) {
+                  return void D(e4, t5);
+                }
+                k(e4, t4, i3);
+              }
+              var n2, a3;
+            }
+            function C(e4) {
+              e4._onerror && e4._onerror(e4._result), O(e4);
+            }
+            function M(e4, t4) {
+              e4._state === R && (e4._result = t4, e4._state = T, 0 !== e4._subscribers.length && o(O, e4));
+            }
+            function D(e4, t4) {
+              e4._state === R && (e4._state = L, e4._result = t4, o(C, e4));
+            }
+            function B(e4, t4, i3, n2) {
+              var a3 = e4._subscribers, r2 = a3.length;
+              e4._onerror = null, a3[r2] = t4, a3[r2 + T] = i3, a3[r2 + L] = n2, 0 === r2 && e4._state && o(O, e4);
+            }
+            function O(e4) {
+              var t4 = e4._subscribers, i3 = e4._state;
+              if (0 !== t4.length) {
+                for (var n2 = void 0, a3 = void 0, r2 = e4._result, o2 = 0; o2 < t4.length; o2 += 3) n2 = t4[o2], a3 = t4[o2 + i3], n2 ? I(i3, n2, a3, r2) : a3(r2);
+                e4._subscribers.length = 0;
+              }
+            }
+            function I(t4, i3, n2, a3) {
+              var r2 = e3(n2), o2 = void 0, s3 = void 0, d2 = true;
+              if (r2) {
+                try {
+                  o2 = n2(a3);
+                } catch (e4) {
+                  d2 = false, s3 = e4;
+                }
+                if (i3 === o2) return void D(i3, new TypeError("A promises callback cannot return that same promise."));
+              } else o2 = a3;
+              i3._state !== R || (r2 && d2 ? w(i3, o2) : false === d2 ? D(i3, s3) : t4 === T ? M(i3, o2) : t4 === L && D(i3, o2));
+            }
+            var P = 0;
+            function x(e4) {
+              e4[b] = P++, e4._state = void 0, e4._result = void 0, e4._subscribers = [];
+            }
+            var U = function() {
+              function e4(e5, i3) {
+                this._instanceConstructor = e5, this.promise = new e5(E), this.promise[b] || x(this.promise), t3(i3) ? (this.length = i3.length, this._remaining = i3.length, this._result = new Array(this.length), 0 === this.length ? M(this.promise, this._result) : (this.length = this.length || 0, this._enumerate(i3), 0 === this._remaining && M(this.promise, this._result))) : D(this.promise, new Error("Array Methods must be provided an Array"));
+              }
+              return e4.prototype._enumerate = function(e5) {
+                for (var t4 = 0; this._state === R && t4 < e5.length; t4++) this._eachEntry(e5[t4], t4);
+              }, e4.prototype._eachEntry = function(e5, t4) {
+                var i3 = this._instanceConstructor, n2 = i3.resolve;
+                if (n2 === S) {
+                  var a3 = void 0, r2 = void 0, o2 = false;
+                  try {
+                    a3 = e5.then;
+                  } catch (e6) {
+                    o2 = true, r2 = e6;
+                  }
+                  if (a3 === A && e5._state !== R) this._settledAt(e5._state, t4, e5._result);
+                  else if ("function" != typeof a3) this._remaining--, this._result[t4] = e5;
+                  else if (i3 === N) {
+                    var s3 = new i3(E);
+                    o2 ? D(s3, r2) : k(s3, e5, a3), this._willSettleAt(s3, t4);
+                  } else this._willSettleAt(new i3(function(t5) {
+                    return t5(e5);
+                  }), t4);
+                } else this._willSettleAt(n2(e5), t4);
+              }, e4.prototype._settledAt = function(e5, t4, i3) {
+                var n2 = this.promise;
+                n2._state === R && (this._remaining--, e5 === L ? D(n2, i3) : this._result[t4] = i3), 0 === this._remaining && M(n2, this._result);
+              }, e4.prototype._willSettleAt = function(e5, t4) {
+                var i3 = this;
+                B(e5, void 0, function(e6) {
+                  return i3._settledAt(T, t4, e6);
+                }, function(e6) {
+                  return i3._settledAt(L, t4, e6);
+                });
+              }, e4;
+            }();
+            var N = function() {
+              function t4(e4) {
+                this[b] = P++, this._result = this._state = void 0, this._subscribers = [], E !== e4 && ("function" != typeof e4 && function() {
+                  throw new TypeError("You must pass a resolver function as the first argument to the promise constructor");
+                }(), this instanceof t4 ? function(e5, t5) {
+                  try {
+                    t5(function(t6) {
+                      w(e5, t6);
+                    }, function(t6) {
+                      D(e5, t6);
+                    });
+                  } catch (t6) {
+                    D(e5, t6);
+                  }
+                }(this, e4) : function() {
+                  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+                }());
+              }
+              return t4.prototype.catch = function(e4) {
+                return this.then(null, e4);
+              }, t4.prototype.finally = function(t5) {
+                var i3 = this, n2 = i3.constructor;
+                return e3(t5) ? i3.then(function(e4) {
+                  return n2.resolve(t5()).then(function() {
+                    return e4;
+                  });
+                }, function(e4) {
+                  return n2.resolve(t5()).then(function() {
+                    throw e4;
+                  });
+                }) : i3.then(t5, t5);
+              }, t4;
+            }();
+            return N.prototype.then = A, N.all = function(e4) {
+              return new U(this, e4).promise;
+            }, N.race = function(e4) {
+              var i3 = this;
+              return t3(e4) ? new i3(function(t4, n2) {
+                for (var a3 = e4.length, r2 = 0; r2 < a3; r2++) i3.resolve(e4[r2]).then(t4, n2);
+              }) : new i3(function(e5, t4) {
+                return t4(new TypeError("You must pass an array to race."));
+              });
+            }, N.resolve = S, N.reject = function(e4) {
+              var t4 = new this(E);
+              return D(t4, e4), t4;
+            }, N._setScheduler = function(e4) {
+              r = e4;
+            }, N._setAsap = function(e4) {
+              o = e4;
+            }, N._asap = o, N.polyfill = function() {
+              var e4 = void 0;
+              if (void 0 !== i2.g) e4 = i2.g;
+              else if ("undefined" != typeof self) e4 = self;
+              else try {
+                e4 = Function("return this")();
+              } catch (e5) {
+                throw new Error("polyfill failed because global object is unavailable in this environment");
+              }
+              var t4 = e4.Promise;
+              if (t4) {
+                var n2 = null;
+                try {
+                  n2 = Object.prototype.toString.call(t4.resolve());
+                } catch (e5) {
+                }
+                if ("[object Promise]" === n2 && !t4.cast) return;
+              }
+              e4.Promise = N;
+            }, N.Promise = N, N;
+          }();
+        }, 7: function(e2) {
+          "use strict";
+          var t2, i2 = "object" == typeof Reflect ? Reflect : null, n = i2 && "function" == typeof i2.apply ? i2.apply : function(e3, t3, i3) {
+            return Function.prototype.apply.call(e3, t3, i3);
+          };
+          t2 = i2 && "function" == typeof i2.ownKeys ? i2.ownKeys : Object.getOwnPropertySymbols ? function(e3) {
+            return Object.getOwnPropertyNames(e3).concat(Object.getOwnPropertySymbols(e3));
+          } : function(e3) {
+            return Object.getOwnPropertyNames(e3);
+          };
+          var a2 = Number.isNaN || function(e3) {
+            return e3 != e3;
+          };
+          function r() {
+            r.init.call(this);
+          }
+          e2.exports = r, e2.exports.once = function(e3, t3) {
+            return new Promise(function(i3, n2) {
+              function a3(i4) {
+                e3.removeListener(t3, r2), n2(i4);
+              }
+              function r2() {
+                "function" == typeof e3.removeListener && e3.removeListener("error", a3), i3([].slice.call(arguments));
+              }
+              p(e3, t3, r2, { once: true }), "error" !== t3 && function(e4, t4) {
+                "function" == typeof e4.on && p(e4, "error", t4, { once: true });
+              }(e3, a3);
+            });
+          }, r.EventEmitter = r, r.prototype._events = void 0, r.prototype._eventsCount = 0, r.prototype._maxListeners = void 0;
+          var o = 10;
+          function s2(e3) {
+            if ("function" != typeof e3) throw new TypeError('The "listener" argument must be of type Function. Received type ' + typeof e3);
+          }
+          function d(e3) {
+            return void 0 === e3._maxListeners ? r.defaultMaxListeners : e3._maxListeners;
+          }
+          function _(e3, t3, i3, n2) {
+            var a3, r2, o2, _2;
+            if (s2(i3), void 0 === (r2 = e3._events) ? (r2 = e3._events = /* @__PURE__ */ Object.create(null), e3._eventsCount = 0) : (void 0 !== r2.newListener && (e3.emit("newListener", t3, i3.listener ? i3.listener : i3), r2 = e3._events), o2 = r2[t3]), void 0 === o2) o2 = r2[t3] = i3, ++e3._eventsCount;
+            else if ("function" == typeof o2 ? o2 = r2[t3] = n2 ? [i3, o2] : [o2, i3] : n2 ? o2.unshift(i3) : o2.push(i3), (a3 = d(e3)) > 0 && o2.length > a3 && !o2.warned) {
+              o2.warned = true;
+              var h2 = new Error("Possible EventEmitter memory leak detected. " + o2.length + " " + String(t3) + " listeners added. Use emitter.setMaxListeners() to increase limit");
+              h2.name = "MaxListenersExceededWarning", h2.emitter = e3, h2.type = t3, h2.count = o2.length, _2 = h2, console && console.warn && console.warn(_2);
+            }
+            return e3;
+          }
+          function h() {
+            if (!this.fired) return this.target.removeListener(this.type, this.wrapFn), this.fired = true, 0 === arguments.length ? this.listener.call(this.target) : this.listener.apply(this.target, arguments);
+          }
+          function c(e3, t3, i3) {
+            var n2 = { fired: false, wrapFn: void 0, target: e3, type: t3, listener: i3 }, a3 = h.bind(n2);
+            return a3.listener = i3, n2.wrapFn = a3, a3;
+          }
+          function l(e3, t3, i3) {
+            var n2 = e3._events;
+            if (void 0 === n2) return [];
+            var a3 = n2[t3];
+            return void 0 === a3 ? [] : "function" == typeof a3 ? i3 ? [a3.listener || a3] : [a3] : i3 ? function(e4) {
+              for (var t4 = new Array(e4.length), i4 = 0; i4 < t4.length; ++i4) t4[i4] = e4[i4].listener || e4[i4];
+              return t4;
+            }(a3) : f(a3, a3.length);
+          }
+          function u(e3) {
+            var t3 = this._events;
+            if (void 0 !== t3) {
+              var i3 = t3[e3];
+              if ("function" == typeof i3) return 1;
+              if (void 0 !== i3) return i3.length;
+            }
+            return 0;
+          }
+          function f(e3, t3) {
+            for (var i3 = new Array(t3), n2 = 0; n2 < t3; ++n2) i3[n2] = e3[n2];
+            return i3;
+          }
+          function p(e3, t3, i3, n2) {
+            if ("function" == typeof e3.on) n2.once ? e3.once(t3, i3) : e3.on(t3, i3);
+            else {
+              if ("function" != typeof e3.addEventListener) throw new TypeError('The "emitter" argument must be of type EventEmitter. Received type ' + typeof e3);
+              e3.addEventListener(t3, function a3(r2) {
+                n2.once && e3.removeEventListener(t3, a3), i3(r2);
+              });
+            }
+          }
+          Object.defineProperty(r, "defaultMaxListeners", { enumerable: true, get: function() {
+            return o;
+          }, set: function(e3) {
+            if ("number" != typeof e3 || e3 < 0 || a2(e3)) throw new RangeError('The value of "defaultMaxListeners" is out of range. It must be a non-negative number. Received ' + e3 + ".");
+            o = e3;
+          } }), r.init = function() {
+            void 0 !== this._events && this._events !== Object.getPrototypeOf(this)._events || (this._events = /* @__PURE__ */ Object.create(null), this._eventsCount = 0), this._maxListeners = this._maxListeners || void 0;
+          }, r.prototype.setMaxListeners = function(e3) {
+            if ("number" != typeof e3 || e3 < 0 || a2(e3)) throw new RangeError('The value of "n" is out of range. It must be a non-negative number. Received ' + e3 + ".");
+            return this._maxListeners = e3, this;
+          }, r.prototype.getMaxListeners = function() {
+            return d(this);
+          }, r.prototype.emit = function(e3) {
+            for (var t3 = [], i3 = 1; i3 < arguments.length; i3++) t3.push(arguments[i3]);
+            var a3 = "error" === e3, r2 = this._events;
+            if (void 0 !== r2) a3 = a3 && void 0 === r2.error;
+            else if (!a3) return false;
+            if (a3) {
+              var o2;
+              if (t3.length > 0 && (o2 = t3[0]), o2 instanceof Error) throw o2;
+              var s3 = new Error("Unhandled error." + (o2 ? " (" + o2.message + ")" : ""));
+              throw s3.context = o2, s3;
+            }
+            var d2 = r2[e3];
+            if (void 0 === d2) return false;
+            if ("function" == typeof d2) n(d2, this, t3);
+            else {
+              var _2 = d2.length, h2 = f(d2, _2);
+              for (i3 = 0; i3 < _2; ++i3) n(h2[i3], this, t3);
+            }
+            return true;
+          }, r.prototype.addListener = function(e3, t3) {
+            return _(this, e3, t3, false);
+          }, r.prototype.on = r.prototype.addListener, r.prototype.prependListener = function(e3, t3) {
+            return _(this, e3, t3, true);
+          }, r.prototype.once = function(e3, t3) {
+            return s2(t3), this.on(e3, c(this, e3, t3)), this;
+          }, r.prototype.prependOnceListener = function(e3, t3) {
+            return s2(t3), this.prependListener(e3, c(this, e3, t3)), this;
+          }, r.prototype.removeListener = function(e3, t3) {
+            var i3, n2, a3, r2, o2;
+            if (s2(t3), void 0 === (n2 = this._events)) return this;
+            if (void 0 === (i3 = n2[e3])) return this;
+            if (i3 === t3 || i3.listener === t3) 0 === --this._eventsCount ? this._events = /* @__PURE__ */ Object.create(null) : (delete n2[e3], n2.removeListener && this.emit("removeListener", e3, i3.listener || t3));
+            else if ("function" != typeof i3) {
+              for (a3 = -1, r2 = i3.length - 1; r2 >= 0; r2--) if (i3[r2] === t3 || i3[r2].listener === t3) {
+                o2 = i3[r2].listener, a3 = r2;
+                break;
+              }
+              if (a3 < 0) return this;
+              0 === a3 ? i3.shift() : function(e4, t4) {
+                for (; t4 + 1 < e4.length; t4++) e4[t4] = e4[t4 + 1];
+                e4.pop();
+              }(i3, a3), 1 === i3.length && (n2[e3] = i3[0]), void 0 !== n2.removeListener && this.emit("removeListener", e3, o2 || t3);
+            }
+            return this;
+          }, r.prototype.off = r.prototype.removeListener, r.prototype.removeAllListeners = function(e3) {
+            var t3, i3, n2;
+            if (void 0 === (i3 = this._events)) return this;
+            if (void 0 === i3.removeListener) return 0 === arguments.length ? (this._events = /* @__PURE__ */ Object.create(null), this._eventsCount = 0) : void 0 !== i3[e3] && (0 === --this._eventsCount ? this._events = /* @__PURE__ */ Object.create(null) : delete i3[e3]), this;
+            if (0 === arguments.length) {
+              var a3, r2 = Object.keys(i3);
+              for (n2 = 0; n2 < r2.length; ++n2) "removeListener" !== (a3 = r2[n2]) && this.removeAllListeners(a3);
+              return this.removeAllListeners("removeListener"), this._events = /* @__PURE__ */ Object.create(null), this._eventsCount = 0, this;
+            }
+            if ("function" == typeof (t3 = i3[e3])) this.removeListener(e3, t3);
+            else if (void 0 !== t3) for (n2 = t3.length - 1; n2 >= 0; n2--) this.removeListener(e3, t3[n2]);
+            return this;
+          }, r.prototype.listeners = function(e3) {
+            return l(this, e3, true);
+          }, r.prototype.rawListeners = function(e3) {
+            return l(this, e3, false);
+          }, r.listenerCount = function(e3, t3) {
+            return "function" == typeof e3.listenerCount ? e3.listenerCount(t3) : u.call(e3, t3);
+          }, r.prototype.listenerCount = u, r.prototype.eventNames = function() {
+            return this._eventsCount > 0 ? t2(this._events) : [];
+          };
+        }, 955: function(e2, t2) {
+          "use strict";
+          var i2 = function() {
+            function e3() {
+              this.mimeType = null, this.duration = null, this.hasAudio = null, this.hasVideo = null, this.audioCodec = null, this.videoCodec = null, this.audioDataRate = null, this.videoDataRate = null, this.audioSampleRate = null, this.audioChannelCount = null, this.width = null, this.height = null, this.fps = null, this.profile = null, this.level = null, this.refFrames = null, this.chromaFormat = null, this.sarNum = null, this.sarDen = null, this.metadata = null, this.segments = null, this.segmentCount = null, this.hasKeyframesIndex = null, this.keyframesIndex = null;
+            }
+            return e3.prototype.isComplete = function() {
+              var e4 = false === this.hasAudio || true === this.hasAudio && null != this.audioCodec && null != this.audioSampleRate && null != this.audioChannelCount, t3 = false === this.hasVideo || true === this.hasVideo && null != this.videoCodec && null != this.width && null != this.height && null != this.fps && null != this.profile && null != this.level && null != this.refFrames && null != this.chromaFormat && null != this.sarNum && null != this.sarDen;
+              return null != this.mimeType && e4 && t3;
+            }, e3.prototype.isSeekable = function() {
+              return true === this.hasKeyframesIndex;
+            }, e3.prototype.getNearestKeyframe = function(e4) {
+              if (null == this.keyframesIndex) return null;
+              var t3 = this.keyframesIndex, i3 = this._search(t3.times, e4);
+              return { index: i3, milliseconds: t3.times[i3], fileposition: t3.filepositions[i3] };
+            }, e3.prototype._search = function(e4, t3) {
+              var i3 = 0, n = e4.length - 1, a2 = 0, r = 0, o = n;
+              for (t3 < e4[0] && (i3 = 0, r = o + 1); r <= o; ) {
+                if ((a2 = r + Math.floor((o - r) / 2)) === n || t3 >= e4[a2] && t3 < e4[a2 + 1]) {
+                  i3 = a2;
+                  break;
+                }
+                e4[a2] < t3 ? r = a2 + 1 : o = a2 - 1;
+              }
+              return i3;
+            }, e3;
+          }();
+          t2.A = i2;
+        }, 47: function(e2, t2, i2) {
+          "use strict";
+          i2.d(t2, { $_: function() {
+            return n;
+          }, EX: function() {
+            return r;
+          }, EZ: function() {
+            return a2;
+          }, Sc: function() {
+            return o;
+          } });
+          var n = function(e3, t3, i3, n2, a3) {
+            this.dts = e3, this.pts = t3, this.duration = i3, this.originalDts = n2, this.isSyncPoint = a3, this.fileposition = null;
+          }, a2 = function() {
+            function e3() {
+              this.beginDts = 0, this.endDts = 0, this.beginPts = 0, this.endPts = 0, this.originalBeginDts = 0, this.originalEndDts = 0, this.syncPoints = [], this.firstSample = null, this.lastSample = null;
+            }
+            return e3.prototype.appendSyncPoint = function(e4) {
+              e4.isSyncPoint = true, this.syncPoints.push(e4);
+            }, e3;
+          }(), r = function() {
+            function e3() {
+              this._list = [];
+            }
+            return e3.prototype.clear = function() {
+              this._list = [];
+            }, e3.prototype.appendArray = function(e4) {
+              var t3 = this._list;
+              0 !== e4.length && (t3.length > 0 && e4[0].originalDts < t3[t3.length - 1].originalDts && this.clear(), Array.prototype.push.apply(t3, e4));
+            }, e3.prototype.getLastSyncPointBeforeDts = function(e4) {
+              if (0 == this._list.length) return null;
+              var t3 = this._list, i3 = 0, n2 = t3.length - 1, a3 = 0, r2 = 0, o2 = n2;
+              for (e4 < t3[0].dts && (i3 = 0, r2 = o2 + 1); r2 <= o2; ) {
+                if ((a3 = r2 + Math.floor((o2 - r2) / 2)) === n2 || e4 >= t3[a3].dts && e4 < t3[a3 + 1].dts) {
+                  i3 = a3;
+                  break;
+                }
+                t3[a3].dts < e4 ? r2 = a3 + 1 : o2 = a3 - 1;
+              }
+              return this._list[i3];
+            }, e3;
+          }(), o = function() {
+            function e3(e4) {
+              this._type = e4, this._list = [], this._lastAppendLocation = -1;
+            }
+            return Object.defineProperty(e3.prototype, "type", { get: function() {
+              return this._type;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "length", { get: function() {
+              return this._list.length;
+            }, enumerable: false, configurable: true }), e3.prototype.isEmpty = function() {
+              return 0 === this._list.length;
+            }, e3.prototype.clear = function() {
+              this._list = [], this._lastAppendLocation = -1;
+            }, e3.prototype._searchNearestSegmentBefore = function(e4) {
+              var t3 = this._list;
+              if (0 === t3.length) return -2;
+              var i3 = t3.length - 1, n2 = 0, a3 = 0, r2 = i3, o2 = 0;
+              if (e4 < t3[0].originalBeginDts) return -1;
+              for (; a3 <= r2; ) {
+                if ((n2 = a3 + Math.floor((r2 - a3) / 2)) === i3 || e4 > t3[n2].lastSample.originalDts && e4 < t3[n2 + 1].originalBeginDts) {
+                  o2 = n2;
+                  break;
+                }
+                t3[n2].originalBeginDts < e4 ? a3 = n2 + 1 : r2 = n2 - 1;
+              }
+              return o2;
+            }, e3.prototype._searchNearestSegmentAfter = function(e4) {
+              return this._searchNearestSegmentBefore(e4) + 1;
+            }, e3.prototype.append = function(e4) {
+              var t3 = this._list, i3 = e4, n2 = this._lastAppendLocation, a3 = 0;
+              -1 !== n2 && n2 < t3.length && i3.originalBeginDts >= t3[n2].lastSample.originalDts && (n2 === t3.length - 1 || n2 < t3.length - 1 && i3.originalBeginDts < t3[n2 + 1].originalBeginDts) ? a3 = n2 + 1 : t3.length > 0 && (a3 = this._searchNearestSegmentBefore(i3.originalBeginDts) + 1), this._lastAppendLocation = a3, this._list.splice(a3, 0, i3);
+            }, e3.prototype.getLastSegmentBefore = function(e4) {
+              var t3 = this._searchNearestSegmentBefore(e4);
+              return t3 >= 0 ? this._list[t3] : null;
+            }, e3.prototype.getLastSampleBefore = function(e4) {
+              var t3 = this.getLastSegmentBefore(e4);
+              return null != t3 ? t3.lastSample : null;
+            }, e3.prototype.getLastSyncPointBefore = function(e4) {
+              for (var t3 = this._searchNearestSegmentBefore(e4), i3 = this._list[t3].syncPoints; 0 === i3.length && t3 > 0; ) t3--, i3 = this._list[t3].syncPoints;
+              return i3.length > 0 ? i3[i3.length - 1] : null;
+            }, e3;
+          }();
+        }, 346: function(e2, t2, i2) {
+          "use strict";
+          var n = i2(7), a2 = i2.n(n), r = i2(856), o = i2(994), s2 = i2(403), d = i2(867), _ = function() {
+            function e3(e4) {
+              this.TAG = "MSEController", this._config = e4, this._emitter = new (a2())(), this._config.isLive && null == this._config.autoCleanupSourceBuffer && (this._config.autoCleanupSourceBuffer = true), this.e = { onSourceOpen: this._onSourceOpen.bind(this), onSourceEnded: this._onSourceEnded.bind(this), onSourceClose: this._onSourceClose.bind(this), onStartStreaming: this._onStartStreaming.bind(this), onEndStreaming: this._onEndStreaming.bind(this), onQualityChange: this._onQualityChange.bind(this), onSourceBufferError: this._onSourceBufferError.bind(this), onSourceBufferUpdateEnd: this._onSourceBufferUpdateEnd.bind(this) }, this._useManagedMediaSource = "function" == typeof self.ManagedMediaSource && !("function" == typeof self.MediaSource), this._mediaSource = null, this._mediaSourceObjectURL = null, this._mediaElementProxy = null, this._isBufferFull = false, this._hasPendingEos = false, this._requireSetMediaDuration = false, this._pendingMediaDuration = 0, this._pendingSourceBufferInit = [], this._mimeTypes = { video: null, audio: null }, this._sourceBuffers = { video: null, audio: null }, this._lastInitSegments = { video: null, audio: null }, this._pendingSegments = { video: [], audio: [] }, this._pendingRemoveRanges = { video: [], audio: [] };
+            }
+            return e3.prototype.destroy = function() {
+              this._mediaSource && this.shutdown(), this._mediaSourceObjectURL && this.revokeObjectURL(), this.e = null, this._emitter.removeAllListeners(), this._emitter = null;
+            }, e3.prototype.on = function(e4, t3) {
+              this._emitter.addListener(e4, t3);
+            }, e3.prototype.off = function(e4, t3) {
+              this._emitter.removeListener(e4, t3);
+            }, e3.prototype.initialize = function(e4) {
+              if (this._mediaSource) throw new d.j4("MediaSource has been attached to an HTMLMediaElement!");
+              this._useManagedMediaSource && r.A.v(this.TAG, "Using ManagedMediaSource");
+              var t3 = this._mediaSource = this._useManagedMediaSource ? new self.ManagedMediaSource() : new self.MediaSource();
+              t3.addEventListener("sourceopen", this.e.onSourceOpen), t3.addEventListener("sourceended", this.e.onSourceEnded), t3.addEventListener("sourceclose", this.e.onSourceClose), this._useManagedMediaSource && (t3.addEventListener("startstreaming", this.e.onStartStreaming), t3.addEventListener("endstreaming", this.e.onEndStreaming), t3.addEventListener("qualitychange", this.e.onQualityChange)), this._mediaElementProxy = e4;
+            }, e3.prototype.shutdown = function() {
+              if (this._mediaSource) {
+                var e4 = this._mediaSource;
+                for (var t3 in this._sourceBuffers) {
+                  var i3 = this._pendingSegments[t3];
+                  i3.splice(0, i3.length), this._pendingSegments[t3] = null, this._pendingRemoveRanges[t3] = null, this._lastInitSegments[t3] = null;
+                  var n2 = this._sourceBuffers[t3];
+                  if (n2) {
+                    if ("closed" !== e4.readyState) {
+                      try {
+                        e4.removeSourceBuffer(n2);
+                      } catch (e5) {
+                        r.A.e(this.TAG, e5.message);
+                      }
+                      n2.removeEventListener("error", this.e.onSourceBufferError), n2.removeEventListener("updateend", this.e.onSourceBufferUpdateEnd);
+                    }
+                    this._mimeTypes[t3] = null, this._sourceBuffers[t3] = null;
+                  }
+                }
+                if ("open" === e4.readyState) try {
+                  e4.endOfStream();
+                } catch (e5) {
+                  r.A.e(this.TAG, e5.message);
+                }
+                this._mediaElementProxy = null, e4.removeEventListener("sourceopen", this.e.onSourceOpen), e4.removeEventListener("sourceended", this.e.onSourceEnded), e4.removeEventListener("sourceclose", this.e.onSourceClose), this._useManagedMediaSource && (e4.removeEventListener("startstreaming", this.e.onStartStreaming), e4.removeEventListener("endstreaming", this.e.onEndStreaming), e4.removeEventListener("qualitychange", this.e.onQualityChange)), this._pendingSourceBufferInit = [], this._isBufferFull = false, this._mediaSource = null;
+              }
+            }, e3.prototype.isManagedMediaSource = function() {
+              return this._useManagedMediaSource;
+            }, e3.prototype.getObject = function() {
+              if (!this._mediaSource) throw new d.j4("MediaSource has not been initialized yet!");
+              return this._mediaSource;
+            }, e3.prototype.getHandle = function() {
+              if (!this._mediaSource) throw new d.j4("MediaSource has not been initialized yet!");
+              return this._mediaSource.handle;
+            }, e3.prototype.getObjectURL = function() {
+              if (!this._mediaSource) throw new d.j4("MediaSource has not been initialized yet!");
+              return null == this._mediaSourceObjectURL && (this._mediaSourceObjectURL = URL.createObjectURL(this._mediaSource)), this._mediaSourceObjectURL;
+            }, e3.prototype.revokeObjectURL = function() {
+              this._mediaSourceObjectURL && (URL.revokeObjectURL(this._mediaSourceObjectURL), this._mediaSourceObjectURL = null);
+            }, e3.prototype.appendInitSegment = function(e4, t3) {
+              if (void 0 === t3 && (t3 = void 0), !this._mediaSource || "open" !== this._mediaSource.readyState || false === this._mediaSource.streaming) return this._pendingSourceBufferInit.push(e4), void this._pendingSegments[e4.type].push(e4);
+              var i3 = e4, n2 = "".concat(i3.container);
+              i3.codec && i3.codec.length > 0 && ("opus" === i3.codec && o.A.safari && (i3.codec = "Opus"), n2 += ";codecs=".concat(i3.codec));
+              var a3 = false;
+              if (r.A.v(this.TAG, "Received Initialization Segment, mimeType: " + n2), this._lastInitSegments[i3.type] = i3, n2 !== this._mimeTypes[i3.type]) {
+                if (this._mimeTypes[i3.type]) r.A.v(this.TAG, "Notice: ".concat(i3.type, " mimeType changed, origin: ").concat(this._mimeTypes[i3.type], ", target: ").concat(n2));
+                else {
+                  a3 = true;
+                  try {
+                    var d2 = this._sourceBuffers[i3.type] = this._mediaSource.addSourceBuffer(n2);
+                    d2.addEventListener("error", this.e.onSourceBufferError), d2.addEventListener("updateend", this.e.onSourceBufferUpdateEnd);
+                  } catch (e5) {
+                    return r.A.e(this.TAG, e5.message), void this._emitter.emit(s2.A.ERROR, { code: e5.code, msg: e5.message });
+                  }
+                }
+                this._mimeTypes[i3.type] = n2;
+              }
+              t3 || this._pendingSegments[i3.type].push(i3), a3 || this._sourceBuffers[i3.type] && !this._sourceBuffers[i3.type].updating && this._doAppendSegments(), o.A.safari && "audio/mpeg" === i3.container && i3.mediaDuration > 0 && (this._requireSetMediaDuration = true, this._pendingMediaDuration = i3.mediaDuration / 1e3, this._updateMediaSourceDuration());
+            }, e3.prototype.appendMediaSegment = function(e4) {
+              var t3 = e4;
+              this._pendingSegments[t3.type].push(t3), this._config.autoCleanupSourceBuffer && this._needCleanupSourceBuffer() && this._doCleanupSourceBuffer();
+              var i3 = this._sourceBuffers[t3.type];
+              !i3 || i3.updating || this._hasPendingRemoveRanges() || this._doAppendSegments();
+            }, e3.prototype.flush = function() {
+              for (var e4 in this._sourceBuffers) if (this._sourceBuffers[e4]) {
+                var t3 = this._sourceBuffers[e4];
+                if ("open" === this._mediaSource.readyState) try {
+                  t3.abort();
+                } catch (e5) {
+                  r.A.e(this.TAG, e5.message);
+                }
+                var i3 = this._pendingSegments[e4];
+                if (i3.splice(0, i3.length), "closed" !== this._mediaSource.readyState) {
+                  for (var n2 = 0; n2 < t3.buffered.length; n2++) {
+                    var a3 = t3.buffered.start(n2), s3 = t3.buffered.end(n2);
+                    this._pendingRemoveRanges[e4].push({ start: a3, end: s3 });
+                  }
+                  if (t3.updating || this._doRemoveRanges(), o.A.safari) {
+                    var d2 = this._lastInitSegments[e4];
+                    d2 && (this._pendingSegments[e4].push(d2), t3.updating || this._doAppendSegments());
+                  }
+                }
+              }
+            }, e3.prototype.endOfStream = function() {
+              var e4 = this._mediaSource, t3 = this._sourceBuffers;
+              e4 && "open" === e4.readyState ? t3.video && t3.video.updating || t3.audio && t3.audio.updating ? this._hasPendingEos = true : (this._hasPendingEos = false, e4.endOfStream()) : e4 && "closed" === e4.readyState && this._hasPendingSegments() && (this._hasPendingEos = true);
+            }, e3.prototype._needCleanupSourceBuffer = function() {
+              if (!this._config.autoCleanupSourceBuffer) return false;
+              var e4 = this._mediaElementProxy.getCurrentTime();
+              for (var t3 in this._sourceBuffers) {
+                var i3 = this._sourceBuffers[t3];
+                if (i3) {
+                  var n2 = i3.buffered;
+                  if (n2.length >= 1 && e4 - n2.start(0) >= this._config.autoCleanupMaxBackwardDuration) return true;
+                }
+              }
+              return false;
+            }, e3.prototype._doCleanupSourceBuffer = function() {
+              var e4 = this._mediaElementProxy.getCurrentTime();
+              for (var t3 in this._sourceBuffers) {
+                var i3 = this._sourceBuffers[t3];
+                if (i3) {
+                  for (var n2 = i3.buffered, a3 = false, r2 = 0; r2 < n2.length; r2++) {
+                    var o2 = n2.start(r2), s3 = n2.end(r2);
+                    if (o2 <= e4 && e4 < s3 + 3) {
+                      if (e4 - o2 >= this._config.autoCleanupMaxBackwardDuration) {
+                        a3 = true;
+                        var d2 = e4 - this._config.autoCleanupMinBackwardDuration;
+                        this._pendingRemoveRanges[t3].push({ start: o2, end: d2 });
+                      }
+                    } else s3 < e4 && (a3 = true, this._pendingRemoveRanges[t3].push({ start: o2, end: s3 }));
+                  }
+                  a3 && !i3.updating && this._doRemoveRanges();
+                }
+              }
+            }, e3.prototype._updateMediaSourceDuration = function() {
+              var e4 = this._sourceBuffers;
+              if (0 !== this._mediaElementProxy.getReadyState() && "open" === this._mediaSource.readyState && !(e4.video && e4.video.updating || e4.audio && e4.audio.updating)) {
+                var t3 = this._mediaSource.duration, i3 = this._pendingMediaDuration;
+                i3 > 0 && (isNaN(t3) || i3 > t3) && (r.A.v(this.TAG, "Update MediaSource duration from ".concat(t3, " to ").concat(i3)), this._mediaSource.duration = i3), this._requireSetMediaDuration = false, this._pendingMediaDuration = 0;
+              }
+            }, e3.prototype._doRemoveRanges = function() {
+              for (var e4 in this._pendingRemoveRanges) if (this._sourceBuffers[e4] && !this._sourceBuffers[e4].updating) for (var t3 = this._sourceBuffers[e4], i3 = this._pendingRemoveRanges[e4]; i3.length && !t3.updating; ) {
+                var n2 = i3.shift();
+                t3.remove(n2.start, n2.end);
+              }
+            }, e3.prototype._doAppendSegments = function() {
+              var e4 = this._pendingSegments;
+              for (var t3 in e4) if (this._sourceBuffers[t3] && !this._sourceBuffers[t3].updating && false !== this._mediaSource.streaming && e4[t3].length > 0) {
+                var i3 = e4[t3].shift();
+                if ("number" == typeof i3.timestampOffset && isFinite(i3.timestampOffset)) {
+                  var n2 = this._sourceBuffers[t3].timestampOffset, a3 = i3.timestampOffset / 1e3;
+                  Math.abs(n2 - a3) > 0.1 && (r.A.v(this.TAG, "Update MPEG audio timestampOffset from ".concat(n2, " to ").concat(a3)), this._sourceBuffers[t3].timestampOffset = a3), delete i3.timestampOffset;
+                }
+                if (!i3.data || 0 === i3.data.byteLength) continue;
+                try {
+                  this._sourceBuffers[t3].appendBuffer(i3.data), this._isBufferFull = false;
+                } catch (e5) {
+                  this._pendingSegments[t3].unshift(i3), 22 === e5.code ? (this._isBufferFull || this._emitter.emit(s2.A.BUFFER_FULL), this._isBufferFull = true) : (r.A.e(this.TAG, e5.message), this._emitter.emit(s2.A.ERROR, { code: e5.code, msg: e5.message }));
+                }
+              }
+            }, e3.prototype._onSourceOpen = function() {
+              if (r.A.v(this.TAG, "MediaSource onSourceOpen"), this._mediaSource.removeEventListener("sourceopen", this.e.onSourceOpen), this._pendingSourceBufferInit.length > 0) for (var e4 = this._pendingSourceBufferInit; e4.length; ) {
+                var t3 = e4.shift();
+                this.appendInitSegment(t3, true);
+              }
+              this._hasPendingSegments() && this._doAppendSegments(), this._emitter.emit(s2.A.SOURCE_OPEN);
+            }, e3.prototype._onStartStreaming = function() {
+              r.A.v(this.TAG, "ManagedMediaSource onStartStreaming"), this._emitter.emit(s2.A.START_STREAMING);
+            }, e3.prototype._onEndStreaming = function() {
+              r.A.v(this.TAG, "ManagedMediaSource onEndStreaming"), this._emitter.emit(s2.A.END_STREAMING);
+            }, e3.prototype._onQualityChange = function() {
+              r.A.v(this.TAG, "ManagedMediaSource onQualityChange");
+            }, e3.prototype._onSourceEnded = function() {
+              r.A.v(this.TAG, "MediaSource onSourceEnded");
+            }, e3.prototype._onSourceClose = function() {
+              r.A.v(this.TAG, "MediaSource onSourceClose"), this._mediaSource && null != this.e && (this._mediaSource.removeEventListener("sourceopen", this.e.onSourceOpen), this._mediaSource.removeEventListener("sourceended", this.e.onSourceEnded), this._mediaSource.removeEventListener("sourceclose", this.e.onSourceClose), this._useManagedMediaSource && (this._mediaSource.removeEventListener("startstreaming", this.e.onStartStreaming), this._mediaSource.removeEventListener("endstreaming", this.e.onEndStreaming), this._mediaSource.removeEventListener("qualitychange", this.e.onQualityChange)));
+            }, e3.prototype._hasPendingSegments = function() {
+              var e4 = this._pendingSegments;
+              return e4.video.length > 0 || e4.audio.length > 0;
+            }, e3.prototype._hasPendingRemoveRanges = function() {
+              var e4 = this._pendingRemoveRanges;
+              return e4.video.length > 0 || e4.audio.length > 0;
+            }, e3.prototype._onSourceBufferUpdateEnd = function() {
+              this._requireSetMediaDuration ? this._updateMediaSourceDuration() : this._hasPendingRemoveRanges() ? this._doRemoveRanges() : this._hasPendingSegments() ? this._doAppendSegments() : this._hasPendingEos && this.endOfStream(), this._emitter.emit(s2.A.UPDATE_END);
+            }, e3.prototype._onSourceBufferError = function(e4) {
+              r.A.e(this.TAG, "SourceBuffer Error: ".concat(e4));
+            }, e3;
+          }();
+          t2.A = _;
+        }, 527: function(e2, t2, i2) {
+          "use strict";
+          var n = i2(7), a2 = i2.n(n), r = i2(861), o = i2.n(r), s2 = i2(856), d = i2(947), _ = i2(886), h = i2(726), c = (i2(137), i2(955)), l = function() {
+            function e3(e4, t3) {
+              if (this.TAG = "Transmuxer", this._emitter = new (a2())(), t3.enableWorker && "undefined" != typeof Worker) try {
+                this._worker = o()(137), this._workerDestroying = false, this._worker.addEventListener("message", this._onWorkerMessage.bind(this)), this._worker.postMessage({ cmd: "init", param: [e4, t3] }), this.e = { onLoggingConfigChanged: this._onLoggingConfigChanged.bind(this) }, d.A.registerListener(this.e.onLoggingConfigChanged), this._worker.postMessage({ cmd: "logging_config", param: d.A.getConfig() });
+              } catch (i4) {
+                s2.A.e(this.TAG, "Error while initialize transmuxing worker, fallback to inline transmuxing"), this._worker = null, this._controller = new _.A(e4, t3);
+              }
+              else this._controller = new _.A(e4, t3);
+              if (this._controller) {
+                var i3 = this._controller;
+                i3.on(h.A.IO_ERROR, this._onIOError.bind(this)), i3.on(h.A.DEMUX_ERROR, this._onDemuxError.bind(this)), i3.on(h.A.INIT_SEGMENT, this._onInitSegment.bind(this)), i3.on(h.A.MEDIA_SEGMENT, this._onMediaSegment.bind(this)), i3.on(h.A.LOADING_COMPLETE, this._onLoadingComplete.bind(this)), i3.on(h.A.RECOVERED_EARLY_EOF, this._onRecoveredEarlyEof.bind(this)), i3.on(h.A.MEDIA_INFO, this._onMediaInfo.bind(this)), i3.on(h.A.METADATA_ARRIVED, this._onMetaDataArrived.bind(this)), i3.on(h.A.SCRIPTDATA_ARRIVED, this._onScriptDataArrived.bind(this)), i3.on(h.A.TIMED_ID3_METADATA_ARRIVED, this._onTimedID3MetadataArrived.bind(this)), i3.on(h.A.SYNCHRONOUS_KLV_METADATA_ARRIVED, this._onSynchronousKLVMetadataArrived.bind(this)), i3.on(h.A.ASYNCHRONOUS_KLV_METADATA_ARRIVED, this._onAsynchronousKLVMetadataArrived.bind(this)), i3.on(h.A.SMPTE2038_METADATA_ARRIVED, this._onSMPTE2038MetadataArrived.bind(this)), i3.on(h.A.SEI_ARRIVED, this._onSEIArrived.bind(this)), i3.on(h.A.SCTE35_METADATA_ARRIVED, this._onSCTE35MetadataArrived.bind(this)), i3.on(h.A.PES_PRIVATE_DATA_DESCRIPTOR, this._onPESPrivateDataDescriptor.bind(this)), i3.on(h.A.PES_PRIVATE_DATA_ARRIVED, this._onPESPrivateDataArrived.bind(this)), i3.on(h.A.STATISTICS_INFO, this._onStatisticsInfo.bind(this)), i3.on(h.A.RECOMMEND_SEEKPOINT, this._onRecommendSeekpoint.bind(this));
+              }
+            }
+            return e3.prototype.destroy = function() {
+              this._worker ? this._workerDestroying || (this._workerDestroying = true, this._worker.postMessage({ cmd: "destroy" }), d.A.removeListener(this.e.onLoggingConfigChanged), this.e = null) : (this._controller.destroy(), this._controller = null), this._emitter.removeAllListeners(), this._emitter = null;
+            }, e3.prototype.on = function(e4, t3) {
+              this._emitter.addListener(e4, t3);
+            }, e3.prototype.off = function(e4, t3) {
+              this._emitter.removeListener(e4, t3);
+            }, e3.prototype.hasWorker = function() {
+              return null != this._worker;
+            }, e3.prototype.open = function() {
+              this._worker ? this._worker.postMessage({ cmd: "start" }) : this._controller.start();
+            }, e3.prototype.close = function() {
+              this._worker ? this._worker.postMessage({ cmd: "stop" }) : this._controller.stop();
+            }, e3.prototype.seek = function(e4) {
+              this._worker ? this._worker.postMessage({ cmd: "seek", param: e4 }) : this._controller.seek(e4);
+            }, e3.prototype.pause = function() {
+              this._worker ? this._worker.postMessage({ cmd: "pause" }) : this._controller.pause();
+            }, e3.prototype.resume = function() {
+              this._worker ? this._worker.postMessage({ cmd: "resume" }) : this._controller.resume();
+            }, e3.prototype._onInitSegment = function(e4, t3) {
+              var i3 = this;
+              Promise.resolve().then(function() {
+                i3._emitter.emit(h.A.INIT_SEGMENT, e4, t3);
+              });
+            }, e3.prototype._onMediaSegment = function(e4, t3) {
+              var i3 = this;
+              Promise.resolve().then(function() {
+                i3._emitter.emit(h.A.MEDIA_SEGMENT, e4, t3);
+              });
+            }, e3.prototype._onLoadingComplete = function() {
+              var e4 = this;
+              Promise.resolve().then(function() {
+                e4._emitter.emit(h.A.LOADING_COMPLETE);
+              });
+            }, e3.prototype._onRecoveredEarlyEof = function() {
+              var e4 = this;
+              Promise.resolve().then(function() {
+                e4._emitter.emit(h.A.RECOVERED_EARLY_EOF);
+              });
+            }, e3.prototype._onMediaInfo = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.MEDIA_INFO, e4);
+              });
+            }, e3.prototype._onMetaDataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.METADATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onScriptDataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.SCRIPTDATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onTimedID3MetadataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.TIMED_ID3_METADATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onPGSSubtitleArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.PGS_SUBTITLE_ARRIVED, e4);
+              });
+            }, e3.prototype._onSynchronousKLVMetadataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.SYNCHRONOUS_KLV_METADATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onAsynchronousKLVMetadataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.ASYNCHRONOUS_KLV_METADATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onSMPTE2038MetadataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.SMPTE2038_METADATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onSEIArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.SEI_ARRIVED, e4);
+              });
+            }, e3.prototype._onSCTE35MetadataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.SCTE35_METADATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onPESPrivateDataDescriptor = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.PES_PRIVATE_DATA_DESCRIPTOR, e4);
+              });
+            }, e3.prototype._onPESPrivateDataArrived = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.PES_PRIVATE_DATA_ARRIVED, e4);
+              });
+            }, e3.prototype._onStatisticsInfo = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.STATISTICS_INFO, e4);
+              });
+            }, e3.prototype._onIOError = function(e4, t3) {
+              var i3 = this;
+              Promise.resolve().then(function() {
+                i3._emitter.emit(h.A.IO_ERROR, e4, t3);
+              });
+            }, e3.prototype._onDemuxError = function(e4, t3) {
+              var i3 = this;
+              Promise.resolve().then(function() {
+                i3._emitter.emit(h.A.DEMUX_ERROR, e4, t3);
+              });
+            }, e3.prototype._onRecommendSeekpoint = function(e4) {
+              var t3 = this;
+              Promise.resolve().then(function() {
+                t3._emitter.emit(h.A.RECOMMEND_SEEKPOINT, e4);
+              });
+            }, e3.prototype._onLoggingConfigChanged = function(e4) {
+              this._worker && this._worker.postMessage({ cmd: "logging_config", param: e4 });
+            }, e3.prototype._onWorkerMessage = function(e4) {
+              var t3 = e4.data, i3 = t3.data;
+              if ("destroyed" === t3.msg || this._workerDestroying) return this._workerDestroying = false, this._worker.terminate(), void (this._worker = null);
+              switch (t3.msg) {
+                case h.A.INIT_SEGMENT:
+                case h.A.MEDIA_SEGMENT:
+                  this._emitter.emit(t3.msg, i3.type, i3.data);
+                  break;
+                case h.A.LOADING_COMPLETE:
+                case h.A.RECOVERED_EARLY_EOF:
+                  this._emitter.emit(t3.msg);
+                  break;
+                case h.A.MEDIA_INFO:
+                  Object.setPrototypeOf(i3, c.A.prototype), this._emitter.emit(t3.msg, i3);
+                  break;
+                case h.A.METADATA_ARRIVED:
+                case h.A.SCRIPTDATA_ARRIVED:
+                case h.A.TIMED_ID3_METADATA_ARRIVED:
+                case h.A.PGS_SUBTITLE_ARRIVED:
+                case h.A.SYNCHRONOUS_KLV_METADATA_ARRIVED:
+                case h.A.ASYNCHRONOUS_KLV_METADATA_ARRIVED:
+                case h.A.SMPTE2038_METADATA_ARRIVED:
+                case h.A.SCTE35_METADATA_ARRIVED:
+                case h.A.SEI_ARRIVED:
+                case h.A.PES_PRIVATE_DATA_DESCRIPTOR:
+                case h.A.PES_PRIVATE_DATA_ARRIVED:
+                case h.A.STATISTICS_INFO:
+                  this._emitter.emit(t3.msg, i3);
+                  break;
+                case h.A.IO_ERROR:
+                case h.A.DEMUX_ERROR:
+                  this._emitter.emit(t3.msg, i3.type, i3.info);
+                  break;
+                case h.A.RECOMMEND_SEEKPOINT:
+                  this._emitter.emit(t3.msg, i3);
+                  break;
+                case "logcat_callback":
+                  s2.A.emitter.emit("log", i3.type, i3.logcat);
+              }
+            }, e3;
+          }();
+          t2.A = l;
+        }, 886: function(e2, t2, i2) {
+          "use strict";
+          i2.d(t2, { A: function() {
+            return Ge;
+          } });
+          var n = i2(7), a2 = i2.n(n), r = i2(856), o = i2(994), s2 = i2(955);
+          function d(e3, t3, i3) {
+            var n2 = e3;
+            if (t3 + i3 < n2.length) {
+              for (; i3--; ) if (128 != (192 & n2[++t3])) return false;
+              return true;
+            }
+            return false;
+          }
+          var _, h = function(e3) {
+            for (var t3 = [], i3 = e3, n2 = 0, a3 = e3.length; n2 < a3; ) if (i3[n2] < 128) t3.push(String.fromCharCode(i3[n2])), ++n2;
+            else {
+              if (i3[n2] < 192) ;
+              else if (i3[n2] < 224) {
+                if (d(i3, n2, 1) && (r2 = (31 & i3[n2]) << 6 | 63 & i3[n2 + 1]) >= 128) {
+                  t3.push(String.fromCharCode(65535 & r2)), n2 += 2;
+                  continue;
+                }
+              } else if (i3[n2] < 240) {
+                if (d(i3, n2, 2) && (r2 = (15 & i3[n2]) << 12 | (63 & i3[n2 + 1]) << 6 | 63 & i3[n2 + 2]) >= 2048 && 55296 != (63488 & r2)) {
+                  t3.push(String.fromCharCode(65535 & r2)), n2 += 3;
+                  continue;
+                }
+              } else if (i3[n2] < 248) {
+                var r2;
+                if (d(i3, n2, 3) && (r2 = (7 & i3[n2]) << 18 | (63 & i3[n2 + 1]) << 12 | (63 & i3[n2 + 2]) << 6 | 63 & i3[n2 + 3]) > 65536 && r2 < 1114112) {
+                  r2 -= 65536, t3.push(String.fromCharCode(r2 >>> 10 | 55296)), t3.push(String.fromCharCode(1023 & r2 | 56320)), n2 += 4;
+                  continue;
+                }
+              }
+              t3.push(String.fromCharCode(65533)), ++n2;
+            }
+            return t3.join("");
+          }, c = i2(867), l = (_ = new ArrayBuffer(2), new DataView(_).setInt16(0, 256, true), 256 === new Int16Array(_)[0]), u = function() {
+            function e3() {
+            }
+            return e3.parseScriptData = function(t3, i3, n2) {
+              var a3 = {};
+              try {
+                var o2 = e3.parseValue(t3, i3, n2), s3 = e3.parseValue(t3, i3 + o2.size, n2 - o2.size);
+                a3[o2.data] = s3.data;
+              } catch (e4) {
+                r.A.e("AMF", e4.toString());
+              }
+              return a3;
+            }, e3.parseObject = function(t3, i3, n2) {
+              if (n2 < 3) throw new c.j4("Data not enough when parse ScriptDataObject");
+              var a3 = e3.parseString(t3, i3, n2), r2 = e3.parseValue(t3, i3 + a3.size, n2 - a3.size), o2 = r2.objectEnd;
+              return { data: { name: a3.data, value: r2.data }, size: a3.size + r2.size, objectEnd: o2 };
+            }, e3.parseVariable = function(t3, i3, n2) {
+              return e3.parseObject(t3, i3, n2);
+            }, e3.parseString = function(e4, t3, i3) {
+              if (i3 < 2) throw new c.j4("Data not enough when parse String");
+              var n2 = new DataView(e4, t3, i3).getUint16(0, !l);
+              return { data: n2 > 0 ? h(new Uint8Array(e4, t3 + 2, n2)) : "", size: 2 + n2 };
+            }, e3.parseLongString = function(e4, t3, i3) {
+              if (i3 < 4) throw new c.j4("Data not enough when parse LongString");
+              var n2 = new DataView(e4, t3, i3).getUint32(0, !l);
+              return { data: n2 > 0 ? h(new Uint8Array(e4, t3 + 4, n2)) : "", size: 4 + n2 };
+            }, e3.parseDate = function(e4, t3, i3) {
+              if (i3 < 10) throw new c.j4("Data size invalid when parse Date");
+              var n2 = new DataView(e4, t3, i3), a3 = n2.getFloat64(0, !l), r2 = n2.getInt16(8, !l);
+              return { data: new Date(a3 += 60 * r2 * 1e3), size: 10 };
+            }, e3.parseValue = function(t3, i3, n2) {
+              if (n2 < 1) throw new c.j4("Data not enough when parse Value");
+              var a3, o2 = new DataView(t3, i3, n2), s3 = 1, d2 = o2.getUint8(0), _2 = false;
+              try {
+                switch (d2) {
+                  case 0:
+                    a3 = o2.getFloat64(1, !l), s3 += 8;
+                    break;
+                  case 1:
+                    a3 = !!o2.getUint8(1), s3 += 1;
+                    break;
+                  case 2:
+                    var h2 = e3.parseString(t3, i3 + 1, n2 - 1);
+                    a3 = h2.data, s3 += h2.size;
+                    break;
+                  case 3:
+                    a3 = {};
+                    var u2 = 0;
+                    for (9 == (16777215 & o2.getUint32(n2 - 4, !l)) && (u2 = 3); s3 < n2 - 4; ) {
+                      var f2 = e3.parseObject(t3, i3 + s3, n2 - s3 - u2);
+                      if (f2.objectEnd) break;
+                      a3[f2.data.name] = f2.data.value, s3 += f2.size;
+                    }
+                    s3 <= n2 - 3 && 9 == (16777215 & o2.getUint32(s3 - 1, !l)) && (s3 += 3);
+                    break;
+                  case 8:
+                    for (a3 = {}, s3 += 4, u2 = 0, 9 == (16777215 & o2.getUint32(n2 - 4, !l)) && (u2 = 3); s3 < n2 - 8; ) {
+                      var p2 = e3.parseVariable(t3, i3 + s3, n2 - s3 - u2);
+                      if (p2.objectEnd) break;
+                      a3[p2.data.name] = p2.data.value, s3 += p2.size;
+                    }
+                    s3 <= n2 - 3 && 9 == (16777215 & o2.getUint32(s3 - 1, !l)) && (s3 += 3);
+                    break;
+                  case 9:
+                    a3 = void 0, s3 = 1, _2 = true;
+                    break;
+                  case 10:
+                    a3 = [];
+                    var m2 = o2.getUint32(1, !l);
+                    s3 += 4;
+                    for (var g2 = 0; g2 < m2; g2++) {
+                      var v2 = e3.parseValue(t3, i3 + s3, n2 - s3);
+                      a3.push(v2.data), s3 += v2.size;
+                    }
+                    break;
+                  case 11:
+                    var y2 = e3.parseDate(t3, i3 + 1, n2 - 1);
+                    a3 = y2.data, s3 += y2.size;
+                    break;
+                  case 12:
+                    var A2 = e3.parseString(t3, i3 + 1, n2 - 1);
+                    a3 = A2.data, s3 += A2.size;
+                    break;
+                  default:
+                    s3 = n2, r.A.w("AMF", "Unsupported AMF value type " + d2);
+                }
+              } catch (e4) {
+                r.A.e("AMF", e4.toString());
+              }
+              return { data: a3, size: s3, objectEnd: _2 };
+            }, e3;
+          }(), f = function() {
+            function e3(e4) {
+              this.TAG = "ExpGolomb", this._buffer = e4, this._buffer_index = 0, this._total_bytes = e4.byteLength, this._total_bits = 8 * e4.byteLength, this._current_word = 0, this._current_word_bits_left = 0;
+            }
+            return e3.prototype.destroy = function() {
+              this._buffer = null;
+            }, e3.prototype._fillCurrentWord = function() {
+              var e4 = this._total_bytes - this._buffer_index;
+              if (e4 <= 0) throw new c.j4("ExpGolomb: _fillCurrentWord() but no bytes available");
+              var t3 = Math.min(4, e4), i3 = new Uint8Array(4);
+              i3.set(this._buffer.subarray(this._buffer_index, this._buffer_index + t3)), this._current_word = new DataView(i3.buffer).getUint32(0, false), this._buffer_index += t3, this._current_word_bits_left = 8 * t3;
+            }, e3.prototype.readBits = function(e4) {
+              if (e4 > 32) throw new c.Qn("ExpGolomb: readBits() bits exceeded max 32bits!");
+              if (e4 <= this._current_word_bits_left) {
+                var t3 = this._current_word >>> 32 - e4;
+                return this._current_word <<= e4, this._current_word_bits_left -= e4, t3;
+              }
+              var i3 = this._current_word_bits_left ? this._current_word : 0;
+              i3 >>>= 32 - this._current_word_bits_left;
+              var n2 = e4 - this._current_word_bits_left;
+              this._fillCurrentWord();
+              var a3 = Math.min(n2, this._current_word_bits_left), r2 = this._current_word >>> 32 - a3;
+              return this._current_word <<= a3, this._current_word_bits_left -= a3, i3 << a3 | r2;
+            }, e3.prototype.readBool = function() {
+              return 1 === this.readBits(1);
+            }, e3.prototype.readByte = function() {
+              return this.readBits(8);
+            }, e3.prototype._skipLeadingZero = function() {
+              var e4;
+              for (e4 = 0; e4 < this._current_word_bits_left; e4++) if (this._current_word & 2147483648 >>> e4) return this._current_word <<= e4, this._current_word_bits_left -= e4, e4;
+              return this._fillCurrentWord(), e4 + this._skipLeadingZero();
+            }, e3.prototype.readUEG = function() {
+              var e4 = this._skipLeadingZero();
+              return this.readBits(e4 + 1) - 1;
+            }, e3.prototype.readSEG = function() {
+              var e4 = this.readUEG();
+              return 1 & e4 ? e4 + 1 >>> 1 : -1 * (e4 >>> 1);
+            }, e3;
+          }(), p = function() {
+            function e3() {
+            }
+            return e3._ebsp2rbsp = function(e4) {
+              for (var t3 = e4, i3 = t3.byteLength, n2 = new Uint8Array(i3), a3 = 0, r2 = 0; r2 < i3; r2++) r2 >= 2 && 3 === t3[r2] && 0 === t3[r2 - 1] && 0 === t3[r2 - 2] || (n2[a3] = t3[r2], a3++);
+              return new Uint8Array(n2.buffer, 0, a3);
+            }, e3.parseSPS = function(t3) {
+              for (var i3 = t3.subarray(1, 4), n2 = "avc1.", a3 = 0; a3 < 3; a3++) {
+                var r2 = i3[a3].toString(16);
+                r2.length < 2 && (r2 = "0" + r2), n2 += r2;
+              }
+              var o2 = e3._ebsp2rbsp(t3), s3 = new f(o2);
+              s3.readByte();
+              var d2 = s3.readByte();
+              s3.readByte();
+              var _2 = s3.readByte();
+              s3.readUEG();
+              var h2 = e3.getProfileString(d2), c2 = e3.getLevelString(_2), l2 = 1, u2 = 420, p2 = 8, m2 = 8;
+              if ((100 === d2 || 110 === d2 || 122 === d2 || 244 === d2 || 44 === d2 || 83 === d2 || 86 === d2 || 118 === d2 || 128 === d2 || 138 === d2 || 144 === d2) && (3 === (l2 = s3.readUEG()) && s3.readBits(1), l2 <= 3 && (u2 = [0, 420, 422, 444][l2]), p2 = s3.readUEG() + 8, m2 = s3.readUEG() + 8, s3.readBits(1), s3.readBool())) for (var g2 = 3 !== l2 ? 8 : 12, v2 = 0; v2 < g2; v2++) s3.readBool() && (v2 < 6 ? e3._skipScalingList(s3, 16) : e3._skipScalingList(s3, 64));
+              s3.readUEG();
+              var y2 = s3.readUEG();
+              if (0 === y2) s3.readUEG();
+              else if (1 === y2) {
+                s3.readBits(1), s3.readSEG(), s3.readSEG();
+                var A2 = s3.readUEG();
+                for (v2 = 0; v2 < A2; v2++) s3.readSEG();
+              }
+              var S2 = s3.readUEG();
+              s3.readBits(1);
+              var b2 = s3.readUEG(), E2 = s3.readUEG(), R2 = s3.readBits(1);
+              0 === R2 && s3.readBits(1), s3.readBits(1);
+              var T2 = 0, L2 = 0, k2 = 0, w2 = 0;
+              s3.readBool() && (T2 = s3.readUEG(), L2 = s3.readUEG(), k2 = s3.readUEG(), w2 = s3.readUEG());
+              var C2 = 1, M2 = 1, D2 = 0, B2 = true, O2 = 0, I2 = 0;
+              if (s3.readBool()) {
+                if (s3.readBool()) {
+                  var P2 = s3.readByte();
+                  P2 > 0 && P2 < 16 ? (C2 = [1, 12, 10, 16, 40, 24, 20, 32, 80, 18, 15, 64, 160, 4, 3, 2][P2 - 1], M2 = [1, 11, 11, 11, 33, 11, 11, 11, 33, 11, 11, 33, 99, 3, 2, 1][P2 - 1]) : 255 === P2 && (C2 = s3.readByte() << 8 | s3.readByte(), M2 = s3.readByte() << 8 | s3.readByte());
+                }
+                if (s3.readBool() && s3.readBool(), s3.readBool() && (s3.readBits(4), s3.readBool() && s3.readBits(24)), s3.readBool() && (s3.readUEG(), s3.readUEG()), s3.readBool()) {
+                  var x2 = s3.readBits(32), U2 = s3.readBits(32);
+                  B2 = s3.readBool(), D2 = (O2 = U2) / (I2 = 2 * x2);
+                }
+              }
+              var N2 = 1;
+              1 === C2 && 1 === M2 || (N2 = C2 / M2);
+              var V2 = 0, G2 = 0;
+              0 === l2 ? (V2 = 1, G2 = 2 - R2) : (V2 = 3 === l2 ? 1 : 2, G2 = (1 === l2 ? 2 : 1) * (2 - R2));
+              var F2 = 16 * (b2 + 1), j2 = 16 * (E2 + 1) * (2 - R2);
+              F2 -= (T2 + L2) * V2, j2 -= (k2 + w2) * G2;
+              var z2 = Math.ceil(F2 * N2);
+              return s3.destroy(), s3 = null, { codec_mimetype: n2, profile_idc: d2, level_idc: _2, profile_string: h2, level_string: c2, chroma_format_idc: l2, bit_depth: p2, bit_depth_luma: p2, bit_depth_chroma: m2, ref_frames: S2, chroma_format: u2, chroma_format_string: e3.getChromaFormatString(u2), frame_rate: { fixed: B2, fps: D2, fps_den: I2, fps_num: O2 }, sar_ratio: { width: C2, height: M2 }, codec_size: { width: F2, height: j2 }, present_size: { width: z2, height: j2 } };
+            }, e3._skipScalingList = function(e4, t3) {
+              for (var i3 = 8, n2 = 8, a3 = 0; a3 < t3; a3++) 0 !== n2 && (n2 = (i3 + e4.readSEG() + 256) % 256), i3 = 0 === n2 ? i3 : n2;
+            }, e3.getProfileString = function(e4) {
+              switch (e4) {
+                case 66:
+                  return "Baseline";
+                case 77:
+                  return "Main";
+                case 88:
+                  return "Extended";
+                case 100:
+                  return "High";
+                case 110:
+                  return "High10";
+                case 122:
+                  return "High422";
+                case 244:
+                  return "High444";
+                default:
+                  return "Unknown";
+              }
+            }, e3.getLevelString = function(e4) {
+              return (e4 / 10).toFixed(1);
+            }, e3.getChromaFormatString = function(e4) {
+              switch (e4) {
+                case 420:
+                  return "4:2:0";
+                case 422:
+                  return "4:2:2";
+                case 444:
+                  return "4:4:4";
+                default:
+                  return "Unknown";
+              }
+            }, e3;
+          }(), m = i2(827), g = function() {
+            function e3() {
+            }
+            return e3._ebsp2rbsp = function(e4) {
+              for (var t3 = e4, i3 = t3.byteLength, n2 = new Uint8Array(i3), a3 = 0, r2 = 0; r2 < i3; r2++) r2 >= 2 && 3 === t3[r2] && 0 === t3[r2 - 1] && 0 === t3[r2 - 2] || (n2[a3] = t3[r2], a3++);
+              return new Uint8Array(n2.buffer, 0, a3);
+            }, e3.parseVPS = function(t3) {
+              var i3 = e3._ebsp2rbsp(t3), n2 = new f(i3);
+              return n2.readByte(), n2.readByte(), n2.readBits(4), n2.readBits(2), n2.readBits(6), { num_temporal_layers: n2.readBits(3) + 1, temporal_id_nested: n2.readBool() };
+            }, e3.parseSPS = function(t3) {
+              var i3 = e3._ebsp2rbsp(t3), n2 = new f(i3);
+              n2.readByte(), n2.readByte();
+              for (var a3 = 0, r2 = 0, o2 = 0, s3 = 0, d2 = (n2.readBits(4), n2.readBits(3)), _2 = (n2.readBool(), n2.readBits(2)), h2 = n2.readBool(), c2 = n2.readBits(5), l2 = n2.readByte(), u2 = n2.readByte(), p2 = n2.readByte(), m2 = n2.readByte(), g2 = n2.readByte(), v2 = n2.readByte(), y2 = n2.readByte(), A2 = n2.readByte(), S2 = n2.readByte(), b2 = n2.readByte(), E2 = n2.readByte(), R2 = [], T2 = [], L2 = 0; L2 < d2; L2++) R2.push(n2.readBool()), T2.push(n2.readBool());
+              if (d2 > 0) for (L2 = d2; L2 < 8; L2++) n2.readBits(2);
+              for (L2 = 0; L2 < d2; L2++) R2[L2] && (n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte(), n2.readByte()), T2[L2] && n2.readByte();
+              n2.readUEG();
+              var k2 = n2.readUEG();
+              3 == k2 && n2.readBits(1);
+              var w2 = n2.readUEG(), C2 = n2.readUEG();
+              n2.readBool() && (a3 += n2.readUEG(), r2 += n2.readUEG(), o2 += n2.readUEG(), s3 += n2.readUEG());
+              var M2 = n2.readUEG(), D2 = n2.readUEG(), B2 = n2.readUEG();
+              for (L2 = n2.readBool() ? 0 : d2; L2 <= d2; L2++) n2.readUEG(), n2.readUEG(), n2.readUEG();
+              if (n2.readUEG(), n2.readUEG(), n2.readUEG(), n2.readUEG(), n2.readUEG(), n2.readUEG(), n2.readBool() && n2.readBool()) for (var O2 = 0; O2 < 4; O2++) for (var I2 = 0; I2 < (3 === O2 ? 2 : 6); I2++) if (n2.readBool()) {
+                var P2 = Math.min(64, 1 << 4 + (O2 << 1));
+                for (O2 > 1 && n2.readSEG(), L2 = 0; L2 < P2; L2++) n2.readSEG();
+              } else n2.readUEG();
+              n2.readBool(), n2.readBool(), n2.readBool() && (n2.readByte(), n2.readUEG(), n2.readUEG(), n2.readBool());
+              var x2 = n2.readUEG(), U2 = 0;
+              for (L2 = 0; L2 < x2; L2++) {
+                var N2 = false;
+                if (0 !== L2 && (N2 = n2.readBool()), N2) {
+                  L2 === x2 && n2.readUEG(), n2.readBool(), n2.readUEG();
+                  for (var V2 = 0, G2 = 0; G2 <= U2; G2++) {
+                    var F2 = n2.readBool(), j2 = false;
+                    F2 || (j2 = n2.readBool()), (F2 || j2) && V2++;
+                  }
+                  U2 = V2;
+                } else {
+                  var z2 = n2.readUEG(), H2 = n2.readUEG();
+                  for (U2 = z2 + H2, G2 = 0; G2 < z2; G2++) n2.readUEG(), n2.readBool();
+                  for (G2 = 0; G2 < H2; G2++) n2.readUEG(), n2.readBool();
+                }
+              }
+              if (n2.readBool()) {
+                var q2 = n2.readUEG();
+                for (L2 = 0; L2 < q2; L2++) {
+                  for (G2 = 0; G2 < B2 + 4; G2++) n2.readBits(1);
+                  n2.readBits(1);
+                }
+              }
+              var K2 = 0, W2 = 1, X2 = 1, Y2 = false, Q2 = 1, Z2 = 1;
+              if (n2.readBool(), n2.readBool(), n2.readBool()) {
+                if (n2.readBool()) {
+                  var $2 = n2.readByte();
+                  $2 > 0 && $2 <= 16 ? (W2 = [1, 12, 10, 16, 40, 24, 20, 32, 80, 18, 15, 64, 160, 4, 3, 2][$2 - 1], X2 = [1, 11, 11, 11, 33, 11, 11, 11, 33, 11, 11, 33, 99, 3, 2, 1][$2 - 1]) : 255 === $2 && (W2 = n2.readBits(16), X2 = n2.readBits(16));
+                }
+                if (n2.readBool() && n2.readBool(), n2.readBool() && (n2.readBits(3), n2.readBool(), n2.readBool() && (n2.readByte(), n2.readByte(), n2.readByte())), n2.readBool() && (n2.readUEG(), n2.readUEG()), n2.readBool(), n2.readBool(), n2.readBool(), n2.readBool() && (n2.readUEG(), n2.readUEG(), n2.readUEG(), n2.readUEG()), n2.readBool() && (Q2 = n2.readBits(32), Z2 = n2.readBits(32), n2.readBool() && n2.readUEG(), n2.readBool())) {
+                  var J2, ee2, te2 = false;
+                  for (J2 = n2.readBool(), ee2 = n2.readBool(), (J2 || ee2) && ((te2 = n2.readBool()) && (n2.readByte(), n2.readBits(5), n2.readBool(), n2.readBits(5)), n2.readBits(4), n2.readBits(4), te2 && n2.readBits(4), n2.readBits(5), n2.readBits(5), n2.readBits(5)), L2 = 0; L2 <= d2; L2++) {
+                    var ie2 = n2.readBool();
+                    Y2 = ie2;
+                    var ne2 = true, ae2 = 1;
+                    ie2 || (ne2 = n2.readBool());
+                    var re2 = false;
+                    if (ne2 ? n2.readUEG() : re2 = n2.readBool(), re2 || (ae2 = n2.readUEG() + 1), J2) {
+                      for (G2 = 0; G2 < ae2; G2++) n2.readUEG(), n2.readUEG(), te2 && (n2.readUEG(), n2.readUEG());
+                      n2.readBool();
+                    }
+                    if (ee2) {
+                      for (G2 = 0; G2 < ae2; G2++) n2.readUEG(), n2.readUEG(), te2 && (n2.readUEG(), n2.readUEG());
+                      n2.readBool();
+                    }
+                  }
+                }
+                n2.readBool() && (n2.readBool(), n2.readBool(), n2.readBool(), K2 = n2.readUEG(), n2.readUEG(), n2.readUEG(), n2.readUEG(), n2.readUEG());
+              }
+              n2.readBool();
+              var oe2 = "hvc1.".concat(c2, ".1.L").concat(E2, ".B0"), se2 = w2 - (a3 + r2) * (1 === k2 || 2 === k2 ? 2 : 1), de2 = C2 - (o2 + s3) * (1 === k2 ? 2 : 1), _e2 = 1;
+              return 1 !== W2 && 1 !== X2 && (_e2 = W2 / X2), n2.destroy(), n2 = null, { codec_mimetype: oe2, profile_string: e3.getProfileString(c2), level_string: e3.getLevelString(E2), profile_idc: c2, bit_depth: M2 + 8, ref_frames: 1, chroma_format: k2, chroma_format_string: e3.getChromaFormatString(k2), general_level_idc: E2, general_profile_space: _2, general_tier_flag: h2, general_profile_idc: c2, general_profile_compatibility_flags_1: l2, general_profile_compatibility_flags_2: u2, general_profile_compatibility_flags_3: p2, general_profile_compatibility_flags_4: m2, general_constraint_indicator_flags_1: g2, general_constraint_indicator_flags_2: v2, general_constraint_indicator_flags_3: y2, general_constraint_indicator_flags_4: A2, general_constraint_indicator_flags_5: S2, general_constraint_indicator_flags_6: b2, min_spatial_segmentation_idc: K2, constant_frame_rate: 0, chroma_format_idc: k2, bit_depth_luma_minus8: M2, bit_depth_chroma_minus8: D2, frame_rate: { fixed: Y2, fps: Z2 / Q2, fps_den: Q2, fps_num: Z2 }, sar_ratio: { width: W2, height: X2 }, codec_size: { width: se2, height: de2 }, present_size: { width: se2 * _e2, height: de2 } };
+            }, e3.parsePPS = function(t3) {
+              var i3 = e3._ebsp2rbsp(t3), n2 = new f(i3);
+              n2.readByte(), n2.readByte(), n2.readUEG(), n2.readUEG(), n2.readBool(), n2.readBool(), n2.readBits(3), n2.readBool(), n2.readBool(), n2.readUEG(), n2.readUEG(), n2.readSEG(), n2.readBool(), n2.readBool(), n2.readBool() && n2.readUEG(), n2.readSEG(), n2.readSEG(), n2.readBool(), n2.readBool(), n2.readBool(), n2.readBool();
+              var a3 = n2.readBool(), r2 = n2.readBool(), o2 = 1;
+              return r2 && a3 ? o2 = 0 : r2 ? o2 = 3 : a3 && (o2 = 2), { parallelismType: o2 };
+            }, e3.getChromaFormatString = function(e4) {
+              switch (e4) {
+                case 0:
+                  return "4:0:0";
+                case 1:
+                  return "4:2:0";
+                case 2:
+                  return "4:2:2";
+                case 3:
+                  return "4:4:4";
+                default:
+                  return "Unknown";
+              }
+            }, e3.getProfileString = function(e4) {
+              switch (e4) {
+                case 1:
+                  return "Main";
+                case 2:
+                  return "Main10";
+                case 3:
+                  return "MainSP";
+                case 4:
+                  return "Rext";
+                case 9:
+                  return "SCC";
+                default:
+                  return "Unknown";
+              }
+            }, e3.getLevelString = function(e4) {
+              return (e4 / 30).toFixed(1);
+            }, e3;
+          }();
+          function v(e3) {
+            return e3.byteOffset % 2 == 0 && e3.byteLength % 2 == 0;
+          }
+          function y(e3) {
+            return e3.byteOffset % 4 == 0 && e3.byteLength % 4 == 0;
+          }
+          function A(e3, t3) {
+            for (var i3 = 0; i3 < e3.length; i3++) if (e3[i3] !== t3[i3]) return false;
+            return true;
+          }
+          var S = function(e3, t3) {
+            return e3.byteLength === t3.byteLength && (y(e3) && y(t3) ? function(e4, t4) {
+              return A(new Uint32Array(e4.buffer, e4.byteOffset, e4.byteLength / 4), new Uint32Array(t4.buffer, t4.byteOffset, t4.byteLength / 4));
+            }(e3, t3) : v(e3) && v(t3) ? function(e4, t4) {
+              return A(new Uint16Array(e4.buffer, e4.byteOffset, e4.byteLength / 2), new Uint16Array(t4.buffer, t4.byteOffset, t4.byteLength / 2));
+            }(e3, t3) : function(e4, t4) {
+              return A(e4, t4);
+            }(e3, t3));
+          }, b = function() {
+            return b = Object.assign || function(e3) {
+              for (var t3, i3 = 1, n2 = arguments.length; i3 < n2; i3++) for (var a3 in t3 = arguments[i3]) Object.prototype.hasOwnProperty.call(t3, a3) && (e3[a3] = t3[a3]);
+              return e3;
+            }, b.apply(this, arguments);
+          }, E = function() {
+            function e3() {
+            }
+            return e3.parseOBUs = function(t3, i3) {
+              for (var n2 = 0; n2 < t3.byteLength; ) {
+                var a3 = n2, r2 = (t3[n2], (120 & t3[n2]) >> 3), o2 = !!(4 & t3[n2]), s3 = !!(2 & t3[n2]);
+                t3[n2], n2 += 1, o2 && (n2 += 1);
+                var d2 = Number.POSITIVE_INFINITY;
+                if (s3) {
+                  d2 = 0;
+                  for (var _2 = 0; ; _2++) {
+                    var h2 = t3[n2++];
+                    if (d2 |= (127 & h2) << 7 * _2, !(128 & h2)) break;
+                  }
+                }
+                console.log(r2), 1 === r2 ? i3 = b(b({}, e3.parseSeuqneceHeader(t3.subarray(n2, n2 + d2))), { sequence_header_data: t3.subarray(a3, n2 + d2) }) : (3 == r2 && i3 || 6 == r2 && i3) && (i3 = e3.parseOBUFrameHeader(t3.subarray(n2, n2 + d2), 0, 0, i3)), n2 += d2;
+              }
+              return i3;
+            }, e3.parseSeuqneceHeader = function(t3) {
+              var i3 = new f(t3), n2 = i3.readBits(3), a3 = (i3.readBool(), i3.readBool()), r2 = true, o2 = 0, s3 = 1, d2 = void 0, _2 = [];
+              if (a3) _2.push({ operating_point_idc: 0, level: i3.readBits(5), tier: 0 });
+              else {
+                if (i3.readBool()) {
+                  var h2 = i3.readBits(32), c2 = i3.readBits(32), l2 = i3.readBool();
+                  if (l2) {
+                    for (var u2 = 0; 0 === i3.readBits(1); ) u2 += 1;
+                    u2 >= 32 || i3.readBits(u2);
+                  }
+                  o2 = c2, s3 = h2, r2 = l2, i3.readBool() && (i3.readBits(5), i3.readBits(32), d2 = i3.readBits(5), i3.readBits(5));
+                }
+                for (var p2 = i3.readBool(), m2 = i3.readBits(5), g2 = 0; g2 <= m2; g2++) {
+                  var v2 = i3.readBits(12), y2 = i3.readBits(5), A2 = y2 > 7 ? i3.readBits(1) : 0;
+                  _2.push({ operating_point_idc: v2, level: y2, tier: A2 }), p2 && i3.readBool() && i3.readBits(4);
+                }
+              }
+              var S2 = _2[0], b2 = S2.level, E2 = S2.tier, R2 = i3.readBits(4), T2 = i3.readBits(4), L2 = i3.readBits(R2 + 1) + 1, k2 = i3.readBits(T2 + 1) + 1, w2 = false;
+              a3 || (w2 = i3.readBool()), w2 && (i3.readBits(4), i3.readBits(4)), i3.readBool(), i3.readBool(), i3.readBool();
+              var C2 = false, M2 = 2, D2 = 2, B2 = 0;
+              a3 || (i3.readBool(), i3.readBool(), i3.readBool(), i3.readBool(), (C2 = i3.readBool()) && (i3.readBool(), i3.readBool()), D2 = (M2 = i3.readBool() ? 2 : i3.readBits(1)) ? i3.readBool() ? 2 : i3.readBits(1) : 2, B2 = C2 ? i3.readBits(3) + 1 : 0);
+              var O2 = i3.readBool(), I2 = (i3.readBool(), i3.readBool(), i3.readBool()), P2 = 8;
+              P2 = 2 === n2 && I2 ? i3.readBool() ? 12 : 10 : I2 ? 10 : 8;
+              var x2 = false;
+              1 !== n2 && (x2 = i3.readBool()), i3.readBool() && (i3.readBits(8), i3.readBits(8), i3.readBits(8));
+              var U2 = 1, N2 = 1;
+              return x2 ? (i3.readBits(1), U2 = 1, N2 = 1) : (i3.readBits(1), 0 == n2 ? (U2 = 1, N2 = 1) : 1 == n2 ? (U2 = 0, N2 = 0) : 12 == P2 ? i3.readBits(1) && i3.readBits(1) : (U2 = 1, N2 = 0), U2 && N2 && i3.readBits(2), i3.readBits(1)), i3.readBool(), i3.destroy(), i3 = null, { codec_mimetype: "av01.".concat(n2, ".").concat(e3.getLevelString(b2, E2), ".").concat(P2.toString(10).padStart(2, "0")), level: b2, tier: E2, level_string: e3.getLevelString(b2, E2), profile_idc: n2, profile_string: "".concat(n2), bit_depth: P2, ref_frames: 1, chroma_format: e3.getChromaFormat(x2, U2, N2), chroma_format_string: e3.getChromaFormatString(x2, U2, N2), sequence_header: { frame_id_numbers_present_flag: w2, additional_frame_id_length_minus_1: void 0, delta_frame_id_length_minus_2: void 0, reduced_still_picture_header: a3, decoder_model_info_present_flag: false, operating_points: _2, buffer_removal_time_length_minus_1: d2, equal_picture_interval: r2, seq_force_screen_content_tools: M2, seq_force_integer_mv: D2, enable_order_hint: C2, order_hint_bits: B2, enable_superres: O2, frame_width_bit: R2 + 1, frame_height_bit: T2 + 1, max_frame_width: L2, max_frame_height: k2 }, keyframe: void 0, frame_rate: { fixed: r2, fps: o2 / s3, fps_den: s3, fps_num: o2 } };
+            }, e3.parseOBUFrameHeader = function(t3, i3, n2, a3) {
+              var r2 = a3.sequence_header, o2 = new f(t3), s3 = (r2.max_frame_width, r2.max_frame_height, 0);
+              r2.frame_id_numbers_present_flag && (s3 = r2.additional_frame_id_length_minus_1 + r2.delta_frame_id_length_minus_2 + 3);
+              var d2 = 0, _2 = true, h2 = true, c2 = false;
+              if (!r2.reduced_still_picture_header) {
+                if (o2.readBool()) return a3;
+                _2 = 2 === (d2 = o2.readBits(2)) || 0 === d2, (h2 = o2.readBool()) && r2.decoder_model_info_present_flag && r2.equal_picture_interval, h2 && o2.readBool(), c2 = !!(3 === d2 || 0 === d2 && h2) || o2.readBool();
+              }
+              a3.keyframe = _2, o2.readBool();
+              var l2 = r2.seq_force_screen_content_tools;
+              2 === r2.seq_force_screen_content_tools && (l2 = o2.readBits(1)), l2 && (r2.seq_force_integer_mv, 2 == r2.seq_force_integer_mv && o2.readBits(1)), r2.frame_id_numbers_present_flag && o2.readBits(s3);
+              var u2;
+              if (u2 = 3 == d2 || !r2.reduced_still_picture_header && o2.readBool(), o2.readBits(r2.order_hint_bits), _2 || c2 || o2.readBits(3), r2.decoder_model_info_present_flag && o2.readBool()) {
+                for (var p2 = 0; p2 <= r2.operating_points_cnt_minus_1; p2++) if (r2.operating_points[p2].decoder_model_present_for_this_op[p2]) {
+                  var m2 = r2.operating_points[p2].operating_point_idc;
+                  (0 === m2 || m2 >> i3 & 1 && m2 >> n2 + 8 & 1) && o2.readBits(r2.buffer_removal_time_length_minus_1 + 1);
+                }
+              }
+              var g2 = 255;
+              if (3 === d2 || 0 == d2 && h2 || (g2 = o2.readBits(8)), (_2 || 255 !== g2) && c2 && r2.enable_order_hint) for (var v2 = 0; v2 < 8; v2++) o2.readBits(r2.order_hint_bits);
+              if (_2) {
+                var y2 = e3.frameSizeAndRenderSize(o2, u2, r2);
+                a3.codec_size = { width: y2.FrameWidth, height: y2.FrameHeight }, a3.present_size = { width: y2.RenderWidth, height: y2.RenderHeight }, a3.sar_ratio = { width: y2.RenderWidth / y2.FrameWidth, height: y2.RenderHeight / y2.FrameHeight };
+              }
+              return o2.destroy(), o2 = null, a3;
+            }, e3.frameSizeAndRenderSize = function(e4, t3, i3) {
+              var n2 = i3.max_frame_width, a3 = i3.max_frame_height;
+              t3 && (n2 = e4.readBits(i3.frame_width_bit) + 1, a3 = e4.readBits(i3.frame_height_bit) + 1);
+              var r2 = false;
+              i3.enable_superres && (r2 = e4.readBool());
+              var o2 = 8;
+              r2 && (o2 = e4.readBits(3) + 9);
+              var s3 = n2;
+              n2 = Math.floor((8 * s3 + o2 / 2) / o2);
+              var d2 = s3, _2 = a3;
+              if (e4.readBool()) {
+                var h2 = e4.readBits(16) + 1, c2 = e4.readBits(16) + 1;
+                d2 = e4.readBits(h2) + 1, _2 = e4.readBits(c2) + 1;
+              }
+              return { UpscaledWidth: s3, FrameWidth: n2, FrameHeight: a3, RenderWidth: d2, RenderHeight: _2 };
+            }, e3.getLevelString = function(e4, t3) {
+              return "".concat(e4.toString(10).padStart(2, "0")).concat(0 === t3 ? "M" : "H");
+            }, e3.getChromaFormat = function(e4, t3, i3) {
+              return e4 ? 0 : 0 === t3 && 0 === i3 ? 3 : 1 === t3 && 0 === i3 ? 2 : 1 === t3 && 1 === i3 ? 1 : Number.NaN;
+            }, e3.getChromaFormatString = function(e4, t3, i3) {
+              return e4 ? "4:0:0" : 0 === t3 && 0 === i3 ? "4:4:4" : 1 === t3 && 0 === i3 ? "4:2:2" : 1 === t3 && 1 === i3 ? "4:2:0" : "Unknown";
+            }, e3;
+          }(), R = function() {
+          };
+          function T(e3, t3, i3) {
+            if (!e3 || e3.byteLength < 2) return null;
+            var n2 = 1;
+            "h265" === i3 && (n2 = 2);
+            var a3 = function(e4) {
+              for (var t4 = e4, i4 = t4.byteLength, n3 = new Uint8Array(i4), a4 = 0, r3 = 0; r3 < i4; r3++) r3 >= 2 && 3 === t4[r3] && 0 === t4[r3 - 1] && 0 === t4[r3 - 2] || (n3[a4] = t4[r3], a4++);
+              return new Uint8Array(n3.buffer, 0, a4);
+            }(e3.subarray(n2)), r2 = 0;
+            if (r2 === a3.byteLength - 1 && 128 === a3[r2]) return null;
+            for (var o2 = 0; r2 < a3.byteLength && 255 === a3[r2]; ) o2 += 255, r2++;
+            if (r2 >= a3.byteLength) return null;
+            o2 += a3[r2++];
+            for (var s3 = 0; r2 < a3.byteLength && 255 === a3[r2]; ) s3 += 255, r2++;
+            if (r2 >= a3.byteLength) return null;
+            if (s3 += a3[r2++], r2 + s3 > a3.byteLength) return null;
+            var d2 = new R();
+            d2.type = o2, d2.size = s3;
+            var _2 = a3.subarray(r2, r2 + s3);
+            return 5 === o2 && s3 >= 16 && (d2.uuid = _2.subarray(0, 16), d2.user_data = _2.subarray(16)), void 0 !== t3 && (d2.pts = t3), d2;
+          }
+          var L, k = function() {
+            function e3(e4, t3) {
+              this.TAG = "FLVDemuxer", this._config = t3, this._onError = null, this._onMediaInfo = null, this._onMetaDataArrived = null, this._onScriptDataArrived = null, this._onTrackMetadata = null, this._onDataAvailable = null, this._onSeiArrived = null, this._dataOffset = e4.dataOffset, this._firstParse = true, this._dispatch = false, this._hasAudio = e4.hasAudioTrack, this._hasVideo = e4.hasVideoTrack, this._hasAudioFlagOverrided = false, this._hasVideoFlagOverrided = false, this._audioInitialMetadataDispatched = false, this._videoInitialMetadataDispatched = false, this._mediaInfo = new s2.A(), this._mediaInfo.hasAudio = this._hasAudio, this._mediaInfo.hasVideo = this._hasVideo, this._metadata = null, this._audioMetadata = null, this._videoMetadata = null, this._naluLengthSize = 4, this._timestampBase = 0, this._timescale = 1e3, this._duration = 0, this._durationOverrided = false, this._referenceFrameRate = { fixed: true, fps: 23.976, fps_num: 23976, fps_den: 1e3 }, this._flvSoundRateTable = [5500, 11025, 22050, 44100, 48e3], this._mpegSamplingRates = [96e3, 88200, 64e3, 48e3, 44100, 32e3, 24e3, 22050, 16e3, 12e3, 11025, 8e3, 7350], this._mpegAudioV10SampleRateTable = [44100, 48e3, 32e3, 0], this._mpegAudioV20SampleRateTable = [22050, 24e3, 16e3, 0], this._mpegAudioV25SampleRateTable = [11025, 12e3, 8e3, 0], this._mpegAudioL1BitRateTable = [0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, -1], this._mpegAudioL2BitRateTable = [0, 32, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, -1], this._mpegAudioL3BitRateTable = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, -1], this._videoTrack = { type: "video", id: 1, sequenceNumber: 0, samples: [], length: 0 }, this._audioTrack = { type: "audio", id: 2, sequenceNumber: 0, samples: [], length: 0 }, this._littleEndian = function() {
+                var e5 = new ArrayBuffer(2);
+                return new DataView(e5).setInt16(0, 256, true), 256 === new Int16Array(e5)[0];
+              }();
+            }
+            return e3.prototype.destroy = function() {
+              this._mediaInfo = null, this._metadata = null, this._audioMetadata = null, this._videoMetadata = null, this._videoTrack = null, this._audioTrack = null, this._onError = null, this._onMediaInfo = null, this._onMetaDataArrived = null, this._onScriptDataArrived = null, this._onTrackMetadata = null, this._onDataAvailable = null, this._onSeiArrived = null;
+            }, e3.probe = function(e4) {
+              var t3 = new Uint8Array(e4);
+              if (t3.byteLength < 9) return { needMoreData: true };
+              var i3 = { match: false };
+              if (70 !== t3[0] || 76 !== t3[1] || 86 !== t3[2] || 1 !== t3[3]) return i3;
+              var n2, a3 = (4 & t3[4]) >>> 2 != 0, r2 = !!(1 & t3[4]), o2 = (n2 = t3)[5] << 24 | n2[6] << 16 | n2[7] << 8 | n2[8];
+              return o2 < 9 ? i3 : { match: true, consumed: o2, dataOffset: o2, hasAudioTrack: a3, hasVideoTrack: r2 };
+            }, e3.prototype.bindDataSource = function(e4) {
+              return e4.onDataArrival = this.parseChunks.bind(this), this;
+            }, Object.defineProperty(e3.prototype, "onTrackMetadata", { get: function() {
+              return this._onTrackMetadata;
+            }, set: function(e4) {
+              this._onTrackMetadata = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onMediaInfo", { get: function() {
+              return this._onMediaInfo;
+            }, set: function(e4) {
+              this._onMediaInfo = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onMetaDataArrived", { get: function() {
+              return this._onMetaDataArrived;
+            }, set: function(e4) {
+              this._onMetaDataArrived = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onScriptDataArrived", { get: function() {
+              return this._onScriptDataArrived;
+            }, set: function(e4) {
+              this._onScriptDataArrived = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onSeiArrived", { get: function() {
+              return this._onSeiArrived;
+            }, set: function(e4) {
+              this._onSeiArrived = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onError", { get: function() {
+              return this._onError;
+            }, set: function(e4) {
+              this._onError = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onDataAvailable", { get: function() {
+              return this._onDataAvailable;
+            }, set: function(e4) {
+              this._onDataAvailable = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "timestampBase", { get: function() {
+              return this._timestampBase;
+            }, set: function(e4) {
+              this._timestampBase = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "overridedDuration", { get: function() {
+              return this._duration;
+            }, set: function(e4) {
+              this._durationOverrided = true, this._duration = e4, this._mediaInfo.duration = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "overridedHasAudio", { set: function(e4) {
+              this._hasAudioFlagOverrided = true, this._hasAudio = e4, this._mediaInfo.hasAudio = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "overridedHasVideo", { set: function(e4) {
+              this._hasVideoFlagOverrided = true, this._hasVideo = e4, this._mediaInfo.hasVideo = e4;
+            }, enumerable: false, configurable: true }), e3.prototype.resetMediaInfo = function() {
+              this._mediaInfo = new s2.A();
+            }, e3.prototype._isInitialMetadataDispatched = function() {
+              return this._hasAudio && this._hasVideo ? this._audioInitialMetadataDispatched && this._videoInitialMetadataDispatched : this._hasAudio && !this._hasVideo ? this._audioInitialMetadataDispatched : !(this._hasAudio || !this._hasVideo) && this._videoInitialMetadataDispatched;
+            }, e3.prototype.parseChunks = function(t3, i3) {
+              if (!(this._onError && this._onMediaInfo && this._onTrackMetadata && this._onDataAvailable)) throw new c.j4("Flv: onError & onMediaInfo & onTrackMetadata & onDataAvailable callback must be specified");
+              var n2 = 0, a3 = this._littleEndian;
+              if (0 === i3) {
+                if (!(t3.byteLength > 13)) return 0;
+                n2 = e3.probe(t3).dataOffset;
+              }
+              for (this._firstParse && (this._firstParse = false, i3 + n2 !== this._dataOffset && r.A.w(this.TAG, "First time parsing but chunk byteStart invalid!"), 0 !== (o2 = new DataView(t3, n2)).getUint32(0, !a3) && r.A.w(this.TAG, "PrevTagSize0 !== 0 !!!"), n2 += 4); n2 < t3.byteLength; ) {
+                this._dispatch = true;
+                var o2 = new DataView(t3, n2);
+                if (n2 + 11 + 4 > t3.byteLength) break;
+                var s3 = o2.getUint8(0), d2 = 16777215 & o2.getUint32(0, !a3);
+                if (n2 + 11 + d2 + 4 > t3.byteLength) break;
+                if (8 === s3 || 9 === s3 || 18 === s3) {
+                  var _2 = o2.getUint8(4), h2 = o2.getUint8(5), l2 = o2.getUint8(6) | h2 << 8 | _2 << 16 | o2.getUint8(7) << 24;
+                  16777215 & o2.getUint32(7, !a3) && r.A.w(this.TAG, "Meet tag which has StreamID != 0!");
+                  var u2 = n2 + 11;
+                  switch (s3) {
+                    case 8:
+                      this._parseAudioData(t3, u2, d2, l2);
+                      break;
+                    case 9:
+                      this._parseVideoData(t3, u2, d2, l2, i3 + n2);
+                      break;
+                    case 18:
+                      this._parseScriptData(t3, u2, d2);
+                  }
+                  var f2 = o2.getUint32(11 + d2, !a3);
+                  f2 !== 11 + d2 && r.A.w(this.TAG, "Invalid PrevTagSize ".concat(f2)), n2 += 11 + d2 + 4;
+                } else r.A.w(this.TAG, "Unsupported tag type ".concat(s3, ", skipped")), n2 += 11 + d2 + 4;
+              }
+              return this._isInitialMetadataDispatched() && this._dispatch && (this._audioTrack.length || this._videoTrack.length) && this._onDataAvailable(this._audioTrack, this._videoTrack), n2;
+            }, e3.prototype._parseScriptData = function(e4, t3, i3) {
+              var n2 = u.parseScriptData(e4, t3, i3);
+              if (n2.hasOwnProperty("onMetaData")) {
+                if (null == n2.onMetaData || "object" != typeof n2.onMetaData) return void r.A.w(this.TAG, "Invalid onMetaData structure!");
+                this._metadata && r.A.w(this.TAG, "Found another onMetaData tag!"), this._metadata = n2;
+                var a3 = this._metadata.onMetaData;
+                if (this._onMetaDataArrived && this._onMetaDataArrived(Object.assign({}, a3)), "boolean" == typeof a3.hasAudio && false === this._hasAudioFlagOverrided && (this._hasAudio = a3.hasAudio, this._mediaInfo.hasAudio = this._hasAudio), "boolean" == typeof a3.hasVideo && false === this._hasVideoFlagOverrided && (this._hasVideo = a3.hasVideo, this._mediaInfo.hasVideo = this._hasVideo), "number" == typeof a3.audiodatarate && (this._mediaInfo.audioDataRate = a3.audiodatarate), "number" == typeof a3.videodatarate && (this._mediaInfo.videoDataRate = a3.videodatarate), "number" == typeof a3.width && (this._mediaInfo.width = a3.width), "number" == typeof a3.height && (this._mediaInfo.height = a3.height), "number" == typeof a3.duration) {
+                  if (!this._durationOverrided) {
+                    var o2 = Math.floor(a3.duration * this._timescale);
+                    this._duration = o2, this._mediaInfo.duration = o2;
+                  }
+                } else this._mediaInfo.duration = 0;
+                if ("number" == typeof a3.framerate) {
+                  var s3 = Math.floor(1e3 * a3.framerate);
+                  if (s3 > 0) {
+                    var d2 = s3 / 1e3;
+                    this._referenceFrameRate.fixed = true, this._referenceFrameRate.fps = d2, this._referenceFrameRate.fps_num = s3, this._referenceFrameRate.fps_den = 1e3, this._mediaInfo.fps = d2;
+                  }
+                }
+                if ("object" == typeof a3.keyframes) {
+                  this._mediaInfo.hasKeyframesIndex = true;
+                  var _2 = a3.keyframes;
+                  this._mediaInfo.keyframesIndex = this._parseKeyframesIndex(_2), a3.keyframes = null;
+                } else this._mediaInfo.hasKeyframesIndex = false;
+                this._dispatch = false, this._mediaInfo.metadata = a3, r.A.v(this.TAG, "Parsed onMetaData"), this._mediaInfo.isComplete() && this._onMediaInfo(this._mediaInfo);
+              }
+              Object.keys(n2).length > 0 && this._onScriptDataArrived && this._onScriptDataArrived(Object.assign({}, n2));
+            }, e3.prototype._parseSEIPayload = function(e4, t3, i3) {
+              var n2 = T(e4, t3, i3);
+              n2 && "function" == typeof this._onSeiArrived && this._onSeiArrived(n2);
+            }, e3.prototype._parseKeyframesIndex = function(e4) {
+              for (var t3 = [], i3 = [], n2 = 1; n2 < e4.times.length; n2++) {
+                var a3 = this._timestampBase + Math.floor(1e3 * e4.times[n2]);
+                t3.push(a3), i3.push(e4.filepositions[n2]);
+              }
+              return { times: t3, filepositions: i3 };
+            }, e3.prototype._parseAudioData = function(e4, t3, i3, n2) {
+              if (i3 <= 1) r.A.w(this.TAG, "Flv: Invalid audio packet, missing SoundData payload!");
+              else if (true !== this._hasAudioFlagOverrided || false !== this._hasAudio) {
+                this._littleEndian;
+                var a3 = new DataView(e4, t3, i3).getUint8(0), o2 = a3 >>> 4;
+                if (9 !== o2) if (2 === o2 || 3 === o2 || 10 === o2) {
+                  var s3 = 0, d2 = (12 & a3) >>> 2;
+                  if (d2 >= 0 && d2 <= 4) {
+                    s3 = this._flvSoundRateTable[d2];
+                    var _2 = (2 & a3) >>> 1, h2 = 1 & a3, c2 = this._audioMetadata, l2 = this._audioTrack;
+                    if (c2 || (false === this._hasAudio && false === this._hasAudioFlagOverrided && (this._hasAudio = true, this._mediaInfo.hasAudio = true), (c2 = this._audioMetadata = {}).type = "audio", c2.id = l2.id, c2.timescale = this._timescale, c2.duration = this._duration, c2.audioSampleRate = s3, c2.channelCount = 0 === h2 ? 1 : 2), 10 === o2) {
+                      var u2 = this._parseAACAudioData(e4, t3 + 1, i3 - 1);
+                      if (null == u2) return;
+                      if (0 === u2.packetType) {
+                        if (c2.config) {
+                          if (S(u2.data.config, c2.config)) return;
+                          r.A.w(this.TAG, "AudioSpecificConfig has been changed, re-generate initialization segment");
+                        }
+                        var f2 = u2.data;
+                        c2.audioSampleRate = f2.samplingRate, c2.channelCount = f2.channelCount, c2.codec = f2.codec, c2.originalCodec = f2.originalCodec, c2.config = f2.config, c2.refSampleDuration = 1024 / c2.audioSampleRate * c2.timescale, r.A.v(this.TAG, "Parsed AudioSpecificConfig"), this._isInitialMetadataDispatched() ? this._dispatch && (this._audioTrack.length || this._videoTrack.length) && this._onDataAvailable(this._audioTrack, this._videoTrack) : this._audioInitialMetadataDispatched = true, this._dispatch = false, this._onTrackMetadata("audio", c2), (y2 = this._mediaInfo).audioCodec = c2.originalCodec, y2.audioSampleRate = c2.audioSampleRate, y2.audioChannelCount = c2.channelCount, y2.hasVideo ? null != y2.videoCodec && (y2.mimeType = 'video/x-flv; codecs="' + y2.videoCodec + "," + y2.audioCodec + '"') : y2.mimeType = 'video/x-flv; codecs="' + y2.audioCodec + '"', y2.isComplete() && this._onMediaInfo(y2);
+                      } else if (1 === u2.packetType) {
+                        var p2 = this._timestampBase + n2, g2 = { unit: u2.data, length: u2.data.byteLength, dts: p2, pts: p2 };
+                        l2.samples.push(g2), l2.length += u2.data.length;
+                      } else r.A.e(this.TAG, "Flv: Unsupported AAC data type ".concat(u2.packetType));
+                    } else if (2 === o2) {
+                      if (!c2.codec) {
+                        if (null == (f2 = this._parseMP3AudioData(e4, t3 + 1, i3 - 1, true))) return;
+                        c2.audioSampleRate = f2.samplingRate, c2.channelCount = f2.channelCount, c2.codec = f2.codec, c2.originalCodec = f2.originalCodec, c2.refSampleDuration = 1152 / c2.audioSampleRate * c2.timescale, r.A.v(this.TAG, "Parsed MPEG Audio Frame Header"), this._audioInitialMetadataDispatched = true, this._onTrackMetadata("audio", c2), (y2 = this._mediaInfo).audioCodec = c2.codec, y2.audioSampleRate = c2.audioSampleRate, y2.audioChannelCount = c2.channelCount, y2.audioDataRate = f2.bitRate, y2.hasVideo ? null != y2.videoCodec && (y2.mimeType = 'video/x-flv; codecs="' + y2.videoCodec + "," + y2.audioCodec + '"') : y2.mimeType = 'video/x-flv; codecs="' + y2.audioCodec + '"', y2.isComplete() && this._onMediaInfo(y2);
+                      }
+                      if (null == (A2 = this._parseMP3AudioData(e4, t3 + 1, i3 - 1, false))) return;
+                      p2 = this._timestampBase + n2;
+                      var v2 = { unit: A2, length: A2.byteLength, dts: p2, pts: p2 };
+                      l2.samples.push(v2), l2.length += A2.length;
+                    } else if (3 === o2) {
+                      var y2;
+                      c2.codec || (c2.audioSampleRate = s3, c2.sampleSize = 8 * (_2 + 1), c2.littleEndian = true, c2.codec = "ipcm", c2.originalCodec = "ipcm", this._audioInitialMetadataDispatched = true, this._onTrackMetadata("audio", c2), (y2 = this._mediaInfo).audioCodec = c2.codec, y2.audioSampleRate = c2.audioSampleRate, y2.audioChannelCount = c2.channelCount, y2.audioDataRate = c2.sampleSize * c2.audioSampleRate, y2.hasVideo ? null != y2.videoCodec && (y2.mimeType = 'video/x-flv; codecs="' + y2.videoCodec + "," + y2.audioCodec + '"') : y2.mimeType = 'video/x-flv; codecs="' + y2.audioCodec + '"', y2.isComplete() && this._onMediaInfo(y2));
+                      var A2 = new Uint8Array(e4, t3 + 1, i3 - 1), b2 = (p2 = this._timestampBase + n2, { unit: A2, length: A2.byteLength, dts: p2, pts: p2 });
+                      l2.samples.push(b2), l2.length += A2.length;
+                    }
+                  } else this._onError(m.A.FORMAT_ERROR, "Flv: Invalid audio sample rate idx: " + d2);
+                } else this._onError(m.A.CODEC_UNSUPPORTED, "Flv: Unsupported audio codec idx: " + o2);
+                else {
+                  if (i3 <= 5) return void r.A.w(this.TAG, "Flv: Invalid audio packet, missing AudioFourCC in Ehnanced FLV payload!");
+                  var E2 = 15 & a3, R2 = String.fromCharCode.apply(String, new Uint8Array(e4, t3, i3).slice(1, 5));
+                  switch (R2) {
+                    case "Opus":
+                      this._parseOpusAudioPacket(e4, t3 + 5, i3 - 5, n2, E2);
+                      break;
+                    case "fLaC":
+                      this._parseFlacAudioPacket(e4, t3 + 5, i3 - 5, n2, E2);
+                      break;
+                    default:
+                      this._onError(m.A.CODEC_UNSUPPORTED, "Flv: Unsupported audio codec: " + R2);
+                  }
+                }
+              }
+            }, e3.prototype._parseAACAudioData = function(e4, t3, i3) {
+              if (!(i3 <= 1)) {
+                var n2 = {}, a3 = new Uint8Array(e4, t3, i3);
+                return n2.packetType = a3[0], 0 === a3[0] ? n2.data = this._parseAACAudioSpecificConfig(e4, t3 + 1, i3 - 1) : n2.data = a3.subarray(1), n2;
+              }
+              r.A.w(this.TAG, "Flv: Invalid AAC packet, missing AACPacketType or/and Data!");
+            }, e3.prototype._parseAACAudioSpecificConfig = function(e4, t3, i3) {
+              var n2, a3, r2 = new Uint8Array(e4, t3, i3), o2 = null, s3 = 0, d2 = null;
+              if (s3 = n2 = r2[0] >>> 3, (a3 = (7 & r2[0]) << 1 | r2[1] >>> 7) < 0 || a3 >= this._mpegSamplingRates.length) this._onError(m.A.FORMAT_ERROR, "Flv: AAC invalid sampling frequency index!");
+              else {
+                var _2 = this._mpegSamplingRates[a3], h2 = (120 & r2[1]) >>> 3;
+                if (!(h2 < 0 || h2 >= 8)) {
+                  5 === s3 && (d2 = (7 & r2[1]) << 1 | r2[2] >>> 7, r2[2]);
+                  var c2 = self.navigator.userAgent.toLowerCase();
+                  return -1 !== c2.indexOf("firefox") ? a3 >= 6 ? (s3 = 5, o2 = new Array(4), d2 = a3 - 3) : (s3 = 2, o2 = new Array(2), d2 = a3) : -1 !== c2.indexOf("android") ? (s3 = 2, o2 = new Array(2), d2 = a3) : (s3 = 5, d2 = a3, o2 = new Array(4), a3 >= 6 ? d2 = a3 - 3 : 1 === h2 && (s3 = 2, o2 = new Array(2), d2 = a3)), o2[0] = s3 << 3, o2[0] |= (15 & a3) >>> 1, o2[1] = (15 & a3) << 7, o2[1] |= (15 & h2) << 3, 5 === s3 && (o2[1] |= (15 & d2) >>> 1, o2[2] = (1 & d2) << 7, o2[2] |= 8, o2[3] = 0), { config: o2, samplingRate: _2, channelCount: h2, codec: "mp4a.40." + s3, originalCodec: "mp4a.40." + n2 };
+                }
+                this._onError(m.A.FORMAT_ERROR, "Flv: AAC invalid channel configuration");
+              }
+            }, e3.prototype._parseMP3AudioData = function(e4, t3, i3, n2) {
+              if (!(i3 < 4)) {
+                this._littleEndian;
+                var a3 = new Uint8Array(e4, t3, i3), o2 = null;
+                if (n2) {
+                  if (255 !== a3[0]) return;
+                  var s3 = a3[1] >>> 3 & 3, d2 = (6 & a3[1]) >> 1, _2 = (240 & a3[2]) >>> 4, h2 = (12 & a3[2]) >>> 2, c2 = 3 & ~(a3[3] >>> 6) ? 2 : 1, l2 = 0, u2 = 0;
+                  switch (s3) {
+                    case 0:
+                      l2 = this._mpegAudioV25SampleRateTable[h2];
+                      break;
+                    case 2:
+                      l2 = this._mpegAudioV20SampleRateTable[h2];
+                      break;
+                    case 3:
+                      l2 = this._mpegAudioV10SampleRateTable[h2];
+                  }
+                  switch (d2) {
+                    case 1:
+                      _2 < this._mpegAudioL3BitRateTable.length && (u2 = this._mpegAudioL3BitRateTable[_2]);
+                      break;
+                    case 2:
+                      _2 < this._mpegAudioL2BitRateTable.length && (u2 = this._mpegAudioL2BitRateTable[_2]);
+                      break;
+                    case 3:
+                      _2 < this._mpegAudioL1BitRateTable.length && (u2 = this._mpegAudioL1BitRateTable[_2]);
+                  }
+                  o2 = { bitRate: u2, samplingRate: l2, channelCount: c2, codec: "mp3", originalCodec: "mp3" };
+                } else o2 = a3;
+                return o2;
+              }
+              r.A.w(this.TAG, "Flv: Invalid MP3 packet, header missing!");
+            }, e3.prototype._parseOpusAudioPacket = function(e4, t3, i3, n2, a3) {
+              if (0 === a3) this._parseOpusSequenceHeader(e4, t3, i3);
+              else if (1 === a3) this._parseOpusAudioData(e4, t3, i3, n2);
+              else if (2 !== a3) return void this._onError(m.A.FORMAT_ERROR, "Flv: Invalid video packet type ".concat(a3));
+            }, e3.prototype._parseOpusSequenceHeader = function(e4, t3, i3) {
+              if (i3 <= 16) r.A.w(this.TAG, "Flv: Invalid OpusSequenceHeader, lack of data!");
+              else {
+                var n2 = this._audioMetadata, a3 = this._audioTrack;
+                n2 || (false === this._hasAudio && false === this._hasAudioFlagOverrided && (this._hasAudio = true, this._mediaInfo.hasAudio = true), (n2 = this._audioMetadata = {}).type = "audio", n2.id = a3.id, n2.timescale = this._timescale, n2.duration = this._duration);
+                var o2 = new DataView(e4, t3, i3);
+                o2.setUint8(8, 0);
+                var s3 = o2.getUint8(9);
+                o2.setUint16(10, o2.getUint16(10, true), false);
+                var d2 = o2.getUint32(12, true);
+                o2.setUint32(12, o2.getUint32(12, true), false);
+                var _2 = { config: new Uint8Array(e4, t3 + 8, i3 - 8), channelCount: s3, samplingFrequence: d2, codec: "opus", originalCodec: "opus" };
+                if (n2.config) {
+                  if (S(_2.config, n2.config)) return;
+                  r.A.w(this.TAG, "OpusSequenceHeader has been changed, re-generate initialization segment");
+                }
+                n2.audioSampleRate = _2.samplingFrequence, n2.channelCount = _2.channelCount, n2.codec = _2.codec, n2.originalCodec = _2.originalCodec, n2.config = _2.config, n2.refSampleDuration = 20, r.A.v(this.TAG, "Parsed OpusSequenceHeader"), this._isInitialMetadataDispatched() ? this._dispatch && (this._audioTrack.length || this._videoTrack.length) && this._onDataAvailable(this._audioTrack, this._videoTrack) : this._audioInitialMetadataDispatched = true, this._dispatch = false, this._onTrackMetadata("audio", n2);
+                var h2 = this._mediaInfo;
+                h2.audioCodec = n2.originalCodec, h2.audioSampleRate = n2.audioSampleRate, h2.audioChannelCount = n2.channelCount, h2.hasVideo ? null != h2.videoCodec && (h2.mimeType = 'video/x-flv; codecs="' + h2.videoCodec + "," + h2.audioCodec + '"') : h2.mimeType = 'video/x-flv; codecs="' + h2.audioCodec + '"', h2.isComplete() && this._onMediaInfo(h2);
+              }
+            }, e3.prototype._parseOpusAudioData = function(e4, t3, i3, n2) {
+              var a3 = this._audioTrack, r2 = new Uint8Array(e4, t3, i3), o2 = this._timestampBase + n2, s3 = { unit: r2, length: r2.byteLength, dts: o2, pts: o2 };
+              a3.samples.push(s3), a3.length += r2.length;
+            }, e3.prototype._parseFlacAudioPacket = function(e4, t3, i3, n2, a3) {
+              if (0 === a3) this._parseFlacSequenceHeader(e4, t3, i3);
+              else if (1 === a3) this._parseFlacAudioData(e4, t3, i3, n2);
+              else if (2 !== a3) return void this._onError(m.A.FORMAT_ERROR, "Flv: Invalid Flac audio packet type ".concat(a3));
+            }, e3.prototype._parseFlacSequenceHeader = function(e4, t3, i3) {
+              var n2 = this._audioMetadata, a3 = this._audioTrack;
+              n2 || (false === this._hasAudio && false === this._hasAudioFlagOverrided && (this._hasAudio = true, this._mediaInfo.hasAudio = true), (n2 = this._audioMetadata = {}).type = "audio", n2.id = a3.id, n2.timescale = this._timescale, n2.duration = this._duration);
+              var o2 = new Uint8Array(e4, t3 + 4, i3 - 4), s3 = new f(o2), d2 = s3.readBits(16), _2 = s3.readBits(16), h2 = _2 === d2 ? _2 : null;
+              s3.readBits(24), s3.readBits(24);
+              var c2 = s3.readBits(20), l2 = s3.readBits(3) + 1, u2 = s3.readBits(5) + 1;
+              s3.destroy();
+              var p2 = new Uint8Array(o2.byteLength + 4);
+              p2.set(o2, 4), p2[0] = 128, p2[1] = o2.byteLength >>> 16 & 255, p2[2] = o2.byteLength >>> 8 & 255, p2[3] = o2.byteLength >>> 0 & 255;
+              var m2 = { config: p2, channelCount: l2, samplingFrequence: c2, sampleSize: u2, codec: "flac", originalCodec: "flac" };
+              if (n2.config) {
+                if (S(m2.config, n2.config)) return;
+                r.A.w(this.TAG, "FlacSequenceHeader has been changed, re-generate initialization segment");
+              }
+              n2.audioSampleRate = m2.samplingFrequence, n2.channelCount = m2.channelCount, n2.sampleSize = m2.sampleSize, n2.codec = m2.codec, n2.originalCodec = m2.originalCodec, n2.config = m2.config, n2.refSampleDuration = null != h2 ? 1e3 * h2 / m2.samplingFrequence : null, r.A.v(this.TAG, "Parsed FlacSequenceHeader"), this._isInitialMetadataDispatched() ? this._dispatch && (this._audioTrack.length || this._videoTrack.length) && this._onDataAvailable(this._audioTrack, this._videoTrack) : this._audioInitialMetadataDispatched = true, this._dispatch = false, this._onTrackMetadata("audio", n2);
+              var g2 = this._mediaInfo;
+              g2.audioCodec = n2.originalCodec, g2.audioSampleRate = n2.audioSampleRate, g2.audioChannelCount = n2.channelCount, g2.hasVideo ? null != g2.videoCodec && (g2.mimeType = 'video/x-flv; codecs="' + g2.videoCodec + "," + g2.audioCodec + '"') : g2.mimeType = 'video/x-flv; codecs="' + g2.audioCodec + '"', g2.isComplete() && this._onMediaInfo(g2);
+            }, e3.prototype._parseFlacAudioData = function(e4, t3, i3, n2) {
+              var a3 = this._audioTrack, r2 = new Uint8Array(e4, t3, i3), o2 = this._timestampBase + n2, s3 = { unit: r2, length: r2.byteLength, dts: o2, pts: o2 };
+              a3.samples.push(s3), a3.length += r2.length;
+            }, e3.prototype._parseVideoData = function(e4, t3, i3, n2, a3) {
+              if (i3 <= 1) r.A.w(this.TAG, "Flv: Invalid video packet, missing VideoData payload!");
+              else if (true !== this._hasVideoFlagOverrided || false !== this._hasVideo) {
+                var o2 = new Uint8Array(e4, t3, i3)[0], s3 = (112 & o2) >>> 4;
+                if (128 & o2) {
+                  var d2 = 15 & o2, _2 = String.fromCharCode.apply(String, new Uint8Array(e4, t3, i3).slice(1, 5));
+                  if ("hvc1" === _2) this._parseEnhancedHEVCVideoPacket(e4, t3 + 5, i3 - 5, n2, a3, s3, d2);
+                  else {
+                    if ("av01" !== _2) return void this._onError(m.A.CODEC_UNSUPPORTED, "Flv: Unsupported codec in video frame: ".concat(_2));
+                    this._parseEnhancedAV1VideoPacket(e4, t3 + 5, i3 - 5, n2, a3, s3, d2);
+                  }
+                } else {
+                  var h2 = 15 & o2;
+                  if (7 === h2) this._parseAVCVideoPacket(e4, t3 + 1, i3 - 1, n2, a3, s3);
+                  else {
+                    if (12 !== h2) return void this._onError(m.A.CODEC_UNSUPPORTED, "Flv: Unsupported codec in video frame: ".concat(h2));
+                    this._parseHEVCVideoPacket(e4, t3 + 1, i3 - 1, n2, a3, s3);
+                  }
+                }
+              }
+            }, e3.prototype._parseAVCVideoPacket = function(e4, t3, i3, n2, a3, o2) {
+              if (i3 < 4) r.A.w(this.TAG, "Flv: Invalid AVC packet, missing AVCPacketType or/and CompositionTime");
+              else {
+                var s3 = this._littleEndian, d2 = new DataView(e4, t3, i3), _2 = d2.getUint8(0), h2 = (16777215 & d2.getUint32(0, !s3)) << 8 >> 8;
+                if (0 === _2) this._parseAVCDecoderConfigurationRecord(e4, t3 + 4, i3 - 4);
+                else if (1 === _2) this._parseAVCVideoData(e4, t3 + 4, i3 - 4, n2, a3, o2, h2);
+                else if (2 !== _2) return void this._onError(m.A.FORMAT_ERROR, "Flv: Invalid video packet type ".concat(_2));
+              }
+            }, e3.prototype._parseHEVCVideoPacket = function(e4, t3, i3, n2, a3, o2) {
+              if (i3 < 4) r.A.w(this.TAG, "Flv: Invalid HEVC packet, missing HEVCPacketType or/and CompositionTime");
+              else {
+                var s3 = this._littleEndian, d2 = new DataView(e4, t3, i3), _2 = d2.getUint8(0), h2 = (16777215 & d2.getUint32(0, !s3)) << 8 >> 8;
+                if (0 === _2) this._parseHEVCDecoderConfigurationRecord(e4, t3 + 4, i3 - 4);
+                else if (1 === _2) this._parseHEVCVideoData(e4, t3 + 4, i3 - 4, n2, a3, o2, h2);
+                else if (2 !== _2) return void this._onError(m.A.FORMAT_ERROR, "Flv: Invalid video packet type ".concat(_2));
+              }
+            }, e3.prototype._parseEnhancedHEVCVideoPacket = function(e4, t3, i3, n2, a3, r2, o2) {
+              var s3 = this._littleEndian, d2 = new DataView(e4, t3, i3);
+              if (0 === o2) this._parseHEVCDecoderConfigurationRecord(e4, t3, i3);
+              else if (1 === o2) {
+                var _2 = (4294967040 & d2.getUint32(0, !s3)) >> 8;
+                this._parseHEVCVideoData(e4, t3 + 3, i3 - 3, n2, a3, r2, _2);
+              } else if (3 === o2) this._parseHEVCVideoData(e4, t3, i3, n2, a3, r2, 0);
+              else if (2 !== o2) return void this._onError(m.A.FORMAT_ERROR, "Flv: Invalid video packet type ".concat(o2));
+            }, e3.prototype._parseEnhancedAV1VideoPacket = function(e4, t3, i3, n2, a3, r2, o2) {
+              if (this._littleEndian, new DataView(e4, t3, i3), 0 === o2) this._parseAV1CodecConfigurationRecord(e4, t3, i3);
+              else if (1 === o2) this._parseAV1VideoData(e4, t3, i3, n2, a3, r2, 0);
+              else {
+                if (5 === o2) return void this._onError(m.A.FORMAT_ERROR, "Flv: Not Supported MP2T AV1 video packet type ".concat(o2));
+                if (2 !== o2) return void this._onError(m.A.FORMAT_ERROR, "Flv: Invalid video packet type ".concat(o2));
+              }
+            }, e3.prototype._parseAVCDecoderConfigurationRecord = function(e4, t3, i3) {
+              if (i3 < 7) r.A.w(this.TAG, "Flv: Invalid AVCDecoderConfigurationRecord, lack of data!");
+              else {
+                var n2 = this._videoMetadata, a3 = this._videoTrack, o2 = this._littleEndian, s3 = new DataView(e4, t3, i3);
+                if (n2) {
+                  if (void 0 !== n2.avcc) {
+                    var d2 = new Uint8Array(e4, t3, i3);
+                    if (S(d2, n2.avcc)) return;
+                    r.A.w(this.TAG, "AVCDecoderConfigurationRecord has been changed, re-generate initialization segment");
+                  }
+                } else false === this._hasVideo && false === this._hasVideoFlagOverrided && (this._hasVideo = true, this._mediaInfo.hasVideo = true), (n2 = this._videoMetadata = {}).type = "video", n2.id = a3.id, n2.timescale = this._timescale, n2.duration = this._duration;
+                var _2 = s3.getUint8(0), h2 = s3.getUint8(1);
+                if (s3.getUint8(2), s3.getUint8(3), 1 === _2 && 0 !== h2) if (this._naluLengthSize = 1 + (3 & s3.getUint8(4)), 3 === this._naluLengthSize || 4 === this._naluLengthSize) {
+                  var c2 = 31 & s3.getUint8(5);
+                  if (0 !== c2) {
+                    c2 > 1 && r.A.w(this.TAG, "Flv: Strange AVCDecoderConfigurationRecord: SPS Count = ".concat(c2));
+                    for (var l2 = 6, u2 = 0; u2 < c2; u2++) {
+                      var f2 = s3.getUint16(l2, !o2);
+                      if (l2 += 2, 0 !== f2) {
+                        var g2 = new Uint8Array(e4, t3 + l2, f2);
+                        l2 += f2;
+                        var v2 = p.parseSPS(g2);
+                        if (0 === u2) {
+                          n2.codecWidth = v2.codec_size.width, n2.codecHeight = v2.codec_size.height, n2.presentWidth = v2.present_size.width, n2.presentHeight = v2.present_size.height, n2.profile = v2.profile_string, n2.level = v2.level_string, n2.bitDepth = v2.bit_depth, n2.chromaFormat = v2.chroma_format, n2.sarRatio = v2.sar_ratio, n2.frameRate = v2.frame_rate, false !== v2.frame_rate.fixed && 0 !== v2.frame_rate.fps_num && 0 !== v2.frame_rate.fps_den || (n2.frameRate = this._referenceFrameRate);
+                          var y2 = n2.frameRate.fps_den, A2 = n2.frameRate.fps_num;
+                          n2.refSampleDuration = n2.timescale * (y2 / A2);
+                          for (var b2 = g2.subarray(1, 4), E2 = "avc1.", R2 = 0; R2 < 3; R2++) {
+                            var T2 = b2[R2].toString(16);
+                            T2.length < 2 && (T2 = "0" + T2), E2 += T2;
+                          }
+                          n2.codec = E2;
+                          var L2 = this._mediaInfo;
+                          L2.width = n2.codecWidth, L2.height = n2.codecHeight, L2.fps = n2.frameRate.fps, L2.profile = n2.profile, L2.level = n2.level, L2.refFrames = v2.ref_frames, L2.chromaFormat = v2.chroma_format_string, L2.sarNum = n2.sarRatio.width, L2.sarDen = n2.sarRatio.height, L2.videoCodec = E2, L2.hasAudio ? null != L2.audioCodec && (L2.mimeType = 'video/x-flv; codecs="' + L2.videoCodec + "," + L2.audioCodec + '"') : L2.mimeType = 'video/x-flv; codecs="' + L2.videoCodec + '"', L2.isComplete() && this._onMediaInfo(L2);
+                        }
+                      }
+                    }
+                    var k2 = s3.getUint8(l2);
+                    if (0 !== k2) {
+                      for (k2 > 1 && r.A.w(this.TAG, "Flv: Strange AVCDecoderConfigurationRecord: PPS Count = ".concat(k2)), l2++, u2 = 0; u2 < k2; u2++) f2 = s3.getUint16(l2, !o2), l2 += 2, 0 !== f2 && (l2 += f2);
+                      n2.avcc = new Uint8Array(i3), n2.avcc.set(new Uint8Array(e4, t3, i3), 0), r.A.v(this.TAG, "Parsed AVCDecoderConfigurationRecord"), this._isInitialMetadataDispatched() ? this._dispatch && (this._audioTrack.length || this._videoTrack.length) && this._onDataAvailable(this._audioTrack, this._videoTrack) : this._videoInitialMetadataDispatched = true, this._dispatch = false, this._onTrackMetadata("video", n2);
+                    } else this._onError(m.A.FORMAT_ERROR, "Flv: Invalid AVCDecoderConfigurationRecord: No PPS");
+                  } else this._onError(m.A.FORMAT_ERROR, "Flv: Invalid AVCDecoderConfigurationRecord: No SPS");
+                } else this._onError(m.A.FORMAT_ERROR, "Flv: Strange NaluLengthSizeMinusOne: ".concat(this._naluLengthSize - 1));
+                else this._onError(m.A.FORMAT_ERROR, "Flv: Invalid AVCDecoderConfigurationRecord");
+              }
+            }, e3.prototype._parseHEVCDecoderConfigurationRecord = function(e4, t3, i3) {
+              if (i3 < 22) r.A.w(this.TAG, "Flv: Invalid HEVCDecoderConfigurationRecord, lack of data!");
+              else {
+                var n2 = this._videoMetadata, a3 = this._videoTrack, o2 = this._littleEndian, s3 = new DataView(e4, t3, i3);
+                if (n2) {
+                  if (void 0 !== n2.hvcc) {
+                    var d2 = new Uint8Array(e4, t3, i3);
+                    if (S(d2, n2.hvcc)) return;
+                    r.A.w(this.TAG, "HEVCDecoderConfigurationRecord has been changed, re-generate initialization segment");
+                  }
+                } else false === this._hasVideo && false === this._hasVideoFlagOverrided && (this._hasVideo = true, this._mediaInfo.hasVideo = true), (n2 = this._videoMetadata = {}).type = "video", n2.id = a3.id, n2.timescale = this._timescale, n2.duration = this._duration;
+                var _2 = s3.getUint8(0), h2 = 31 & s3.getUint8(1);
+                if (0 !== _2 && 1 !== _2 || 0 === h2) this._onError(m.A.FORMAT_ERROR, "Flv: Invalid HEVCDecoderConfigurationRecord");
+                else if (this._naluLengthSize = 1 + (3 & s3.getUint8(21)), 3 === this._naluLengthSize || 4 === this._naluLengthSize) {
+                  for (var c2 = s3.getUint8(22), l2 = 0, u2 = 23; l2 < c2; l2++) {
+                    var f2 = 63 & s3.getUint8(u2 + 0), p2 = s3.getUint16(u2 + 1, !o2);
+                    u2 += 3;
+                    for (var v2 = 0; v2 < p2; v2++) {
+                      var y2 = s3.getUint16(u2 + 0, !o2);
+                      if (0 === v2) if (33 === f2) {
+                        u2 += 2;
+                        var A2 = new Uint8Array(e4, t3 + u2, y2), b2 = g.parseSPS(A2);
+                        n2.codecWidth = b2.codec_size.width, n2.codecHeight = b2.codec_size.height, n2.presentWidth = b2.present_size.width, n2.presentHeight = b2.present_size.height, n2.profile = b2.profile_string, n2.level = b2.level_string, n2.bitDepth = b2.bit_depth, n2.chromaFormat = b2.chroma_format, n2.sarRatio = b2.sar_ratio, n2.frameRate = b2.frame_rate, false !== b2.frame_rate.fixed && 0 !== b2.frame_rate.fps_num && 0 !== b2.frame_rate.fps_den || (n2.frameRate = this._referenceFrameRate);
+                        var E2 = n2.frameRate.fps_den, R2 = n2.frameRate.fps_num;
+                        n2.refSampleDuration = n2.timescale * (E2 / R2), n2.codec = b2.codec_mimetype;
+                        var T2 = this._mediaInfo;
+                        T2.width = n2.codecWidth, T2.height = n2.codecHeight, T2.fps = n2.frameRate.fps, T2.profile = n2.profile, T2.level = n2.level, T2.refFrames = b2.ref_frames, T2.chromaFormat = b2.chroma_format_string, T2.sarNum = n2.sarRatio.width, T2.sarDen = n2.sarRatio.height, T2.videoCodec = b2.codec_mimetype, T2.hasAudio ? null != T2.audioCodec && (T2.mimeType = 'video/x-flv; codecs="' + T2.videoCodec + "," + T2.audioCodec + '"') : T2.mimeType = 'video/x-flv; codecs="' + T2.videoCodec + '"', T2.isComplete() && this._onMediaInfo(T2), u2 += y2;
+                      } else u2 += 2 + y2;
+                      else u2 += 2 + y2;
+                    }
+                  }
+                  n2.hvcc = new Uint8Array(i3), n2.hvcc.set(new Uint8Array(e4, t3, i3), 0), r.A.v(this.TAG, "Parsed HEVCDecoderConfigurationRecord"), this._isInitialMetadataDispatched() ? this._dispatch && (this._audioTrack.length || this._videoTrack.length) && this._onDataAvailable(this._audioTrack, this._videoTrack) : this._videoInitialMetadataDispatched = true, this._dispatch = false, this._onTrackMetadata("video", n2);
+                } else this._onError(m.A.FORMAT_ERROR, "Flv: Strange NaluLengthSizeMinusOne: ".concat(this._naluLengthSize - 1));
+              }
+            }, e3.prototype._parseAV1CodecConfigurationRecord = function(e4, t3, i3) {
+              if (i3 < 4) r.A.w(this.TAG, "Flv: Invalid AV1CodecConfigurationRecord, lack of data!");
+              else {
+                var n2 = this._videoMetadata, a3 = this._videoTrack, o2 = (this._littleEndian, new DataView(e4, t3, i3));
+                n2 ? void 0 !== n2.av1c && r.A.w(this.TAG, "Found another AV1CodecConfigurationRecord!") : (false === this._hasVideo && false === this._hasVideoFlagOverrided && (this._hasVideo = true, this._mediaInfo.hasVideo = true), (n2 = this._videoMetadata = {}).type = "video", n2.id = a3.id, n2.timescale = this._timescale, n2.duration = this._duration);
+                var s3 = 127 & o2.getUint8(0);
+                if (o2.getUint8(1), o2.getUint8(1), o2.getUint8(2), 1 === s3) {
+                  var d2 = E.parseOBUs(new Uint8Array(e4, t3 + 4, i3 - 4));
+                  if (null != d2) {
+                    n2.profile = d2.profile_string, n2.level = d2.level_string, n2.bitDepth = d2.bit_depth, n2.chromaFormat = d2.chroma_format, n2.frameRate = d2.frame_rate, false !== d2.frame_rate.fixed && 0 !== d2.frame_rate.fps_num && 0 !== d2.frame_rate.fps_den || (n2.frameRate = this._referenceFrameRate);
+                    var _2 = n2.frameRate.fps_den, h2 = n2.frameRate.fps_num;
+                    n2.refSampleDuration = n2.timescale * (_2 / h2), n2.codec = d2.codec_mimetype, n2.extra = d2;
+                    var c2 = this._mediaInfo;
+                    c2.fps = n2.frameRate.fps, c2.profile = n2.profile, c2.level = n2.level, c2.refFrames = d2.ref_frames, c2.chromaFormat = d2.chroma_format_string, c2.videoCodec = d2.codec_mimetype, c2.hasAudio ? null != c2.audioCodec && (c2.mimeType = 'video/x-flv; codecs="' + c2.videoCodec + "," + c2.audioCodec + '"') : c2.mimeType = 'video/x-flv; codecs="' + c2.videoCodec + '"', c2.isComplete() && this._onMediaInfo(c2), n2.av1c = new Uint8Array(i3), n2.av1c.set(new Uint8Array(e4, t3, i3), 0), r.A.v(this.TAG, "Preparing AV1CodecConfigurationRecord");
+                  } else this._onError(m.A.FORMAT_ERROR, "Flv: Invalid AV1CodecConfigurationRecord");
+                } else this._onError(m.A.FORMAT_ERROR, "Flv: Invalid AV1CodecConfigurationRecord");
+              }
+            }, e3.prototype._parseAVCVideoData = function(e4, t3, i3, n2, a3, o2, s3) {
+              for (var d2 = this._littleEndian, _2 = new DataView(e4, t3, i3), h2 = [], c2 = 0, l2 = 0, u2 = this._naluLengthSize, f2 = this._timestampBase + n2, p2 = 1 === o2; l2 < i3; ) {
+                if (l2 + 4 >= i3) {
+                  r.A.w(this.TAG, "Malformed Nalu near timestamp ".concat(f2, ", offset = ").concat(l2, ", dataSize = ").concat(i3));
+                  break;
+                }
+                var m2 = _2.getUint32(l2, !d2);
+                if (3 === u2 && (m2 >>>= 8), m2 > i3 - u2) return void r.A.w(this.TAG, "Malformed Nalus near timestamp ".concat(f2, ", NaluSize > DataSize!"));
+                var g2 = 31 & _2.getUint8(l2 + u2);
+                5 === g2 && (p2 = true);
+                var v2 = new Uint8Array(e4, t3 + l2, u2 + m2), y2 = { type: g2, data: v2 };
+                h2.push(y2), c2 += v2.byteLength, 6 === g2 && this._parseSEIPayload(v2.subarray(u2), f2 + s3, "h264"), l2 += u2 + m2;
+              }
+              if (h2.length) {
+                var A2 = this._videoTrack, S2 = { units: h2, length: c2, isKeyframe: p2, dts: f2, cts: s3, pts: f2 + s3 };
+                p2 && (S2.fileposition = a3), A2.samples.push(S2), A2.length += c2;
+              }
+            }, e3.prototype._parseHEVCVideoData = function(e4, t3, i3, n2, a3, o2, s3) {
+              for (var d2 = this._littleEndian, _2 = new DataView(e4, t3, i3), h2 = [], c2 = 0, l2 = 0, u2 = this._naluLengthSize, f2 = this._timestampBase + n2, p2 = 1 === o2; l2 < i3; ) {
+                if (l2 + 4 >= i3) {
+                  r.A.w(this.TAG, "Malformed Nalu near timestamp ".concat(f2, ", offset = ").concat(l2, ", dataSize = ").concat(i3));
+                  break;
+                }
+                var m2 = _2.getUint32(l2, !d2);
+                if (3 === u2 && (m2 >>>= 8), m2 > i3 - u2) return void r.A.w(this.TAG, "Malformed Nalus near timestamp ".concat(f2, ", NaluSize > DataSize!"));
+                var g2 = _2.getUint8(l2 + u2) >> 1 & 63;
+                19 !== g2 && 20 !== g2 && 21 !== g2 || (p2 = true);
+                var v2 = new Uint8Array(e4, t3 + l2, u2 + m2), y2 = { type: g2, data: v2 };
+                h2.push(y2), c2 += v2.byteLength, 39 !== g2 && 40 !== g2 || this._parseSEIPayload(v2.subarray(u2), f2 + s3, "h265"), l2 += u2 + m2;
+              }
+              if (h2.length) {
+                var A2 = this._videoTrack, S2 = { units: h2, length: c2, isKeyframe: p2, dts: f2, cts: s3, pts: f2 + s3 };
+                p2 && (S2.fileposition = a3), A2.samples.push(S2), A2.length += c2;
+              }
+            }, e3.prototype._parseAV1VideoData = function(e4, t3, i3, n2, a3, o2, s3) {
+              this._littleEndian, new DataView(e4, t3, i3);
+              var d2, _2 = [], h2 = this._timestampBase + n2, c2 = 1 === o2;
+              if (c2) {
+                var l2 = this._videoMetadata, u2 = E.parseOBUs(new Uint8Array(e4, t3, i3), l2.extra);
+                if (null == u2) return void this._onError(m.A.FORMAT_ERROR, "Flv: Invalid AV1 VideoData");
+                console.log(u2), l2.codecWidth = u2.codec_size.width, l2.codecHeight = u2.codec_size.height, l2.presentWidth = u2.present_size.width, l2.presentHeight = u2.present_size.height, l2.sarRatio = u2.sar_ratio;
+                var f2 = this._mediaInfo;
+                f2.width = l2.codecWidth, f2.height = l2.codecHeight, f2.sarNum = l2.sarRatio.width, f2.sarDen = l2.sarRatio.height, r.A.v(this.TAG, "Parsed AV1DecoderConfigurationRecord"), this._isInitialMetadataDispatched() ? this._dispatch && (this._audioTrack.length || this._videoTrack.length) && this._onDataAvailable(this._audioTrack, this._videoTrack) : this._videoInitialMetadataDispatched = true, this._dispatch = false, this._onTrackMetadata("video", l2);
+              }
+              if (d2 = i3, _2.push({ unitType: 0, data: new Uint8Array(e4, t3 + 0, i3) }), _2.length) {
+                var p2 = this._videoTrack, g2 = { units: _2, length: d2, isKeyframe: c2, dts: h2, cts: s3, pts: h2 + s3 };
+                c2 && (g2.fileposition = a3), p2.samples.push(g2), p2.length += d2;
+              }
+            }, e3;
+          }(), w = k, C = function() {
+            function e3() {
+            }
+            return e3.prototype.destroy = function() {
+              this.onError = null, this.onMediaInfo = null, this.onMetaDataArrived = null, this.onTrackMetadata = null, this.onDataAvailable = null, this.onTimedID3Metadata = null, this.onPGSSubtitleData = null, this.onSynchronousKLVMetadata = null, this.onAsynchronousKLVMetadata = null, this.onSMPTE2038Metadata = null, this.onSEI = null, this.onSCTE35Metadata = null, this.onPESPrivateData = null, this.onPESPrivateDataDescriptor = null;
+            }, e3;
+          }(), M = function() {
+            this.program_pmt_pid = {};
+          };
+          !function(e3) {
+            e3[e3.kMPEG1Audio = 3] = "kMPEG1Audio", e3[e3.kMPEG2Audio = 4] = "kMPEG2Audio", e3[e3.kPESPrivateData = 6] = "kPESPrivateData", e3[e3.kADTSAAC = 15] = "kADTSAAC", e3[e3.kLOASAAC = 17] = "kLOASAAC", e3[e3.kAC3 = 129] = "kAC3", e3[e3.kEAC3 = 135] = "kEAC3", e3[e3.kMetadata = 21] = "kMetadata", e3[e3.kSCTE35 = 134] = "kSCTE35", e3[e3.kPGS = 144] = "kPGS", e3[e3.kH264 = 27] = "kH264", e3[e3.kH265 = 36] = "kH265";
+          }(L || (L = {}));
+          var D, B = function() {
+            this.pid_stream_type = {}, this.common_pids = { h264: void 0, h265: void 0, av1: void 0, adts_aac: void 0, loas_aac: void 0, opus: void 0, ac3: void 0, eac3: void 0, mp3: void 0 }, this.pes_private_data_pids = {}, this.timed_id3_pids = {}, this.pgs_pids = {}, this.pgs_langs = {}, this.synchronous_klv_pids = {}, this.asynchronous_klv_pids = {}, this.scte_35_pids = {}, this.smpte2038_pids = {};
+          }, O = function() {
+          }, I = function() {
+          }, P = function() {
+            this.slices = [], this.total_length = 0, this.expected_length = 0, this.file_position = 0;
+          };
+          !function(e3) {
+            e3[e3.kUnspecified = 0] = "kUnspecified", e3[e3.kSliceNonIDR = 1] = "kSliceNonIDR", e3[e3.kSliceDPA = 2] = "kSliceDPA", e3[e3.kSliceDPB = 3] = "kSliceDPB", e3[e3.kSliceDPC = 4] = "kSliceDPC", e3[e3.kSliceIDR = 5] = "kSliceIDR", e3[e3.kSliceSEI = 6] = "kSliceSEI", e3[e3.kSliceSPS = 7] = "kSliceSPS", e3[e3.kSlicePPS = 8] = "kSlicePPS", e3[e3.kSliceAUD = 9] = "kSliceAUD", e3[e3.kEndOfSequence = 10] = "kEndOfSequence", e3[e3.kEndOfStream = 11] = "kEndOfStream", e3[e3.kFiller = 12] = "kFiller", e3[e3.kSPSExt = 13] = "kSPSExt", e3[e3.kReserved0 = 14] = "kReserved0";
+          }(D || (D = {}));
+          var x, U, N = function() {
+          }, V = function(e3) {
+            var t3 = e3.data.byteLength;
+            this.type = e3.type, this.data = new Uint8Array(4 + t3), new DataView(this.data.buffer).setUint32(0, t3), this.data.set(e3.data, 4);
+          }, G = function() {
+            function e3(e4) {
+              this.TAG = "H264AnnexBParser", this.current_startcode_offset_ = 0, this.eof_flag_ = false, this.data_ = e4, this.current_startcode_offset_ = this.findNextStartCodeOffset(0), this.eof_flag_ && r.A.e(this.TAG, "Could not find H264 startcode until payload end!");
+            }
+            return e3.prototype.findNextStartCodeOffset = function(e4) {
+              for (var t3 = e4, i3 = this.data_; ; ) {
+                if (t3 + 3 >= i3.byteLength) return this.eof_flag_ = true, i3.byteLength;
+                var n2 = i3[t3 + 0] << 24 | i3[t3 + 1] << 16 | i3[t3 + 2] << 8 | i3[t3 + 3], a3 = i3[t3 + 0] << 16 | i3[t3 + 1] << 8 | i3[t3 + 2];
+                if (1 === n2 || 1 === a3) return t3;
+                t3++;
+              }
+            }, e3.prototype.readNextNaluPayload = function() {
+              for (var e4 = this.data_, t3 = null; null == t3 && !this.eof_flag_; ) {
+                var i3 = this.current_startcode_offset_, n2 = 31 & e4[i3 += 1 == (e4[i3] << 24 | e4[i3 + 1] << 16 | e4[i3 + 2] << 8 | e4[i3 + 3]) ? 4 : 3], a3 = (128 & e4[i3]) >>> 7, r2 = this.findNextStartCodeOffset(i3);
+                if (this.current_startcode_offset_ = r2, !(n2 >= D.kReserved0) && 0 === a3) {
+                  var o2 = e4.subarray(i3, r2);
+                  (t3 = new N()).type = n2, t3.data = o2;
+                }
+              }
+              return t3;
+            }, e3;
+          }(), F = function() {
+            function e3(e4, t3, i3) {
+              var n2 = 8 + e4.byteLength + 1 + 2 + t3.byteLength, a3 = false;
+              66 !== e4[3] && 77 !== e4[3] && 88 !== e4[3] && (a3 = true, n2 += 4);
+              var r2 = this.data = new Uint8Array(n2);
+              r2[0] = 1, r2[1] = e4[1], r2[2] = e4[2], r2[3] = e4[3], r2[4] = 255, r2[5] = 225;
+              var o2 = e4.byteLength;
+              r2[6] = o2 >>> 8, r2[7] = 255 & o2;
+              var s3 = 8;
+              r2.set(e4, 8), r2[s3 += o2] = 1;
+              var d2 = t3.byteLength;
+              r2[s3 + 1] = d2 >>> 8, r2[s3 + 2] = 255 & d2, r2.set(t3, s3 + 3), s3 += 3 + d2, a3 && (r2[s3] = 252 | i3.chroma_format_idc, r2[s3 + 1] = 248 | i3.bit_depth_luma - 8, r2[s3 + 2] = 248 | i3.bit_depth_chroma - 8, r2[s3 + 3] = 0, s3 += 4);
+            }
+            return e3.prototype.getData = function() {
+              return this.data;
+            }, e3;
+          }();
+          !function(e3) {
+            e3[e3.kNull = 0] = "kNull", e3[e3.kAACMain = 1] = "kAACMain", e3[e3.kAAC_LC = 2] = "kAAC_LC", e3[e3.kAAC_SSR = 3] = "kAAC_SSR", e3[e3.kAAC_LTP = 4] = "kAAC_LTP", e3[e3.kAAC_SBR = 5] = "kAAC_SBR", e3[e3.kAAC_Scalable = 6] = "kAAC_Scalable", e3[e3.kLayer1 = 32] = "kLayer1", e3[e3.kLayer2 = 33] = "kLayer2", e3[e3.kLayer3 = 34] = "kLayer3";
+          }(x || (x = {})), function(e3) {
+            e3[e3.k96000Hz = 0] = "k96000Hz", e3[e3.k88200Hz = 1] = "k88200Hz", e3[e3.k64000Hz = 2] = "k64000Hz", e3[e3.k48000Hz = 3] = "k48000Hz", e3[e3.k44100Hz = 4] = "k44100Hz", e3[e3.k32000Hz = 5] = "k32000Hz", e3[e3.k24000Hz = 6] = "k24000Hz", e3[e3.k22050Hz = 7] = "k22050Hz", e3[e3.k16000Hz = 8] = "k16000Hz", e3[e3.k12000Hz = 9] = "k12000Hz", e3[e3.k11025Hz = 10] = "k11025Hz", e3[e3.k8000Hz = 11] = "k8000Hz", e3[e3.k7350Hz = 12] = "k7350Hz";
+          }(U || (U = {}));
+          var j, z, H = [96e3, 88200, 64e3, 48e3, 44100, 32e3, 24e3, 22050, 16e3, 12e3, 11025, 8e3, 7350], q = (j = function(e3, t3) {
+            return j = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+              e4.__proto__ = t4;
+            } || function(e4, t4) {
+              for (var i3 in t4) Object.prototype.hasOwnProperty.call(t4, i3) && (e4[i3] = t4[i3]);
+            }, j(e3, t3);
+          }, function(e3, t3) {
+            if ("function" != typeof t3 && null !== t3) throw new TypeError("Class extends value " + String(t3) + " is not a constructor or null");
+            function i3() {
+              this.constructor = e3;
+            }
+            j(e3, t3), e3.prototype = null === t3 ? Object.create(t3) : (i3.prototype = t3.prototype, new i3());
+          }), K = function() {
+          }, W = function(e3) {
+            function t3() {
+              return null !== e3 && e3.apply(this, arguments) || this;
+            }
+            return q(t3, e3), t3;
+          }(K), X = function() {
+            function e3(e4) {
+              this.TAG = "AACADTSParser", this.data_ = e4, this.current_syncword_offset_ = this.findNextSyncwordOffset(0), this.eof_flag_ && r.A.e(this.TAG, "Could not found ADTS syncword until payload end");
+            }
+            return e3.prototype.findNextSyncwordOffset = function(e4) {
+              for (var t3 = e4, i3 = this.data_; ; ) {
+                if (t3 + 7 >= i3.byteLength) return this.eof_flag_ = true, i3.byteLength;
+                if (4095 == (i3[t3 + 0] << 8 | i3[t3 + 1]) >>> 4) return t3;
+                t3++;
+              }
+            }, e3.prototype.readNextAACFrame = function() {
+              for (var e4 = this.data_, t3 = null; null == t3 && !this.eof_flag_; ) {
+                var i3 = this.current_syncword_offset_, n2 = (8 & e4[i3 + 1]) >>> 3, a3 = (6 & e4[i3 + 1]) >>> 1, r2 = 1 & e4[i3 + 1], o2 = (192 & e4[i3 + 2]) >>> 6, s3 = (60 & e4[i3 + 2]) >>> 2, d2 = (1 & e4[i3 + 2]) << 2 | (192 & e4[i3 + 3]) >>> 6, _2 = (3 & e4[i3 + 3]) << 11 | e4[i3 + 4] << 3 | (224 & e4[i3 + 5]) >>> 5;
+                if (e4[i3 + 6], i3 + _2 > this.data_.byteLength) {
+                  this.eof_flag_ = true, this.has_last_incomplete_data = true;
+                  break;
+                }
+                var h2 = 1 === r2 ? 7 : 9, c2 = _2 - h2;
+                i3 += h2;
+                var l2 = this.findNextSyncwordOffset(i3 + c2);
+                if (this.current_syncword_offset_ = l2, (0 === n2 || 1 === n2) && 0 === a3) {
+                  var u2 = e4.subarray(i3, i3 + c2);
+                  (t3 = new K()).audio_object_type = o2 + 1, t3.sampling_freq_index = s3, t3.sampling_frequency = H[s3], t3.channel_config = d2, t3.data = u2;
+                }
+              }
+              return t3;
+            }, e3.prototype.hasIncompleteData = function() {
+              return this.has_last_incomplete_data;
+            }, e3.prototype.getIncompleteData = function() {
+              return this.has_last_incomplete_data ? this.data_.subarray(this.current_syncword_offset_) : null;
+            }, e3;
+          }(), Y = function() {
+            function e3(e4) {
+              this.TAG = "AACLOASParser", this.data_ = e4, this.current_syncword_offset_ = this.findNextSyncwordOffset(0), this.eof_flag_ && r.A.e(this.TAG, "Could not found LOAS syncword until payload end");
+            }
+            return e3.prototype.findNextSyncwordOffset = function(e4) {
+              for (var t3 = e4, i3 = this.data_; ; ) {
+                if (t3 + 1 >= i3.byteLength) return this.eof_flag_ = true, i3.byteLength;
+                if (695 == (i3[t3 + 0] << 3 | i3[t3 + 1] >>> 5)) return t3;
+                t3++;
+              }
+            }, e3.prototype.getLATMValue = function(e4) {
+              for (var t3 = e4.readBits(2), i3 = 0, n2 = 0; n2 <= t3; n2++) i3 <<= 8, i3 |= e4.readByte();
+              return i3;
+            }, e3.prototype.readNextAACFrame = function(e4) {
+              for (var t3 = this.data_, i3 = null; null == i3 && !this.eof_flag_; ) {
+                var n2 = this.current_syncword_offset_, a3 = (31 & t3[n2 + 1]) << 8 | t3[n2 + 2];
+                if (n2 + 3 + a3 >= this.data_.byteLength) {
+                  this.eof_flag_ = true, this.has_last_incomplete_data = true;
+                  break;
+                }
+                var o2 = new f(t3.subarray(n2 + 3, n2 + 3 + a3)), s3 = null;
+                if (o2.readBool()) {
+                  if (null == e4) {
+                    r.A.w(this.TAG, "StreamMuxConfig Missing"), this.current_syncword_offset_ = this.findNextSyncwordOffset(n2 + 3 + a3), o2.destroy();
+                    continue;
+                  }
+                  s3 = e4;
+                } else {
+                  var d2 = o2.readBool();
+                  if (d2 && o2.readBool()) {
+                    r.A.e(this.TAG, "audioMuxVersionA is Not Supported"), o2.destroy();
+                    break;
+                  }
+                  if (d2 && this.getLATMValue(o2), !o2.readBool()) {
+                    r.A.e(this.TAG, "allStreamsSameTimeFraming zero is Not Supported"), o2.destroy();
+                    break;
+                  }
+                  if (0 !== o2.readBits(6)) {
+                    r.A.e(this.TAG, "more than 2 numSubFrames Not Supported"), o2.destroy();
+                    break;
+                  }
+                  if (0 !== o2.readBits(4)) {
+                    r.A.e(this.TAG, "more than 2 numProgram Not Supported"), o2.destroy();
+                    break;
+                  }
+                  if (0 !== o2.readBits(3)) {
+                    r.A.e(this.TAG, "more than 2 numLayer Not Supported"), o2.destroy();
+                    break;
+                  }
+                  var _2 = d2 ? this.getLATMValue(o2) : 0, h2 = o2.readBits(5);
+                  _2 -= 5;
+                  var c2 = o2.readBits(4);
+                  _2 -= 4;
+                  var l2 = o2.readBits(4);
+                  _2 -= 4, o2.readBits(3), (_2 -= 3) > 0 && o2.readBits(_2);
+                  var u2 = o2.readBits(3);
+                  if (0 !== u2) {
+                    r.A.e(this.TAG, "frameLengthType = ".concat(u2, ". Only frameLengthType = 0 Supported")), o2.destroy();
+                    break;
+                  }
+                  o2.readByte();
+                  var p2 = o2.readBool();
+                  if (p2) if (d2) this.getLATMValue(o2);
+                  else {
+                    for (var m2 = 0; ; ) {
+                      m2 <<= 8;
+                      var g2 = o2.readBool();
+                      if (m2 += o2.readByte(), !g2) break;
+                    }
+                    console.log(m2);
+                  }
+                  o2.readBool() && o2.readByte(), (s3 = new W()).audio_object_type = h2, s3.sampling_freq_index = c2, s3.sampling_frequency = H[s3.sampling_freq_index], s3.channel_config = l2, s3.other_data_present = p2;
+                }
+                for (var v2 = 0; ; ) {
+                  var y2 = o2.readByte();
+                  if (v2 += y2, 255 !== y2) break;
+                }
+                for (var A2 = new Uint8Array(v2), S2 = 0; S2 < v2; S2++) A2[S2] = o2.readByte();
+                (i3 = new W()).audio_object_type = s3.audio_object_type, i3.sampling_freq_index = s3.sampling_freq_index, i3.sampling_frequency = H[s3.sampling_freq_index], i3.channel_config = s3.channel_config, i3.other_data_present = s3.other_data_present, i3.data = A2, this.current_syncword_offset_ = this.findNextSyncwordOffset(n2 + 3 + a3);
+              }
+              return i3;
+            }, e3.prototype.hasIncompleteData = function() {
+              return this.has_last_incomplete_data;
+            }, e3.prototype.getIncompleteData = function() {
+              return this.has_last_incomplete_data ? this.data_.subarray(this.current_syncword_offset_) : null;
+            }, e3;
+          }(), Q = function(e3) {
+            var t3 = null, i3 = e3.audio_object_type, n2 = e3.audio_object_type, a3 = e3.sampling_freq_index, r2 = e3.channel_config, o2 = 0, s3 = navigator.userAgent.toLowerCase();
+            -1 !== s3.indexOf("firefox") ? a3 >= 6 ? (n2 = 5, t3 = new Array(4), o2 = a3 - 3) : (n2 = 2, t3 = new Array(2), o2 = a3) : -1 !== s3.indexOf("android") ? (n2 = 2, t3 = new Array(2), o2 = a3) : (n2 = 5, o2 = a3, t3 = new Array(4), a3 >= 6 ? o2 = a3 - 3 : 1 === r2 && (n2 = 2, t3 = new Array(2), o2 = a3)), t3[0] = n2 << 3, t3[0] |= (15 & a3) >>> 1, t3[1] = (15 & a3) << 7, t3[1] |= (15 & r2) << 3, 5 === n2 && (t3[1] |= (15 & o2) >>> 1, t3[2] = (1 & o2) << 7, t3[2] |= 8, t3[3] = 0), this.config = t3, this.sampling_rate = H[a3], this.channel_count = r2, this.codec_mimetype = "mp4a.40." + n2, this.original_codec_mimetype = "mp4a.40." + i3;
+          }, Z = function() {
+          }, $ = function() {
+          };
+          !function(e3) {
+            e3[e3.kSpliceNull = 0] = "kSpliceNull", e3[e3.kSpliceSchedule = 4] = "kSpliceSchedule", e3[e3.kSpliceInsert = 5] = "kSpliceInsert", e3[e3.kTimeSignal = 6] = "kTimeSignal", e3[e3.kBandwidthReservation = 7] = "kBandwidthReservation", e3[e3.kPrivateCommand = 255] = "kPrivateCommand";
+          }(z || (z = {}));
+          var J, ee = function(e3) {
+            var t3 = e3.readBool();
+            return t3 ? (e3.readBits(6), { time_specified_flag: t3, pts_time: 4 * e3.readBits(31) + e3.readBits(2) }) : (e3.readBits(7), { time_specified_flag: t3 });
+          }, te = function(e3) {
+            var t3 = e3.readBool();
+            return e3.readBits(6), { auto_return: t3, duration: 4 * e3.readBits(31) + e3.readBits(2) };
+          }, ie = function(e3, t3) {
+            var i3 = t3.readBits(8);
+            return e3 ? { component_tag: i3 } : { component_tag: i3, splice_time: ee(t3) };
+          }, ne = function(e3) {
+            return { component_tag: e3.readBits(8), utc_splice_time: e3.readBits(32) };
+          }, ae = function(e3) {
+            var t3 = e3.readBits(32), i3 = e3.readBool();
+            e3.readBits(7);
+            var n2 = { splice_event_id: t3, splice_event_cancel_indicator: i3 };
+            if (i3) return n2;
+            if (n2.out_of_network_indicator = e3.readBool(), n2.program_splice_flag = e3.readBool(), n2.duration_flag = e3.readBool(), e3.readBits(5), n2.program_splice_flag) n2.utc_splice_time = e3.readBits(32);
+            else {
+              n2.component_count = e3.readBits(8), n2.components = [];
+              for (var a3 = 0; a3 < n2.component_count; a3++) n2.components.push(ne(e3));
+            }
+            return n2.duration_flag && (n2.break_duration = te(e3)), n2.unique_program_id = e3.readBits(16), n2.avail_num = e3.readBits(8), n2.avails_expected = e3.readBits(8), n2;
+          }, re = function(e3, t3, i3, n2) {
+            return { descriptor_tag: e3, descriptor_length: t3, identifier: i3, provider_avail_id: n2.readBits(32) };
+          }, oe = function(e3, t3, i3, n2) {
+            var a3 = n2.readBits(8), r2 = n2.readBits(3);
+            n2.readBits(5);
+            for (var o2 = "", s3 = 0; s3 < r2; s3++) o2 += String.fromCharCode(n2.readBits(8));
+            return { descriptor_tag: e3, descriptor_length: t3, identifier: i3, preroll: a3, dtmf_count: r2, DTMF_char: o2 };
+          }, se = function(e3) {
+            var t3 = e3.readBits(8);
+            return e3.readBits(7), { component_tag: t3, pts_offset: 4 * e3.readBits(31) + e3.readBits(2) };
+          }, de = function(e3, t3, i3, n2) {
+            var a3 = n2.readBits(32), r2 = n2.readBool();
+            n2.readBits(7);
+            var o2 = { descriptor_tag: e3, descriptor_length: t3, identifier: i3, segmentation_event_id: a3, segmentation_event_cancel_indicator: r2 };
+            if (r2) return o2;
+            if (o2.program_segmentation_flag = n2.readBool(), o2.segmentation_duration_flag = n2.readBool(), o2.delivery_not_restricted_flag = n2.readBool(), o2.delivery_not_restricted_flag ? n2.readBits(5) : (o2.web_delivery_allowed_flag = n2.readBool(), o2.no_regional_blackout_flag = n2.readBool(), o2.archive_allowed_flag = n2.readBool(), o2.device_restrictions = n2.readBits(2)), !o2.program_segmentation_flag) {
+              o2.component_count = n2.readBits(8), o2.components = [];
+              for (var s3 = 0; s3 < o2.component_count; s3++) o2.components.push(se(n2));
+            }
+            o2.segmentation_duration_flag && (o2.segmentation_duration = n2.readBits(40)), o2.segmentation_upid_type = n2.readBits(8), o2.segmentation_upid_length = n2.readBits(8);
+            var d2 = new Uint8Array(o2.segmentation_upid_length);
+            for (s3 = 0; s3 < o2.segmentation_upid_length; s3++) d2[s3] = n2.readBits(8);
+            return o2.segmentation_upid = d2.buffer, o2.segmentation_type_id = n2.readBits(8), o2.segment_num = n2.readBits(8), o2.segments_expected = n2.readBits(8), 52 !== o2.segmentation_type_id && 54 !== o2.segmentation_type_id && 56 !== o2.segmentation_type_id && 58 !== o2.segmentation_type_id || (o2.sub_segment_num = n2.readBits(8), o2.sub_segments_expected = n2.readBits(8)), o2;
+          }, _e = function(e3, t3, i3, n2) {
+            return { descriptor_tag: e3, descriptor_length: t3, identifier: i3, TAI_seconds: n2.readBits(48), TAI_ns: n2.readBits(32), UTC_offset: n2.readBits(16) };
+          }, he = function(e3) {
+            return { component_tag: e3.readBits(8), ISO_code: String.fromCharCode(e3.readBits(8), e3.readBits(8), e3.readBits(8)), Bit_Stream_Mode: e3.readBits(3), Num_Channels: e3.readBits(4), Full_Srvc_Audio: e3.readBool() };
+          }, ce = function(e3, t3, i3, n2) {
+            for (var a3 = n2.readBits(4), r2 = [], o2 = 0; o2 < a3; o2++) r2.push(he(n2));
+            return { descriptor_tag: e3, descriptor_length: t3, identifier: i3, audio_count: a3, components: r2 };
+          };
+          !function(e3) {
+            e3[e3.kSliceIDR_W_RADL = 19] = "kSliceIDR_W_RADL", e3[e3.kSliceIDR_N_LP = 20] = "kSliceIDR_N_LP", e3[e3.kSliceCRA_NUT = 21] = "kSliceCRA_NUT", e3[e3.kSliceVPS = 32] = "kSliceVPS", e3[e3.kSliceSPS = 33] = "kSliceSPS", e3[e3.kSlicePPS = 34] = "kSlicePPS", e3[e3.kSliceAUD = 35] = "kSliceAUD", e3[e3.kSliceSEI = 39] = "kSliceSEI", e3[e3.kSliceSEISuffix = 40] = "kSliceSEISuffix";
+          }(J || (J = {}));
+          var le = function() {
+          }, ue = function(e3) {
+            var t3 = e3.data.byteLength;
+            this.type = e3.type, this.data = new Uint8Array(4 + t3), new DataView(this.data.buffer).setUint32(0, t3), this.data.set(e3.data, 4);
+          }, fe = function() {
+            function e3(e4) {
+              this.TAG = "H265AnnexBParser", this.current_startcode_offset_ = 0, this.eof_flag_ = false, this.data_ = e4, this.current_startcode_offset_ = this.findNextStartCodeOffset(0), this.eof_flag_ && r.A.e(this.TAG, "Could not find H265 startcode until payload end!");
+            }
+            return e3.prototype.findNextStartCodeOffset = function(e4) {
+              for (var t3 = e4, i3 = this.data_; ; ) {
+                if (t3 + 3 >= i3.byteLength) return this.eof_flag_ = true, i3.byteLength;
+                var n2 = i3[t3 + 0] << 24 | i3[t3 + 1] << 16 | i3[t3 + 2] << 8 | i3[t3 + 3], a3 = i3[t3 + 0] << 16 | i3[t3 + 1] << 8 | i3[t3 + 2];
+                if (1 === n2 || 1 === a3) return t3;
+                t3++;
+              }
+            }, e3.prototype.readNextNaluPayload = function() {
+              for (var e4 = this.data_, t3 = null; null == t3 && !this.eof_flag_; ) {
+                var i3 = this.current_startcode_offset_, n2 = e4[i3 += 1 == (e4[i3] << 24 | e4[i3 + 1] << 16 | e4[i3 + 2] << 8 | e4[i3 + 3]) ? 4 : 3] >> 1 & 63, a3 = (128 & e4[i3]) >>> 7, r2 = this.findNextStartCodeOffset(i3);
+                if (this.current_startcode_offset_ = r2, 0 === a3) {
+                  var o2 = e4.subarray(i3, r2);
+                  (t3 = new le()).type = n2, t3.data = o2;
+                }
+              }
+              return t3;
+            }, e3;
+          }(), pe = function() {
+            function e3(e4, t3, i3, n2) {
+              var a3 = 23 + (5 + e4.byteLength) + (5 + t3.byteLength) + (5 + i3.byteLength), r2 = this.data = new Uint8Array(a3);
+              r2[0] = 1, r2[1] = (3 & n2.general_profile_space) << 6 | (n2.general_tier_flag ? 1 : 0) << 5 | 31 & n2.general_profile_idc, r2[2] = n2.general_profile_compatibility_flags_1, r2[3] = n2.general_profile_compatibility_flags_2, r2[4] = n2.general_profile_compatibility_flags_3, r2[5] = n2.general_profile_compatibility_flags_4, r2[6] = n2.general_constraint_indicator_flags_1, r2[7] = n2.general_constraint_indicator_flags_2, r2[8] = n2.general_constraint_indicator_flags_3, r2[9] = n2.general_constraint_indicator_flags_4, r2[10] = n2.general_constraint_indicator_flags_5, r2[11] = n2.general_constraint_indicator_flags_6, r2[12] = n2.general_level_idc, r2[13] = 240 | (3840 & n2.min_spatial_segmentation_idc) >> 8, r2[14] = 255 & n2.min_spatial_segmentation_idc, r2[15] = 252 | 3 & n2.parallelismType, r2[16] = 252 | 3 & n2.chroma_format_idc, r2[17] = 248 | 7 & n2.bit_depth_luma_minus8, r2[18] = 248 | 7 & n2.bit_depth_chroma_minus8, r2[19] = 0, r2[20] = 0, r2[21] = (3 & n2.constant_frame_rate) << 6 | (7 & n2.num_temporal_layers) << 3 | (n2.temporal_id_nested ? 1 : 0) << 2 | 3, r2[22] = 3, r2[23] = 128 | J.kSliceVPS, r2[24] = 0, r2[25] = 1, r2[26] = (65280 & e4.byteLength) >> 8, r2[27] = 255 & e4.byteLength, r2.set(e4, 28), r2[23 + (5 + e4.byteLength) + 0] = 128 | J.kSliceSPS, r2[23 + (5 + e4.byteLength) + 1] = 0, r2[23 + (5 + e4.byteLength) + 2] = 1, r2[23 + (5 + e4.byteLength) + 3] = (65280 & t3.byteLength) >> 8, r2[23 + (5 + e4.byteLength) + 4] = 255 & t3.byteLength, r2.set(t3, 23 + (5 + e4.byteLength) + 5), r2[23 + (5 + e4.byteLength + 5 + t3.byteLength) + 0] = 128 | J.kSlicePPS, r2[23 + (5 + e4.byteLength + 5 + t3.byteLength) + 1] = 0, r2[23 + (5 + e4.byteLength + 5 + t3.byteLength) + 2] = 1, r2[23 + (5 + e4.byteLength + 5 + t3.byteLength) + 3] = (65280 & i3.byteLength) >> 8, r2[23 + (5 + e4.byteLength + 5 + t3.byteLength) + 4] = 255 & i3.byteLength, r2.set(i3, 23 + (5 + e4.byteLength + 5 + t3.byteLength) + 5);
+            }
+            return e3.prototype.getData = function() {
+              return this.data;
+            }, e3;
+          }(), me = function() {
+          }, ge = function() {
+          }, ve = function() {
+          }, ye = [[64, 64, 80, 80, 96, 96, 112, 112, 128, 128, 160, 160, 192, 192, 224, 224, 256, 256, 320, 320, 384, 384, 448, 448, 512, 512, 640, 640, 768, 768, 896, 896, 1024, 1024, 1152, 1152, 1280, 1280], [69, 70, 87, 88, 104, 105, 121, 122, 139, 140, 174, 175, 208, 209, 243, 244, 278, 279, 348, 349, 417, 418, 487, 488, 557, 558, 696, 697, 835, 836, 975, 976, 1114, 1115, 1253, 1254, 1393, 1394], [96, 96, 120, 120, 144, 144, 168, 168, 192, 192, 240, 240, 288, 288, 336, 336, 384, 384, 480, 480, 576, 576, 672, 672, 768, 768, 960, 960, 1152, 1152, 1344, 1344, 1536, 1536, 1728, 1728, 1920, 1920]], Ae = function() {
+            function e3(e4) {
+              this.TAG = "AC3Parser", this.data_ = e4, this.current_syncword_offset_ = this.findNextSyncwordOffset(0), this.eof_flag_ && r.A.e(this.TAG, "Could not found AC3 syncword until payload end");
+            }
+            return e3.prototype.findNextSyncwordOffset = function(e4) {
+              for (var t3 = e4, i3 = this.data_; ; ) {
+                if (t3 + 7 >= i3.byteLength) return this.eof_flag_ = true, i3.byteLength;
+                if (2935 == (i3[t3 + 0] << 8 | i3[t3 + 1])) return t3;
+                t3++;
+              }
+            }, e3.prototype.readNextAC3Frame = function() {
+              for (var e4 = this.data_, t3 = null; null == t3 && !this.eof_flag_; ) {
+                var i3 = this.current_syncword_offset_, n2 = e4[i3 + 4] >> 6, a3 = [48e3, 44200, 33e3][n2], r2 = 63 & e4[i3 + 4], o2 = 2 * ye[n2][r2];
+                if (isNaN(o2) || i3 + o2 > this.data_.byteLength) {
+                  this.eof_flag_ = true, this.has_last_incomplete_data = true;
+                  break;
+                }
+                var s3 = this.findNextSyncwordOffset(i3 + o2);
+                this.current_syncword_offset_ = s3;
+                var d2 = e4[i3 + 5] >> 3, _2 = 7 & e4[i3 + 5], h2 = e4[i3 + 6] >> 5, c2 = 0;
+                1 & h2 && 1 !== h2 && (c2 += 2), 4 & h2 && (c2 += 2), 2 === h2 && (c2 += 2);
+                var l2 = (e4[i3 + 6] << 8 | e4[i3 + 7]) >> 12 - c2 & 1, u2 = [2, 1, 2, 3, 3, 4, 4, 5][h2] + l2;
+                (t3 = new ve()).sampling_frequency = a3, t3.channel_count = u2, t3.channel_mode = h2, t3.bit_stream_identification = d2, t3.low_frequency_effects_channel_on = l2, t3.bit_stream_mode = _2, t3.frame_size_code = r2, t3.data = e4.subarray(i3, i3 + o2);
+              }
+              return t3;
+            }, e3.prototype.hasIncompleteData = function() {
+              return this.has_last_incomplete_data;
+            }, e3.prototype.getIncompleteData = function() {
+              return this.has_last_incomplete_data ? this.data_.subarray(this.current_syncword_offset_) : null;
+            }, e3;
+          }(), Se = function(e3) {
+            var t3;
+            t3 = [e3.sampling_rate_code << 6 | e3.bit_stream_identification << 1 | e3.bit_stream_mode >> 2, (3 & e3.bit_stream_mode) << 6 | e3.channel_mode << 3 | e3.low_frequency_effects_channel_on << 2 | e3.frame_size_code >> 4, e3.frame_size_code << 4 & 224], this.config = t3, this.sampling_rate = e3.sampling_frequency, this.bit_stream_identification = e3.bit_stream_identification, this.bit_stream_mode = e3.bit_stream_mode, this.low_frequency_effects_channel_on = e3.low_frequency_effects_channel_on, this.channel_count = e3.channel_count, this.channel_mode = e3.channel_mode, this.codec_mimetype = "ac-3", this.original_codec_mimetype = "ac-3";
+          }, be = function() {
+          }, Ee = function() {
+            function e3(e4) {
+              this.TAG = "EAC3Parser", this.data_ = e4, this.current_syncword_offset_ = this.findNextSyncwordOffset(0), this.eof_flag_ && r.A.e(this.TAG, "Could not found AC3 syncword until payload end");
+            }
+            return e3.prototype.findNextSyncwordOffset = function(e4) {
+              for (var t3 = e4, i3 = this.data_; ; ) {
+                if (t3 + 7 >= i3.byteLength) return this.eof_flag_ = true, i3.byteLength;
+                if (2935 == (i3[t3 + 0] << 8 | i3[t3 + 1])) return t3;
+                t3++;
+              }
+            }, e3.prototype.readNextEAC3Frame = function() {
+              for (var e4 = this.data_, t3 = null; null == t3 && !this.eof_flag_; ) {
+                var i3 = this.current_syncword_offset_, n2 = new f(e4.subarray(i3 + 2)), a3 = (n2.readBits(2), n2.readBits(3), n2.readBits(11) + 1 << 1), r2 = n2.readBits(2), o2 = null, s3 = null;
+                3 === r2 ? (o2 = [24e3, 22060, 16e3][r2 = n2.readBits(2)], s3 = 3) : (o2 = [48e3, 44100, 32e3][r2], s3 = n2.readBits(2));
+                var d2 = n2.readBits(3), _2 = n2.readBits(1), h2 = n2.readBits(5);
+                if (i3 + a3 > this.data_.byteLength) {
+                  this.eof_flag_ = true, this.has_last_incomplete_data = true;
+                  break;
+                }
+                var c2 = this.findNextSyncwordOffset(i3 + a3);
+                this.current_syncword_offset_ = c2;
+                var l2 = [2, 1, 2, 3, 3, 4, 4, 5][d2] + _2;
+                n2.destroy(), (t3 = new be()).sampling_frequency = o2, t3.channel_count = l2, t3.channel_mode = d2, t3.bit_stream_identification = h2, t3.low_frequency_effects_channel_on = _2, t3.frame_size = a3, t3.num_blks = [1, 2, 3, 6][s3], t3.data = e4.subarray(i3, i3 + a3);
+              }
+              return t3;
+            }, e3.prototype.hasIncompleteData = function() {
+              return this.has_last_incomplete_data;
+            }, e3.prototype.getIncompleteData = function() {
+              return this.has_last_incomplete_data ? this.data_.subarray(this.current_syncword_offset_) : null;
+            }, e3;
+          }(), Re = function(e3) {
+            var t3, i3 = Math.floor(e3.frame_size * e3.sampling_frequency / (16 * e3.num_blks));
+            t3 = [255 & i3, 248 & i3, e3.sampling_rate_code << 6 | e3.bit_stream_identification << 1, e3.channel_mode << 1 | e3.low_frequency_effects_channel_on, 0], this.config = t3, this.sampling_rate = e3.sampling_frequency, this.bit_stream_identification = e3.bit_stream_identification, this.num_blks = e3.num_blks, this.low_frequency_effects_channel_on = e3.low_frequency_effects_channel_on, this.channel_count = e3.channel_count, this.channel_mode = e3.channel_mode, this.codec_mimetype = "ec-3", this.original_codec_mimetype = "ec-3";
+          }, Te = function() {
+          }, Le = function() {
+            function e3(e4) {
+              this.TAG = "AV1OBUInMpegTsParser", this.current_startcode_offset_ = 0, this.eof_flag_ = false, this.data_ = e4, this.current_startcode_offset_ = this.findNextStartCodeOffset(0), this.eof_flag_ && r.A.e(this.TAG, "Could not find AV1 startcode until payload end!");
+            }
+            return e3._ebsp2rbsp = function(e4) {
+              for (var t3 = e4, i3 = t3.byteLength, n2 = new Uint8Array(i3), a3 = 0, r2 = 0; r2 < i3; r2++) r2 >= 2 && 3 === t3[r2] && 0 === t3[r2 - 1] && 0 === t3[r2 - 2] || (n2[a3] = t3[r2], a3++);
+              return new Uint8Array(n2.buffer, 0, a3);
+            }, e3.prototype.findNextStartCodeOffset = function(e4) {
+              for (var t3 = e4, i3 = this.data_; ; ) {
+                if (t3 + 2 >= i3.byteLength) return this.eof_flag_ = true, i3.byteLength;
+                if (1 == (i3[t3 + 0] << 16 | i3[t3 + 1] << 8 | i3[t3 + 2])) return t3;
+                t3++;
+              }
+            }, e3.prototype.readNextOBUPayload = function() {
+              for (var t3 = this.data_, i3 = null; null == i3 && !this.eof_flag_; ) {
+                var n2 = this.current_startcode_offset_ + 3, a3 = this.findNextStartCodeOffset(n2);
+                this.current_startcode_offset_ = a3, i3 = e3._ebsp2rbsp(t3.subarray(n2, a3));
+              }
+              return i3;
+            }, e3;
+          }(), ke = function() {
+          }, we = /* @__PURE__ */ function() {
+            var e3 = function(t3, i3) {
+              return e3 = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+                e4.__proto__ = t4;
+              } || function(e4, t4) {
+                for (var i4 in t4) Object.prototype.hasOwnProperty.call(t4, i4) && (e4[i4] = t4[i4]);
+              }, e3(t3, i3);
+            };
+            return function(t3, i3) {
+              if ("function" != typeof i3 && null !== i3) throw new TypeError("Class extends value " + String(i3) + " is not a constructor or null");
+              function n2() {
+                this.constructor = t3;
+              }
+              e3(t3, i3), t3.prototype = null === i3 ? Object.create(i3) : (n2.prototype = i3.prototype, new n2());
+            };
+          }(), Ce = function() {
+            return Ce = Object.assign || function(e3) {
+              for (var t3, i3 = 1, n2 = arguments.length; i3 < n2; i3++) for (var a3 in t3 = arguments[i3]) Object.prototype.hasOwnProperty.call(t3, a3) && (e3[a3] = t3[a3]);
+              return e3;
+            }, Ce.apply(this, arguments);
+          }, Me = function(e3) {
+            function t3(t4, i3) {
+              var n2 = e3.call(this) || this;
+              return n2.TAG = "TSDemuxer", n2.first_parse_ = true, n2.media_info_ = new s2.A(), n2.timescale_ = 90, n2.duration_ = 0, n2.current_pmt_pid_ = -1, n2.program_pmt_map_ = {}, n2.pes_slice_queues_ = {}, n2.section_slice_queues_ = {}, n2.video_metadata_ = { vps: void 0, sps: void 0, pps: void 0, av1c: void 0, details: void 0 }, n2.audio_metadata_ = { codec: void 0, audio_object_type: void 0, sampling_freq_index: void 0, sampling_frequency: void 0, channel_config: void 0 }, n2.last_pcr_base_ = NaN, n2.timestamp_offset_ = 0, n2.audio_last_sample_pts_ = void 0, n2.aac_last_incomplete_data_ = null, n2.has_video_ = false, n2.has_audio_ = false, n2.video_init_segment_dispatched_ = false, n2.audio_init_segment_dispatched_ = false, n2.video_metadata_changed_ = false, n2.audio_metadata_changed_ = false, n2.loas_previous_frame = null, n2.video_track_ = { type: "video", id: 1, sequenceNumber: 0, samples: [], length: 0 }, n2.audio_track_ = { type: "audio", id: 2, sequenceNumber: 0, samples: [], length: 0 }, n2.ts_packet_size_ = t4.ts_packet_size, n2.sync_offset_ = t4.sync_offset, n2.config_ = i3, n2;
+            }
+            return we(t3, e3), t3.prototype.destroy = function() {
+              this.media_info_ = null, this.pes_slice_queues_ = null, this.section_slice_queues_ = null, this.video_metadata_ = null, this.audio_metadata_ = null, this.aac_last_incomplete_data_ = null, this.video_track_ = null, this.audio_track_ = null, e3.prototype.destroy.call(this);
+            }, t3.probe = function(e4) {
+              var t4 = new Uint8Array(e4), i3 = -1, n2 = 188;
+              if (t4.byteLength <= 3 * n2) return { needMoreData: true };
+              for (; -1 === i3; ) {
+                for (var a3 = Math.min(1e3, t4.byteLength - 3 * n2), o2 = 0; o2 < a3; ) {
+                  if (71 === t4[o2] && 71 === t4[o2 + n2] && 71 === t4[o2 + 2 * n2]) {
+                    i3 = o2;
+                    break;
+                  }
+                  o2++;
+                }
+                if (-1 === i3) if (188 === n2) n2 = 192;
+                else {
+                  if (192 !== n2) break;
+                  n2 = 204;
+                }
+              }
+              return -1 === i3 ? { match: false } : (192 === n2 && i3 >= 4 ? (r.A.v("TSDemuxer", "ts_packet_size = 192, m2ts mode"), i3 -= 4) : 204 === n2 && r.A.v("TSDemuxer", "ts_packet_size = 204, RS encoded MPEG2-TS stream"), { match: true, consumed: 0, ts_packet_size: n2, sync_offset: i3 });
+            }, t3.prototype.bindDataSource = function(e4) {
+              return e4.onDataArrival = this.parseChunks.bind(this), this;
+            }, t3.prototype.resetMediaInfo = function() {
+              this.media_info_ = new s2.A();
+            }, t3.prototype.parseChunks = function(e4, t4) {
+              if (!(this.onError && this.onMediaInfo && this.onTrackMetadata && this.onDataAvailable)) throw new c.j4("onError & onMediaInfo & onTrackMetadata & onDataAvailable callback must be specified");
+              var i3 = 0;
+              for (this.first_parse_ && (this.first_parse_ = false, i3 = this.sync_offset_); i3 + this.ts_packet_size_ <= e4.byteLength; ) {
+                var n2 = t4 + i3;
+                192 === this.ts_packet_size_ && (i3 += 4);
+                var a3 = new Uint8Array(e4, i3, 188), o2 = a3[0];
+                if (71 !== o2) {
+                  r.A.e(this.TAG, "sync_byte = ".concat(o2, ", not 0x47"));
+                  break;
+                }
+                var s3 = (64 & a3[1]) >>> 6, d2 = (a3[1], (31 & a3[1]) << 8 | a3[2]), _2 = (48 & a3[3]) >>> 4, h2 = 15 & a3[3], l2 = !(!this.pmt_ || this.pmt_.pcr_pid !== d2), u2 = {}, f2 = 4;
+                if (2 == _2 || 3 == _2) {
+                  var p2 = a3[4];
+                  if (p2 > 0 && (l2 || 3 == _2) && (u2.discontinuity_indicator = (128 & a3[5]) >>> 7, u2.random_access_indicator = (64 & a3[5]) >>> 6, u2.elementary_stream_priority_indicator = (32 & a3[5]) >>> 5, (16 & a3[5]) >>> 4)) {
+                    var m2 = 300 * this.getPcrBase(a3) + ((1 & a3[10]) << 8 | a3[11]);
+                    this.last_pcr_ = m2;
+                  }
+                  if (2 == _2 || 5 + p2 === 188) {
+                    i3 += 188, 204 === this.ts_packet_size_ && (i3 += 16);
+                    continue;
+                  }
+                  f2 = 5 + p2;
+                }
+                if (1 == _2 || 3 == _2) {
+                  if (0 === d2 || d2 === this.current_pmt_pid_ || null != this.pmt_ && this.pmt_.pid_stream_type[d2] === L.kSCTE35) {
+                    var g2 = 188 - f2;
+                    this.handleSectionSlice(e4, i3 + f2, g2, { pid: d2, file_position: n2, payload_unit_start_indicator: s3, continuity_conunter: h2, random_access_indicator: u2.random_access_indicator });
+                  } else if (null != this.pmt_ && null != this.pmt_.pid_stream_type[d2]) {
+                    g2 = 188 - f2;
+                    var v2 = this.pmt_.pid_stream_type[d2];
+                    d2 !== this.pmt_.common_pids.h264 && d2 !== this.pmt_.common_pids.h265 && d2 !== this.pmt_.common_pids.av1 && d2 !== this.pmt_.common_pids.adts_aac && d2 !== this.pmt_.common_pids.loas_aac && d2 !== this.pmt_.common_pids.ac3 && d2 !== this.pmt_.common_pids.eac3 && d2 !== this.pmt_.common_pids.opus && d2 !== this.pmt_.common_pids.mp3 && true !== this.pmt_.pes_private_data_pids[d2] && true !== this.pmt_.timed_id3_pids[d2] && true !== this.pmt_.pgs_pids[d2] && true !== this.pmt_.synchronous_klv_pids[d2] && true !== this.pmt_.asynchronous_klv_pids[d2] || this.handlePESSlice(e4, i3 + f2, g2, { pid: d2, stream_type: v2, file_position: n2, payload_unit_start_indicator: s3, continuity_conunter: h2, random_access_indicator: u2.random_access_indicator });
+                  }
+                }
+                i3 += 188, 204 === this.ts_packet_size_ && (i3 += 16);
+              }
+              return this.dispatchAudioVideoMediaSegment(), i3;
+            }, t3.prototype.handleSectionSlice = function(e4, t4, i3, n2) {
+              var a3 = new Uint8Array(e4, t4, i3), r2 = this.section_slice_queues_[n2.pid];
+              if (n2.payload_unit_start_indicator) {
+                var o2 = a3[0];
+                if (null != r2 && 0 !== r2.total_length) {
+                  var s3 = new Uint8Array(e4, t4 + 1, Math.min(i3, o2));
+                  r2.slices.push(s3), r2.total_length += s3.byteLength, r2.total_length === r2.expected_length ? this.emitSectionSlices(r2, n2) : this.clearSlices(r2, n2);
+                }
+                for (var d2 = 1 + o2; d2 < a3.byteLength && 255 !== a3[d2 + 0]; ) {
+                  var _2 = (15 & a3[d2 + 1]) << 8 | a3[d2 + 2];
+                  this.section_slice_queues_[n2.pid] = new P(), (r2 = this.section_slice_queues_[n2.pid]).expected_length = _2 + 3, r2.file_position = n2.file_position, r2.random_access_indicator = n2.random_access_indicator, s3 = new Uint8Array(e4, t4 + d2, Math.min(i3 - d2, r2.expected_length - r2.total_length)), r2.slices.push(s3), r2.total_length += s3.byteLength, r2.total_length === r2.expected_length ? this.emitSectionSlices(r2, n2) : r2.total_length >= r2.expected_length && this.clearSlices(r2, n2), d2 += s3.byteLength;
+                }
+              } else null != r2 && 0 !== r2.total_length && (s3 = new Uint8Array(e4, t4, Math.min(i3, r2.expected_length - r2.total_length)), r2.slices.push(s3), r2.total_length += s3.byteLength, r2.total_length === r2.expected_length ? this.emitSectionSlices(r2, n2) : r2.total_length >= r2.expected_length && this.clearSlices(r2, n2));
+            }, t3.prototype.handlePESSlice = function(e4, t4, i3, n2) {
+              var a3 = new Uint8Array(e4, t4, i3), o2 = a3[0] << 16 | a3[1] << 8 | a3[2], s3 = (a3[3], a3[4] << 8 | a3[5]);
+              if (n2.payload_unit_start_indicator) {
+                if (1 !== o2) return void r.A.e(this.TAG, "handlePESSlice: packet_start_code_prefix should be 1 but with value ".concat(o2));
+                var d2 = this.pes_slice_queues_[n2.pid];
+                d2 && (0 === d2.expected_length || d2.expected_length === d2.total_length ? this.emitPESSlices(d2, n2) : this.clearSlices(d2, n2)), this.pes_slice_queues_[n2.pid] = new P(), this.pes_slice_queues_[n2.pid].file_position = n2.file_position, this.pes_slice_queues_[n2.pid].random_access_indicator = n2.random_access_indicator;
+              }
+              if (null != this.pes_slice_queues_[n2.pid]) {
+                var _2 = this.pes_slice_queues_[n2.pid];
+                _2.slices.push(a3), n2.payload_unit_start_indicator && (_2.expected_length = 0 === s3 ? 0 : s3 + 6), _2.total_length += a3.byteLength, _2.expected_length > 0 && _2.expected_length === _2.total_length ? this.emitPESSlices(_2, n2) : _2.expected_length > 0 && _2.expected_length < _2.total_length && this.clearSlices(_2, n2);
+              }
+            }, t3.prototype.emitSectionSlices = function(e4, t4) {
+              for (var i3 = new Uint8Array(e4.total_length), n2 = 0, a3 = 0; n2 < e4.slices.length; n2++) {
+                var r2 = e4.slices[n2];
+                i3.set(r2, a3), a3 += r2.byteLength;
+              }
+              e4.slices = [], e4.expected_length = -1, e4.total_length = 0;
+              var o2 = new I();
+              o2.pid = t4.pid, o2.data = i3, o2.file_position = e4.file_position, o2.random_access_indicator = e4.random_access_indicator, this.parseSection(o2);
+            }, t3.prototype.emitPESSlices = function(e4, t4) {
+              for (var i3 = new Uint8Array(e4.total_length), n2 = 0, a3 = 0; n2 < e4.slices.length; n2++) {
+                var r2 = e4.slices[n2];
+                i3.set(r2, a3), a3 += r2.byteLength;
+              }
+              e4.slices = [], e4.expected_length = -1, e4.total_length = 0;
+              var o2 = new O();
+              o2.pid = t4.pid, o2.data = i3, o2.stream_type = t4.stream_type, o2.file_position = e4.file_position, o2.random_access_indicator = e4.random_access_indicator, this.parsePES(o2);
+            }, t3.prototype.clearSlices = function(e4, t4) {
+              e4.slices = [], e4.expected_length = -1, e4.total_length = 0;
+            }, t3.prototype.parseSection = function(e4) {
+              var t4 = e4.data, i3 = e4.pid;
+              0 === i3 ? this.parsePAT(t4) : i3 === this.current_pmt_pid_ ? this.parsePMT(t4) : null != this.pmt_ && this.pmt_.scte_35_pids[i3] && this.parseSCTE35(t4);
+            }, t3.prototype.parsePES = function(e4) {
+              var t4 = e4.data, i3 = t4[0] << 16 | t4[1] << 8 | t4[2], n2 = t4[3], a3 = t4[4] << 8 | t4[5];
+              if (1 === i3) if (188 !== n2 && 190 !== n2 && 191 !== n2 && 240 !== n2 && 241 !== n2 && 255 !== n2 && 242 !== n2 && 248 !== n2) {
+                t4[6];
+                var o2 = (192 & t4[7]) >>> 6, s3 = t4[8], d2 = void 0, _2 = void 0;
+                2 !== o2 && 3 !== o2 || (d2 = this.getTimestamp(t4, 9), _2 = 3 === o2 ? this.getTimestamp(t4, 14) : d2);
+                var h2 = 9 + s3, c2 = void 0;
+                if (0 !== a3) {
+                  if (a3 < 3 + s3) return void r.A.v(this.TAG, "Malformed PES: PES_packet_length < 3 + PES_header_data_length");
+                  c2 = a3 - 3 - s3;
+                } else c2 = t4.byteLength - h2;
+                var l2 = t4.subarray(h2, h2 + c2);
+                switch (e4.stream_type) {
+                  case L.kMPEG1Audio:
+                  case L.kMPEG2Audio:
+                    this.parseMP3Payload(l2, d2);
+                    break;
+                  case L.kPESPrivateData:
+                    this.pmt_.common_pids.av1 === e4.pid ? this.parseAV1Payload(l2, d2, _2, e4.file_position, e4.random_access_indicator) : this.pmt_.common_pids.opus === e4.pid ? this.parseOpusPayload(l2, d2) : this.pmt_.common_pids.ac3 === e4.pid ? this.parseAC3Payload(l2, d2) : this.pmt_.common_pids.eac3 === e4.pid ? this.parseEAC3Payload(l2, d2) : this.pmt_.asynchronous_klv_pids[e4.pid] ? this.parseAsynchronousKLVMetadataPayload(l2, e4.pid, n2) : this.pmt_.smpte2038_pids[e4.pid] ? this.parseSMPTE2038MetadataPayload(l2, d2, _2, e4.pid, n2) : this.parsePESPrivateDataPayload(l2, d2, _2, e4.pid, n2);
+                    break;
+                  case L.kADTSAAC:
+                    this.parseADTSAACPayload(l2, d2);
+                    break;
+                  case L.kLOASAAC:
+                    this.parseLOASAACPayload(l2, d2);
+                    break;
+                  case L.kAC3:
+                    this.parseAC3Payload(l2, d2);
+                    break;
+                  case L.kEAC3:
+                    this.parseEAC3Payload(l2, d2);
+                    break;
+                  case L.kMetadata:
+                    this.pmt_.timed_id3_pids[e4.pid] ? this.parseTimedID3MetadataPayload(l2, d2, _2, e4.pid, n2) : this.pmt_.synchronous_klv_pids[e4.pid] && this.parseSynchronousKLVMetadataPayload(l2, d2, _2, e4.pid, n2);
+                    break;
+                  case L.kPGS:
+                    this.parsePGSPayload(l2, d2, _2, e4.pid, n2, this.pmt_.pgs_langs[e4.pid]);
+                    break;
+                  case L.kH264:
+                    this.parseH264Payload(l2, d2, _2, e4.file_position, e4.random_access_indicator);
+                    break;
+                  case L.kH265:
+                    this.parseH265Payload(l2, d2, _2, e4.file_position, e4.random_access_indicator);
+                }
+              } else 188 !== n2 && 191 !== n2 && 240 !== n2 && 241 !== n2 && 255 !== n2 && 242 !== n2 && 248 !== n2 || e4.stream_type !== L.kPESPrivateData || (h2 = 6, c2 = void 0, c2 = 0 !== a3 ? a3 : t4.byteLength - h2, l2 = t4.subarray(h2, h2 + c2), this.parsePESPrivateDataPayload(l2, void 0, void 0, e4.pid, n2));
+              else r.A.e(this.TAG, "parsePES: packet_start_code_prefix should be 1 but with value ".concat(i3));
+            }, t3.prototype.parsePAT = function(e4) {
+              var t4 = e4[0];
+              if (0 === t4) {
+                var i3 = (15 & e4[1]) << 8 | e4[2], n2 = (e4[3], e4[4], (62 & e4[5]) >>> 1), a3 = 1 & e4[5], o2 = e4[6], s3 = (e4[7], null);
+                if (1 === a3 && 0 === o2) (s3 = new M()).version_number = n2;
+                else if (null == (s3 = this.pat_)) return;
+                for (var d2 = i3 - 5 - 4, _2 = -1, h2 = -1, c2 = 8; c2 < 8 + d2; c2 += 4) {
+                  var l2 = e4[c2] << 8 | e4[c2 + 1], u2 = (31 & e4[c2 + 2]) << 8 | e4[c2 + 3];
+                  0 === l2 ? s3.network_pid = u2 : (s3.program_pmt_pid[l2] = u2, -1 === _2 && (_2 = l2), -1 === h2 && (h2 = u2));
+                }
+                1 === a3 && 0 === o2 && (null == this.pat_ && r.A.v(this.TAG, "Parsed first PAT: ".concat(JSON.stringify(s3))), this.pat_ = s3, this.current_program_ = _2, this.current_pmt_pid_ = h2);
+              } else r.A.e(this.TAG, "parsePAT: table_id ".concat(t4, " is not corresponded to PAT!"));
+            }, t3.prototype.parsePMT = function(e4) {
+              var t4 = e4[0];
+              if (2 === t4) {
+                var i3 = (15 & e4[1]) << 8 | e4[2], n2 = e4[3] << 8 | e4[4], a3 = (62 & e4[5]) >>> 1, o2 = 1 & e4[5], s3 = e4[6], d2 = (e4[7], null);
+                if (1 === o2 && 0 === s3) (d2 = new B()).program_number = n2, d2.version_number = a3, this.program_pmt_map_[n2] = d2;
+                else if (null == (d2 = this.program_pmt_map_[n2])) return;
+                d2.pcr_pid = (31 & e4[8]) << 8 | e4[9];
+                for (var _2 = (15 & e4[10]) << 8 | e4[11], h2 = 12 + _2, c2 = i3 - 9 - _2 - 4, l2 = h2; l2 < h2 + c2; ) {
+                  var u2 = e4[l2], f2 = (31 & e4[l2 + 1]) << 8 | e4[l2 + 2], p2 = (15 & e4[l2 + 3]) << 8 | e4[l2 + 4];
+                  d2.pid_stream_type[f2] = u2;
+                  var m2 = d2.common_pids.h264 || d2.common_pids.h265, g2 = d2.common_pids.adts_aac || d2.common_pids.loas_aac || d2.common_pids.ac3 || d2.common_pids.eac3 || d2.common_pids.opus || d2.common_pids.mp3;
+                  if (u2 !== L.kH264 || m2) if (u2 !== L.kH265 || m2) if (u2 !== L.kADTSAAC || g2) if (u2 !== L.kLOASAAC || g2) if (u2 !== L.kAC3 || g2) if (u2 !== L.kEAC3 || g2) if (u2 !== L.kMPEG1Audio && u2 !== L.kMPEG2Audio || g2) {
+                    if (u2 === L.kPESPrivateData) {
+                      if (d2.pes_private_data_pids[f2] = true, p2 > 0) {
+                        for (var v2 = l2 + 5; v2 < l2 + 5 + p2; ) {
+                          var y2 = e4[v2 + 0], A2 = e4[v2 + 1];
+                          if (5 === y2) {
+                            var S2 = String.fromCharCode.apply(String, Array.from(e4.subarray(v2 + 2, v2 + 2 + A2)));
+                            "VANC" === S2 ? d2.smpte2038_pids[f2] = true : "AV01" === S2 ? d2.common_pids.av1 = f2 : "Opus" === S2 ? d2.common_pids.opus = f2 : "KLVA" === S2 && (d2.asynchronous_klv_pids[f2] = true);
+                          } else if (127 === y2) {
+                            if (f2 === d2.common_pids.opus) {
+                              var b2 = null;
+                              if (128 === e4[v2 + 2] && (b2 = e4[v2 + 3]), null == b2) {
+                                r.A.e(this.TAG, "Not Supported Opus channel count.");
+                                continue;
+                              }
+                              var E2 = { codec: "opus", channel_count: 15 & b2 ? 15 & b2 : 2, channel_config_code: b2, sample_rate: 48e3 }, R2 = { codec: "opus", meta: E2 };
+                              0 == this.audio_init_segment_dispatched_ ? (this.audio_metadata_ = E2, this.dispatchAudioInitSegment(R2)) : this.detectAudioMetadataChange(R2) && (this.dispatchAudioMediaSegment(), this.dispatchAudioInitSegment(R2));
+                            }
+                          } else 128 === y2 && f2 === d2.common_pids.av1 && (this.video_metadata_.av1c = e4.subarray(v2 + 2, v2 + 2 + A2));
+                          v2 += 2 + A2;
+                        }
+                        var T2 = e4.subarray(l2 + 5, l2 + 5 + p2);
+                        this.dispatchPESPrivateDataDescriptor(f2, u2, T2);
+                      }
+                    } else if (u2 === L.kMetadata) {
+                      if (p2 > 0) for (v2 = l2 + 5; v2 < l2 + 5 + p2; ) {
+                        y2 = e4[v2 + 0];
+                        var k2 = e4[v2 + 1];
+                        if (38 === y2) {
+                          var w2 = e4[v2 + 2] << 8 | e4[v2 + 3], C2 = null;
+                          65535 === w2 && (C2 = String.fromCharCode.apply(String, Array.from(e4.subarray(v2 + 4, v2 + 4 + 4))));
+                          var M2 = null;
+                          if (255 === e4[v2 + 4 + (65535 === w2 ? 4 : 0)]) {
+                            var D2 = 4 + (65535 === w2 ? 4 : 0) + 1;
+                            M2 = String.fromCharCode.apply(String, Array.from(e4.subarray(v2 + D2, v2 + D2 + 4)));
+                          }
+                          "ID3 " === C2 && "ID3 " === M2 ? d2.timed_id3_pids[f2] = true : "KLVA" === M2 && (d2.synchronous_klv_pids[f2] = true);
+                        }
+                        v2 += 2 + k2;
+                      }
+                    } else if (u2 === L.kSCTE35) d2.scte_35_pids[f2] = true;
+                    else if (u2 === L.kPGS) {
+                      if (d2.pgs_langs[f2] = "und", p2 > 0) for (v2 = l2 + 5; v2 < l2 + 5 + p2; ) {
+                        y2 = e4[v2 + 0];
+                        var O2 = e4[v2 + 1];
+                        if (10 === y2) {
+                          var I2 = String.fromCharCode.apply(String, Array.from(e4.slice(v2 + 2, v2 + 5)));
+                          d2.pgs_langs[f2] = I2;
+                        }
+                        v2 += 2 + O2;
+                      }
+                      d2.pgs_pids[f2] = true;
+                    }
+                  } else d2.common_pids.mp3 = f2;
+                  else d2.common_pids.eac3 = f2;
+                  else d2.common_pids.ac3 = f2;
+                  else d2.common_pids.loas_aac = f2;
+                  else d2.common_pids.adts_aac = f2;
+                  else d2.common_pids.h265 = f2;
+                  else d2.common_pids.h264 = f2;
+                  l2 += 5 + p2;
+                }
+                n2 === this.current_program_ && (null == this.pmt_ && r.A.v(this.TAG, "Parsed first PMT: ".concat(JSON.stringify(d2))), this.pmt_ = d2, (d2.common_pids.h264 || d2.common_pids.h265 || d2.common_pids.av1) && (this.has_video_ = true), (d2.common_pids.adts_aac || d2.common_pids.loas_aac || d2.common_pids.ac3 || d2.common_pids.opus || d2.common_pids.mp3) && (this.has_audio_ = true));
+              } else r.A.e(this.TAG, "parsePMT: table_id ".concat(t4, " is not corresponded to PMT!"));
+            }, t3.prototype.parseSCTE35 = function(e4) {
+              var t4 = function(e5) {
+                var t5 = new f(e5), i4 = t5.readBits(8), n2 = t5.readBool(), a3 = t5.readBool();
+                t5.readBits(2);
+                var r2 = t5.readBits(12), o2 = t5.readBits(8), s3 = t5.readBool(), d2 = t5.readBits(6), _2 = 4 * t5.readBits(31) + t5.readBits(2), h2 = t5.readBits(8), c2 = t5.readBits(12), l2 = t5.readBits(12), u2 = t5.readBits(8), p2 = null;
+                u2 === z.kSpliceNull ? p2 = {} : u2 === z.kSpliceSchedule ? p2 = function(e6) {
+                  for (var t6 = e6.readBits(8), i5 = [], n3 = 0; n3 < t6; n3++) i5.push(ae(e6));
+                  return { splice_count: t6, events: i5 };
+                }(t5) : u2 === z.kSpliceInsert ? p2 = function(e6) {
+                  var t6 = e6.readBits(32), i5 = e6.readBool();
+                  e6.readBits(7);
+                  var n3 = { splice_event_id: t6, splice_event_cancel_indicator: i5 };
+                  if (i5) return n3;
+                  if (n3.out_of_network_indicator = e6.readBool(), n3.program_splice_flag = e6.readBool(), n3.duration_flag = e6.readBool(), n3.splice_immediate_flag = e6.readBool(), e6.readBits(4), n3.program_splice_flag && !n3.splice_immediate_flag && (n3.splice_time = ee(e6)), !n3.program_splice_flag) {
+                    n3.component_count = e6.readBits(8), n3.components = [];
+                    for (var a4 = 0; a4 < n3.component_count; a4++) n3.components.push(ie(n3.splice_immediate_flag, e6));
+                  }
+                  return n3.duration_flag && (n3.break_duration = te(e6)), n3.unique_program_id = e6.readBits(16), n3.avail_num = e6.readBits(8), n3.avails_expected = e6.readBits(8), n3;
+                }(t5) : u2 === z.kTimeSignal ? p2 = function(e6) {
+                  return { splice_time: ee(e6) };
+                }(t5) : u2 === z.kBandwidthReservation ? p2 = {} : u2 === z.kPrivateCommand ? p2 = function(e6, t6) {
+                  for (var i5 = String.fromCharCode(t6.readBits(8), t6.readBits(8), t6.readBits(8), t6.readBits(8)), n3 = new Uint8Array(e6 - 4), a4 = 0; a4 < e6 - 4; a4++) n3[a4] = t6.readBits(8);
+                  return { identifier: i5, private_data: n3.buffer };
+                }(l2, t5) : t5.readBits(8 * l2);
+                for (var m2 = [], g2 = t5.readBits(16), v2 = 0; v2 < g2; ) {
+                  var y2 = t5.readBits(8), A2 = t5.readBits(8), S2 = String.fromCharCode(t5.readBits(8), t5.readBits(8), t5.readBits(8), t5.readBits(8));
+                  0 === y2 ? m2.push(re(y2, A2, S2, t5)) : 1 === y2 ? m2.push(oe(y2, A2, S2, t5)) : 2 === y2 ? m2.push(de(y2, A2, S2, t5)) : 3 === y2 ? m2.push(_e(y2, A2, S2, t5)) : 4 === y2 ? m2.push(ce(y2, A2, S2, t5)) : t5.readBits(8 * (A2 - 4)), v2 += 2 + A2;
+                }
+                var b2 = { table_id: i4, section_syntax_indicator: n2, private_indicator: a3, section_length: r2, protocol_version: o2, encrypted_packet: s3, encryption_algorithm: d2, pts_adjustment: _2, cw_index: h2, tier: c2, splice_command_length: l2, splice_command_type: u2, splice_command: p2, descriptor_loop_length: g2, splice_descriptors: m2, E_CRC32: s3 ? t5.readBits(32) : void 0, CRC32: t5.readBits(32) };
+                if (u2 === z.kSpliceInsert) {
+                  var E2 = p2;
+                  if (E2.splice_event_cancel_indicator) return { splice_command_type: u2, detail: b2, data: e5 };
+                  if (E2.program_splice_flag && !E2.splice_immediate_flag) {
+                    var R2 = E2.duration_flag ? E2.break_duration.auto_return : void 0, T2 = E2.duration_flag ? E2.break_duration.duration / 90 : void 0;
+                    return E2.splice_time.time_specified_flag ? { splice_command_type: u2, pts: (_2 + E2.splice_time.pts_time) % Math.pow(2, 33), auto_return: R2, duraiton: T2, detail: b2, data: e5 } : { splice_command_type: u2, auto_return: R2, duraiton: T2, detail: b2, data: e5 };
+                  }
+                  return { splice_command_type: u2, auto_return: R2 = E2.duration_flag ? E2.break_duration.auto_return : void 0, duraiton: T2 = E2.duration_flag ? E2.break_duration.duration / 90 : void 0, detail: b2, data: e5 };
+                }
+                if (u2 === z.kTimeSignal) {
+                  var L2 = p2;
+                  return L2.splice_time.time_specified_flag ? { splice_command_type: u2, pts: (_2 + L2.splice_time.pts_time) % Math.pow(2, 33), detail: b2, data: e5 } : { splice_command_type: u2, detail: b2, data: e5 };
+                }
+                return { splice_command_type: u2, detail: b2, data: e5 };
+              }(e4);
+              if (null != t4.pts) {
+                var i3 = Math.floor(t4.pts / this.timescale_);
+                t4.pts = i3;
+              } else t4.nearest_pts = this.getNearestTimestampMilliseconds();
+              this.onSCTE35Metadata && this.onSCTE35Metadata(t4);
+            }, t3.prototype.parseAV1Payload = function(e4, t4, i3, n2, a3) {
+              for (var r2 = new Le(e4), o2 = null, s3 = [], d2 = 0, _2 = false, h2 = null; null != (o2 = r2.readNextOBUPayload()); ) {
+                if ((h2 = E.parseOBUs(o2, this.video_metadata_.details)) && true === h2.keyframe) if (this.video_init_segment_dispatched_) {
+                  if (true === this.detectVideoMetadataChange(null, h2)) {
+                    var c2;
+                    this.video_metadata_changed_ = true, this.dispatchVideoMediaSegment(), (c2 = new Uint8Array(new ArrayBuffer(this.video_metadata_.av1c.byteLength + h2.sequence_header_data.byteLength))).set(this.video_metadata_.av1c, 0), c2.set(h2.sequence_header_data, this.video_metadata_.av1c.byteLength), h2.av1c = c2, this.dispatchVideoInitSegment();
+                  }
+                } else (c2 = new Uint8Array(new ArrayBuffer(this.video_metadata_.av1c.byteLength + h2.sequence_header_data.byteLength))).set(this.video_metadata_.av1c, 0), c2.set(h2.sequence_header_data, this.video_metadata_.av1c.byteLength), h2.av1c = c2, this.video_metadata_.details = h2, this.dispatchVideoInitSegment();
+                this.video_metadata_.details = h2, _2 || (_2 = h2.keyframe), s3.push({ data: o2 }), d2 += o2.byteLength;
+              }
+              var l2 = Math.floor(t4 / this.timescale_), u2 = Math.floor(i3 / this.timescale_);
+              if (s3.length) {
+                var f2 = this.video_track_, p2 = { units: s3, length: d2, isKeyframe: _2, dts: u2, pts: l2, cts: l2 - u2, file_position: n2 };
+                f2.samples.push(p2), f2.length += d2;
+              }
+            }, t3.prototype.parseH264Payload = function(e4, t4, i3, n2, a3) {
+              for (var o2 = new G(e4), s3 = null, d2 = [], _2 = 0, h2 = false; null != (s3 = o2.readNextNaluPayload()); ) {
+                var c2 = new V(s3);
+                if (c2.type === D.kSliceSPS) {
+                  var l2 = p.parseSPS(s3.data);
+                  this.video_init_segment_dispatched_ ? true === this.detectVideoMetadataChange(c2, l2) && (r.A.v(this.TAG, "H264: Critical h264 metadata has been changed, attempt to re-generate InitSegment"), this.video_metadata_changed_ = true, this.video_metadata_ = { vps: void 0, sps: c2, pps: void 0, av1c: void 0, details: l2 }) : (this.video_metadata_.sps = c2, this.video_metadata_.details = l2);
+                } else c2.type === D.kSlicePPS ? this.video_init_segment_dispatched_ && !this.video_metadata_changed_ || (this.video_metadata_.pps = c2, this.video_metadata_.sps && this.video_metadata_.pps && (this.video_metadata_changed_ && this.dispatchVideoMediaSegment(), this.dispatchVideoInitSegment())) : c2.type === D.kSliceIDR || c2.type === D.kSliceNonIDR && 1 === a3 ? h2 = true : c2.type === D.kSliceSEI && this.parseSEIPayload(s3.data, t4, "h264");
+                this.video_init_segment_dispatched_ && (d2.push(c2), _2 += c2.data.byteLength);
+              }
+              var u2 = Math.floor(t4 / this.timescale_), f2 = Math.floor(i3 / this.timescale_);
+              if (d2.length) {
+                var m2 = this.video_track_, g2 = { units: d2, length: _2, isKeyframe: h2, dts: f2, pts: u2, cts: u2 - f2, file_position: n2 };
+                m2.samples.push(g2), m2.length += _2;
+              }
+            }, t3.prototype.parseH265Payload = function(e4, t4, i3, n2, a3) {
+              for (var o2 = new fe(e4), s3 = null, d2 = [], _2 = 0, h2 = false; null != (s3 = o2.readNextNaluPayload()); ) {
+                var c2 = new ue(s3);
+                if (c2.type === J.kSliceVPS) {
+                  if (!this.video_init_segment_dispatched_) {
+                    var l2 = g.parseVPS(s3.data);
+                    this.video_metadata_.vps = c2, this.video_metadata_.details = Ce(Ce({}, this.video_metadata_.details), l2);
+                  }
+                } else c2.type === J.kSliceSPS ? (l2 = g.parseSPS(s3.data), this.video_init_segment_dispatched_ ? true === this.detectVideoMetadataChange(c2, l2) && (r.A.v(this.TAG, "H265: Critical h265 metadata has been changed, attempt to re-generate InitSegment"), this.video_metadata_changed_ = true, this.video_metadata_ = { vps: void 0, sps: c2, pps: void 0, av1c: void 0, details: l2 }) : (this.video_metadata_.sps = c2, this.video_metadata_.details = Ce(Ce({}, this.video_metadata_.details), l2))) : c2.type === J.kSlicePPS ? this.video_init_segment_dispatched_ && !this.video_metadata_changed_ || (l2 = g.parsePPS(s3.data), this.video_metadata_.pps = c2, this.video_metadata_.details = Ce(Ce({}, this.video_metadata_.details), l2), this.video_metadata_.vps && this.video_metadata_.sps && this.video_metadata_.pps && (this.video_metadata_changed_ && this.dispatchVideoMediaSegment(), this.dispatchVideoInitSegment())) : c2.type === J.kSliceIDR_W_RADL || c2.type === J.kSliceIDR_N_LP || c2.type === J.kSliceCRA_NUT ? h2 = true : c2.type !== J.kSliceSEI && c2.type !== J.kSliceSEISuffix || this.parseSEIPayload(s3.data, t4, "h265");
+                this.video_init_segment_dispatched_ && (d2.push(c2), _2 += c2.data.byteLength);
+              }
+              var u2 = Math.floor(t4 / this.timescale_), f2 = Math.floor(i3 / this.timescale_);
+              if (d2.length) {
+                var p2 = this.video_track_, m2 = { units: d2, length: _2, isKeyframe: h2, dts: f2, pts: u2, cts: u2 - f2, file_position: n2 };
+                p2.samples.push(m2), p2.length += _2;
+              }
+            }, t3.prototype.detectVideoMetadataChange = function(e4, t4) {
+              if (t4.codec_mimetype !== this.video_metadata_.details.codec_mimetype) return r.A.v(this.TAG, "Video: Codec mimeType changed from " + "".concat(this.video_metadata_.details.codec_mimetype, " to ").concat(t4.codec_mimetype)), true;
+              if (t4.codec_size.width !== this.video_metadata_.details.codec_size.width || t4.codec_size.height !== this.video_metadata_.details.codec_size.height) {
+                var i3 = this.video_metadata_.details.codec_size, n2 = t4.codec_size;
+                return r.A.v(this.TAG, "Video: Coded Resolution changed from " + "".concat(i3.width, "x").concat(i3.height, " to ").concat(n2.width, "x").concat(n2.height)), true;
+              }
+              return t4.present_size.width !== this.video_metadata_.details.present_size.width && (r.A.v(this.TAG, "Video: Present resolution width changed from " + "".concat(this.video_metadata_.details.present_size.width, " to ").concat(t4.present_size.width)), true);
+            }, t3.prototype.isInitSegmentDispatched = function() {
+              return this.has_video_ && this.has_audio_ ? this.video_init_segment_dispatched_ && this.audio_init_segment_dispatched_ : this.has_video_ && !this.has_audio_ ? this.video_init_segment_dispatched_ : !(this.has_video_ || !this.has_audio_) && this.audio_init_segment_dispatched_;
+            }, t3.prototype.dispatchVideoInitSegment = function() {
+              var e4 = this.video_metadata_.details, t4 = { type: "video" };
+              t4.id = this.video_track_.id, t4.timescale = 1e3, t4.duration = this.duration_, t4.codecWidth = e4.codec_size.width, t4.codecHeight = e4.codec_size.height, t4.presentWidth = e4.present_size.width, t4.presentHeight = e4.present_size.height, t4.profile = e4.profile_string, t4.level = e4.level_string, t4.bitDepth = e4.bit_depth, t4.chromaFormat = e4.chroma_format, t4.sarRatio = e4.sar_ratio, t4.frameRate = e4.frame_rate;
+              var i3 = t4.frameRate.fps_den, n2 = t4.frameRate.fps_num;
+              if (t4.refSampleDuration = i3 / n2 * 1e3, t4.codec = e4.codec_mimetype, this.video_metadata_.av1c) t4.av1c = this.video_metadata_.av1c, 0 == this.video_init_segment_dispatched_ && r.A.v(this.TAG, "Generated first AV1 for mimeType: ".concat(t4.codec));
+              else if (this.video_metadata_.vps) {
+                var a3 = this.video_metadata_.vps.data.subarray(4), o2 = this.video_metadata_.sps.data.subarray(4), s3 = this.video_metadata_.pps.data.subarray(4), d2 = new pe(a3, o2, s3, e4);
+                t4.hvcc = d2.getData(), 0 == this.video_init_segment_dispatched_ && r.A.v(this.TAG, "Generated first HEVCDecoderConfigurationRecord for mimeType: ".concat(t4.codec));
+              } else {
+                o2 = this.video_metadata_.sps.data.subarray(4), s3 = this.video_metadata_.pps.data.subarray(4);
+                var _2 = new F(o2, s3, e4);
+                t4.avcc = _2.getData(), 0 == this.video_init_segment_dispatched_ && r.A.v(this.TAG, "Generated first AVCDecoderConfigurationRecord for mimeType: ".concat(t4.codec));
+              }
+              this.onTrackMetadata("video", t4), this.video_init_segment_dispatched_ = true, this.video_metadata_changed_ = false;
+              var h2 = this.media_info_;
+              h2.hasVideo = true, h2.width = t4.codecWidth, h2.height = t4.codecHeight, h2.fps = t4.frameRate.fps, h2.profile = t4.profile, h2.level = t4.level, h2.refFrames = e4.ref_frames, h2.chromaFormat = e4.chroma_format_string, h2.sarNum = t4.sarRatio.width, h2.sarDen = t4.sarRatio.height, h2.videoCodec = t4.codec, h2.hasAudio && h2.audioCodec ? h2.mimeType = 'video/mp2t; codecs="'.concat(h2.videoCodec, ",").concat(h2.audioCodec, '"') : h2.mimeType = 'video/mp2t; codecs="'.concat(h2.videoCodec, '"'), h2.isComplete() && this.onMediaInfo(h2);
+            }, t3.prototype.dispatchVideoMediaSegment = function() {
+              this.isInitSegmentDispatched() && this.video_track_.length && this.onDataAvailable(null, this.video_track_);
+            }, t3.prototype.dispatchAudioMediaSegment = function() {
+              this.isInitSegmentDispatched() && this.audio_track_.length && this.onDataAvailable(this.audio_track_, null);
+            }, t3.prototype.dispatchAudioVideoMediaSegment = function() {
+              this.isInitSegmentDispatched() && (this.audio_track_.length || this.video_track_.length) && this.onDataAvailable(this.audio_track_, this.video_track_);
+            }, t3.prototype.parseADTSAACPayload = function(e4, t4) {
+              if (!this.has_video_ || this.video_init_segment_dispatched_) {
+                if (this.aac_last_incomplete_data_) {
+                  var i3 = new Uint8Array(e4.byteLength + this.aac_last_incomplete_data_.byteLength);
+                  i3.set(this.aac_last_incomplete_data_, 0), i3.set(e4, this.aac_last_incomplete_data_.byteLength), e4 = i3;
+                }
+                var n2, a3;
+                if (null != t4 && (a3 = t4 / this.timescale_), "aac" === this.audio_metadata_.codec) {
+                  if (null == t4 && null != this.audio_last_sample_pts_) n2 = 1024 / this.audio_metadata_.sampling_frequency * 1e3, a3 = this.audio_last_sample_pts_ + n2;
+                  else if (null == t4) return void r.A.w(this.TAG, "AAC: Unknown pts");
+                  if (this.aac_last_incomplete_data_ && this.audio_last_sample_pts_) {
+                    n2 = 1024 / this.audio_metadata_.sampling_frequency * 1e3;
+                    var o2 = this.audio_last_sample_pts_ + n2;
+                    Math.abs(o2 - a3) > 1 && (r.A.w(this.TAG, "AAC: Detected pts overlapped, " + "expected: ".concat(o2, "ms, PES pts: ").concat(a3, "ms")), a3 = o2);
+                  }
+                }
+                for (var s3, d2 = new X(e4), _2 = null, h2 = a3; null != (_2 = d2.readNextAACFrame()); ) {
+                  n2 = 1024 / _2.sampling_frequency * 1e3;
+                  var c2 = { codec: "aac", data: _2 };
+                  0 == this.audio_init_segment_dispatched_ ? (this.audio_metadata_ = { codec: "aac", audio_object_type: _2.audio_object_type, sampling_freq_index: _2.sampling_freq_index, sampling_frequency: _2.sampling_frequency, channel_config: _2.channel_config }, this.dispatchAudioInitSegment(c2)) : this.detectAudioMetadataChange(c2) && (this.dispatchAudioMediaSegment(), this.dispatchAudioInitSegment(c2)), s3 = h2;
+                  var l2 = Math.floor(h2), u2 = { unit: _2.data, length: _2.data.byteLength, pts: l2, dts: l2 };
+                  this.audio_track_.samples.push(u2), this.audio_track_.length += _2.data.byteLength, h2 += n2;
+                }
+                d2.hasIncompleteData() && (this.aac_last_incomplete_data_ = d2.getIncompleteData()), s3 && (this.audio_last_sample_pts_ = s3);
+              }
+            }, t3.prototype.parseLOASAACPayload = function(e4, t4) {
+              var i3;
+              if (!this.has_video_ || this.video_init_segment_dispatched_) {
+                if (this.aac_last_incomplete_data_) {
+                  var n2 = new Uint8Array(e4.byteLength + this.aac_last_incomplete_data_.byteLength);
+                  n2.set(this.aac_last_incomplete_data_, 0), n2.set(e4, this.aac_last_incomplete_data_.byteLength), e4 = n2;
+                }
+                var a3, o2;
+                if (null != t4 && (o2 = t4 / this.timescale_), "aac" === this.audio_metadata_.codec) {
+                  if (null == t4 && null != this.audio_last_sample_pts_) a3 = 1024 / this.audio_metadata_.sampling_frequency * 1e3, o2 = this.audio_last_sample_pts_ + a3;
+                  else if (null == t4) return void r.A.w(this.TAG, "AAC: Unknown pts");
+                  if (this.aac_last_incomplete_data_ && this.audio_last_sample_pts_) {
+                    a3 = 1024 / this.audio_metadata_.sampling_frequency * 1e3;
+                    var s3 = this.audio_last_sample_pts_ + a3;
+                    Math.abs(s3 - o2) > 1 && (r.A.w(this.TAG, "AAC: Detected pts overlapped, " + "expected: ".concat(s3, "ms, PES pts: ").concat(o2, "ms")), o2 = s3);
+                  }
+                }
+                for (var d2, _2 = new Y(e4), h2 = null, c2 = o2; null != (h2 = _2.readNextAACFrame(null !== (i3 = this.loas_previous_frame) && void 0 !== i3 ? i3 : void 0)); ) {
+                  this.loas_previous_frame = h2, a3 = 1024 / h2.sampling_frequency * 1e3;
+                  var l2 = { codec: "aac", data: h2 };
+                  0 == this.audio_init_segment_dispatched_ ? (this.audio_metadata_ = { codec: "aac", audio_object_type: h2.audio_object_type, sampling_freq_index: h2.sampling_freq_index, sampling_frequency: h2.sampling_frequency, channel_config: h2.channel_config }, this.dispatchAudioInitSegment(l2)) : this.detectAudioMetadataChange(l2) && (this.dispatchAudioMediaSegment(), this.dispatchAudioInitSegment(l2)), d2 = c2;
+                  var u2 = Math.floor(c2), f2 = { unit: h2.data, length: h2.data.byteLength, pts: u2, dts: u2 };
+                  this.audio_track_.samples.push(f2), this.audio_track_.length += h2.data.byteLength, c2 += a3;
+                }
+                _2.hasIncompleteData() && (this.aac_last_incomplete_data_ = _2.getIncompleteData()), d2 && (this.audio_last_sample_pts_ = d2);
+              }
+            }, t3.prototype.parseAC3Payload = function(e4, t4) {
+              if (!this.has_video_ || this.video_init_segment_dispatched_) {
+                var i3, n2;
+                if (null != t4 && (n2 = t4 / this.timescale_), "ac-3" === this.audio_metadata_.codec) {
+                  if (null == t4 && null != this.audio_last_sample_pts_) i3 = 1536 / this.audio_metadata_.sampling_frequency * 1e3, n2 = this.audio_last_sample_pts_ + i3;
+                  else if (null == t4) return void r.A.w(this.TAG, "AC3: Unknown pts");
+                }
+                for (var a3, o2 = new Ae(e4), s3 = null, d2 = n2; null != (s3 = o2.readNextAC3Frame()); ) {
+                  i3 = 1536 / s3.sampling_frequency * 1e3;
+                  var _2 = { codec: "ac-3", data: s3 };
+                  0 == this.audio_init_segment_dispatched_ ? (this.audio_metadata_ = { codec: "ac-3", sampling_frequency: s3.sampling_frequency, bit_stream_identification: s3.bit_stream_identification, bit_stream_mode: s3.bit_stream_mode, low_frequency_effects_channel_on: s3.low_frequency_effects_channel_on, channel_mode: s3.channel_mode }, this.dispatchAudioInitSegment(_2)) : this.detectAudioMetadataChange(_2) && (this.dispatchAudioMediaSegment(), this.dispatchAudioInitSegment(_2)), a3 = d2;
+                  var h2 = Math.floor(d2), c2 = { unit: s3.data, length: s3.data.byteLength, pts: h2, dts: h2 };
+                  this.audio_track_.samples.push(c2), this.audio_track_.length += s3.data.byteLength, d2 += i3;
+                }
+                a3 && (this.audio_last_sample_pts_ = a3);
+              }
+            }, t3.prototype.parseEAC3Payload = function(e4, t4) {
+              if (!this.has_video_ || this.video_init_segment_dispatched_) {
+                var i3, n2;
+                if (null != t4 && (n2 = t4 / this.timescale_), "ec-3" === this.audio_metadata_.codec) {
+                  if (null == t4 && null != this.audio_last_sample_pts_) i3 = 256 * this.audio_metadata_.num_blks / this.audio_metadata_.sampling_frequency * 1e3, n2 = this.audio_last_sample_pts_ + i3;
+                  else if (null == t4) return void r.A.w(this.TAG, "EAC3: Unknown pts");
+                }
+                for (var a3, o2 = new Ee(e4), s3 = null, d2 = n2; null != (s3 = o2.readNextEAC3Frame()); ) {
+                  i3 = 1536 / s3.sampling_frequency * 1e3;
+                  var _2 = { codec: "ec-3", data: s3 };
+                  0 == this.audio_init_segment_dispatched_ ? (this.audio_metadata_ = { codec: "ec-3", sampling_frequency: s3.sampling_frequency, bit_stream_identification: s3.bit_stream_identification, low_frequency_effects_channel_on: s3.low_frequency_effects_channel_on, num_blks: s3.num_blks, channel_mode: s3.channel_mode }, this.dispatchAudioInitSegment(_2)) : this.detectAudioMetadataChange(_2) && (this.dispatchAudioMediaSegment(), this.dispatchAudioInitSegment(_2)), a3 = d2;
+                  var h2 = Math.floor(d2), c2 = { unit: s3.data, length: s3.data.byteLength, pts: h2, dts: h2 };
+                  this.audio_track_.samples.push(c2), this.audio_track_.length += s3.data.byteLength, d2 += i3;
+                }
+                a3 && (this.audio_last_sample_pts_ = a3);
+              }
+            }, t3.prototype.parseOpusPayload = function(e4, t4) {
+              if (!this.has_video_ || this.video_init_segment_dispatched_) {
+                var i3, n2;
+                if (null != t4 && (n2 = t4 / this.timescale_), "opus" === this.audio_metadata_.codec) {
+                  if (null == t4 && null != this.audio_last_sample_pts_) i3 = 20, n2 = this.audio_last_sample_pts_ + i3;
+                  else if (null == t4) return void r.A.w(this.TAG, "Opus: Unknown pts");
+                }
+                for (var a3, o2 = n2, s3 = 0; s3 < e4.length; ) {
+                  i3 = 20;
+                  for (var d2 = !!(16 & e4[s3 + 1]), _2 = !!(8 & e4[s3 + 1]), h2 = s3 + 2, c2 = 0; 255 === e4[h2]; ) c2 += 255, h2 += 1;
+                  c2 += e4[h2], h2 += 1, h2 += d2 ? 2 : 0, h2 += _2 ? 2 : 0, a3 = o2;
+                  var l2 = Math.floor(o2), u2 = e4.slice(h2, h2 + c2), f2 = { unit: u2, length: u2.byteLength, pts: l2, dts: l2 };
+                  this.audio_track_.samples.push(f2), this.audio_track_.length += u2.byteLength, o2 += i3, s3 = h2 + c2;
+                }
+                a3 && (this.audio_last_sample_pts_ = a3);
+              }
+            }, t3.prototype.parseMP3Payload = function(e4, t4) {
+              if (!this.has_video_ || this.video_init_segment_dispatched_) {
+                var i3 = e4[1] >>> 3 & 3, n2 = (6 & e4[1]) >> 1, a3 = (e4[2], (12 & e4[2]) >>> 2), r2 = 3 & ~(e4[3] >>> 6) ? 2 : 1, o2 = 0, s3 = 34;
+                switch (i3) {
+                  case 0:
+                    o2 = [11025, 12e3, 8e3, 0][a3];
+                    break;
+                  case 2:
+                    o2 = [22050, 24e3, 16e3, 0][a3];
+                    break;
+                  case 3:
+                    o2 = [44100, 48e3, 32e3, 0][a3];
+                }
+                switch (n2) {
+                  case 1:
+                    s3 = 34;
+                    break;
+                  case 2:
+                    s3 = 33;
+                    break;
+                  case 3:
+                    s3 = 32;
+                }
+                var d2 = new ge();
+                d2.object_type = s3, d2.sample_rate = o2, d2.channel_count = r2, d2.data = e4;
+                var _2 = { codec: "mp3", data: d2 };
+                0 == this.audio_init_segment_dispatched_ ? (this.audio_metadata_ = { codec: "mp3", object_type: s3, sample_rate: o2, channel_count: r2 }, this.dispatchAudioInitSegment(_2)) : this.detectAudioMetadataChange(_2) && (this.dispatchAudioMediaSegment(), this.dispatchAudioInitSegment(_2));
+                var h2 = { unit: e4, length: e4.byteLength, pts: t4 / this.timescale_, dts: t4 / this.timescale_ };
+                this.audio_track_.samples.push(h2), this.audio_track_.length += e4.byteLength;
+              }
+            }, t3.prototype.detectAudioMetadataChange = function(e4) {
+              if (e4.codec !== this.audio_metadata_.codec) return r.A.v(this.TAG, "Audio: Audio Codecs changed from " + "".concat(this.audio_metadata_.codec, " to ").concat(e4.codec)), true;
+              if ("aac" === e4.codec && "aac" === this.audio_metadata_.codec) {
+                if ((t4 = e4.data).audio_object_type !== this.audio_metadata_.audio_object_type) return r.A.v(this.TAG, "AAC: AudioObjectType changed from " + "".concat(this.audio_metadata_.audio_object_type, " to ").concat(t4.audio_object_type)), true;
+                if (t4.sampling_freq_index !== this.audio_metadata_.sampling_freq_index) return r.A.v(this.TAG, "AAC: SamplingFrequencyIndex changed from " + "".concat(this.audio_metadata_.sampling_freq_index, " to ").concat(t4.sampling_freq_index)), true;
+                if (t4.channel_config !== this.audio_metadata_.channel_config) return r.A.v(this.TAG, "AAC: Channel configuration changed from " + "".concat(this.audio_metadata_.channel_config, " to ").concat(t4.channel_config)), true;
+              } else if ("ac-3" === e4.codec && "ac-3" === this.audio_metadata_.codec) {
+                var t4;
+                if ((t4 = e4.data).sampling_frequency !== this.audio_metadata_.sampling_frequency) return r.A.v(this.TAG, "AC3: Sampling Frequency changed from " + "".concat(this.audio_metadata_.sampling_frequency, " to ").concat(t4.sampling_frequency)), true;
+                if (t4.bit_stream_identification !== this.audio_metadata_.bit_stream_identification) return r.A.v(this.TAG, "AC3: Bit Stream Identification changed from " + "".concat(this.audio_metadata_.bit_stream_identification, " to ").concat(t4.bit_stream_identification)), true;
+                if (t4.bit_stream_mode !== this.audio_metadata_.bit_stream_mode) return r.A.v(this.TAG, "AC3: BitStream Mode changed from " + "".concat(this.audio_metadata_.bit_stream_mode, " to ").concat(t4.bit_stream_mode)), true;
+                if (t4.channel_mode !== this.audio_metadata_.channel_mode) return r.A.v(this.TAG, "AC3: Channel Mode changed from " + "".concat(this.audio_metadata_.channel_mode, " to ").concat(t4.channel_mode)), true;
+                if (t4.low_frequency_effects_channel_on !== this.audio_metadata_.low_frequency_effects_channel_on) return r.A.v(this.TAG, "AC3: Low Frequency Effects Channel On changed from " + "".concat(this.audio_metadata_.low_frequency_effects_channel_on, " to ").concat(t4.low_frequency_effects_channel_on)), true;
+              } else if ("opus" === e4.codec && "opus" === this.audio_metadata_.codec) {
+                if ((i3 = e4.meta).sample_rate !== this.audio_metadata_.sample_rate) return r.A.v(this.TAG, "Opus: SamplingFrequencyIndex changed from " + "".concat(this.audio_metadata_.sample_rate, " to ").concat(i3.sample_rate)), true;
+                if (i3.channel_count !== this.audio_metadata_.channel_count) return r.A.v(this.TAG, "Opus: Channel count changed from " + "".concat(this.audio_metadata_.channel_count, " to ").concat(i3.channel_count)), true;
+              } else if ("mp3" === e4.codec && "mp3" === this.audio_metadata_.codec) {
+                var i3;
+                if ((i3 = e4.data).object_type !== this.audio_metadata_.object_type) return r.A.v(this.TAG, "MP3: AudioObjectType changed from " + "".concat(this.audio_metadata_.object_type, " to ").concat(i3.object_type)), true;
+                if (i3.sample_rate !== this.audio_metadata_.sample_rate) return r.A.v(this.TAG, "MP3: SamplingFrequencyIndex changed from " + "".concat(this.audio_metadata_.sample_rate, " to ").concat(i3.sample_rate)), true;
+                if (i3.channel_count !== this.audio_metadata_.channel_count) return r.A.v(this.TAG, "MP3: Channel count changed from " + "".concat(this.audio_metadata_.channel_count, " to ").concat(i3.channel_count)), true;
+              }
+              return false;
+            }, t3.prototype.dispatchAudioInitSegment = function(e4) {
+              var t4 = { type: "audio" };
+              if (t4.id = this.audio_track_.id, t4.timescale = 1e3, t4.duration = this.duration_, "aac" === this.audio_metadata_.codec) {
+                var i3 = "aac" === e4.codec ? e4.data : null, n2 = new Q(i3);
+                t4.audioSampleRate = n2.sampling_rate, t4.channelCount = n2.channel_count, t4.codec = n2.codec_mimetype, t4.originalCodec = n2.original_codec_mimetype, t4.config = n2.config, t4.refSampleDuration = 1024 / t4.audioSampleRate * t4.timescale;
+              } else if ("ac-3" === this.audio_metadata_.codec) {
+                var a3 = "ac-3" === e4.codec ? e4.data : null, o2 = new Se(a3);
+                t4.audioSampleRate = o2.sampling_rate, t4.channelCount = o2.channel_count, t4.codec = o2.codec_mimetype, t4.originalCodec = o2.original_codec_mimetype, t4.config = o2.config, t4.refSampleDuration = 1536 / t4.audioSampleRate * t4.timescale;
+              } else if ("ec-3" === this.audio_metadata_.codec) {
+                var s3 = "ec-3" === e4.codec ? e4.data : null, d2 = new Re(s3);
+                t4.audioSampleRate = d2.sampling_rate, t4.channelCount = d2.channel_count, t4.codec = d2.codec_mimetype, t4.originalCodec = d2.original_codec_mimetype, t4.config = d2.config, t4.refSampleDuration = 256 * d2.num_blks / t4.audioSampleRate * t4.timescale;
+              } else "opus" === this.audio_metadata_.codec ? (t4.audioSampleRate = this.audio_metadata_.sample_rate, t4.channelCount = this.audio_metadata_.channel_count, t4.channelConfigCode = this.audio_metadata_.channel_config_code, t4.codec = "opus", t4.originalCodec = "opus", t4.config = void 0, t4.refSampleDuration = 20) : "mp3" === this.audio_metadata_.codec && (t4.audioSampleRate = this.audio_metadata_.sample_rate, t4.channelCount = this.audio_metadata_.channel_count, t4.codec = "mp3", t4.originalCodec = "mp3", t4.config = void 0);
+              0 == this.audio_init_segment_dispatched_ && r.A.v(this.TAG, "Generated first AudioSpecificConfig for mimeType: ".concat(t4.codec)), this.onTrackMetadata("audio", t4), this.audio_init_segment_dispatched_ = true, this.video_metadata_changed_ = false;
+              var _2 = this.media_info_;
+              _2.hasAudio = true, _2.audioCodec = t4.originalCodec, _2.audioSampleRate = t4.audioSampleRate, _2.audioChannelCount = t4.channelCount, _2.hasVideo && _2.videoCodec ? _2.mimeType = 'video/mp2t; codecs="'.concat(_2.videoCodec, ",").concat(_2.audioCodec, '"') : _2.mimeType = 'video/mp2t; codecs="'.concat(_2.audioCodec, '"'), _2.isComplete() && this.onMediaInfo(_2);
+            }, t3.prototype.dispatchPESPrivateDataDescriptor = function(e4, t4, i3) {
+              var n2 = new $();
+              n2.pid = e4, n2.stream_type = t4, n2.descriptor = i3, this.onPESPrivateDataDescriptor && this.onPESPrivateDataDescriptor(n2);
+            }, t3.prototype.parsePESPrivateDataPayload = function(e4, t4, i3, n2, a3) {
+              var r2 = new Z();
+              if (r2.pid = n2, r2.stream_id = a3, r2.len = e4.byteLength, r2.data = e4, null != t4) {
+                var o2 = Math.floor(t4 / this.timescale_);
+                r2.pts = o2;
+              } else r2.nearest_pts = this.getNearestTimestampMilliseconds();
+              if (null != i3) {
+                var s3 = Math.floor(i3 / this.timescale_);
+                r2.dts = s3;
+              }
+              this.onPESPrivateData && this.onPESPrivateData(r2);
+            }, t3.prototype.parseTimedID3MetadataPayload = function(e4, t4, i3, n2, a3) {
+              var r2 = new Z();
+              if (r2.pid = n2, r2.stream_id = a3, r2.len = e4.byteLength, r2.data = e4, null != t4) {
+                var o2 = Math.floor(t4 / this.timescale_);
+                r2.pts = o2;
+              }
+              if (null != i3) {
+                var s3 = Math.floor(i3 / this.timescale_);
+                r2.dts = s3;
+              }
+              this.onTimedID3Metadata && this.onTimedID3Metadata(r2);
+            }, t3.prototype.parsePGSPayload = function(e4, t4, i3, n2, a3, r2) {
+              var o2 = new ke();
+              if (o2.pid = n2, o2.lang = r2, o2.stream_id = a3, o2.len = e4.byteLength, o2.data = e4, null != t4) {
+                var s3 = Math.floor(t4 / this.timescale_);
+                o2.pts = s3;
+              }
+              if (null != i3) {
+                var d2 = Math.floor(i3 / this.timescale_);
+                o2.dts = d2;
+              }
+              this.onPGSSubtitleData && this.onPGSSubtitleData(o2);
+            }, t3.prototype.parseSynchronousKLVMetadataPayload = function(e4, t4, i3, n2, a3) {
+              var r2 = new Te();
+              if (r2.pid = n2, r2.stream_id = a3, r2.len = e4.byteLength, r2.data = e4, null != t4) {
+                var o2 = Math.floor(t4 / this.timescale_);
+                r2.pts = o2;
+              }
+              if (null != i3) {
+                var s3 = Math.floor(i3 / this.timescale_);
+                r2.dts = s3;
+              }
+              r2.access_units = function(e5) {
+                for (var t5 = [], i4 = 0; i4 + 5 < e5.byteLength; ) {
+                  var n3 = e5[i4 + 0], a4 = e5[i4 + 1], r3 = e5[i4 + 2], o3 = e5[i4 + 3] << 8 | e5[i4 + 4], s4 = e5.slice(i4 + 5, i4 + 5 + o3);
+                  t5.push({ service_id: n3, sequence_number: a4, flags: r3, data: s4 }), i4 += 5 + o3;
+                }
+                return t5;
+              }(e4), this.onSynchronousKLVMetadata && this.onSynchronousKLVMetadata(r2);
+            }, t3.prototype.parseAsynchronousKLVMetadataPayload = function(e4, t4, i3) {
+              var n2 = new Z();
+              n2.pid = t4, n2.stream_id = i3, n2.len = e4.byteLength, n2.data = e4, this.onAsynchronousKLVMetadata && this.onAsynchronousKLVMetadata(n2);
+            }, t3.prototype.parseSMPTE2038MetadataPayload = function(e4, t4, i3, n2, a3) {
+              var r2 = new me();
+              if (r2.pid = n2, r2.stream_id = a3, r2.len = e4.byteLength, r2.data = e4, null != t4) {
+                var o2 = Math.floor(t4 / this.timescale_);
+                r2.pts = o2;
+              }
+              if (r2.nearest_pts = this.getNearestTimestampMilliseconds(), null != i3) {
+                var s3 = Math.floor(i3 / this.timescale_);
+                r2.dts = s3;
+              }
+              r2.ancillaries = function(e5) {
+                for (var t5 = new f(e5), i4 = 0, n3 = []; i4 += 6, 0 === t5.readBits(6); ) {
+                  var a4 = t5.readBool();
+                  i4 += 1;
+                  var r3 = t5.readBits(11);
+                  i4 += 11;
+                  var o3 = t5.readBits(12);
+                  i4 += 12;
+                  var s4 = 255 & t5.readBits(10);
+                  i4 += 10;
+                  var d2 = 255 & t5.readBits(10);
+                  i4 += 10;
+                  var _2 = 255 & t5.readBits(10);
+                  i4 += 10;
+                  for (var h2 = new Uint8Array(_2), c2 = 0; c2 < _2; c2++) {
+                    var l2 = 255 & t5.readBits(10);
+                    i4 += 10, h2[c2] = l2;
+                  }
+                  t5.readBits(10), i4 += 10;
+                  var u2 = "User Defined";
+                  65 === s4 ? 7 === d2 && (u2 = "SCTE-104") : 95 === s4 ? 220 === d2 ? u2 = "ARIB STD-B37 (1SEG)" : 221 === d2 ? u2 = "ARIB STD-B37 (ANALOG)" : 222 === d2 ? u2 = "ARIB STD-B37 (SD)" : 223 === d2 && (u2 = "ARIB STD-B37 (HD)") : 97 === s4 && (1 === d2 ? u2 = "EIA-708" : 2 === d2 && (u2 = "EIA-608")), n3.push({ yc_indicator: a4, line_number: r3, horizontal_offset: o3, did: s4, sdid: d2, user_data: h2, description: u2, information: {} }), t5.readBits(8 - (i4 - Math.floor(i4 / 8)) % 8), i4 += (8 - (i4 - Math.floor(i4 / 8))) % 8;
+                }
+                return t5.destroy(), t5 = null, n3;
+              }(e4), this.onSMPTE2038Metadata && this.onSMPTE2038Metadata(r2);
+            }, t3.prototype.parseSEIPayload = function(e4, t4, i3) {
+              var n2 = T(e4, null != t4 ? Math.floor(t4 / this.timescale_) : void 0, i3);
+              n2 && this.onSEI && this.onSEI(n2);
+            }, t3.prototype.getNearestTimestampMilliseconds = function() {
+              return null != this.audio_last_sample_pts_ ? Math.floor(this.audio_last_sample_pts_) : null != this.last_pcr_ ? Math.floor(this.last_pcr_ / 300 / this.timescale_) : void 0;
+            }, t3.prototype.getPcrBase = function(e4) {
+              var t4 = 33554432 * e4[6] + 131072 * e4[7] + 512 * e4[8] + 2 * e4[9] + (128 & e4[10]) / 128 + this.timestamp_offset_;
+              return t4 + 4294967296 < this.last_pcr_base_ && (t4 += 8589934592, this.timestamp_offset_ += 8589934592), this.last_pcr_base_ = t4, t4;
+            }, t3.prototype.getTimestamp = function(e4, t4) {
+              var i3 = 536870912 * (14 & e4[t4]) + 4194304 * (255 & e4[t4 + 1]) + 16384 * (254 & e4[t4 + 2]) + 128 * (255 & e4[t4 + 3]) + (254 & e4[t4 + 4]) / 2 + this.timestamp_offset_;
+              return i3 + 4294967296 < this.last_pcr_base_ && (i3 += 8589934592), i3;
+            }, t3;
+          }(C), De = Me, Be = function(e3, t3, i3) {
+            if (i3 || 2 === arguments.length) for (var n2, a3 = 0, r2 = t3.length; a3 < r2; a3++) !n2 && a3 in t3 || (n2 || (n2 = Array.prototype.slice.call(t3, 0, a3)), n2[a3] = t3[a3]);
+            return e3.concat(n2 || Array.prototype.slice.call(t3));
+          }, Oe = function() {
+            function e3() {
+            }
+            return e3.init = function() {
+              for (var t3 in e3.types = { avc1: [], avcC: [], btrt: [], dinf: [], dref: [], esds: [], ftyp: [], hdlr: [], hvc1: [], hvcC: [], av01: [], av1C: [], mdat: [], mdhd: [], mdia: [], mfhd: [], minf: [], moof: [], moov: [], mp4a: [], mvex: [], mvhd: [], sdtp: [], stbl: [], stco: [], stsc: [], stsd: [], stsz: [], stts: [], tfdt: [], tfhd: [], traf: [], trak: [], trun: [], trex: [], tkhd: [], vmhd: [], smhd: [], chnl: [], ".mp3": [], Opus: [], dOps: [], fLaC: [], dfLa: [], ipcm: [], pcmC: [], "ac-3": [], dac3: [], "ec-3": [], dec3: [] }, e3.types) e3.types.hasOwnProperty(t3) && (e3.types[t3] = [t3.charCodeAt(0), t3.charCodeAt(1), t3.charCodeAt(2), t3.charCodeAt(3)]);
+              var i3 = e3.constants = {};
+              i3.FTYP = new Uint8Array([105, 115, 111, 109, 0, 0, 0, 1, 105, 115, 111, 109, 97, 118, 99, 49]), i3.STSD_PREFIX = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1]), i3.STTS = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]), i3.STSC = i3.STCO = i3.STTS, i3.STSZ = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]), i3.HDLR_VIDEO = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 118, 105, 100, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 86, 105, 100, 101, 111, 72, 97, 110, 100, 108, 101, 114, 0]), i3.HDLR_AUDIO = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 115, 111, 117, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 83, 111, 117, 110, 100, 72, 97, 110, 100, 108, 101, 114, 0]), i3.DREF = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 12, 117, 114, 108, 32, 0, 0, 0, 1]), i3.SMHD = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]), i3.VMHD = new Uint8Array([0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]);
+            }, e3.box = function(e4) {
+              for (var t3 = 8, i3 = null, n2 = Array.prototype.slice.call(arguments, 1), a3 = n2.length, r2 = 0; r2 < a3; r2++) t3 += n2[r2].byteLength;
+              (i3 = new Uint8Array(t3))[0] = t3 >>> 24 & 255, i3[1] = t3 >>> 16 & 255, i3[2] = t3 >>> 8 & 255, i3[3] = 255 & t3, i3.set(e4, 4);
+              var o2 = 8;
+              for (r2 = 0; r2 < a3; r2++) i3.set(n2[r2], o2), o2 += n2[r2].byteLength;
+              return i3;
+            }, e3.generateInitSegment = function(t3) {
+              var i3 = e3.box(e3.types.ftyp, e3.constants.FTYP), n2 = e3.moov(t3), a3 = new Uint8Array(i3.byteLength + n2.byteLength);
+              return a3.set(i3, 0), a3.set(n2, i3.byteLength), a3;
+            }, e3.moov = function(t3) {
+              var i3 = e3.mvhd(t3.timescale, t3.duration), n2 = e3.trak(t3), a3 = e3.mvex(t3);
+              return e3.box(e3.types.moov, i3, n2, a3);
+            }, e3.mvhd = function(t3, i3) {
+              return e3.box(e3.types.mvhd, new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, t3 >>> 24 & 255, t3 >>> 16 & 255, t3 >>> 8 & 255, 255 & t3, i3 >>> 24 & 255, i3 >>> 16 & 255, i3 >>> 8 & 255, 255 & i3, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255]));
+            }, e3.trak = function(t3) {
+              return e3.box(e3.types.trak, e3.tkhd(t3), e3.mdia(t3));
+            }, e3.tkhd = function(t3) {
+              var i3 = t3.id, n2 = t3.duration, a3 = t3.presentWidth, r2 = t3.presentHeight;
+              return e3.box(e3.types.tkhd, new Uint8Array([0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, i3 >>> 24 & 255, i3 >>> 16 & 255, i3 >>> 8 & 255, 255 & i3, 0, 0, 0, 0, n2 >>> 24 & 255, n2 >>> 16 & 255, n2 >>> 8 & 255, 255 & n2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, a3 >>> 8 & 255, 255 & a3, 0, 0, r2 >>> 8 & 255, 255 & r2, 0, 0]));
+            }, e3.mdia = function(t3) {
+              return e3.box(e3.types.mdia, e3.mdhd(t3), e3.hdlr(t3), e3.minf(t3));
+            }, e3.mdhd = function(t3) {
+              var i3 = t3.timescale, n2 = t3.duration;
+              return e3.box(e3.types.mdhd, new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3 >>> 24 & 255, i3 >>> 16 & 255, i3 >>> 8 & 255, 255 & i3, n2 >>> 24 & 255, n2 >>> 16 & 255, n2 >>> 8 & 255, 255 & n2, 85, 196, 0, 0]));
+            }, e3.hdlr = function(t3) {
+              var i3;
+              return i3 = "audio" === t3.type ? e3.constants.HDLR_AUDIO : e3.constants.HDLR_VIDEO, e3.box(e3.types.hdlr, i3);
+            }, e3.minf = function(t3) {
+              var i3;
+              return i3 = "audio" === t3.type ? e3.box(e3.types.smhd, e3.constants.SMHD) : e3.box(e3.types.vmhd, e3.constants.VMHD), e3.box(e3.types.minf, i3, e3.dinf(), e3.stbl(t3));
+            }, e3.dinf = function() {
+              return e3.box(e3.types.dinf, e3.box(e3.types.dref, e3.constants.DREF));
+            }, e3.stbl = function(t3) {
+              return e3.box(e3.types.stbl, e3.stsd(t3), e3.box(e3.types.stts, e3.constants.STTS), e3.box(e3.types.stsc, e3.constants.STSC), e3.box(e3.types.stsz, e3.constants.STSZ), e3.box(e3.types.stco, e3.constants.STCO));
+            }, e3.stsd = function(t3) {
+              return "audio" === t3.type ? "mp3" === t3.codec ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.mp3(t3)) : "ac-3" === t3.codec ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.ac3(t3)) : "ec-3" === t3.codec ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.ec3(t3)) : "opus" === t3.codec ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.Opus(t3)) : "flac" == t3.codec ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.fLaC(t3)) : "ipcm" == t3.codec ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.ipcm(t3)) : e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.mp4a(t3)) : "video" === t3.type && t3.codec.startsWith("hvc1") ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.hvc1(t3)) : "video" === t3.type && t3.codec.startsWith("av01") ? e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.av01(t3)) : e3.box(e3.types.stsd, e3.constants.STSD_PREFIX, e3.avc1(t3));
+            }, e3.mp3 = function(t3) {
+              var i3 = t3.channelCount, n2 = t3.audioSampleRate, a3 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3, 0, 16, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, 0, 0]);
+              return e3.box(e3.types[".mp3"], a3);
+            }, e3.mp4a = function(t3) {
+              var i3 = t3.channelCount, n2 = t3.audioSampleRate, a3 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3, 0, 16, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, 0, 0]);
+              return e3.box(e3.types.mp4a, a3, e3.esds(t3));
+            }, e3.ac3 = function(t3) {
+              var i3 = t3.channelCount, n2 = t3.audioSampleRate, a3 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3, 0, 16, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, 0, 0]);
+              return e3.box(e3.types["ac-3"], a3, e3.box(e3.types.dac3, new Uint8Array(t3.config)));
+            }, e3.ec3 = function(t3) {
+              var i3 = t3.channelCount, n2 = t3.audioSampleRate, a3 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3, 0, 16, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, 0, 0]);
+              return e3.box(e3.types["ec-3"], a3, e3.box(e3.types.dec3, new Uint8Array(t3.config)));
+            }, e3.esds = function(t3) {
+              var i3 = t3.config || [], n2 = i3.length, a3 = new Uint8Array([0, 0, 0, 0, 3, 23 + n2, 0, 1, 0, 4, 15 + n2, 64, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5].concat([n2]).concat(i3).concat([6, 1, 2]));
+              return e3.box(e3.types.esds, a3);
+            }, e3.Opus = function(t3) {
+              var i3 = t3.channelCount, n2 = t3.audioSampleRate, a3 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3, 0, 16, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, 0, 0]);
+              return e3.box(e3.types.Opus, a3, e3.dOps(t3));
+            }, e3.dOps = function(t3) {
+              var i3 = t3.channelCount, n2 = t3.channelConfigCode, a3 = t3.audioSampleRate;
+              if (t3.config) return e3.box(e3.types.dOps, t3.config);
+              var r2 = [];
+              switch (n2) {
+                case 1:
+                case 2:
+                  r2 = [0];
+                  break;
+                case 0:
+                  r2 = [255, 1, 1, 0, 1];
+                  break;
+                case 128:
+                  r2 = [255, 2, 0, 0, 1];
+                  break;
+                case 3:
+                  r2 = [1, 2, 1, 0, 2, 1];
+                  break;
+                case 4:
+                  r2 = [1, 2, 2, 0, 1, 2, 3];
+                  break;
+                case 5:
+                  r2 = [1, 3, 2, 0, 4, 1, 2, 3];
+                  break;
+                case 6:
+                  r2 = [1, 4, 2, 0, 4, 1, 2, 3, 5];
+                  break;
+                case 7:
+                  r2 = [1, 4, 2, 0, 4, 1, 2, 3, 5, 6];
+                  break;
+                case 8:
+                  r2 = [1, 5, 3, 0, 6, 1, 2, 3, 4, 5, 7];
+                  break;
+                case 130:
+                  r2 = [1, 1, 2, 0, 1];
+                  break;
+                case 131:
+                  r2 = [1, 1, 3, 0, 1, 2];
+                  break;
+                case 132:
+                  r2 = [1, 1, 4, 0, 1, 2, 3];
+                  break;
+                case 133:
+                  r2 = [1, 1, 5, 0, 1, 2, 3, 4];
+                  break;
+                case 134:
+                  r2 = [1, 1, 6, 0, 1, 2, 3, 4, 5];
+                  break;
+                case 135:
+                  r2 = [1, 1, 7, 0, 1, 2, 3, 4, 5, 6];
+                  break;
+                case 136:
+                  r2 = [1, 1, 8, 0, 1, 2, 3, 4, 5, 6, 7];
+              }
+              var o2 = new Uint8Array(Be([0, i3, 0, 0, a3 >>> 24 & 255, a3 >>> 17 & 255, a3 >>> 8 & 255, a3 >>> 0 & 255, 0, 0], r2, true));
+              return e3.box(e3.types.dOps, o2);
+            }, e3.fLaC = function(t3) {
+              var i3 = t3.channelCount, n2 = Math.min(t3.audioSampleRate, 65535), a3 = t3.sampleSize, r2 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3, 0, a3, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, 0, 0]);
+              return e3.box(e3.types.fLaC, r2, e3.dfLa(t3));
+            }, e3.dfLa = function(t3) {
+              var i3 = new Uint8Array(Be([0, 0, 0, 0], t3.config, true));
+              return e3.box(e3.types.dfLa, i3);
+            }, e3.ipcm = function(t3) {
+              var i3 = t3.channelCount, n2 = Math.min(t3.audioSampleRate, 65535), a3 = t3.sampleSize, r2 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, i3, 0, a3, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, 0, 0]);
+              return 1 === t3.channelCount ? e3.box(e3.types.ipcm, r2, e3.pcmC(t3)) : e3.box(e3.types.ipcm, r2, e3.chnl(t3), e3.pcmC(t3));
+            }, e3.chnl = function(t3) {
+              var i3 = new Uint8Array([0, 0, 0, 0, 1, t3.channelCount, 0, 0, 0, 0, 0, 0, 0, 0]);
+              return e3.box(e3.types.chnl, i3);
+            }, e3.pcmC = function(t3) {
+              var i3 = t3.littleEndian ? 1 : 0, n2 = t3.sampleSize, a3 = new Uint8Array([0, 0, 0, 0, i3, n2]);
+              return e3.box(e3.types.pcmC, a3);
+            }, e3.avc1 = function(t3) {
+              var i3 = t3.avcc, n2 = t3.codecWidth, a3 = t3.codecHeight, r2 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, a3 >>> 8 & 255, 255 & a3, 0, 72, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 1, 10, 120, 113, 113, 47, 102, 108, 118, 46, 106, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 255, 255]);
+              return e3.box(e3.types.avc1, r2, e3.box(e3.types.avcC, i3));
+            }, e3.hvc1 = function(t3) {
+              var i3 = t3.hvcc, n2 = t3.codecWidth, a3 = t3.codecHeight, r2 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, a3 >>> 8 & 255, 255 & a3, 0, 72, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 1, 10, 120, 113, 113, 47, 102, 108, 118, 46, 106, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 255, 255]);
+              return e3.box(e3.types.hvc1, r2, e3.box(e3.types.hvcC, i3));
+            }, e3.av01 = function(t3) {
+              var i3 = t3.av1c, n2 = t3.codecWidth || 192, a3 = t3.codecHeight || 108, r2 = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, n2 >>> 8 & 255, 255 & n2, a3 >>> 8 & 255, 255 & a3, 0, 72, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 0, 1, 10, 120, 113, 113, 47, 102, 108, 118, 46, 106, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 255, 255]);
+              return e3.box(e3.types.av01, r2, e3.box(e3.types.av1C, i3));
+            }, e3.mvex = function(t3) {
+              return e3.box(e3.types.mvex, e3.trex(t3));
+            }, e3.trex = function(t3) {
+              var i3 = t3.id, n2 = new Uint8Array([0, 0, 0, 0, i3 >>> 24 & 255, i3 >>> 16 & 255, i3 >>> 8 & 255, 255 & i3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1]);
+              return e3.box(e3.types.trex, n2);
+            }, e3.moof = function(t3, i3) {
+              return e3.box(e3.types.moof, e3.mfhd(t3.sequenceNumber), e3.traf(t3, i3));
+            }, e3.mfhd = function(t3) {
+              var i3 = new Uint8Array([0, 0, 0, 0, t3 >>> 24 & 255, t3 >>> 16 & 255, t3 >>> 8 & 255, 255 & t3]);
+              return e3.box(e3.types.mfhd, i3);
+            }, e3.traf = function(t3, i3) {
+              var n2 = t3.id, a3 = e3.box(e3.types.tfhd, new Uint8Array([0, 0, 0, 0, n2 >>> 24 & 255, n2 >>> 16 & 255, n2 >>> 8 & 255, 255 & n2])), r2 = e3.box(e3.types.tfdt, new Uint8Array([0, 0, 0, 0, i3 >>> 24 & 255, i3 >>> 16 & 255, i3 >>> 8 & 255, 255 & i3])), o2 = e3.sdtp(t3), s3 = e3.trun(t3, o2.byteLength + 16 + 16 + 8 + 16 + 8 + 8);
+              return e3.box(e3.types.traf, a3, r2, s3, o2);
+            }, e3.sdtp = function(t3) {
+              for (var i3 = t3.samples || [], n2 = i3.length, a3 = new Uint8Array(4 + n2), r2 = 0; r2 < n2; r2++) {
+                var o2 = i3[r2].flags;
+                a3[r2 + 4] = o2.isLeading << 6 | o2.dependsOn << 4 | o2.isDependedOn << 2 | o2.hasRedundancy;
+              }
+              return e3.box(e3.types.sdtp, a3);
+            }, e3.trun = function(t3, i3) {
+              var n2 = t3.samples || [], a3 = n2.length, r2 = 12 + 16 * a3, o2 = new Uint8Array(r2);
+              i3 += 8 + r2, o2.set([0, 0, 15, 1, a3 >>> 24 & 255, a3 >>> 16 & 255, a3 >>> 8 & 255, 255 & a3, i3 >>> 24 & 255, i3 >>> 16 & 255, i3 >>> 8 & 255, 255 & i3], 0);
+              for (var s3 = 0; s3 < a3; s3++) {
+                var d2 = n2[s3].duration, _2 = n2[s3].size, h2 = n2[s3].flags, c2 = n2[s3].cts;
+                o2.set([d2 >>> 24 & 255, d2 >>> 16 & 255, d2 >>> 8 & 255, 255 & d2, _2 >>> 24 & 255, _2 >>> 16 & 255, _2 >>> 8 & 255, 255 & _2, h2.isLeading << 2 | h2.dependsOn, h2.isDependedOn << 6 | h2.hasRedundancy << 4 | h2.isNonSync, 0, 0, c2 >>> 24 & 255, c2 >>> 16 & 255, c2 >>> 8 & 255, 255 & c2], 12 + 16 * s3);
+              }
+              return e3.box(e3.types.trun, o2);
+            }, e3.mdat = function(t3) {
+              return e3.box(e3.types.mdat, t3);
+            }, e3;
+          }();
+          Oe.init();
+          var Ie = Oe, Pe = function() {
+            function e3() {
+            }
+            return e3.getSilentFrame = function(e4, t3) {
+              if ("mp4a.40.2" === e4) {
+                if (1 === t3) return new Uint8Array([0, 200, 0, 128, 35, 128]);
+                if (2 === t3) return new Uint8Array([33, 0, 73, 144, 2, 25, 0, 35, 128]);
+                if (3 === t3) return new Uint8Array([0, 200, 0, 128, 32, 132, 1, 38, 64, 8, 100, 0, 142]);
+                if (4 === t3) return new Uint8Array([0, 200, 0, 128, 32, 132, 1, 38, 64, 8, 100, 0, 128, 44, 128, 8, 2, 56]);
+                if (5 === t3) return new Uint8Array([0, 200, 0, 128, 32, 132, 1, 38, 64, 8, 100, 0, 130, 48, 4, 153, 0, 33, 144, 2, 56]);
+                if (6 === t3) return new Uint8Array([0, 200, 0, 128, 32, 132, 1, 38, 64, 8, 100, 0, 130, 48, 4, 153, 0, 33, 144, 2, 0, 178, 0, 32, 8, 224]);
+              } else {
+                if (1 === t3) return new Uint8Array([1, 64, 34, 128, 163, 78, 230, 128, 186, 8, 0, 0, 0, 28, 6, 241, 193, 10, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 94]);
+                if (2 === t3) return new Uint8Array([1, 64, 34, 128, 163, 94, 230, 128, 186, 8, 0, 0, 0, 0, 149, 0, 6, 241, 161, 10, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 94]);
+                if (3 === t3) return new Uint8Array([1, 64, 34, 128, 163, 94, 230, 128, 186, 8, 0, 0, 0, 0, 149, 0, 6, 241, 161, 10, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 94]);
+              }
+              return null;
+            }, e3;
+          }(), xe = i2(47), Ue = function() {
+            function e3(e4) {
+              this.TAG = "MP4Remuxer", this._config = e4, this._isLive = true === e4.isLive, this._dtsBase = -1, this._dtsBaseInited = false, this._audioDtsBase = 1 / 0, this._videoDtsBase = 1 / 0, this._audioNextDts = void 0, this._videoNextDts = void 0, this._audioStashedLastSample = null, this._videoStashedLastSample = null, this._audioMeta = null, this._videoMeta = null, this._audioSegmentInfoList = new xe.Sc("audio"), this._videoSegmentInfoList = new xe.Sc("video"), this._onInitSegment = null, this._onMediaSegment = null, this._forceFirstIDR = !(!o.A.chrome || !(o.A.version.major < 50 || 50 === o.A.version.major && o.A.version.build < 2661)), this._fillSilentAfterSeek = o.A.msedge || o.A.msie, this._mp3UseMpegAudio = !o.A.firefox, this._fillAudioTimestampGap = this._config.fixAudioTimestampGap;
+            }
+            return e3.prototype.destroy = function() {
+              this._dtsBase = -1, this._dtsBaseInited = false, this._audioMeta = null, this._videoMeta = null, this._audioSegmentInfoList.clear(), this._audioSegmentInfoList = null, this._videoSegmentInfoList.clear(), this._videoSegmentInfoList = null, this._onInitSegment = null, this._onMediaSegment = null;
+            }, e3.prototype.bindDataSource = function(e4) {
+              return e4.onDataAvailable = this.remux.bind(this), e4.onTrackMetadata = this._onTrackMetadataReceived.bind(this), this;
+            }, Object.defineProperty(e3.prototype, "onInitSegment", { get: function() {
+              return this._onInitSegment;
+            }, set: function(e4) {
+              this._onInitSegment = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onMediaSegment", { get: function() {
+              return this._onMediaSegment;
+            }, set: function(e4) {
+              this._onMediaSegment = e4;
+            }, enumerable: false, configurable: true }), e3.prototype.insertDiscontinuity = function() {
+              this._audioNextDts = this._videoNextDts = void 0;
+            }, e3.prototype.seek = function(e4) {
+              this._audioStashedLastSample = null, this._videoStashedLastSample = null, this._videoSegmentInfoList.clear(), this._audioSegmentInfoList.clear();
+            }, e3.prototype.remux = function(e4, t3) {
+              if (!this._onMediaSegment) throw new c.j4("MP4Remuxer: onMediaSegment callback must be specificed!");
+              this._dtsBaseInited || this._calculateDtsBase(e4, t3), t3 && this._remuxVideo(t3), e4 && this._remuxAudio(e4);
+            }, e3.prototype._onTrackMetadataReceived = function(e4, t3) {
+              var i3 = null, n2 = "mp4", a3 = t3.codec;
+              if ("audio" === e4) this._audioMeta = t3, "mp3" === t3.codec && this._mp3UseMpegAudio ? (n2 = "mpeg", a3 = "", i3 = new Uint8Array()) : i3 = Ie.generateInitSegment(t3);
+              else {
+                if ("video" !== e4) return;
+                this._videoMeta = t3, i3 = Ie.generateInitSegment(t3);
+              }
+              if (!this._onInitSegment) throw new c.j4("MP4Remuxer: onInitSegment callback must be specified!");
+              this._onInitSegment(e4, { type: e4, data: i3.buffer, codec: a3, container: "".concat(e4, "/").concat(n2), mediaDuration: t3.duration });
+            }, e3.prototype._calculateDtsBase = function(e4, t3) {
+              this._dtsBaseInited || (e4 && e4.samples && e4.samples.length && (this._audioDtsBase = e4.samples[0].dts), t3 && t3.samples && t3.samples.length && (this._videoDtsBase = t3.samples[0].dts), this._dtsBase = Math.min(this._audioDtsBase, this._videoDtsBase), this._dtsBaseInited = true);
+            }, e3.prototype.getTimestampBase = function() {
+              if (this._dtsBaseInited) return this._dtsBase;
+            }, e3.prototype.flushStashedSamples = function() {
+              var e4 = this._videoStashedLastSample, t3 = this._audioStashedLastSample, i3 = { type: "video", id: 1, sequenceNumber: 0, samples: [], length: 0 };
+              null != e4 && (i3.samples.push(e4), i3.length = e4.length);
+              var n2 = { type: "audio", id: 2, sequenceNumber: 0, samples: [], length: 0 };
+              null != t3 && (n2.samples.push(t3), n2.length = t3.length), this._videoStashedLastSample = null, this._audioStashedLastSample = null, this._remuxVideo(i3, true), this._remuxAudio(n2, true);
+            }, e3.prototype._remuxAudio = function(e4, t3) {
+              if (null != this._audioMeta) {
+                var i3, n2 = e4, a3 = n2.samples, o2 = void 0, s3 = -1, d2 = this._audioMeta.refSampleDuration, _2 = "mp3" === this._audioMeta.codec && this._mp3UseMpegAudio, h2 = this._dtsBaseInited && void 0 === this._audioNextDts, c2 = false;
+                if (a3 && 0 !== a3.length && (1 !== a3.length || t3)) {
+                  var l2 = 0, u2 = null, f2 = 0;
+                  _2 ? (l2 = 0, f2 = n2.length) : (l2 = 8, f2 = 8 + n2.length);
+                  var p2 = null;
+                  if (a3.length > 1 && (f2 -= (p2 = a3.pop()).length), null != this._audioStashedLastSample) {
+                    var m2 = this._audioStashedLastSample;
+                    this._audioStashedLastSample = null, a3.unshift(m2), f2 += m2.length;
+                  }
+                  null != p2 && (this._audioStashedLastSample = p2);
+                  var g2 = a3[0].dts - this._dtsBase;
+                  if (this._audioNextDts) o2 = g2 - this._audioNextDts;
+                  else if (this._audioSegmentInfoList.isEmpty()) o2 = 0, this._fillSilentAfterSeek && !this._videoSegmentInfoList.isEmpty() && "mp3" !== this._audioMeta.originalCodec && (c2 = true);
+                  else {
+                    var v2 = this._audioSegmentInfoList.getLastSampleBefore(g2);
+                    if (null != v2) {
+                      var y2 = g2 - (v2.originalDts + v2.duration);
+                      y2 <= 3 && (y2 = 0), o2 = g2 - (v2.dts + v2.duration + y2);
+                    } else o2 = 0;
+                  }
+                  if (c2) {
+                    var A2 = g2 - o2, S2 = this._videoSegmentInfoList.getLastSegmentBefore(g2);
+                    if (null != S2 && S2.beginDts < A2) {
+                      if (B2 = Pe.getSilentFrame(this._audioMeta.originalCodec, this._audioMeta.channelCount)) {
+                        var b2 = S2.beginDts, E2 = A2 - S2.beginDts;
+                        r.A.v(this.TAG, "InsertPrefixSilentAudio: dts: ".concat(b2, ", duration: ").concat(E2)), a3.unshift({ unit: B2, dts: b2, pts: b2 }), f2 += B2.byteLength;
+                      }
+                    } else c2 = false;
+                  }
+                  for (var R2 = [], T2 = 0; T2 < a3.length; T2++) {
+                    var L2 = (m2 = a3[T2]).unit, k2 = m2.dts - this._dtsBase, w2 = (b2 = k2, false), C2 = null, M2 = 0;
+                    if (!(k2 < -1e-3)) {
+                      if ("mp3" !== this._audioMeta.codec && null != d2) {
+                        var D2 = k2;
+                        if (this._audioNextDts && (D2 = this._audioNextDts), (o2 = k2 - D2) <= -3 * d2) {
+                          r.A.w(this.TAG, "Dropping 1 audio frame (originalDts: ".concat(k2, " ms ,curRefDts: ").concat(D2, " ms)  due to dtsCorrection: ").concat(o2, " ms overlap."));
+                          continue;
+                        }
+                        if (o2 >= 3 * d2 && this._fillAudioTimestampGap) {
+                          w2 = true;
+                          var B2, O2 = Math.floor(o2 / d2);
+                          r.A.w(this.TAG, "Large audio timestamp gap detected, may cause AV sync to drift. Silent frames will be generated to avoid unsync.\n" + "originalDts: ".concat(k2, " ms, curRefDts: ").concat(D2, " ms, ") + "dtsCorrection: ".concat(Math.round(o2), " ms, generate: ").concat(O2, " frames")), b2 = Math.floor(D2), M2 = Math.floor(D2 + d2) - b2, null == (B2 = Pe.getSilentFrame(this._audioMeta.originalCodec, this._audioMeta.channelCount)) && (r.A.w(this.TAG, "Unable to generate silent frame for " + "".concat(this._audioMeta.originalCodec, " with ").concat(this._audioMeta.channelCount, " channels, repeat last frame")), B2 = L2), C2 = [];
+                          for (var I2 = 0; I2 < O2; I2++) {
+                            D2 += d2;
+                            var P2 = Math.floor(D2), x2 = Math.floor(D2 + d2) - P2, U2 = { dts: P2, pts: P2, cts: 0, unit: B2, size: B2.byteLength, duration: x2, originalDts: k2, flags: { isLeading: 0, dependsOn: 1, isDependedOn: 0, hasRedundancy: 0 } };
+                            C2.push(U2), f2 += U2.size;
+                          }
+                          this._audioNextDts = D2 + d2;
+                        } else b2 = Math.floor(D2), M2 = Math.floor(D2 + d2) - b2, this._audioNextDts = D2 + d2;
+                      } else b2 = k2 - o2, M2 = T2 !== a3.length - 1 ? a3[T2 + 1].dts - this._dtsBase - o2 - b2 : null != p2 ? p2.dts - this._dtsBase - o2 - b2 : R2.length >= 1 ? R2[R2.length - 1].duration : Math.floor(d2), this._audioNextDts = b2 + M2;
+                      -1 === s3 && (s3 = b2), R2.push({ dts: b2, pts: b2, cts: 0, unit: m2.unit, size: m2.unit.byteLength, duration: M2, originalDts: k2, flags: { isLeading: 0, dependsOn: 1, isDependedOn: 0, hasRedundancy: 0 } }), w2 && R2.push.apply(R2, C2);
+                    }
+                  }
+                  if (0 === R2.length) return n2.samples = [], void (n2.length = 0);
+                  for (_2 ? u2 = new Uint8Array(f2) : ((u2 = new Uint8Array(f2))[0] = f2 >>> 24 & 255, u2[1] = f2 >>> 16 & 255, u2[2] = f2 >>> 8 & 255, u2[3] = 255 & f2, u2.set(Ie.types.mdat, 4)), T2 = 0; T2 < R2.length; T2++) L2 = R2[T2].unit, u2.set(L2, l2), l2 += L2.byteLength;
+                  var N2 = R2[R2.length - 1];
+                  i3 = N2.dts + N2.duration;
+                  var V2 = new xe.EZ();
+                  V2.beginDts = s3, V2.endDts = i3, V2.beginPts = s3, V2.endPts = i3, V2.originalBeginDts = R2[0].originalDts, V2.originalEndDts = N2.originalDts + N2.duration, V2.firstSample = new xe.$_(R2[0].dts, R2[0].pts, R2[0].duration, R2[0].originalDts, false), V2.lastSample = new xe.$_(N2.dts, N2.pts, N2.duration, N2.originalDts, false), this._isLive || this._audioSegmentInfoList.append(V2), n2.samples = R2, n2.sequenceNumber++;
+                  var G2;
+                  G2 = _2 ? new Uint8Array() : Ie.moof(n2, s3), n2.samples = [], n2.length = 0;
+                  var F2 = { type: "audio", data: this._mergeBoxes(G2, u2).buffer, sampleCount: R2.length, info: V2 };
+                  _2 && h2 && (F2.timestampOffset = s3), this._onMediaSegment("audio", F2);
+                }
+              }
+            }, e3.prototype._remuxVideo = function(e4, t3) {
+              if (null != this._videoMeta) {
+                var i3, n2, a3 = e4, r2 = a3.samples, o2 = void 0, s3 = -1, d2 = -1;
+                if (r2 && 0 !== r2.length && (1 !== r2.length || t3)) {
+                  var _2 = 8, h2 = null, c2 = 8 + e4.length, l2 = null;
+                  if (r2.length > 1 && (c2 -= (l2 = r2.pop()).length), null != this._videoStashedLastSample) {
+                    var u2 = this._videoStashedLastSample;
+                    this._videoStashedLastSample = null, r2.unshift(u2), c2 += u2.length;
+                  }
+                  null != l2 && (this._videoStashedLastSample = l2);
+                  var f2 = r2[0].dts - this._dtsBase;
+                  if (this._videoNextDts) o2 = f2 - this._videoNextDts;
+                  else if (this._videoSegmentInfoList.isEmpty()) o2 = 0;
+                  else {
+                    var p2 = this._videoSegmentInfoList.getLastSampleBefore(f2);
+                    if (null != p2) {
+                      var m2 = f2 - (p2.originalDts + p2.duration);
+                      m2 <= 3 && (m2 = 0), o2 = f2 - (p2.dts + p2.duration + m2);
+                    } else o2 = 0;
+                  }
+                  for (var g2 = new xe.EZ(), v2 = [], y2 = 0; y2 < r2.length; y2++) {
+                    var A2 = (u2 = r2[y2]).dts - this._dtsBase, S2 = u2.isKeyframe, b2 = A2 - o2, E2 = u2.cts, R2 = b2 + E2;
+                    -1 === s3 && (s3 = b2, d2 = R2);
+                    var T2 = 0;
+                    if (T2 = y2 !== r2.length - 1 ? r2[y2 + 1].dts - this._dtsBase - o2 - b2 : null != l2 ? l2.dts - this._dtsBase - o2 - b2 : v2.length >= 1 ? v2[v2.length - 1].duration : Math.floor(this._videoMeta.refSampleDuration), S2) {
+                      var L2 = new xe.$_(b2, R2, T2, u2.dts, true);
+                      L2.fileposition = u2.fileposition, g2.appendSyncPoint(L2);
+                    }
+                    v2.push({ dts: b2, pts: R2, cts: E2, units: u2.units, size: u2.length, isKeyframe: S2, duration: T2, originalDts: A2, flags: { isLeading: 0, dependsOn: S2 ? 2 : 1, isDependedOn: S2 ? 1 : 0, hasRedundancy: 0, isNonSync: S2 ? 0 : 1 } });
+                  }
+                  for ((h2 = new Uint8Array(c2))[0] = c2 >>> 24 & 255, h2[1] = c2 >>> 16 & 255, h2[2] = c2 >>> 8 & 255, h2[3] = 255 & c2, h2.set(Ie.types.mdat, 4), y2 = 0; y2 < v2.length; y2++) for (var k2 = v2[y2].units; k2.length; ) {
+                    var w2 = k2.shift().data;
+                    h2.set(w2, _2), _2 += w2.byteLength;
+                  }
+                  var C2 = v2[v2.length - 1];
+                  if (i3 = C2.dts + C2.duration, n2 = C2.pts + C2.duration, this._videoNextDts = i3, g2.beginDts = s3, g2.endDts = i3, g2.beginPts = d2, g2.endPts = n2, g2.originalBeginDts = v2[0].originalDts, g2.originalEndDts = C2.originalDts + C2.duration, g2.firstSample = new xe.$_(v2[0].dts, v2[0].pts, v2[0].duration, v2[0].originalDts, v2[0].isKeyframe), g2.lastSample = new xe.$_(C2.dts, C2.pts, C2.duration, C2.originalDts, C2.isKeyframe), this._isLive || this._videoSegmentInfoList.append(g2), a3.samples = v2, a3.sequenceNumber++, this._forceFirstIDR) {
+                    var M2 = v2[0].flags;
+                    M2.dependsOn = 2, M2.isNonSync = 0;
+                  }
+                  var D2 = Ie.moof(a3, s3);
+                  a3.samples = [], a3.length = 0, this._onMediaSegment("video", { type: "video", data: this._mergeBoxes(D2, h2).buffer, sampleCount: v2.length, info: g2 });
+                }
+              }
+            }, e3.prototype._mergeBoxes = function(e4, t3) {
+              var i3 = new Uint8Array(e4.byteLength + t3.byteLength);
+              return i3.set(e4, 0), i3.set(t3, e4.byteLength), i3;
+            }, e3;
+          }(), Ne = i2(653), Ve = i2(726), Ge = (i2(470), function() {
+            function e3(e4, t3) {
+              this.TAG = "TransmuxingController", this._emitter = new (a2())(), this._config = t3, e4.segments || (e4.segments = [{ duration: e4.duration, filesize: e4.filesize, url: e4.url }]), "boolean" != typeof e4.cors && (e4.cors = true), "boolean" != typeof e4.withCredentials && (e4.withCredentials = false), this._mediaDataSource = e4, this._currentSegmentIndex = 0;
+              var i3 = 0;
+              this._mediaDataSource.segments.forEach(function(n2) {
+                n2.timestampBase = i3, i3 += n2.duration, n2.cors = e4.cors, n2.withCredentials = e4.withCredentials, t3.referrerPolicy && (n2.referrerPolicy = t3.referrerPolicy);
+              }), isNaN(i3) || this._mediaDataSource.duration === i3 || (this._mediaDataSource.duration = i3), this._mediaInfo = null, this._demuxer = null, this._remuxer = null, this._ioctl = null, this._pendingSeekTime = null, this._pendingResolveSeekPoint = null, this._statisticsReporter = null;
+            }
+            return e3.prototype.destroy = function() {
+              this._mediaInfo = null, this._mediaDataSource = null, this._statisticsReporter && this._disableStatisticsReporter(), this._ioctl && (this._ioctl.destroy(), this._ioctl = null), this._demuxer && (this._demuxer.destroy(), this._demuxer = null), this._remuxer && (this._remuxer.destroy(), this._remuxer = null), this._emitter.removeAllListeners(), this._emitter = null;
+            }, e3.prototype.on = function(e4, t3) {
+              this._emitter.addListener(e4, t3);
+            }, e3.prototype.off = function(e4, t3) {
+              this._emitter.removeListener(e4, t3);
+            }, e3.prototype.start = function() {
+              this._loadSegment(0), this._enableStatisticsReporter();
+            }, e3.prototype._loadSegment = function(e4, t3) {
+              this._currentSegmentIndex = e4;
+              var i3 = this._mediaDataSource.segments[e4], n2 = this._ioctl = new Ne.A(i3, this._config, e4);
+              n2.onError = this._onIOException.bind(this), n2.onSeeked = this._onIOSeeked.bind(this), n2.onComplete = this._onIOComplete.bind(this), n2.onRedirect = this._onIORedirect.bind(this), n2.onRecoveredEarlyEof = this._onIORecoveredEarlyEof.bind(this), t3 ? this._demuxer.bindDataSource(this._ioctl) : n2.onDataArrival = this._onInitChunkArrival.bind(this), n2.open(t3);
+            }, e3.prototype.stop = function() {
+              this._internalAbort(), this._disableStatisticsReporter();
+            }, e3.prototype._internalAbort = function() {
+              this._ioctl && (this._ioctl.destroy(), this._ioctl = null);
+            }, e3.prototype.pause = function() {
+              this._ioctl && this._ioctl.isWorking() && (this._ioctl.pause(), this._disableStatisticsReporter());
+            }, e3.prototype.resume = function() {
+              this._ioctl && this._ioctl.isPaused() && (this._ioctl.resume(), this._enableStatisticsReporter());
+            }, e3.prototype.seek = function(e4) {
+              if (null != this._mediaInfo && this._mediaInfo.isSeekable()) {
+                var t3 = this._searchSegmentIndexContains(e4);
+                if (t3 === this._currentSegmentIndex) {
+                  var i3 = this._mediaInfo.segments[t3];
+                  if (null == i3) this._pendingSeekTime = e4;
+                  else {
+                    var n2 = i3.getNearestKeyframe(e4);
+                    this._remuxer.seek(n2.milliseconds), this._ioctl.seek(n2.fileposition), this._pendingResolveSeekPoint = n2.milliseconds;
+                  }
+                } else {
+                  var a3 = this._mediaInfo.segments[t3];
+                  null == a3 ? (this._pendingSeekTime = e4, this._internalAbort(), this._remuxer.seek(), this._remuxer.insertDiscontinuity(), this._loadSegment(t3)) : (n2 = a3.getNearestKeyframe(e4), this._internalAbort(), this._remuxer.seek(e4), this._remuxer.insertDiscontinuity(), this._demuxer.resetMediaInfo(), this._demuxer.timestampBase = this._mediaDataSource.segments[t3].timestampBase, this._loadSegment(t3, n2.fileposition), this._pendingResolveSeekPoint = n2.milliseconds, this._reportSegmentMediaInfo(t3));
+                }
+                this._enableStatisticsReporter();
+              }
+            }, e3.prototype._searchSegmentIndexContains = function(e4) {
+              for (var t3 = this._mediaDataSource.segments, i3 = t3.length - 1, n2 = 0; n2 < t3.length; n2++) if (e4 < t3[n2].timestampBase) {
+                i3 = n2 - 1;
+                break;
+              }
+              return i3;
+            }, e3.prototype._onInitChunkArrival = function(e4, t3) {
+              var i3 = this, n2 = 0;
+              if (t3 > 0) this._demuxer.bindDataSource(this._ioctl), this._demuxer.timestampBase = this._mediaDataSource.segments[this._currentSegmentIndex].timestampBase, n2 = this._demuxer.parseChunks(e4, t3);
+              else {
+                var a3 = null;
+                (a3 = w.probe(e4)).match && (this._setupFLVDemuxerRemuxer(a3), n2 = this._demuxer.parseChunks(e4, t3)), a3.match || a3.needMoreData || (a3 = De.probe(e4)).match && (this._setupTSDemuxerRemuxer(a3), n2 = this._demuxer.parseChunks(e4, t3)), a3.match || a3.needMoreData || (a3 = null, r.A.e(this.TAG, "Non MPEG-TS/FLV, Unsupported media type!"), Promise.resolve().then(function() {
+                  i3._internalAbort();
+                }), this._emitter.emit(Ve.A.DEMUX_ERROR, m.A.FORMAT_UNSUPPORTED, "Non MPEG-TS/FLV, Unsupported media type!"));
+              }
+              return n2;
+            }, e3.prototype._setupFLVDemuxerRemuxer = function(e4) {
+              this._demuxer = new w(e4, this._config), this._remuxer || (this._remuxer = new Ue(this._config));
+              var t3 = this._mediaDataSource;
+              null == t3.duration || isNaN(t3.duration) || (this._demuxer.overridedDuration = t3.duration), "boolean" == typeof t3.hasAudio && (this._demuxer.overridedHasAudio = t3.hasAudio), "boolean" == typeof t3.hasVideo && (this._demuxer.overridedHasVideo = t3.hasVideo), this._demuxer.timestampBase = t3.segments[this._currentSegmentIndex].timestampBase, this._demuxer.onError = this._onDemuxException.bind(this), this._demuxer.onMediaInfo = this._onMediaInfo.bind(this), this._demuxer.onMetaDataArrived = this._onMetaDataArrived.bind(this), this._demuxer.onScriptDataArrived = this._onScriptDataArrived.bind(this), this._demuxer.onSeiArrived = this._onSEI.bind(this), this._remuxer.bindDataSource(this._demuxer.bindDataSource(this._ioctl)), this._remuxer.onInitSegment = this._onRemuxerInitSegmentArrival.bind(this), this._remuxer.onMediaSegment = this._onRemuxerMediaSegmentArrival.bind(this);
+            }, e3.prototype._setupTSDemuxerRemuxer = function(e4) {
+              var t3 = this._demuxer = new De(e4, this._config);
+              this._remuxer || (this._remuxer = new Ue(this._config)), t3.onError = this._onDemuxException.bind(this), t3.onMediaInfo = this._onMediaInfo.bind(this), t3.onMetaDataArrived = this._onMetaDataArrived.bind(this), t3.onTimedID3Metadata = this._onTimedID3Metadata.bind(this), t3.onPGSSubtitleData = this._onPGSSubtitle.bind(this), t3.onSynchronousKLVMetadata = this._onSynchronousKLVMetadata.bind(this), t3.onAsynchronousKLVMetadata = this._onAsynchronousKLVMetadata.bind(this), t3.onSMPTE2038Metadata = this._onSMPTE2038Metadata.bind(this), t3.onSEI = this._onSEI.bind(this), t3.onSCTE35Metadata = this._onSCTE35Metadata.bind(this), t3.onPESPrivateDataDescriptor = this._onPESPrivateDataDescriptor.bind(this), t3.onPESPrivateData = this._onPESPrivateData.bind(this), this._remuxer.bindDataSource(this._demuxer), this._demuxer.bindDataSource(this._ioctl), this._remuxer.onInitSegment = this._onRemuxerInitSegmentArrival.bind(this), this._remuxer.onMediaSegment = this._onRemuxerMediaSegmentArrival.bind(this);
+            }, e3.prototype._onMediaInfo = function(e4) {
+              var t3 = this;
+              null == this._mediaInfo && (this._mediaInfo = Object.assign({}, e4), this._mediaInfo.keyframesIndex = null, this._mediaInfo.segments = [], this._mediaInfo.segmentCount = this._mediaDataSource.segments.length, Object.setPrototypeOf(this._mediaInfo, s2.A.prototype));
+              var i3 = Object.assign({}, e4);
+              Object.setPrototypeOf(i3, s2.A.prototype), this._mediaInfo.segments[this._currentSegmentIndex] = i3, this._reportSegmentMediaInfo(this._currentSegmentIndex), null != this._pendingSeekTime && Promise.resolve().then(function() {
+                var e5 = t3._pendingSeekTime;
+                t3._pendingSeekTime = null, t3.seek(e5);
+              });
+            }, e3.prototype._onMetaDataArrived = function(e4) {
+              this._emitter.emit(Ve.A.METADATA_ARRIVED, e4);
+            }, e3.prototype._onScriptDataArrived = function(e4) {
+              this._emitter.emit(Ve.A.SCRIPTDATA_ARRIVED, e4);
+            }, e3.prototype._onTimedID3Metadata = function(e4) {
+              var t3 = this._remuxer.getTimestampBase();
+              null != t3 && (null != e4.pts && (e4.pts -= t3), null != e4.dts && (e4.dts -= t3), this._emitter.emit(Ve.A.TIMED_ID3_METADATA_ARRIVED, e4));
+            }, e3.prototype._onPGSSubtitle = function(e4) {
+              var t3 = this._remuxer.getTimestampBase();
+              null != t3 && (null != e4.pts && (e4.pts -= t3), null != e4.dts && (e4.dts -= t3), this._emitter.emit(Ve.A.PGS_SUBTITLE_ARRIVED, e4));
+            }, e3.prototype._onSynchronousKLVMetadata = function(e4) {
+              var t3 = this._remuxer.getTimestampBase();
+              null != t3 && (null != e4.pts && (e4.pts -= t3), null != e4.dts && (e4.dts -= t3), this._emitter.emit(Ve.A.SYNCHRONOUS_KLV_METADATA_ARRIVED, e4));
+            }, e3.prototype._onAsynchronousKLVMetadata = function(e4) {
+              this._emitter.emit(Ve.A.ASYNCHRONOUS_KLV_METADATA_ARRIVED, e4);
+            }, e3.prototype._onSMPTE2038Metadata = function(e4) {
+              var t3 = this._remuxer.getTimestampBase();
+              null != t3 && (null != e4.pts && (e4.pts -= t3), null != e4.dts && (e4.dts -= t3), null != e4.nearest_pts && (e4.nearest_pts -= t3), this._emitter.emit(Ve.A.SMPTE2038_METADATA_ARRIVED, e4));
+            }, e3.prototype._onSEI = function(e4) {
+              var t3 = this._remuxer.getTimestampBase();
+              null != t3 && (null != e4.pts && (e4.pts -= t3), this._emitter.emit(Ve.A.SEI_ARRIVED, e4));
+            }, e3.prototype._onSCTE35Metadata = function(e4) {
+              var t3 = this._remuxer.getTimestampBase();
+              null != t3 && (null != e4.pts && (e4.pts -= t3), null != e4.nearest_pts && (e4.nearest_pts -= t3), this._emitter.emit(Ve.A.SCTE35_METADATA_ARRIVED, e4));
+            }, e3.prototype._onPESPrivateDataDescriptor = function(e4) {
+              this._emitter.emit(Ve.A.PES_PRIVATE_DATA_DESCRIPTOR, e4);
+            }, e3.prototype._onPESPrivateData = function(e4) {
+              var t3 = this._remuxer.getTimestampBase();
+              null != t3 && (null != e4.pts && (e4.pts -= t3), null != e4.nearest_pts && (e4.nearest_pts -= t3), null != e4.dts && (e4.dts -= t3), this._emitter.emit(Ve.A.PES_PRIVATE_DATA_ARRIVED, e4));
+            }, e3.prototype._onIOSeeked = function() {
+              this._remuxer.insertDiscontinuity();
+            }, e3.prototype._onIOComplete = function(e4) {
+              var t3 = e4 + 1;
+              t3 < this._mediaDataSource.segments.length ? (this._internalAbort(), this._remuxer && this._remuxer.flushStashedSamples(), this._loadSegment(t3)) : (this._remuxer && this._remuxer.flushStashedSamples(), this._emitter.emit(Ve.A.LOADING_COMPLETE), this._disableStatisticsReporter());
+            }, e3.prototype._onIORedirect = function(e4) {
+              var t3 = this._ioctl.extraData;
+              this._mediaDataSource.segments[t3].redirectedURL = e4;
+            }, e3.prototype._onIORecoveredEarlyEof = function() {
+              this._emitter.emit(Ve.A.RECOVERED_EARLY_EOF);
+            }, e3.prototype._onIOException = function(e4, t3) {
+              r.A.e(this.TAG, "IOException: type = ".concat(e4, ", code = ").concat(t3.code, ", msg = ").concat(t3.msg)), this._emitter.emit(Ve.A.IO_ERROR, e4, t3), this._disableStatisticsReporter();
+            }, e3.prototype._onDemuxException = function(e4, t3) {
+              r.A.e(this.TAG, "DemuxException: type = ".concat(e4, ", info = ").concat(t3)), this._emitter.emit(Ve.A.DEMUX_ERROR, e4, t3);
+            }, e3.prototype._onRemuxerInitSegmentArrival = function(e4, t3) {
+              this._emitter.emit(Ve.A.INIT_SEGMENT, e4, t3);
+            }, e3.prototype._onRemuxerMediaSegmentArrival = function(e4, t3) {
+              if (null == this._pendingSeekTime && (this._emitter.emit(Ve.A.MEDIA_SEGMENT, e4, t3), null != this._pendingResolveSeekPoint && "video" === e4)) {
+                var i3 = t3.info.syncPoints, n2 = this._pendingResolveSeekPoint;
+                this._pendingResolveSeekPoint = null, o.A.safari && i3.length > 0 && i3[0].originalDts === n2 && (n2 = i3[0].pts), this._emitter.emit(Ve.A.RECOMMEND_SEEKPOINT, n2);
+              }
+            }, e3.prototype._enableStatisticsReporter = function() {
+              null == this._statisticsReporter && (this._statisticsReporter = self.setInterval(this._reportStatisticsInfo.bind(this), this._config.statisticsInfoReportInterval));
+            }, e3.prototype._disableStatisticsReporter = function() {
+              this._statisticsReporter && (self.clearInterval(this._statisticsReporter), this._statisticsReporter = null);
+            }, e3.prototype._reportSegmentMediaInfo = function(e4) {
+              var t3 = this._mediaInfo.segments[e4], i3 = Object.assign({}, t3);
+              i3.duration = this._mediaInfo.duration, i3.segmentCount = this._mediaInfo.segmentCount, delete i3.segments, delete i3.keyframesIndex, this._emitter.emit(Ve.A.MEDIA_INFO, i3);
+            }, e3.prototype._reportStatisticsInfo = function() {
+              var e4 = {};
+              e4.url = this._ioctl.currentURL, e4.hasRedirect = this._ioctl.hasRedirect, e4.hasRedirect && (e4.redirectedURL = this._ioctl.currentRedirectedURL), e4.speed = this._ioctl.currentSpeed, e4.loaderType = this._ioctl.loaderType, e4.currentSegmentIndex = this._currentSegmentIndex, e4.totalSegmentCount = this._mediaDataSource.segments.length, this._emitter.emit(Ve.A.STATISTICS_INFO, e4);
+            }, e3;
+          }());
+        }, 137: function(e2, t2, i2) {
+          "use strict";
+          i2(856), i2(947), i2(811), i2(886), i2(726);
+        }, 827: function(e2, t2) {
+          "use strict";
+          t2.A = { OK: "OK", FORMAT_ERROR: "FormatError", FORMAT_UNSUPPORTED: "FormatUnsupported", CODEC_UNSUPPORTED: "CodecUnsupported" };
+        }, 976: function(e2, t2, i2) {
+          e2.exports = i2(311).default;
+        }, 653: function(e2, t2, i2) {
+          "use strict";
+          i2.d(t2, { A: function() {
+            return y;
+          } });
+          var n, a2 = i2(856), r = function() {
+            function e3() {
+              this._firstCheckpoint = 0, this._lastCheckpoint = 0, this._intervalBytes = 0, this._totalBytes = 0, this._lastSecondBytes = 0, self.performance && self.performance.now ? this._now = self.performance.now.bind(self.performance) : this._now = Date.now;
+            }
+            return e3.prototype.reset = function() {
+              this._firstCheckpoint = this._lastCheckpoint = 0, this._totalBytes = this._intervalBytes = 0, this._lastSecondBytes = 0;
+            }, e3.prototype.addBytes = function(e4) {
+              0 === this._firstCheckpoint ? (this._firstCheckpoint = this._now(), this._lastCheckpoint = this._firstCheckpoint, this._intervalBytes += e4, this._totalBytes += e4) : this._now() - this._lastCheckpoint < 1e3 ? (this._intervalBytes += e4, this._totalBytes += e4) : (this._lastSecondBytes = this._intervalBytes, this._intervalBytes = e4, this._totalBytes += e4, this._lastCheckpoint = this._now());
+            }, Object.defineProperty(e3.prototype, "currentKBps", { get: function() {
+              this.addBytes(0);
+              var e4 = (this._now() - this._lastCheckpoint) / 1e3;
+              return 0 == e4 && (e4 = 1), this._intervalBytes / e4 / 1024;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "lastSecondKBps", { get: function() {
+              return this.addBytes(0), 0 !== this._lastSecondBytes ? this._lastSecondBytes / 1024 : this._now() - this._lastCheckpoint >= 500 ? this.currentKBps : 0;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "averageKBps", { get: function() {
+              var e4 = (this._now() - this._firstCheckpoint) / 1e3;
+              return this._totalBytes / e4 / 1024;
+            }, enumerable: false, configurable: true }), e3;
+          }(), o = i2(470), s2 = i2(994), d = i2(867), _ = (n = function(e3, t3) {
+            return n = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+              e4.__proto__ = t4;
+            } || function(e4, t4) {
+              for (var i3 in t4) Object.prototype.hasOwnProperty.call(t4, i3) && (e4[i3] = t4[i3]);
+            }, n(e3, t3);
+          }, function(e3, t3) {
+            if ("function" != typeof t3 && null !== t3) throw new TypeError("Class extends value " + String(t3) + " is not a constructor or null");
+            function i3() {
+              this.constructor = e3;
+            }
+            n(e3, t3), e3.prototype = null === t3 ? Object.create(t3) : (i3.prototype = t3.prototype, new i3());
+          }), h = function(e3) {
+            function t3(t4, i3) {
+              var n2 = e3.call(this, "fetch-stream-loader") || this;
+              return n2.TAG = "FetchStreamLoader", n2._seekHandler = t4, n2._config = i3, n2._needStash = true, n2._requestAbort = false, n2._abortController = null, n2._contentLength = null, n2._receivedLength = 0, n2;
+            }
+            return _(t3, e3), t3.isSupported = function() {
+              try {
+                var e4 = s2.A.msedge && s2.A.version.minor >= 15048, t4 = !s2.A.msedge || e4;
+                return self.fetch && self.ReadableStream && t4;
+              } catch (e5) {
+                return false;
+              }
+            }, t3.prototype.destroy = function() {
+              this.isWorking() && this.abort(), e3.prototype.destroy.call(this);
+            }, t3.prototype.open = function(e4, t4) {
+              var i3 = this;
+              this._dataSource = e4, this._range = t4;
+              var n2 = e4.url;
+              this._config.reuseRedirectedURL && null != e4.redirectedURL && (n2 = e4.redirectedURL);
+              var a3 = this._seekHandler.getConfig(n2, t4), r2 = new self.Headers();
+              if ("object" == typeof a3.headers) {
+                var s3 = a3.headers;
+                for (var _2 in s3) s3.hasOwnProperty(_2) && r2.append(_2, s3[_2]);
+              }
+              var h2 = { method: "GET", headers: r2, mode: "cors", cache: "default", referrerPolicy: "no-referrer-when-downgrade" };
+              if ("object" == typeof this._config.headers) for (var _2 in this._config.headers) r2.append(_2, this._config.headers[_2]);
+              false === e4.cors && (h2.mode = "same-origin"), e4.withCredentials && (h2.credentials = "include"), e4.referrerPolicy && (h2.referrerPolicy = e4.referrerPolicy), self.AbortController && (this._abortController = new self.AbortController(), h2.signal = this._abortController.signal), this._status = o.eO.kConnecting, self.fetch(a3.url, h2).then(function(e5) {
+                if (i3._requestAbort) return i3._status = o.eO.kIdle, void e5.body.cancel();
+                if (e5.ok && e5.status >= 200 && e5.status <= 299) {
+                  if (e5.url !== a3.url && i3._onURLRedirect) {
+                    var t5 = i3._seekHandler.removeURLParameters(e5.url);
+                    i3._onURLRedirect(t5);
+                  }
+                  var n3 = e5.headers.get("Content-Length");
+                  return null != n3 && (i3._contentLength = parseInt(n3), 0 !== i3._contentLength && i3._onContentLengthKnown && i3._onContentLengthKnown(i3._contentLength)), i3._pump.call(i3, e5.body.getReader());
+                }
+                if (i3._status = o.eO.kError, !i3._onError) throw new d.Al("FetchStreamLoader: Http code invalid, " + e5.status + " " + e5.statusText);
+                i3._onError(o.Xv.HTTP_STATUS_CODE_INVALID, { code: e5.status, msg: e5.statusText });
+              }).catch(function(e5) {
+                if (!i3._abortController || !i3._abortController.signal.aborted) {
+                  if (i3._status = o.eO.kError, !i3._onError) throw e5;
+                  i3._onError(o.Xv.EXCEPTION, { code: -1, msg: e5.message });
+                }
+              });
+            }, t3.prototype.abort = function() {
+              if (this._requestAbort = true, (this._status !== o.eO.kBuffering || !s2.A.chrome) && this._abortController) try {
+                this._abortController.abort();
+              } catch (e4) {
+              }
+            }, t3.prototype._pump = function(e4) {
+              var t4 = this;
+              return e4.read().then(function(i3) {
+                if (i3.done) if (null !== t4._contentLength && t4._receivedLength < t4._contentLength) {
+                  t4._status = o.eO.kError;
+                  var n2 = o.Xv.EARLY_EOF, a3 = { code: -1, msg: "Fetch stream meet Early-EOF" };
+                  if (!t4._onError) throw new d.Al(a3.msg);
+                  t4._onError(n2, a3);
+                } else t4._status = o.eO.kComplete, t4._onComplete && t4._onComplete(t4._range.from, t4._range.from + t4._receivedLength - 1);
+                else {
+                  if (t4._abortController && t4._abortController.signal.aborted) return void (t4._status = o.eO.kComplete);
+                  if (true === t4._requestAbort) return t4._status = o.eO.kComplete, e4.cancel();
+                  t4._status = o.eO.kBuffering;
+                  var r2 = i3.value.buffer, s3 = t4._range.from + t4._receivedLength;
+                  t4._receivedLength += r2.byteLength, t4._onDataArrival && t4._onDataArrival(r2, s3, t4._receivedLength), t4._pump(e4);
+                }
+              }).catch(function(e5) {
+                if (t4._abortController && t4._abortController.signal.aborted) t4._status = o.eO.kComplete;
+                else if (11 !== e5.code || !s2.A.msedge) {
+                  t4._status = o.eO.kError;
+                  var i3 = 0, n2 = null;
+                  if (19 !== e5.code && "network error" !== e5.message || !(null === t4._contentLength || null !== t4._contentLength && t4._receivedLength < t4._contentLength) ? (i3 = o.Xv.EXCEPTION, n2 = { code: e5.code, msg: e5.message }) : (i3 = o.Xv.EARLY_EOF, n2 = { code: e5.code, msg: "Fetch stream meet Early-EOF" }), !t4._onError) throw new d.Al(n2.msg);
+                  t4._onError(i3, n2);
+                }
+              });
+            }, t3;
+          }(o.HC), c = /* @__PURE__ */ function() {
+            var e3 = function(t3, i3) {
+              return e3 = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+                e4.__proto__ = t4;
+              } || function(e4, t4) {
+                for (var i4 in t4) Object.prototype.hasOwnProperty.call(t4, i4) && (e4[i4] = t4[i4]);
+              }, e3(t3, i3);
+            };
+            return function(t3, i3) {
+              if ("function" != typeof i3 && null !== i3) throw new TypeError("Class extends value " + String(i3) + " is not a constructor or null");
+              function n2() {
+                this.constructor = t3;
+              }
+              e3(t3, i3), t3.prototype = null === i3 ? Object.create(i3) : (n2.prototype = i3.prototype, new n2());
+            };
+          }(), l = function(e3) {
+            function t3(t4, i3) {
+              var n2 = e3.call(this, "xhr-moz-chunked-loader") || this;
+              return n2.TAG = "MozChunkedLoader", n2._seekHandler = t4, n2._config = i3, n2._needStash = true, n2._xhr = null, n2._requestAbort = false, n2._contentLength = null, n2._receivedLength = 0, n2;
+            }
+            return c(t3, e3), t3.isSupported = function() {
+              try {
+                var e4 = new XMLHttpRequest();
+                return e4.open("GET", "https://example.com", true), e4.responseType = "moz-chunked-arraybuffer", "moz-chunked-arraybuffer" === e4.responseType;
+              } catch (e5) {
+                return a2.A.w("MozChunkedLoader", e5.message), false;
+              }
+            }, t3.prototype.destroy = function() {
+              this.isWorking() && this.abort(), this._xhr && (this._xhr.onreadystatechange = null, this._xhr.onprogress = null, this._xhr.onloadend = null, this._xhr.onerror = null, this._xhr = null), e3.prototype.destroy.call(this);
+            }, t3.prototype.open = function(e4, t4) {
+              this._dataSource = e4, this._range = t4;
+              var i3 = e4.url;
+              this._config.reuseRedirectedURL && null != e4.redirectedURL && (i3 = e4.redirectedURL);
+              var n2 = this._seekHandler.getConfig(i3, t4);
+              this._requestURL = n2.url;
+              var a3 = this._xhr = new XMLHttpRequest();
+              if (a3.open("GET", n2.url, true), a3.responseType = "moz-chunked-arraybuffer", a3.onreadystatechange = this._onReadyStateChange.bind(this), a3.onprogress = this._onProgress.bind(this), a3.onloadend = this._onLoadEnd.bind(this), a3.onerror = this._onXhrError.bind(this), e4.withCredentials && (a3.withCredentials = true), "object" == typeof n2.headers) {
+                var r2 = n2.headers;
+                for (var s3 in r2) r2.hasOwnProperty(s3) && a3.setRequestHeader(s3, r2[s3]);
+              }
+              if ("object" == typeof this._config.headers) for (var s3 in r2 = this._config.headers) r2.hasOwnProperty(s3) && a3.setRequestHeader(s3, r2[s3]);
+              this._status = o.eO.kConnecting, a3.send();
+            }, t3.prototype.abort = function() {
+              this._requestAbort = true, this._xhr && this._xhr.abort(), this._status = o.eO.kComplete;
+            }, t3.prototype._onReadyStateChange = function(e4) {
+              var t4 = e4.target;
+              if (2 === t4.readyState) {
+                if (null != t4.responseURL && t4.responseURL !== this._requestURL && this._onURLRedirect) {
+                  var i3 = this._seekHandler.removeURLParameters(t4.responseURL);
+                  this._onURLRedirect(i3);
+                }
+                if (0 !== t4.status && (t4.status < 200 || t4.status > 299)) {
+                  if (this._status = o.eO.kError, !this._onError) throw new d.Al("MozChunkedLoader: Http code invalid, " + t4.status + " " + t4.statusText);
+                  this._onError(o.Xv.HTTP_STATUS_CODE_INVALID, { code: t4.status, msg: t4.statusText });
+                } else this._status = o.eO.kBuffering;
+              }
+            }, t3.prototype._onProgress = function(e4) {
+              if (this._status !== o.eO.kError) {
+                null === this._contentLength && null !== e4.total && 0 !== e4.total && (this._contentLength = e4.total, this._onContentLengthKnown && this._onContentLengthKnown(this._contentLength));
+                var t4 = e4.target.response, i3 = this._range.from + this._receivedLength;
+                this._receivedLength += t4.byteLength, this._onDataArrival && this._onDataArrival(t4, i3, this._receivedLength);
+              }
+            }, t3.prototype._onLoadEnd = function(e4) {
+              true !== this._requestAbort ? this._status !== o.eO.kError && (this._status = o.eO.kComplete, this._onComplete && this._onComplete(this._range.from, this._range.from + this._receivedLength - 1)) : this._requestAbort = false;
+            }, t3.prototype._onXhrError = function(e4) {
+              this._status = o.eO.kError;
+              var t4 = 0, i3 = null;
+              if (this._contentLength && e4.loaded < this._contentLength ? (t4 = o.Xv.EARLY_EOF, i3 = { code: -1, msg: "Moz-Chunked stream meet Early-Eof" }) : (t4 = o.Xv.EXCEPTION, i3 = { code: -1, msg: e4.constructor.name + " " + e4.type }), !this._onError) throw new d.Al(i3.msg);
+              this._onError(t4, i3);
+            }, t3;
+          }(o.HC), u = /* @__PURE__ */ function() {
+            var e3 = function(t3, i3) {
+              return e3 = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+                e4.__proto__ = t4;
+              } || function(e4, t4) {
+                for (var i4 in t4) Object.prototype.hasOwnProperty.call(t4, i4) && (e4[i4] = t4[i4]);
+              }, e3(t3, i3);
+            };
+            return function(t3, i3) {
+              if ("function" != typeof i3 && null !== i3) throw new TypeError("Class extends value " + String(i3) + " is not a constructor or null");
+              function n2() {
+                this.constructor = t3;
+              }
+              e3(t3, i3), t3.prototype = null === i3 ? Object.create(i3) : (n2.prototype = i3.prototype, new n2());
+            };
+          }(), f = function(e3) {
+            function t3(t4, i3) {
+              var n2 = e3.call(this, "xhr-range-loader") || this;
+              return n2.TAG = "RangeLoader", n2._seekHandler = t4, n2._config = i3, n2._needStash = false, n2._chunkSizeKBList = [128, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096, 5120, 6144, 7168, 8192], n2._currentChunkSizeKB = 384, n2._currentSpeedNormalized = 0, n2._zeroSpeedChunkCount = 0, n2._xhr = null, n2._speedSampler = new r(), n2._requestAbort = false, n2._waitForTotalLength = false, n2._totalLengthReceived = false, n2._currentRequestURL = null, n2._currentRedirectedURL = null, n2._currentRequestRange = null, n2._totalLength = null, n2._contentLength = null, n2._receivedLength = 0, n2._lastTimeLoaded = 0, n2;
+            }
+            return u(t3, e3), t3.isSupported = function() {
+              try {
+                var e4 = new XMLHttpRequest();
+                return e4.open("GET", "https://example.com", true), e4.responseType = "arraybuffer", "arraybuffer" === e4.responseType;
+              } catch (e5) {
+                return a2.A.w("RangeLoader", e5.message), false;
+              }
+            }, t3.prototype.destroy = function() {
+              this.isWorking() && this.abort(), this._xhr && (this._xhr.onreadystatechange = null, this._xhr.onprogress = null, this._xhr.onload = null, this._xhr.onerror = null, this._xhr = null), e3.prototype.destroy.call(this);
+            }, Object.defineProperty(t3.prototype, "currentSpeed", { get: function() {
+              return this._speedSampler.lastSecondKBps;
+            }, enumerable: false, configurable: true }), t3.prototype.open = function(e4, t4) {
+              this._dataSource = e4, this._range = t4, this._status = o.eO.kConnecting;
+              var i3 = false;
+              null != this._dataSource.filesize && 0 !== this._dataSource.filesize && (i3 = true, this._totalLength = this._dataSource.filesize), this._totalLengthReceived || i3 ? this._openSubRange() : (this._waitForTotalLength = true, this._internalOpen(this._dataSource, { from: 0, to: -1 }));
+            }, t3.prototype._openSubRange = function() {
+              var e4 = 1024 * this._currentChunkSizeKB, t4 = this._range.from + this._receivedLength, i3 = t4 + e4;
+              null != this._contentLength && i3 - this._range.from >= this._contentLength && (i3 = this._range.from + this._contentLength - 1), this._currentRequestRange = { from: t4, to: i3 }, this._internalOpen(this._dataSource, this._currentRequestRange);
+            }, t3.prototype._internalOpen = function(e4, t4) {
+              this._lastTimeLoaded = 0;
+              var i3 = e4.url;
+              this._config.reuseRedirectedURL && (null != this._currentRedirectedURL ? i3 = this._currentRedirectedURL : null != e4.redirectedURL && (i3 = e4.redirectedURL));
+              var n2 = this._seekHandler.getConfig(i3, t4);
+              this._currentRequestURL = n2.url;
+              var a3 = this._xhr = new XMLHttpRequest();
+              if (a3.open("GET", n2.url, true), a3.responseType = "arraybuffer", a3.onreadystatechange = this._onReadyStateChange.bind(this), a3.onprogress = this._onProgress.bind(this), a3.onload = this._onLoad.bind(this), a3.onerror = this._onXhrError.bind(this), e4.withCredentials && (a3.withCredentials = true), "object" == typeof n2.headers) {
+                var r2 = n2.headers;
+                for (var o2 in r2) r2.hasOwnProperty(o2) && a3.setRequestHeader(o2, r2[o2]);
+              }
+              if ("object" == typeof this._config.headers) for (var o2 in r2 = this._config.headers) r2.hasOwnProperty(o2) && a3.setRequestHeader(o2, r2[o2]);
+              a3.send();
+            }, t3.prototype.abort = function() {
+              this._requestAbort = true, this._internalAbort(), this._status = o.eO.kComplete;
+            }, t3.prototype._internalAbort = function() {
+              this._xhr && (this._xhr.onreadystatechange = null, this._xhr.onprogress = null, this._xhr.onload = null, this._xhr.onerror = null, this._xhr.abort(), this._xhr = null);
+            }, t3.prototype._onReadyStateChange = function(e4) {
+              var t4 = e4.target;
+              if (2 === t4.readyState) {
+                if (null != t4.responseURL) {
+                  var i3 = this._seekHandler.removeURLParameters(t4.responseURL);
+                  t4.responseURL !== this._currentRequestURL && i3 !== this._currentRedirectedURL && (this._currentRedirectedURL = i3, this._onURLRedirect && this._onURLRedirect(i3));
+                }
+                if (t4.status >= 200 && t4.status <= 299) {
+                  if (this._waitForTotalLength) return;
+                  this._status = o.eO.kBuffering;
+                } else {
+                  if (this._status = o.eO.kError, !this._onError) throw new d.Al("RangeLoader: Http code invalid, " + t4.status + " " + t4.statusText);
+                  this._onError(o.Xv.HTTP_STATUS_CODE_INVALID, { code: t4.status, msg: t4.statusText });
+                }
+              }
+            }, t3.prototype._onProgress = function(e4) {
+              if (this._status !== o.eO.kError) {
+                if (null === this._contentLength) {
+                  var t4 = false;
+                  if (this._waitForTotalLength) {
+                    this._waitForTotalLength = false, this._totalLengthReceived = true, t4 = true;
+                    var i3 = e4.total;
+                    this._internalAbort(), null != i3 & 0 !== i3 && (this._totalLength = i3);
+                  }
+                  if (-1 === this._range.to ? this._contentLength = this._totalLength - this._range.from : this._contentLength = this._range.to - this._range.from + 1, t4) return void this._openSubRange();
+                  this._onContentLengthKnown && this._onContentLengthKnown(this._contentLength);
+                }
+                var n2 = e4.loaded - this._lastTimeLoaded;
+                this._lastTimeLoaded = e4.loaded, this._speedSampler.addBytes(n2);
+              }
+            }, t3.prototype._normalizeSpeed = function(e4) {
+              var t4 = this._chunkSizeKBList, i3 = t4.length - 1, n2 = 0, a3 = 0, r2 = i3;
+              if (e4 < t4[0]) return t4[0];
+              for (; a3 <= r2; ) {
+                if ((n2 = a3 + Math.floor((r2 - a3) / 2)) === i3 || e4 >= t4[n2] && e4 < t4[n2 + 1]) return t4[n2];
+                t4[n2] < e4 ? a3 = n2 + 1 : r2 = n2 - 1;
+              }
+            }, t3.prototype._onLoad = function(e4) {
+              if (this._status !== o.eO.kError) if (this._waitForTotalLength) this._waitForTotalLength = false;
+              else {
+                this._lastTimeLoaded = 0;
+                var t4 = this._speedSampler.lastSecondKBps;
+                if (0 === t4 && (this._zeroSpeedChunkCount++, this._zeroSpeedChunkCount >= 3 && (t4 = this._speedSampler.currentKBps)), 0 !== t4) {
+                  var i3 = this._normalizeSpeed(t4);
+                  this._currentSpeedNormalized !== i3 && (this._currentSpeedNormalized = i3, this._currentChunkSizeKB = i3);
+                }
+                var n2 = e4.target.response, a3 = this._range.from + this._receivedLength;
+                this._receivedLength += n2.byteLength;
+                var r2 = false;
+                null != this._contentLength && this._receivedLength < this._contentLength ? this._openSubRange() : r2 = true, this._onDataArrival && this._onDataArrival(n2, a3, this._receivedLength), r2 && (this._status = o.eO.kComplete, this._onComplete && this._onComplete(this._range.from, this._range.from + this._receivedLength - 1));
+              }
+            }, t3.prototype._onXhrError = function(e4) {
+              this._status = o.eO.kError;
+              var t4 = 0, i3 = null;
+              if (this._contentLength && this._receivedLength > 0 && this._receivedLength < this._contentLength ? (t4 = o.Xv.EARLY_EOF, i3 = { code: -1, msg: "RangeLoader meet Early-Eof" }) : (t4 = o.Xv.EXCEPTION, i3 = { code: -1, msg: e4.constructor.name + " " + e4.type }), !this._onError) throw new d.Al(i3.msg);
+              this._onError(t4, i3);
+            }, t3;
+          }(o.HC), p = /* @__PURE__ */ function() {
+            var e3 = function(t3, i3) {
+              return e3 = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+                e4.__proto__ = t4;
+              } || function(e4, t4) {
+                for (var i4 in t4) Object.prototype.hasOwnProperty.call(t4, i4) && (e4[i4] = t4[i4]);
+              }, e3(t3, i3);
+            };
+            return function(t3, i3) {
+              if ("function" != typeof i3 && null !== i3) throw new TypeError("Class extends value " + String(i3) + " is not a constructor or null");
+              function n2() {
+                this.constructor = t3;
+              }
+              e3(t3, i3), t3.prototype = null === i3 ? Object.create(i3) : (n2.prototype = i3.prototype, new n2());
+            };
+          }(), m = function(e3) {
+            function t3() {
+              var t4 = e3.call(this, "websocket-loader") || this;
+              return t4.TAG = "WebSocketLoader", t4._needStash = true, t4._ws = null, t4._requestAbort = false, t4._receivedLength = 0, t4;
+            }
+            return p(t3, e3), t3.isSupported = function() {
+              try {
+                return void 0 !== self.WebSocket;
+              } catch (e4) {
+                return false;
+              }
+            }, t3.prototype.destroy = function() {
+              this._ws && this.abort(), e3.prototype.destroy.call(this);
+            }, t3.prototype.open = function(e4) {
+              try {
+                var t4 = this._ws = new self.WebSocket(e4.url);
+                t4.binaryType = "arraybuffer", t4.onopen = this._onWebSocketOpen.bind(this), t4.onclose = this._onWebSocketClose.bind(this), t4.onmessage = this._onWebSocketMessage.bind(this), t4.onerror = this._onWebSocketError.bind(this), this._status = o.eO.kConnecting;
+              } catch (e5) {
+                this._status = o.eO.kError;
+                var i3 = { code: e5.code, msg: e5.message };
+                if (!this._onError) throw new d.Al(i3.msg);
+                this._onError(o.Xv.EXCEPTION, i3);
+              }
+            }, t3.prototype.abort = function() {
+              var e4 = this._ws;
+              !e4 || 0 !== e4.readyState && 1 !== e4.readyState || (this._requestAbort = true, e4.close()), this._ws = null, this._status = o.eO.kComplete;
+            }, t3.prototype._onWebSocketOpen = function(e4) {
+              this._status = o.eO.kBuffering;
+            }, t3.prototype._onWebSocketClose = function(e4) {
+              true !== this._requestAbort ? (this._status = o.eO.kComplete, this._onComplete && this._onComplete(0, this._receivedLength - 1)) : this._requestAbort = false;
+            }, t3.prototype._onWebSocketMessage = function(e4) {
+              var t4 = this;
+              if (e4.data instanceof ArrayBuffer) this._dispatchArrayBuffer(e4.data);
+              else if (e4.data instanceof Blob) {
+                var i3 = new FileReader();
+                i3.onload = function() {
+                  t4._dispatchArrayBuffer(i3.result);
+                }, i3.readAsArrayBuffer(e4.data);
+              } else {
+                this._status = o.eO.kError;
+                var n2 = { code: -1, msg: "Unsupported WebSocket message type: " + e4.data.constructor.name };
+                if (!this._onError) throw new d.Al(n2.msg);
+                this._onError(o.Xv.EXCEPTION, n2);
+              }
+            }, t3.prototype._dispatchArrayBuffer = function(e4) {
+              var t4 = e4, i3 = this._receivedLength;
+              this._receivedLength += t4.byteLength, this._onDataArrival && this._onDataArrival(t4, i3, this._receivedLength);
+            }, t3.prototype._onWebSocketError = function(e4) {
+              this._status = o.eO.kError;
+              var t4 = { code: e4.code, msg: e4.message };
+              if (!this._onError) throw new d.Al(t4.msg);
+              this._onError(o.Xv.EXCEPTION, t4);
+            }, t3;
+          }(o.HC), g = function() {
+            function e3(e4) {
+              this._zeroStart = e4 || false;
+            }
+            return e3.prototype.getConfig = function(e4, t3) {
+              var i3 = {};
+              if (0 !== t3.from || -1 !== t3.to) {
+                var n2;
+                n2 = -1 !== t3.to ? "bytes=".concat(t3.from.toString(), "-").concat(t3.to.toString()) : "bytes=".concat(t3.from.toString(), "-"), i3.Range = n2;
+              } else this._zeroStart && (i3.Range = "bytes=0-");
+              return { url: e4, headers: i3 };
+            }, e3.prototype.removeURLParameters = function(e4) {
+              return e4;
+            }, e3;
+          }(), v = function() {
+            function e3(e4, t3) {
+              this._startName = e4, this._endName = t3;
+            }
+            return e3.prototype.getConfig = function(e4, t3) {
+              var i3 = e4;
+              if (0 !== t3.from || -1 !== t3.to) {
+                var n2 = true;
+                -1 === i3.indexOf("?") && (i3 += "?", n2 = false), n2 && (i3 += "&"), i3 += "".concat(this._startName, "=").concat(t3.from.toString()), -1 !== t3.to && (i3 += "&".concat(this._endName, "=").concat(t3.to.toString()));
+              }
+              return { url: i3, headers: {} };
+            }, e3.prototype.removeURLParameters = function(e4) {
+              var t3 = e4.split("?")[0], i3 = void 0, n2 = e4.indexOf("?");
+              -1 !== n2 && (i3 = e4.substring(n2 + 1));
+              var a3 = "";
+              if (null != i3 && i3.length > 0) for (var r2 = i3.split("&"), o2 = 0; o2 < r2.length; o2++) {
+                var s3 = r2[o2].split("="), d2 = o2 > 0;
+                s3[0] !== this._startName && s3[0] !== this._endName && (d2 && (a3 += "&"), a3 += r2[o2]);
+              }
+              return 0 === a3.length ? t3 : t3 + "?" + a3;
+            }, e3;
+          }(), y = function() {
+            function e3(e4, t3, i3) {
+              this.TAG = "IOController", this._config = t3, this._extraData = i3, this._stashInitialSize = 65536, null != t3.stashInitialSize && t3.stashInitialSize > 0 && (this._stashInitialSize = t3.stashInitialSize), this._stashUsed = 0, this._stashSize = this._stashInitialSize, this._bufferSize = Math.max(this._stashSize, 3145728), this._stashBuffer = new ArrayBuffer(this._bufferSize), this._stashByteStart = 0, this._enableStash = true, false === t3.enableStashBuffer && (this._enableStash = false), this._loader = null, this._loaderClass = null, this._seekHandler = null, this._dataSource = e4, this._isWebSocketURL = /wss?:\/\/(.+?)/.test(e4.url), this._refTotalLength = e4.filesize ? e4.filesize : null, this._totalLength = this._refTotalLength, this._fullRequestFlag = false, this._currentRange = null, this._redirectedURL = null, this._speedNormalized = 0, this._speedSampler = new r(), this._speedNormalizeList = [32, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096], this._isEarlyEofReconnecting = false, this._paused = false, this._resumeFrom = 0, this._onDataArrival = null, this._onSeeked = null, this._onError = null, this._onComplete = null, this._onRedirect = null, this._onRecoveredEarlyEof = null, this._selectSeekHandler(), this._selectLoader(), this._createLoader();
+            }
+            return e3.prototype.destroy = function() {
+              this._loader.isWorking() && this._loader.abort(), this._loader.destroy(), this._loader = null, this._loaderClass = null, this._dataSource = null, this._stashBuffer = null, this._stashUsed = this._stashSize = this._bufferSize = this._stashByteStart = 0, this._currentRange = null, this._speedSampler = null, this._isEarlyEofReconnecting = false, this._onDataArrival = null, this._onSeeked = null, this._onError = null, this._onComplete = null, this._onRedirect = null, this._onRecoveredEarlyEof = null, this._extraData = null;
+            }, e3.prototype.isWorking = function() {
+              return this._loader && this._loader.isWorking() && !this._paused;
+            }, e3.prototype.isPaused = function() {
+              return this._paused;
+            }, Object.defineProperty(e3.prototype, "status", { get: function() {
+              return this._loader.status;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "extraData", { get: function() {
+              return this._extraData;
+            }, set: function(e4) {
+              this._extraData = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onDataArrival", { get: function() {
+              return this._onDataArrival;
+            }, set: function(e4) {
+              this._onDataArrival = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onSeeked", { get: function() {
+              return this._onSeeked;
+            }, set: function(e4) {
+              this._onSeeked = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onError", { get: function() {
+              return this._onError;
+            }, set: function(e4) {
+              this._onError = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onComplete", { get: function() {
+              return this._onComplete;
+            }, set: function(e4) {
+              this._onComplete = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onRedirect", { get: function() {
+              return this._onRedirect;
+            }, set: function(e4) {
+              this._onRedirect = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onRecoveredEarlyEof", { get: function() {
+              return this._onRecoveredEarlyEof;
+            }, set: function(e4) {
+              this._onRecoveredEarlyEof = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "currentURL", { get: function() {
+              return this._dataSource.url;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "hasRedirect", { get: function() {
+              return null != this._redirectedURL || null != this._dataSource.redirectedURL;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "currentRedirectedURL", { get: function() {
+              return this._redirectedURL || this._dataSource.redirectedURL;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "currentSpeed", { get: function() {
+              return this._loaderClass === f ? this._loader.currentSpeed : this._speedSampler.lastSecondKBps;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "loaderType", { get: function() {
+              return this._loader.type;
+            }, enumerable: false, configurable: true }), e3.prototype._selectSeekHandler = function() {
+              var e4 = this._config;
+              if ("range" === e4.seekType) this._seekHandler = new g(this._config.rangeLoadZeroStart);
+              else if ("param" === e4.seekType) {
+                var t3 = e4.seekParamStart || "bstart", i3 = e4.seekParamEnd || "bend";
+                this._seekHandler = new v(t3, i3);
+              } else {
+                if ("custom" !== e4.seekType) throw new d.Qn("Invalid seekType in config: ".concat(e4.seekType));
+                if ("function" != typeof e4.customSeekHandler) throw new d.Qn("Custom seekType specified in config but invalid customSeekHandler!");
+                this._seekHandler = new e4.customSeekHandler();
+              }
+            }, e3.prototype._selectLoader = function() {
+              if (null != this._config.customLoader) this._loaderClass = this._config.customLoader;
+              else if (this._isWebSocketURL) this._loaderClass = m;
+              else if (h.isSupported()) this._loaderClass = h;
+              else if (l.isSupported()) this._loaderClass = l;
+              else {
+                if (!f.isSupported()) throw new d.Al("Your browser doesn't support xhr with arraybuffer responseType!");
+                this._loaderClass = f;
+              }
+            }, e3.prototype._createLoader = function() {
+              this._loader = new this._loaderClass(this._seekHandler, this._config), false === this._loader.needStashBuffer && (this._enableStash = false), this._loader.onContentLengthKnown = this._onContentLengthKnown.bind(this), this._loader.onURLRedirect = this._onURLRedirect.bind(this), this._loader.onDataArrival = this._onLoaderChunkArrival.bind(this), this._loader.onComplete = this._onLoaderComplete.bind(this), this._loader.onError = this._onLoaderError.bind(this);
+            }, e3.prototype.open = function(e4) {
+              this._currentRange = { from: 0, to: -1 }, e4 && (this._currentRange.from = e4), this._speedSampler.reset(), e4 || (this._fullRequestFlag = true), this._loader.open(this._dataSource, Object.assign({}, this._currentRange));
+            }, e3.prototype.abort = function() {
+              this._loader.abort(), this._paused && (this._paused = false, this._resumeFrom = 0);
+            }, e3.prototype.pause = function() {
+              this.isWorking() && (this._loader.abort(), 0 !== this._stashUsed ? (this._resumeFrom = this._stashByteStart, this._currentRange.to = this._stashByteStart - 1) : this._resumeFrom = this._currentRange.to + 1, this._stashUsed = 0, this._stashByteStart = 0, this._paused = true);
+            }, e3.prototype.resume = function() {
+              if (this._paused) {
+                this._paused = false;
+                var e4 = this._resumeFrom;
+                this._resumeFrom = 0, this._internalSeek(e4, true);
+              }
+            }, e3.prototype.seek = function(e4) {
+              this._paused = false, this._stashUsed = 0, this._stashByteStart = 0, this._internalSeek(e4, true);
+            }, e3.prototype._internalSeek = function(e4, t3) {
+              this._loader.isWorking() && this._loader.abort(), this._flushStashBuffer(t3), this._loader.destroy(), this._loader = null;
+              var i3 = { from: e4, to: -1 };
+              this._currentRange = { from: i3.from, to: -1 }, this._speedSampler.reset(), this._stashSize = this._stashInitialSize, this._createLoader(), this._loader.open(this._dataSource, i3), this._onSeeked && this._onSeeked();
+            }, e3.prototype.updateUrl = function(e4) {
+              if (!e4 || "string" != typeof e4 || 0 === e4.length) throw new d.Qn("Url must be a non-empty string!");
+              this._dataSource.url = e4;
+            }, e3.prototype._expandBuffer = function(e4) {
+              for (var t3 = this._stashSize; t3 + 1048576 < e4; ) t3 *= 2;
+              if ((t3 += 1048576) !== this._bufferSize) {
+                var i3 = new ArrayBuffer(t3);
+                if (this._stashUsed > 0) {
+                  var n2 = new Uint8Array(this._stashBuffer, 0, this._stashUsed);
+                  new Uint8Array(i3, 0, t3).set(n2, 0);
+                }
+                this._stashBuffer = i3, this._bufferSize = t3;
+              }
+            }, e3.prototype._normalizeSpeed = function(e4) {
+              var t3 = this._speedNormalizeList, i3 = t3.length - 1, n2 = 0, a3 = 0, r2 = i3;
+              if (e4 < t3[0]) return t3[0];
+              for (; a3 <= r2; ) {
+                if ((n2 = a3 + Math.floor((r2 - a3) / 2)) === i3 || e4 >= t3[n2] && e4 < t3[n2 + 1]) return t3[n2];
+                t3[n2] < e4 ? a3 = n2 + 1 : r2 = n2 - 1;
+              }
+            }, e3.prototype._adjustStashSize = function(e4) {
+              var t3 = 0;
+              (t3 = this._config.isLive ? e4 / 8 : e4 < 512 ? e4 : e4 >= 512 && e4 <= 1024 ? Math.floor(1.5 * e4) : 2 * e4) > 8192 && (t3 = 8192);
+              var i3 = 1024 * t3 + 1048576;
+              this._bufferSize < i3 && this._expandBuffer(i3), this._stashSize = 1024 * t3;
+            }, e3.prototype._dispatchChunks = function(e4, t3) {
+              return this._currentRange.to = t3 + e4.byteLength - 1, this._onDataArrival(e4, t3);
+            }, e3.prototype._onURLRedirect = function(e4) {
+              this._redirectedURL = e4, this._onRedirect && this._onRedirect(e4);
+            }, e3.prototype._onContentLengthKnown = function(e4) {
+              e4 && this._fullRequestFlag && (this._totalLength = e4, this._fullRequestFlag = false);
+            }, e3.prototype._onLoaderChunkArrival = function(e4, t3, i3) {
+              if (!this._onDataArrival) throw new d.j4("IOController: No existing consumer (onDataArrival) callback!");
+              if (!this._paused) {
+                this._isEarlyEofReconnecting && (this._isEarlyEofReconnecting = false, this._onRecoveredEarlyEof && this._onRecoveredEarlyEof()), this._speedSampler.addBytes(e4.byteLength);
+                var n2 = this._speedSampler.lastSecondKBps;
+                if (0 !== n2) {
+                  var a3 = this._normalizeSpeed(n2);
+                  this._speedNormalized !== a3 && (this._speedNormalized = a3, this._adjustStashSize(a3));
+                }
+                if (this._enableStash) if (0 === this._stashUsed && 0 === this._stashByteStart && (this._stashByteStart = t3), this._stashUsed + e4.byteLength <= this._stashSize) (s3 = new Uint8Array(this._stashBuffer, 0, this._stashSize)).set(new Uint8Array(e4), this._stashUsed), this._stashUsed += e4.byteLength;
+                else if (s3 = new Uint8Array(this._stashBuffer, 0, this._bufferSize), this._stashUsed > 0) {
+                  var r2 = this._stashBuffer.slice(0, this._stashUsed);
+                  (_2 = this._dispatchChunks(r2, this._stashByteStart)) < r2.byteLength ? _2 > 0 && (h2 = new Uint8Array(r2, _2), s3.set(h2, 0), this._stashUsed = h2.byteLength, this._stashByteStart += _2) : (this._stashUsed = 0, this._stashByteStart += _2), this._stashUsed + e4.byteLength > this._bufferSize && (this._expandBuffer(this._stashUsed + e4.byteLength), s3 = new Uint8Array(this._stashBuffer, 0, this._bufferSize)), s3.set(new Uint8Array(e4), this._stashUsed), this._stashUsed += e4.byteLength;
+                } else (_2 = this._dispatchChunks(e4, t3)) < e4.byteLength && ((o2 = e4.byteLength - _2) > this._bufferSize && (this._expandBuffer(o2), s3 = new Uint8Array(this._stashBuffer, 0, this._bufferSize)), s3.set(new Uint8Array(e4, _2), 0), this._stashUsed += o2, this._stashByteStart = t3 + _2);
+                else if (0 === this._stashUsed) {
+                  var o2;
+                  (_2 = this._dispatchChunks(e4, t3)) < e4.byteLength && ((o2 = e4.byteLength - _2) > this._bufferSize && this._expandBuffer(o2), (s3 = new Uint8Array(this._stashBuffer, 0, this._bufferSize)).set(new Uint8Array(e4, _2), 0), this._stashUsed += o2, this._stashByteStart = t3 + _2);
+                } else {
+                  var s3, _2;
+                  if (this._stashUsed + e4.byteLength > this._bufferSize && this._expandBuffer(this._stashUsed + e4.byteLength), (s3 = new Uint8Array(this._stashBuffer, 0, this._bufferSize)).set(new Uint8Array(e4), this._stashUsed), this._stashUsed += e4.byteLength, (_2 = this._dispatchChunks(this._stashBuffer.slice(0, this._stashUsed), this._stashByteStart)) < this._stashUsed && _2 > 0) {
+                    var h2 = new Uint8Array(this._stashBuffer, _2);
+                    s3.set(h2, 0);
+                  }
+                  this._stashUsed -= _2, this._stashByteStart += _2;
+                }
+              }
+            }, e3.prototype._flushStashBuffer = function(e4) {
+              if (this._stashUsed > 0) {
+                var t3 = this._stashBuffer.slice(0, this._stashUsed), i3 = this._dispatchChunks(t3, this._stashByteStart), n2 = t3.byteLength - i3;
+                if (i3 < t3.byteLength) {
+                  if (!e4) {
+                    if (i3 > 0) {
+                      var r2 = new Uint8Array(this._stashBuffer, 0, this._bufferSize), o2 = new Uint8Array(t3, i3);
+                      r2.set(o2, 0), this._stashUsed = o2.byteLength, this._stashByteStart += i3;
+                    }
+                    return 0;
+                  }
+                  a2.A.w(this.TAG, "".concat(n2, " bytes unconsumed data remain when flush buffer, dropped"));
+                }
+                return this._stashUsed = 0, this._stashByteStart = 0, n2;
+              }
+              return 0;
+            }, e3.prototype._onLoaderComplete = function(e4, t3) {
+              this._flushStashBuffer(true), this._onComplete && this._onComplete(this._extraData);
+            }, e3.prototype._onLoaderError = function(e4, t3) {
+              switch (a2.A.e(this.TAG, "Loader error, code = ".concat(t3.code, ", msg = ").concat(t3.msg)), this._flushStashBuffer(false), this._isEarlyEofReconnecting && (this._isEarlyEofReconnecting = false, e4 = o.Xv.UNRECOVERABLE_EARLY_EOF), e4) {
+                case o.Xv.EARLY_EOF:
+                  if (!this._config.isLive && this._totalLength) {
+                    var i3 = this._currentRange.to + 1;
+                    return void (i3 < this._totalLength && (a2.A.w(this.TAG, "Connection lost, trying reconnect..."), this._isEarlyEofReconnecting = true, this._internalSeek(i3, false)));
+                  }
+                  e4 = o.Xv.UNRECOVERABLE_EARLY_EOF;
+                case o.Xv.UNRECOVERABLE_EARLY_EOF:
+                case o.Xv.CONNECTING_TIMEOUT:
+                case o.Xv.HTTP_STATUS_CODE_INVALID:
+                case o.Xv.EXCEPTION:
+              }
+              if (!this._onError) throw new d.Al("IOException: " + t3.msg);
+              this._onError(e4, t3);
+            }, e3;
+          }();
+        }, 470: function(e2, t2, i2) {
+          "use strict";
+          i2.d(t2, { HC: function() {
+            return o;
+          }, Xv: function() {
+            return r;
+          }, eO: function() {
+            return a2;
+          } });
+          var n = i2(867), a2 = { kIdle: 0, kConnecting: 1, kBuffering: 2, kError: 3, kComplete: 4 }, r = { OK: "OK", EXCEPTION: "Exception", HTTP_STATUS_CODE_INVALID: "HttpStatusCodeInvalid", CONNECTING_TIMEOUT: "ConnectingTimeout", EARLY_EOF: "EarlyEof", UNRECOVERABLE_EARLY_EOF: "UnrecoverableEarlyEof" }, o = function() {
+            function e3(e4) {
+              this._type = e4 || "undefined", this._status = a2.kIdle, this._needStash = false, this._onContentLengthKnown = null, this._onURLRedirect = null, this._onDataArrival = null, this._onError = null, this._onComplete = null;
+            }
+            return e3.prototype.destroy = function() {
+              this._status = a2.kIdle, this._onContentLengthKnown = null, this._onURLRedirect = null, this._onDataArrival = null, this._onError = null, this._onComplete = null;
+            }, e3.prototype.isWorking = function() {
+              return this._status === a2.kConnecting || this._status === a2.kBuffering;
+            }, Object.defineProperty(e3.prototype, "type", { get: function() {
+              return this._type;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "status", { get: function() {
+              return this._status;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "needStashBuffer", { get: function() {
+              return this._needStash;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onContentLengthKnown", { get: function() {
+              return this._onContentLengthKnown;
+            }, set: function(e4) {
+              this._onContentLengthKnown = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onURLRedirect", { get: function() {
+              return this._onURLRedirect;
+            }, set: function(e4) {
+              this._onURLRedirect = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onDataArrival", { get: function() {
+              return this._onDataArrival;
+            }, set: function(e4) {
+              this._onDataArrival = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onError", { get: function() {
+              return this._onError;
+            }, set: function(e4) {
+              this._onError = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "onComplete", { get: function() {
+              return this._onComplete;
+            }, set: function(e4) {
+              this._onComplete = e4;
+            }, enumerable: false, configurable: true }), e3.prototype.open = function(e4, t3) {
+              throw new n.Xu("Unimplemented abstract function!");
+            }, e3.prototype.abort = function() {
+              throw new n.Xu("Unimplemented abstract function!");
+            }, e3;
+          }();
+        }, 311: function(e2, t2, i2) {
+          "use strict";
+          i2.d(t2, { default: function() {
+            return I;
+          } });
+          var n = i2(811), a2 = i2(653), r = { enableWorker: false, enableWorkerForMSE: false, enableStashBuffer: true, stashInitialSize: void 0, isLive: false, liveBufferLatencyChasing: false, liveBufferLatencyChasingOnPaused: false, liveBufferLatencyMaxLatency: 1.5, liveBufferLatencyMinRemain: 0.5, liveSync: false, liveSyncMaxLatency: 1.2, liveSyncTargetLatency: 0.8, liveSyncPlaybackRate: 1.2, lazyLoad: true, lazyLoadMaxDuration: 180, lazyLoadRecoverDuration: 30, deferLoadAfterSourceOpen: true, autoCleanupMaxBackwardDuration: 180, autoCleanupMinBackwardDuration: 120, statisticsInfoReportInterval: 600, fixAudioTimestampGap: true, accurateSeek: false, seekType: "range", seekParamStart: "bstart", seekParamEnd: "bend", rangeLoadZeroStart: false, customSeekHandler: void 0, reuseRedirectedURL: false, headers: void 0, customLoader: void 0 };
+          function o() {
+            return Object.assign({}, r);
+          }
+          var s2 = function() {
+            function e3() {
+            }
+            return e3.supportMSEH264Playback = function() {
+              var e4 = 'video/mp4; codecs="avc1.42E01E,mp4a.40.2"', t3 = self.MediaSource && self.MediaSource.isTypeSupported(e4), i3 = self.ManagedMediaSource && self.ManagedMediaSource.isTypeSupported(e4);
+              return t3 || i3;
+            }, e3.supportMSEH265Playback = function() {
+              var e4 = 'video/mp4; codecs="hvc1.1.6.L93.B0"', t3 = self.MediaSource && self.MediaSource.isTypeSupported(e4), i3 = self.ManagedMediaSource && self.ManagedMediaSource.isTypeSupported(e4);
+              return t3 || i3;
+            }, e3.supportNetworkStreamIO = function() {
+              var e4 = new a2.A({}, o()), t3 = e4.loaderType;
+              return e4.destroy(), "fetch-stream-loader" == t3 || "xhr-moz-chunked-loader" == t3;
+            }, e3.getNetworkLoaderTypeName = function() {
+              var e4 = new a2.A({}, o()), t3 = e4.loaderType;
+              return e4.destroy(), t3;
+            }, e3.supportNativeMediaPlayback = function(t3) {
+              null == e3.videoElement && (e3.videoElement = window.document.createElement("video"));
+              var i3 = e3.videoElement.canPlayType(t3);
+              return "probably" === i3 || "maybe" == i3;
+            }, e3.getFeatureList = function() {
+              var t3 = { msePlayback: false, mseLivePlayback: false, mseH265Playback: false, networkStreamIO: false, networkLoaderName: "", nativeMP4H264Playback: false, nativeMP4H265Playback: false, nativeWebmVP8Playback: false, nativeWebmVP9Playback: false };
+              return t3.msePlayback = e3.supportMSEH264Playback(), t3.networkStreamIO = e3.supportNetworkStreamIO(), t3.networkLoaderName = e3.getNetworkLoaderTypeName(), t3.mseLivePlayback = t3.msePlayback && t3.networkStreamIO, t3.mseH265Playback = e3.supportMSEH265Playback(), t3.nativeMP4H264Playback = e3.supportNativeMediaPlayback('video/mp4; codecs="avc1.42001E, mp4a.40.2"'), t3.nativeMP4H265Playback = e3.supportNativeMediaPlayback('video/mp4; codecs="hvc1.1.6.L93.B0"'), t3.nativeWebmVP8Playback = e3.supportNativeMediaPlayback('video/webm; codecs="vp8.0, vorbis"'), t3.nativeWebmVP9Playback = e3.supportNativeMediaPlayback('video/webm; codecs="vp9"'), t3;
+            }, e3;
+          }(), d = s2, _ = i2(470), h = i2(856), c = i2(7), l = i2.n(c), u = i2(346), f = i2(117), p = i2(527), m = i2(403), g = i2(355), v = i2(867), y = i2(726), A = i2(994), S = i2(47), b = function() {
+            function e3(e4, t3, i3) {
+              this.TAG = "SeekingHandler", this._config = null, this._media_element = null, this._always_seek_keyframe = false, this._on_unbuffered_seek = null, this._request_set_current_time = false, this._seek_request_record_clocktime = null, this._idr_sample_list = new S.EX(), this.e = null, this._config = e4, this._media_element = t3, this._on_unbuffered_seek = i3, this.e = { onMediaSeeking: this._onMediaSeeking.bind(this) };
+              var n2 = A.A.chrome && (A.A.version.major < 50 || 50 === A.A.version.major && A.A.version.build < 2661);
+              this._always_seek_keyframe = !!(n2 || A.A.msedge || A.A.msie), this._always_seek_keyframe && (this._config.accurateSeek = false), this._media_element.addEventListener("seeking", this.e.onMediaSeeking);
+            }
+            return e3.prototype.destroy = function() {
+              this._idr_sample_list.clear(), this._idr_sample_list = null, this._media_element.removeEventListener("seeking", this.e.onMediaSeeking), this._media_element = null, this._on_unbuffered_seek = null;
+            }, e3.prototype.seek = function(e4) {
+              var t3 = this._isPositionBuffered(e4), i3 = false;
+              if (e4 < 1 && this._media_element.buffered.length > 0) {
+                var n2 = this._media_element.buffered.start(0);
+                (n2 < 1 && e4 < n2 || A.A.safari) && (i3 = true, e4 = A.A.safari ? 0.1 : n2);
+              }
+              if (i3) this.directSeek(e4);
+              else if (t3) if (this._always_seek_keyframe) {
+                var a3 = this._getNearestKeyframe(Math.floor(1e3 * e4));
+                null != a3 && (e4 = a3.dts / 1e3), this.directSeek(e4);
+              } else this.directSeek(e4);
+              else this._idr_sample_list.clear(), this._on_unbuffered_seek(Math.floor(1e3 * e4)), this._config.accurateSeek && this.directSeek(e4);
+            }, e3.prototype.directSeek = function(e4) {
+              this._request_set_current_time = true, this._media_element.currentTime = e4;
+            }, e3.prototype.appendSyncPoints = function(e4) {
+              this._idr_sample_list.appendArray(e4);
+            }, e3.prototype._onMediaSeeking = function(t3) {
+              if (this._request_set_current_time) this._request_set_current_time = false;
+              else {
+                var i3 = this._media_element.currentTime, n2 = this._media_element.buffered;
+                if (i3 < 1 && n2.length > 0) {
+                  var a3 = n2.start(0);
+                  if (a3 < 1 && i3 < a3 || A.A.safari) {
+                    var r2 = A.A.safari ? 0.1 : a3;
+                    return void this.directSeek(r2);
+                  }
+                }
+                if (this._isPositionBuffered(i3)) {
+                  if (this._always_seek_keyframe) {
+                    var o2 = this._getNearestKeyframe(Math.floor(1e3 * i3));
+                    null != o2 && (i3 = o2.dts / 1e3, this.directSeek(i3));
+                  }
+                } else this._seek_request_record_clocktime = e3._getClockTime(), window.setTimeout(this._pollAndApplyUnbufferedSeek.bind(this), 50);
+              }
+            }, e3.prototype._pollAndApplyUnbufferedSeek = function() {
+              if (null != this._seek_request_record_clocktime) if (this._seek_request_record_clocktime <= e3._getClockTime() - 100) {
+                var t3 = this._media_element.currentTime;
+                this._seek_request_record_clocktime = null, this._isPositionBuffered(t3) || (this._idr_sample_list.clear(), this._on_unbuffered_seek(Math.floor(1e3 * t3)), this._config.accurateSeek && this.directSeek(t3));
+              } else window.setTimeout(this._pollAndApplyUnbufferedSeek.bind(this), 50);
+            }, e3.prototype._isPositionBuffered = function(e4) {
+              for (var t3 = this._media_element.buffered, i3 = 0; i3 < t3.length; i3++) {
+                var n2 = t3.start(i3), a3 = t3.end(i3);
+                if (e4 >= n2 && e4 < a3) return true;
+              }
+              return false;
+            }, e3.prototype._getNearestKeyframe = function(e4) {
+              return this._idr_sample_list.getLastSyncPointBeforeDts(e4);
+            }, e3._getClockTime = function() {
+              return self.performance && self.performance.now ? self.performance.now() : Date.now();
+            }, e3;
+          }(), E = function() {
+            function e3(e4, t3, i3, n2) {
+              this.TAG = "LoadingController", this._config = null, this._media_element = null, this._on_pause_transmuxer = null, this._on_resume_transmuxer = null, this._paused = false, this.e = null, this._config = e4, this._media_element = t3, this._on_pause_transmuxer = i3, this._on_resume_transmuxer = n2, this.e = { onMediaTimeUpdate: this._onMediaTimeUpdate.bind(this) };
+            }
+            return e3.prototype.destroy = function() {
+              this._media_element.removeEventListener("timeupdate", this.e.onMediaTimeUpdate), this.e = null, this._media_element = null, this._config = null, this._on_pause_transmuxer = null, this._on_resume_transmuxer = null;
+            }, e3.prototype.notifyBufferedPositionChanged = function(e4) {
+              !this._config.isLive && this._config.lazyLoad && (null == e4 ? this._suspendTransmuxerIfNeeded() : this._suspendTransmuxerIfBufferedPositionExceeded(e4));
+            }, e3.prototype._onMediaTimeUpdate = function(e4) {
+              this._paused && this._resumeTransmuxerIfNeeded();
+            }, e3.prototype._suspendTransmuxerIfNeeded = function() {
+              for (var e4 = this._media_element.buffered, t3 = this._media_element.currentTime, i3 = 0, n2 = 0; n2 < e4.length; n2++) {
+                var a3 = e4.start(n2), r2 = e4.end(n2);
+                if (a3 <= t3 && t3 < r2) {
+                  i3 = r2;
+                  break;
+                }
+              }
+              i3 > 0 && this._suspendTransmuxerIfBufferedPositionExceeded(i3);
+            }, e3.prototype._suspendTransmuxerIfBufferedPositionExceeded = function(e4) {
+              e4 >= this._media_element.currentTime + this._config.lazyLoadMaxDuration && !this._paused && (h.A.v(this.TAG, "Maximum buffering duration exceeded, suspend transmuxing task"), this.suspendTransmuxer(), this._media_element.addEventListener("timeupdate", this.e.onMediaTimeUpdate));
+            }, e3.prototype.suspendTransmuxer = function() {
+              this._paused = true, this._on_pause_transmuxer();
+            }, e3.prototype._resumeTransmuxerIfNeeded = function() {
+              for (var e4 = this._media_element.buffered, t3 = this._media_element.currentTime, i3 = this._config.lazyLoadRecoverDuration, n2 = false, a3 = 0; a3 < e4.length; a3++) {
+                var r2 = e4.start(a3), o2 = e4.end(a3);
+                if (t3 >= r2 && t3 < o2) {
+                  t3 >= o2 - i3 && (n2 = true);
+                  break;
+                }
+              }
+              n2 && (h.A.v(this.TAG, "Continue loading from paused position"), this.resumeTransmuxer(), this._media_element.removeEventListener("timeupdate", this.e.onMediaTimeUpdate));
+            }, e3.prototype.resumeTransmuxer = function() {
+              this._paused = false, this._on_resume_transmuxer();
+            }, e3;
+          }(), R = function() {
+            function e3(e4, t3) {
+              this.TAG = "StartupStallJumper", this._media_element = null, this._on_direct_seek = null, this._canplay_received = false, this.e = null, this._media_element = e4, this._on_direct_seek = t3, this.e = { onMediaCanPlay: this._onMediaCanPlay.bind(this), onMediaStalled: this._onMediaStalled.bind(this), onMediaProgress: this._onMediaProgress.bind(this) }, this._media_element.addEventListener("canplay", this.e.onMediaCanPlay), this._media_element.addEventListener("stalled", this.e.onMediaStalled), this._media_element.addEventListener("progress", this.e.onMediaProgress);
+            }
+            return e3.prototype.destroy = function() {
+              this._media_element.removeEventListener("canplay", this.e.onMediaCanPlay), this._media_element.removeEventListener("stalled", this.e.onMediaStalled), this._media_element.removeEventListener("progress", this.e.onMediaProgress), this._media_element = null, this._on_direct_seek = null;
+            }, e3.prototype._onMediaCanPlay = function(e4) {
+              this._canplay_received = true, this._media_element.removeEventListener("canplay", this.e.onMediaCanPlay);
+            }, e3.prototype._onMediaStalled = function(e4) {
+              this._detectAndFixStuckPlayback(true);
+            }, e3.prototype._onMediaProgress = function(e4) {
+              this._detectAndFixStuckPlayback();
+            }, e3.prototype._detectAndFixStuckPlayback = function(e4) {
+              var t3 = this._media_element, i3 = t3.buffered;
+              e4 || !this._canplay_received || t3.readyState < 2 ? i3.length > 0 && t3.currentTime < i3.start(0) && (h.A.w(this.TAG, "Playback seems stuck at ".concat(t3.currentTime, ", seek to ").concat(i3.start(0))), this._on_direct_seek(i3.start(0)), this._media_element.removeEventListener("progress", this.e.onMediaProgress)) : this._media_element.removeEventListener("progress", this.e.onMediaProgress);
+            }, e3;
+          }(), T = function() {
+            function e3(e4, t3, i3) {
+              this._config = null, this._media_element = null, this._on_direct_seek = null, this._config = e4, this._media_element = t3, this._on_direct_seek = i3;
+            }
+            return e3.prototype.destroy = function() {
+              this._on_direct_seek = null, this._media_element = null, this._config = null;
+            }, e3.prototype.notifyBufferedRangeUpdate = function() {
+              this._chaseLiveLatency();
+            }, e3.prototype._chaseLiveLatency = function() {
+              var e4 = this._media_element.buffered, t3 = this._media_element.currentTime, i3 = this._media_element.paused;
+              if (this._config.isLive && this._config.liveBufferLatencyChasing && 0 != e4.length && (this._config.liveBufferLatencyChasingOnPaused || !i3)) {
+                var n2 = e4.end(e4.length - 1);
+                if (n2 > this._config.liveBufferLatencyMaxLatency && n2 - t3 > this._config.liveBufferLatencyMaxLatency) {
+                  var a3 = n2 - this._config.liveBufferLatencyMinRemain;
+                  this._on_direct_seek(a3);
+                }
+              }
+            }, e3;
+          }(), L = function() {
+            function e3(e4, t3) {
+              this._config = null, this._media_element = null, this.e = null, this._config = e4, this._media_element = t3, this.e = { onMediaTimeUpdate: this._onMediaTimeUpdate.bind(this) }, this._media_element.addEventListener("timeupdate", this.e.onMediaTimeUpdate);
+            }
+            return e3.prototype.destroy = function() {
+              this._media_element.removeEventListener("timeupdate", this.e.onMediaTimeUpdate), this._media_element = null, this._config = null;
+            }, e3.prototype._onMediaTimeUpdate = function(e4) {
+              if (this._config.isLive && this._config.liveSync) {
+                var t3 = this._getCurrentLatency();
+                if (t3 > this._config.liveSyncMaxLatency) {
+                  var i3 = Math.min(2, Math.max(1, this._config.liveSyncPlaybackRate));
+                  this._media_element.playbackRate = i3;
+                } else t3 > this._config.liveSyncTargetLatency || 1 !== this._media_element.playbackRate && 0 !== this._media_element.playbackRate && (this._media_element.playbackRate = 1);
+              }
+            }, e3.prototype._getCurrentLatency = function() {
+              if (!this._media_element) return 0;
+              var e4 = this._media_element.buffered, t3 = this._media_element.currentTime;
+              return 0 == e4.length ? 0 : e4.end(e4.length - 1) - t3;
+            }, e3;
+          }(), k = function() {
+            function e3(e4, t3) {
+              this.TAG = "PlayerEngineMainThread", this._emitter = new c(), this._media_element = null, this._mse_controller = null, this._transmuxer = null, this._pending_seek_time = null, this._seeking_handler = null, this._loading_controller = null, this._startup_stall_jumper = null, this._live_latency_chaser = null, this._live_latency_synchronizer = null, this._mse_source_opened = false, this._has_pending_load = false, this._loaded_metadata_received = false, this._media_info = null, this._statistics_info = null, this.e = null, this._media_data_source = e4, this._config = o(), "object" == typeof t3 && Object.assign(this._config, t3), true === e4.isLive && (this._config.isLive = true), this.e = { onMediaLoadedMetadata: this._onMediaLoadedMetadata.bind(this) };
+            }
+            return e3.prototype.destroy = function() {
+              this._emitter.emit(f.A.DESTROYING), this._transmuxer && this.unload(), this._media_element && this.detachMediaElement(), this.e = null, this._media_data_source = null, this._emitter.removeAllListeners(), this._emitter = null;
+            }, e3.prototype.on = function(e4, t3) {
+              var i3 = this;
+              this._emitter.addListener(e4, t3), e4 === f.A.MEDIA_INFO && this._media_info ? Promise.resolve().then(function() {
+                return i3._emitter.emit(f.A.MEDIA_INFO, i3.mediaInfo);
+              }) : e4 == f.A.STATISTICS_INFO && this._statistics_info && Promise.resolve().then(function() {
+                return i3._emitter.emit(f.A.STATISTICS_INFO, i3.statisticsInfo);
+              });
+            }, e3.prototype.off = function(e4, t3) {
+              this._emitter.removeListener(e4, t3);
+            }, e3.prototype.attachMediaElement = function(e4) {
+              var t3 = this;
+              this._media_element = e4, e4.src = "", e4.removeAttribute("src"), e4.srcObject = null, e4.load(), e4.addEventListener("loadedmetadata", this.e.onMediaLoadedMetadata), this._mse_controller = new u.A(this._config), this._mse_controller.on(m.A.UPDATE_END, this._onMSEUpdateEnd.bind(this)), this._mse_controller.on(m.A.BUFFER_FULL, this._onMSEBufferFull.bind(this)), this._mse_controller.on(m.A.SOURCE_OPEN, this._onMSESourceOpen.bind(this)), this._mse_controller.on(m.A.ERROR, this._onMSEError.bind(this)), this._mse_controller.on(m.A.START_STREAMING, this._onMSEStartStreaming.bind(this)), this._mse_controller.on(m.A.END_STREAMING, this._onMSEEndStreaming.bind(this)), this._mse_controller.initialize({ getCurrentTime: function() {
+                return t3._media_element.currentTime;
+              }, getReadyState: function() {
+                return t3._media_element.readyState;
+              } }), this._mse_controller.isManagedMediaSource() ? (e4.disableRemotePlayback = true, e4.srcObject = this._mse_controller.getObject()) : e4.src = this._mse_controller.getObjectURL();
+            }, e3.prototype.detachMediaElement = function() {
+              this._media_element && (this._mse_controller.shutdown(), this._media_element.removeEventListener("loadedmetadata", this.e.onMediaLoadedMetadata), this._media_element.src = "", this._media_element.removeAttribute("src"), this._media_element.srcObject = null, this._media_element.load(), this._media_element = null, this._mse_controller.revokeObjectURL()), this._mse_controller && (this._mse_controller.destroy(), this._mse_controller = null);
+            }, e3.prototype.load = function() {
+              var e4 = this;
+              if (!this._media_element) throw new v.j4("HTMLMediaElement must be attached before load()!");
+              if (this._transmuxer) throw new v.j4("load() has been called, please call unload() first!");
+              this._has_pending_load || (!this._config.deferLoadAfterSourceOpen || this._mse_source_opened ? (this._transmuxer = new p.A(this._media_data_source, this._config), this._transmuxer.on(y.A.INIT_SEGMENT, function(t3, i3) {
+                e4._mse_controller.appendInitSegment(i3);
+              }), this._transmuxer.on(y.A.MEDIA_SEGMENT, function(t3, i3) {
+                e4._mse_controller.appendMediaSegment(i3), !e4._config.isLive && "video" === t3 && i3.data && i3.data.byteLength > 0 && "info" in i3 && e4._seeking_handler.appendSyncPoints(i3.info.syncPoints), e4._loading_controller.notifyBufferedPositionChanged(i3.info.endDts / 1e3);
+              }), this._transmuxer.on(y.A.LOADING_COMPLETE, function() {
+                e4._mse_controller.endOfStream(), e4._emitter.emit(f.A.LOADING_COMPLETE);
+              }), this._transmuxer.on(y.A.RECOVERED_EARLY_EOF, function() {
+                e4._emitter.emit(f.A.RECOVERED_EARLY_EOF);
+              }), this._transmuxer.on(y.A.IO_ERROR, function(t3, i3) {
+                e4._emitter.emit(f.A.ERROR, g.w.NETWORK_ERROR, t3, i3);
+              }), this._transmuxer.on(y.A.DEMUX_ERROR, function(t3, i3) {
+                e4._emitter.emit(f.A.ERROR, g.w.MEDIA_ERROR, t3, i3);
+              }), this._transmuxer.on(y.A.MEDIA_INFO, function(t3) {
+                e4._media_info = t3, e4._emitter.emit(f.A.MEDIA_INFO, Object.assign({}, t3));
+              }), this._transmuxer.on(y.A.STATISTICS_INFO, function(t3) {
+                e4._statistics_info = e4._fillStatisticsInfo(t3), e4._emitter.emit(f.A.STATISTICS_INFO, Object.assign({}, t3));
+              }), this._transmuxer.on(y.A.RECOMMEND_SEEKPOINT, function(t3) {
+                e4._media_element && !e4._config.accurateSeek && e4._seeking_handler.directSeek(t3 / 1e3);
+              }), this._transmuxer.on(y.A.METADATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.METADATA_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.SCRIPTDATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.SCRIPTDATA_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.TIMED_ID3_METADATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.TIMED_ID3_METADATA_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.PGS_SUBTITLE_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.PGS_SUBTITLE_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.SYNCHRONOUS_KLV_METADATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.SYNCHRONOUS_KLV_METADATA_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.ASYNCHRONOUS_KLV_METADATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.ASYNCHRONOUS_KLV_METADATA_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.SMPTE2038_METADATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.SMPTE2038_METADATA_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.SEI_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.SEI_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.SCTE35_METADATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.SCTE35_METADATA_ARRIVED, t3);
+              }), this._transmuxer.on(y.A.PES_PRIVATE_DATA_DESCRIPTOR, function(t3) {
+                e4._emitter.emit(f.A.PES_PRIVATE_DATA_DESCRIPTOR, t3);
+              }), this._transmuxer.on(y.A.PES_PRIVATE_DATA_ARRIVED, function(t3) {
+                e4._emitter.emit(f.A.PES_PRIVATE_DATA_ARRIVED, t3);
+              }), this._seeking_handler = new b(this._config, this._media_element, this._onRequiredUnbufferedSeek.bind(this)), this._loading_controller = new E(this._config, this._media_element, this._onRequestPauseTransmuxer.bind(this), this._onRequestResumeTransmuxer.bind(this)), this._startup_stall_jumper = new R(this._media_element, this._onRequestDirectSeek.bind(this)), this._config.isLive && this._config.liveBufferLatencyChasing && (this._live_latency_chaser = new T(this._config, this._media_element, this._onRequestDirectSeek.bind(this))), this._config.isLive && this._config.liveSync && (this._live_latency_synchronizer = new L(this._config, this._media_element)), this._media_element.readyState > 0 && this._seeking_handler.directSeek(0), this._transmuxer.open()) : this._has_pending_load = true);
+            }, e3.prototype.unload = function() {
+              var e4, t3, i3, n2, a3, r2, o2, s3, d2;
+              null === (e4 = this._media_element) || void 0 === e4 || e4.pause(), null === (t3 = this._live_latency_synchronizer) || void 0 === t3 || t3.destroy(), this._live_latency_synchronizer = null, null === (i3 = this._live_latency_chaser) || void 0 === i3 || i3.destroy(), this._live_latency_chaser = null, null === (n2 = this._startup_stall_jumper) || void 0 === n2 || n2.destroy(), this._startup_stall_jumper = null, null === (a3 = this._loading_controller) || void 0 === a3 || a3.destroy(), this._loading_controller = null, null === (r2 = this._seeking_handler) || void 0 === r2 || r2.destroy(), this._seeking_handler = null, null === (o2 = this._mse_controller) || void 0 === o2 || o2.flush(), null === (s3 = this._transmuxer) || void 0 === s3 || s3.close(), null === (d2 = this._transmuxer) || void 0 === d2 || d2.destroy(), this._transmuxer = null;
+            }, e3.prototype.play = function() {
+              return this._media_element.play();
+            }, e3.prototype.pause = function() {
+              this._media_element.pause();
+            }, e3.prototype.seek = function(e4) {
+              this._media_element && this._seeking_handler ? this._seeking_handler.seek(e4) : this._pending_seek_time = e4;
+            }, Object.defineProperty(e3.prototype, "mediaInfo", { get: function() {
+              return Object.assign({}, this._media_info);
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "statisticsInfo", { get: function() {
+              return Object.assign({}, this._statistics_info);
+            }, enumerable: false, configurable: true }), e3.prototype._onMSESourceOpen = function() {
+              this._mse_source_opened = true, this._has_pending_load && (this._has_pending_load = false, this.load());
+            }, e3.prototype._onMSEUpdateEnd = function() {
+              this._config.isLive && this._config.liveBufferLatencyChasing && this._live_latency_chaser && this._live_latency_chaser.notifyBufferedRangeUpdate(), this._loading_controller.notifyBufferedPositionChanged();
+            }, e3.prototype._onMSEBufferFull = function() {
+              h.A.v(this.TAG, "MSE SourceBuffer is full, suspend transmuxing task"), this._loading_controller.suspendTransmuxer();
+            }, e3.prototype._onMSEError = function(e4) {
+              this._emitter.emit(f.A.ERROR, g.w.MEDIA_ERROR, g.v.MEDIA_MSE_ERROR, e4);
+            }, e3.prototype._onMSEStartStreaming = function() {
+              this._loaded_metadata_received && (this._config.isLive || (h.A.v(this.TAG, "Resume transmuxing task due to ManagedMediaSource onStartStreaming"), this._loading_controller.resumeTransmuxer()));
+            }, e3.prototype._onMSEEndStreaming = function() {
+              this._config.isLive || (h.A.v(this.TAG, "Suspend transmuxing task due to ManagedMediaSource onEndStreaming"), this._loading_controller.suspendTransmuxer());
+            }, e3.prototype._onMediaLoadedMetadata = function(e4) {
+              this._loaded_metadata_received = true, null != this._pending_seek_time && (this._seeking_handler.seek(this._pending_seek_time), this._pending_seek_time = null);
+            }, e3.prototype._onRequestDirectSeek = function(e4) {
+              this._seeking_handler.directSeek(e4);
+            }, e3.prototype._onRequiredUnbufferedSeek = function(e4) {
+              this._mse_controller.flush(), this._transmuxer.seek(e4);
+            }, e3.prototype._onRequestPauseTransmuxer = function() {
+              this._transmuxer.pause();
+            }, e3.prototype._onRequestResumeTransmuxer = function() {
+              this._transmuxer.resume();
+            }, e3.prototype._fillStatisticsInfo = function(e4) {
+              if (e4.playerType = "MSEPlayer", !(this._media_element instanceof HTMLVideoElement)) return e4;
+              var t3 = true, i3 = 0, n2 = 0;
+              if (this._media_element.getVideoPlaybackQuality) {
+                var a3 = this._media_element.getVideoPlaybackQuality();
+                i3 = a3.totalVideoFrames, n2 = a3.droppedVideoFrames;
+              } else null != this._media_element.webkitDecodedFrameCount ? (i3 = this._media_element.webkitDecodedFrameCount, n2 = this._media_element.webkitDroppedFrameCount) : t3 = false;
+              return t3 && (e4.decodedFrames = i3, e4.droppedFrames = n2), e4;
+            }, e3;
+          }(), w = i2(861), C = i2(947), M = function() {
+            function e3(e4, t3) {
+              this.TAG = "PlayerEngineDedicatedThread", this._emitter = new c(), this._media_element = null, this._worker_destroying = false, this._seeking_handler = null, this._loading_controller = null, this._startup_stall_jumper = null, this._live_latency_chaser = null, this._live_latency_synchronizer = null, this._pending_seek_time = null, this._media_info = null, this._statistics_info = null, this.e = null, this._media_data_source = e4, this._config = o(), "object" == typeof t3 && Object.assign(this._config, t3), true === e4.isLive && (this._config.isLive = true), this.e = { onLoggingConfigChanged: this._onLoggingConfigChanged.bind(this), onMediaLoadedMetadata: this._onMediaLoadedMetadata.bind(this), onMediaTimeUpdate: this._onMediaTimeUpdate.bind(this), onMediaReadyStateChanged: this._onMediaReadyStateChange.bind(this) }, C.A.registerListener(this.e.onLoggingConfigChanged), this._worker = w(877, { all: true }), this._worker.addEventListener("message", this._onWorkerMessage.bind(this)), this._worker.postMessage({ cmd: "init", media_data_source: this._media_data_source, config: this._config }), this._worker.postMessage({ cmd: "logging_config", logging_config: C.A.getConfig() });
+            }
+            return e3.isSupported = function() {
+              return !!(self.Worker && (self.MediaSource && "canConstructInDedicatedWorker" in self.MediaSource && true === self.MediaSource.canConstructInDedicatedWorker || self.ManagedMediaSource && "canConstructInDedicatedWorker" in self.ManagedMediaSource && true === self.ManagedMediaSource.canConstructInDedicatedWorker));
+            }, e3.prototype.destroy = function() {
+              this._emitter.emit(f.A.DESTROYING), this.unload(), this.detachMediaElement(), this._worker_destroying = true, this._worker.postMessage({ cmd: "destroy" }), C.A.removeListener(this.e.onLoggingConfigChanged), this.e = null, this._media_data_source = null, this._emitter.removeAllListeners(), this._emitter = null;
+            }, e3.prototype.on = function(e4, t3) {
+              var i3 = this;
+              this._emitter.addListener(e4, t3), e4 === f.A.MEDIA_INFO && this._media_info ? Promise.resolve().then(function() {
+                return i3._emitter.emit(f.A.MEDIA_INFO, i3.mediaInfo);
+              }) : e4 == f.A.STATISTICS_INFO && this._statistics_info && Promise.resolve().then(function() {
+                return i3._emitter.emit(f.A.STATISTICS_INFO, i3.statisticsInfo);
+              });
+            }, e3.prototype.off = function(e4, t3) {
+              this._emitter.removeListener(e4, t3);
+            }, e3.prototype.attachMediaElement = function(e4) {
+              this._media_element = e4, this._media_element.src = "", this._media_element.removeAttribute("src"), this._media_element.srcObject = null, this._media_element.load(), this._media_element.addEventListener("loadedmetadata", this.e.onMediaLoadedMetadata), this._media_element.addEventListener("timeupdate", this.e.onMediaTimeUpdate), this._media_element.addEventListener("readystatechange", this.e.onMediaReadyStateChanged), this._worker.postMessage({ cmd: "initialize_mse" });
+            }, e3.prototype.detachMediaElement = function() {
+              this._worker.postMessage({ cmd: "shutdown_mse" }), this._media_element && (this._media_element.removeEventListener("loadedmetadata", this.e.onMediaLoadedMetadata), this._media_element.removeEventListener("timeupdate", this.e.onMediaTimeUpdate), this._media_element.removeEventListener("readystatechange", this.e.onMediaReadyStateChanged), this._media_element.src = "", this._media_element.removeAttribute("src"), this._media_element.srcObject = null, this._media_element.load(), this._media_element = null);
+            }, e3.prototype.load = function() {
+              this._worker.postMessage({ cmd: "load" }), this._seeking_handler = new b(this._config, this._media_element, this._onRequiredUnbufferedSeek.bind(this)), this._loading_controller = new E(this._config, this._media_element, this._onRequestPauseTransmuxer.bind(this), this._onRequestResumeTransmuxer.bind(this)), this._startup_stall_jumper = new R(this._media_element, this._onRequestDirectSeek.bind(this)), this._config.isLive && this._config.liveBufferLatencyChasing && (this._live_latency_chaser = new T(this._config, this._media_element, this._onRequestDirectSeek.bind(this))), this._config.isLive && this._config.liveSync && (this._live_latency_synchronizer = new L(this._config, this._media_element)), this._media_element.readyState > 0 && this._seeking_handler.directSeek(0);
+            }, e3.prototype.unload = function() {
+              var e4, t3, i3, n2, a3, r2;
+              null === (e4 = this._media_element) || void 0 === e4 || e4.pause(), this._worker.postMessage({ cmd: "unload" }), null === (t3 = this._live_latency_synchronizer) || void 0 === t3 || t3.destroy(), this._live_latency_synchronizer = null, null === (i3 = this._live_latency_chaser) || void 0 === i3 || i3.destroy(), this._live_latency_chaser = null, null === (n2 = this._startup_stall_jumper) || void 0 === n2 || n2.destroy(), this._startup_stall_jumper = null, null === (a3 = this._loading_controller) || void 0 === a3 || a3.destroy(), this._loading_controller = null, null === (r2 = this._seeking_handler) || void 0 === r2 || r2.destroy(), this._seeking_handler = null;
+            }, e3.prototype.play = function() {
+              return this._media_element.play();
+            }, e3.prototype.pause = function() {
+              this._media_element.pause();
+            }, e3.prototype.seek = function(e4) {
+              this._media_element && this._seeking_handler ? this._seeking_handler.seek(e4) : this._pending_seek_time = e4;
+            }, Object.defineProperty(e3.prototype, "mediaInfo", { get: function() {
+              return Object.assign({}, this._media_info);
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "statisticsInfo", { get: function() {
+              return Object.assign({}, this._statistics_info);
+            }, enumerable: false, configurable: true }), e3.prototype._onLoggingConfigChanged = function(e4) {
+              var t3;
+              null === (t3 = this._worker) || void 0 === t3 || t3.postMessage({ cmd: "logging_config", logging_config: e4 });
+            }, e3.prototype._onMSEUpdateEnd = function() {
+              this._config.isLive && this._config.liveBufferLatencyChasing && this._live_latency_chaser && this._live_latency_chaser.notifyBufferedRangeUpdate(), this._loading_controller.notifyBufferedPositionChanged();
+            }, e3.prototype._onMSEBufferFull = function() {
+              h.A.v(this.TAG, "MSE SourceBuffer is full, suspend transmuxing task"), this._loading_controller.suspendTransmuxer();
+            }, e3.prototype._onMediaLoadedMetadata = function(e4) {
+              null != this._pending_seek_time && (this._seeking_handler.seek(this._pending_seek_time), this._pending_seek_time = null);
+            }, e3.prototype._onRequestDirectSeek = function(e4) {
+              this._seeking_handler.directSeek(e4);
+            }, e3.prototype._onRequiredUnbufferedSeek = function(e4) {
+              this._worker.postMessage({ cmd: "unbuffered_seek", milliseconds: e4 });
+            }, e3.prototype._onRequestPauseTransmuxer = function() {
+              this._worker.postMessage({ cmd: "pause_transmuxer" });
+            }, e3.prototype._onRequestResumeTransmuxer = function() {
+              this._worker.postMessage({ cmd: "resume_transmuxer" });
+            }, e3.prototype._onMediaTimeUpdate = function(e4) {
+              this._worker.postMessage({ cmd: "timeupdate", current_time: e4.target.currentTime });
+            }, e3.prototype._onMediaReadyStateChange = function(e4) {
+              this._worker.postMessage({ cmd: "readystatechange", ready_state: e4.target.readyState });
+            }, e3.prototype._onWorkerMessage = function(e4) {
+              var t3, i3 = e4.data, n2 = i3.msg;
+              if ("destroyed" == n2 || this._worker_destroying) return this._worker_destroying = false, null === (t3 = this._worker) || void 0 === t3 || t3.terminate(), void (this._worker = null);
+              switch (n2) {
+                case "mse_init":
+                  var a3 = i3;
+                  "function" == typeof self.ManagedMediaSource && !("function" == typeof self.MediaSource) && (this._media_element.disableRemotePlayback = true), this._media_element.srcObject = a3.handle;
+                  break;
+                case "mse_event":
+                  (a3 = i3).event == m.A.UPDATE_END ? this._onMSEUpdateEnd() : a3.event == m.A.BUFFER_FULL && this._onMSEBufferFull();
+                  break;
+                case "transmuxing_event":
+                  if ((a3 = i3).event == y.A.MEDIA_INFO) {
+                    var r2 = i3;
+                    this._media_info = r2.info, this._emitter.emit(f.A.MEDIA_INFO, Object.assign({}, r2.info));
+                  } else if (a3.event == y.A.STATISTICS_INFO) {
+                    var o2 = i3;
+                    this._statistics_info = this._fillStatisticsInfo(o2.info), this._emitter.emit(f.A.STATISTICS_INFO, Object.assign({}, o2.info));
+                  } else if (a3.event == y.A.RECOMMEND_SEEKPOINT) {
+                    var s3 = i3;
+                    this._media_element && !this._config.accurateSeek && this._seeking_handler.directSeek(s3.milliseconds / 1e3);
+                  }
+                  break;
+                case "player_event":
+                  if ((a3 = i3).event == f.A.ERROR) {
+                    var d2 = i3;
+                    this._emitter.emit(f.A.ERROR, d2.error_type, d2.error_detail, d2.info);
+                  } else if ("extraData" in a3) {
+                    var _2 = i3;
+                    this._emitter.emit(_2.event, _2.extraData);
+                  }
+                  break;
+                case "logcat_callback":
+                  a3 = i3, h.A.emitter.emit("log", a3.type, a3.logcat);
+                  break;
+                case "buffered_position_changed":
+                  a3 = i3, this._loading_controller.notifyBufferedPositionChanged(a3.buffered_position_milliseconds / 1e3);
+              }
+            }, e3.prototype._fillStatisticsInfo = function(e4) {
+              if (e4.playerType = "MSEPlayer", !(this._media_element instanceof HTMLVideoElement)) return e4;
+              var t3 = true, i3 = 0, n2 = 0;
+              if (this._media_element.getVideoPlaybackQuality) {
+                var a3 = this._media_element.getVideoPlaybackQuality();
+                i3 = a3.totalVideoFrames, n2 = a3.droppedVideoFrames;
+              } else null != this._media_element.webkitDecodedFrameCount ? (i3 = this._media_element.webkitDecodedFrameCount, n2 = this._media_element.webkitDroppedFrameCount) : t3 = false;
+              return t3 && (e4.decodedFrames = i3, e4.droppedFrames = n2), e4;
+            }, e3;
+          }(), D = function() {
+            function e3(e4, t3) {
+              this.TAG = "MSEPlayer", this._type = "MSEPlayer", this._media_element = null, this._player_engine = null;
+              var i3 = e4.type.toLowerCase();
+              if ("mse" !== i3 && "mpegts" !== i3 && "m2ts" !== i3 && "flv" !== i3) throw new v.Qn("MSEPlayer requires an mpegts/m2ts/flv MediaDataSource input!");
+              if (t3 && t3.enableWorkerForMSE && M.isSupported()) try {
+                this._player_engine = new M(e4, t3);
+              } catch (i4) {
+                h.A.e(this.TAG, "Error while initializing PlayerEngineDedicatedThread, fallback to PlayerEngineMainThread"), this._player_engine = new k(e4, t3);
+              }
+              else this._player_engine = new k(e4, t3);
+            }
+            return e3.prototype.destroy = function() {
+              this._player_engine.destroy(), this._player_engine = null, this._media_element = null;
+            }, e3.prototype.on = function(e4, t3) {
+              this._player_engine.on(e4, t3);
+            }, e3.prototype.off = function(e4, t3) {
+              this._player_engine.off(e4, t3);
+            }, e3.prototype.attachMediaElement = function(e4) {
+              this._media_element = e4, this._player_engine.attachMediaElement(e4);
+            }, e3.prototype.detachMediaElement = function() {
+              this._media_element = null, this._player_engine.detachMediaElement();
+            }, e3.prototype.load = function() {
+              this._player_engine.load();
+            }, e3.prototype.unload = function() {
+              this._player_engine.unload();
+            }, e3.prototype.play = function() {
+              return this._player_engine.play();
+            }, e3.prototype.pause = function() {
+              this._player_engine.pause();
+            }, Object.defineProperty(e3.prototype, "type", { get: function() {
+              return this._type;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "buffered", { get: function() {
+              return this._media_element.buffered;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "duration", { get: function() {
+              return this._media_element.duration;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "volume", { get: function() {
+              return this._media_element.volume;
+            }, set: function(e4) {
+              this._media_element.volume = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "muted", { get: function() {
+              return this._media_element.muted;
+            }, set: function(e4) {
+              this._media_element.muted = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "currentTime", { get: function() {
+              return this._media_element ? this._media_element.currentTime : 0;
+            }, set: function(e4) {
+              this._player_engine.seek(e4);
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "mediaInfo", { get: function() {
+              return this._player_engine.mediaInfo;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "statisticsInfo", { get: function() {
+              return this._player_engine.statisticsInfo;
+            }, enumerable: false, configurable: true }), e3;
+          }(), B = function() {
+            function e3(e4, t3) {
+              this.TAG = "NativePlayer", this._type = "NativePlayer", this._emitter = new (l())(), this._config = o(), "object" == typeof t3 && Object.assign(this._config, t3);
+              var i3 = e4.type.toLowerCase();
+              if ("mse" === i3 || "mpegts" === i3 || "m2ts" === i3 || "flv" === i3) throw new v.Qn("NativePlayer does't support mse/mpegts/m2ts/flv MediaDataSource input!");
+              if (e4.hasOwnProperty("segments")) throw new v.Qn("NativePlayer(".concat(e4.type, ") doesn't support multipart playback!"));
+              this.e = { onvLoadedMetadata: this._onvLoadedMetadata.bind(this) }, this._pendingSeekTime = null, this._statisticsReporter = null, this._mediaDataSource = e4, this._mediaElement = null;
+            }
+            return e3.prototype.destroy = function() {
+              this._emitter.emit(f.A.DESTROYING), this._mediaElement && (this.unload(), this.detachMediaElement()), this.e = null, this._mediaDataSource = null, this._emitter.removeAllListeners(), this._emitter = null;
+            }, e3.prototype.on = function(e4, t3) {
+              var i3 = this;
+              e4 === f.A.MEDIA_INFO ? null != this._mediaElement && 0 !== this._mediaElement.readyState && Promise.resolve().then(function() {
+                i3._emitter.emit(f.A.MEDIA_INFO, i3.mediaInfo);
+              }) : e4 === f.A.STATISTICS_INFO && null != this._mediaElement && 0 !== this._mediaElement.readyState && Promise.resolve().then(function() {
+                i3._emitter.emit(f.A.STATISTICS_INFO, i3.statisticsInfo);
+              }), this._emitter.addListener(e4, t3);
+            }, e3.prototype.off = function(e4, t3) {
+              this._emitter.removeListener(e4, t3);
+            }, e3.prototype.attachMediaElement = function(e4) {
+              if (this._mediaElement = e4, e4.addEventListener("loadedmetadata", this.e.onvLoadedMetadata), null != this._pendingSeekTime) try {
+                e4.currentTime = this._pendingSeekTime, this._pendingSeekTime = null;
+              } catch (e5) {
+              }
+            }, e3.prototype.detachMediaElement = function() {
+              this._mediaElement && (this._mediaElement.src = "", this._mediaElement.removeAttribute("src"), this._mediaElement.removeEventListener("loadedmetadata", this.e.onvLoadedMetadata), this._mediaElement = null), null != this._statisticsReporter && (window.clearInterval(this._statisticsReporter), this._statisticsReporter = null);
+            }, e3.prototype.load = function() {
+              if (!this._mediaElement) throw new v.j4("HTMLMediaElement must be attached before load()!");
+              this._mediaElement.src = this._mediaDataSource.url, this._mediaElement.readyState > 0 && (this._mediaElement.currentTime = 0), this._mediaElement.preload = "auto", this._mediaElement.load(), this._statisticsReporter = window.setInterval(this._reportStatisticsInfo.bind(this), this._config.statisticsInfoReportInterval);
+            }, e3.prototype.unload = function() {
+              this._mediaElement && (this._mediaElement.src = "", this._mediaElement.removeAttribute("src")), null != this._statisticsReporter && (window.clearInterval(this._statisticsReporter), this._statisticsReporter = null);
+            }, e3.prototype.play = function() {
+              return this._mediaElement.play();
+            }, e3.prototype.pause = function() {
+              this._mediaElement.pause();
+            }, Object.defineProperty(e3.prototype, "type", { get: function() {
+              return this._type;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "buffered", { get: function() {
+              return this._mediaElement.buffered;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "duration", { get: function() {
+              return this._mediaElement.duration;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "volume", { get: function() {
+              return this._mediaElement.volume;
+            }, set: function(e4) {
+              this._mediaElement.volume = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "muted", { get: function() {
+              return this._mediaElement.muted;
+            }, set: function(e4) {
+              this._mediaElement.muted = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "currentTime", { get: function() {
+              return this._mediaElement ? this._mediaElement.currentTime : 0;
+            }, set: function(e4) {
+              this._mediaElement ? this._mediaElement.currentTime = e4 : this._pendingSeekTime = e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "mediaInfo", { get: function() {
+              var e4 = { mimeType: (this._mediaElement instanceof HTMLAudioElement ? "audio/" : "video/") + this._mediaDataSource.type };
+              return this._mediaElement && (e4.duration = Math.floor(1e3 * this._mediaElement.duration), this._mediaElement instanceof HTMLVideoElement && (e4.width = this._mediaElement.videoWidth, e4.height = this._mediaElement.videoHeight)), e4;
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "statisticsInfo", { get: function() {
+              var e4 = { playerType: this._type, url: this._mediaDataSource.url };
+              if (!(this._mediaElement instanceof HTMLVideoElement)) return e4;
+              var t3 = true, i3 = 0, n2 = 0;
+              if (this._mediaElement.getVideoPlaybackQuality) {
+                var a3 = this._mediaElement.getVideoPlaybackQuality();
+                i3 = a3.totalVideoFrames, n2 = a3.droppedVideoFrames;
+              } else null != this._mediaElement.webkitDecodedFrameCount ? (i3 = this._mediaElement.webkitDecodedFrameCount, n2 = this._mediaElement.webkitDroppedFrameCount) : t3 = false;
+              return t3 && (e4.decodedFrames = i3, e4.droppedFrames = n2), e4;
+            }, enumerable: false, configurable: true }), e3.prototype._onvLoadedMetadata = function(e4) {
+              null != this._pendingSeekTime && (this._mediaElement.currentTime = this._pendingSeekTime, this._pendingSeekTime = null), this._emitter.emit(f.A.MEDIA_INFO, this.mediaInfo);
+            }, e3.prototype._reportStatisticsInfo = function() {
+              this._emitter.emit(f.A.STATISTICS_INFO, this.statisticsInfo);
+            }, e3;
+          }();
+          n.A.install();
+          var O = { createPlayer: function(e3, t3) {
+            var i3 = e3;
+            if (null == i3 || "object" != typeof i3) throw new v.Qn("MediaDataSource must be an javascript object!");
+            if (!i3.hasOwnProperty("type")) throw new v.Qn("MediaDataSource must has type field to indicate video file type!");
+            switch (i3.type) {
+              case "mse":
+              case "mpegts":
+              case "m2ts":
+              case "flv":
+                return new D(i3, t3);
+              default:
+                return new B(i3, t3);
+            }
+          }, isSupported: function() {
+            return d.supportMSEH264Playback();
+          }, getFeatureList: function() {
+            return d.getFeatureList();
+          } };
+          O.BaseLoader = _.HC, O.LoaderStatus = _.eO, O.LoaderErrors = _.Xv, O.Events = f.A, O.ErrorTypes = g.w, O.ErrorDetails = g.v, O.MSEPlayer = D, O.NativePlayer = B, O.LoggingControl = C.A, Object.defineProperty(O, "version", { enumerable: true, get: function() {
+            return "1.8.1";
+          } });
+          var I = O;
+        }, 355: function(e2, t2, i2) {
+          "use strict";
+          i2.d(t2, { v: function() {
+            return o;
+          }, w: function() {
+            return r;
+          } });
+          var n = i2(470), a2 = i2(827), r = { NETWORK_ERROR: "NetworkError", MEDIA_ERROR: "MediaError", OTHER_ERROR: "OtherError" }, o = { NETWORK_EXCEPTION: n.Xv.EXCEPTION, NETWORK_STATUS_CODE_INVALID: n.Xv.HTTP_STATUS_CODE_INVALID, NETWORK_TIMEOUT: n.Xv.CONNECTING_TIMEOUT, NETWORK_UNRECOVERABLE_EARLY_EOF: n.Xv.UNRECOVERABLE_EARLY_EOF, MEDIA_MSE_ERROR: "MediaMSEError", MEDIA_FORMAT_ERROR: a2.A.FORMAT_ERROR, MEDIA_FORMAT_UNSUPPORTED: a2.A.FORMAT_UNSUPPORTED, MEDIA_CODEC_UNSUPPORTED: a2.A.CODEC_UNSUPPORTED };
+        }, 994: function(e2, t2) {
+          "use strict";
+          var i2 = {};
+          !function() {
+            var e3 = self.navigator.userAgent.toLowerCase(), t3 = /(edge)\/([\w.]+)/.exec(e3) || /(opr)[\/]([\w.]+)/.exec(e3) || /(chrome)[ \/]([\w.]+)/.exec(e3) || /(iemobile)[\/]([\w.]+)/.exec(e3) || /(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(e3) || /(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(e3) || /(webkit)[ \/]([\w.]+)/.exec(e3) || /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(e3) || /(msie) ([\w.]+)/.exec(e3) || e3.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec(e3) || e3.indexOf("compatible") < 0 && /(firefox)[ \/]([\w.]+)/.exec(e3) || [], n = /(ipad)/.exec(e3) || /(ipod)/.exec(e3) || /(windows phone)/.exec(e3) || /(iphone)/.exec(e3) || /(kindle)/.exec(e3) || /(android)/.exec(e3) || /(windows)/.exec(e3) || /(mac)/.exec(e3) || /(linux)/.exec(e3) || /(cros)/.exec(e3) || [], a2 = { browser: t3[5] || t3[3] || t3[1] || "", version: t3[2] || t3[4] || "0", majorVersion: t3[4] || t3[2] || "0", platform: n[0] || "" }, r = {};
+            if (a2.browser) {
+              r[a2.browser] = true;
+              var o = a2.majorVersion.split(".");
+              r.version = { major: parseInt(a2.majorVersion, 10), string: a2.version }, o.length > 1 && (r.version.minor = parseInt(o[1], 10)), o.length > 2 && (r.version.build = parseInt(o[2], 10));
+            }
+            if (a2.platform && (r[a2.platform] = true), (r.chrome || r.opr || r.safari) && (r.webkit = true), r.rv || r.iemobile) {
+              r.rv && delete r.rv;
+              var s2 = "msie";
+              a2.browser = s2, r[s2] = true;
+            }
+            if (r.edge) {
+              delete r.edge;
+              var d = "msedge";
+              a2.browser = d, r[d] = true;
+            }
+            if (r.opr) {
+              var _ = "opera";
+              a2.browser = _, r[_] = true;
+            }
+            if (r.safari && r.android) {
+              var h = "android";
+              a2.browser = h, r[h] = true;
+            }
+            for (var c in r.name = a2.browser, r.platform = a2.platform, i2) i2.hasOwnProperty(c) && delete i2[c];
+            Object.assign(i2, r);
+          }(), t2.A = i2;
+        }, 867: function(e2, t2, i2) {
+          "use strict";
+          i2.d(t2, { Al: function() {
+            return r;
+          }, Qn: function() {
+            return s2;
+          }, Xu: function() {
+            return d;
+          }, j4: function() {
+            return o;
+          } });
+          var n, a2 = (n = function(e3, t3) {
+            return n = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+              e4.__proto__ = t4;
+            } || function(e4, t4) {
+              for (var i3 in t4) Object.prototype.hasOwnProperty.call(t4, i3) && (e4[i3] = t4[i3]);
+            }, n(e3, t3);
+          }, function(e3, t3) {
+            if ("function" != typeof t3 && null !== t3) throw new TypeError("Class extends value " + String(t3) + " is not a constructor or null");
+            function i3() {
+              this.constructor = e3;
+            }
+            n(e3, t3), e3.prototype = null === t3 ? Object.create(t3) : (i3.prototype = t3.prototype, new i3());
+          }), r = function() {
+            function e3(e4) {
+              this._message = e4;
+            }
+            return Object.defineProperty(e3.prototype, "name", { get: function() {
+              return "RuntimeException";
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3.prototype, "message", { get: function() {
+              return this._message;
+            }, enumerable: false, configurable: true }), e3.prototype.toString = function() {
+              return this.name + ": " + this.message;
+            }, e3;
+          }(), o = function(e3) {
+            function t3(t4) {
+              return e3.call(this, t4) || this;
+            }
+            return a2(t3, e3), Object.defineProperty(t3.prototype, "name", { get: function() {
+              return "IllegalStateException";
+            }, enumerable: false, configurable: true }), t3;
+          }(r), s2 = function(e3) {
+            function t3(t4) {
+              return e3.call(this, t4) || this;
+            }
+            return a2(t3, e3), Object.defineProperty(t3.prototype, "name", { get: function() {
+              return "InvalidArgumentException";
+            }, enumerable: false, configurable: true }), t3;
+          }(r), d = function(e3) {
+            function t3(t4) {
+              return e3.call(this, t4) || this;
+            }
+            return a2(t3, e3), Object.defineProperty(t3.prototype, "name", { get: function() {
+              return "NotImplementedException";
+            }, enumerable: false, configurable: true }), t3;
+          }(r);
+        }, 856: function(e2, t2, i2) {
+          "use strict";
+          var n = i2(7), a2 = i2.n(n), r = function() {
+            function e3() {
+            }
+            return e3.e = function(t3, i3) {
+              t3 && !e3.FORCE_GLOBAL_TAG || (t3 = e3.GLOBAL_TAG);
+              var n2 = "[".concat(t3, "] > ").concat(i3);
+              e3.ENABLE_CALLBACK && e3.emitter.emit("log", "error", n2), e3.ENABLE_ERROR && (console.error ? console.error(n2) : console.warn ? console.warn(n2) : console.log(n2));
+            }, e3.i = function(t3, i3) {
+              t3 && !e3.FORCE_GLOBAL_TAG || (t3 = e3.GLOBAL_TAG);
+              var n2 = "[".concat(t3, "] > ").concat(i3);
+              e3.ENABLE_CALLBACK && e3.emitter.emit("log", "info", n2), e3.ENABLE_INFO && (console.info ? console.info(n2) : console.log(n2));
+            }, e3.w = function(t3, i3) {
+              t3 && !e3.FORCE_GLOBAL_TAG || (t3 = e3.GLOBAL_TAG);
+              var n2 = "[".concat(t3, "] > ").concat(i3);
+              e3.ENABLE_CALLBACK && e3.emitter.emit("log", "warn", n2), e3.ENABLE_WARN && (console.warn ? console.warn(n2) : console.log(n2));
+            }, e3.d = function(t3, i3) {
+              t3 && !e3.FORCE_GLOBAL_TAG || (t3 = e3.GLOBAL_TAG);
+              var n2 = "[".concat(t3, "] > ").concat(i3);
+              e3.ENABLE_CALLBACK && e3.emitter.emit("log", "debug", n2), e3.ENABLE_DEBUG && (console.debug ? console.debug(n2) : console.log(n2));
+            }, e3.v = function(t3, i3) {
+              t3 && !e3.FORCE_GLOBAL_TAG || (t3 = e3.GLOBAL_TAG);
+              var n2 = "[".concat(t3, "] > ").concat(i3);
+              e3.ENABLE_CALLBACK && e3.emitter.emit("log", "verbose", n2), e3.ENABLE_VERBOSE && console.log(n2);
+            }, e3;
+          }();
+          r.GLOBAL_TAG = "mpegts.js", r.FORCE_GLOBAL_TAG = false, r.ENABLE_ERROR = true, r.ENABLE_INFO = true, r.ENABLE_WARN = true, r.ENABLE_DEBUG = true, r.ENABLE_VERBOSE = true, r.ENABLE_CALLBACK = false, r.emitter = new (a2())(), t2.A = r;
+        }, 947: function(e2, t2, i2) {
+          "use strict";
+          var n = i2(7), a2 = i2.n(n), r = i2(856), o = function() {
+            function e3() {
+            }
+            return Object.defineProperty(e3, "forceGlobalTag", { get: function() {
+              return r.A.FORCE_GLOBAL_TAG;
+            }, set: function(t3) {
+              r.A.FORCE_GLOBAL_TAG = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3, "globalTag", { get: function() {
+              return r.A.GLOBAL_TAG;
+            }, set: function(t3) {
+              r.A.GLOBAL_TAG = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3, "enableAll", { get: function() {
+              return r.A.ENABLE_VERBOSE && r.A.ENABLE_DEBUG && r.A.ENABLE_INFO && r.A.ENABLE_WARN && r.A.ENABLE_ERROR;
+            }, set: function(t3) {
+              r.A.ENABLE_VERBOSE = t3, r.A.ENABLE_DEBUG = t3, r.A.ENABLE_INFO = t3, r.A.ENABLE_WARN = t3, r.A.ENABLE_ERROR = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3, "enableDebug", { get: function() {
+              return r.A.ENABLE_DEBUG;
+            }, set: function(t3) {
+              r.A.ENABLE_DEBUG = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3, "enableVerbose", { get: function() {
+              return r.A.ENABLE_VERBOSE;
+            }, set: function(t3) {
+              r.A.ENABLE_VERBOSE = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3, "enableInfo", { get: function() {
+              return r.A.ENABLE_INFO;
+            }, set: function(t3) {
+              r.A.ENABLE_INFO = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3, "enableWarn", { get: function() {
+              return r.A.ENABLE_WARN;
+            }, set: function(t3) {
+              r.A.ENABLE_WARN = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), Object.defineProperty(e3, "enableError", { get: function() {
+              return r.A.ENABLE_ERROR;
+            }, set: function(t3) {
+              r.A.ENABLE_ERROR = t3, e3._notifyChange();
+            }, enumerable: false, configurable: true }), e3.getConfig = function() {
+              return { globalTag: r.A.GLOBAL_TAG, forceGlobalTag: r.A.FORCE_GLOBAL_TAG, enableVerbose: r.A.ENABLE_VERBOSE, enableDebug: r.A.ENABLE_DEBUG, enableInfo: r.A.ENABLE_INFO, enableWarn: r.A.ENABLE_WARN, enableError: r.A.ENABLE_ERROR, enableCallback: r.A.ENABLE_CALLBACK };
+            }, e3.applyConfig = function(e4) {
+              r.A.GLOBAL_TAG = e4.globalTag, r.A.FORCE_GLOBAL_TAG = e4.forceGlobalTag, r.A.ENABLE_VERBOSE = e4.enableVerbose, r.A.ENABLE_DEBUG = e4.enableDebug, r.A.ENABLE_INFO = e4.enableInfo, r.A.ENABLE_WARN = e4.enableWarn, r.A.ENABLE_ERROR = e4.enableError, r.A.ENABLE_CALLBACK = e4.enableCallback;
+            }, e3._notifyChange = function() {
+              var t3 = e3.emitter;
+              if (t3.listenerCount("change") > 0) {
+                var i3 = e3.getConfig();
+                t3.emit("change", i3);
+              }
+            }, e3.registerListener = function(t3) {
+              e3.emitter.addListener("change", t3);
+            }, e3.removeListener = function(t3) {
+              e3.emitter.removeListener("change", t3);
+            }, e3.addLogListener = function(t3) {
+              r.A.emitter.addListener("log", t3), r.A.emitter.listenerCount("log") > 0 && (r.A.ENABLE_CALLBACK = true, e3._notifyChange());
+            }, e3.removeLogListener = function(t3) {
+              r.A.emitter.removeListener("log", t3), 0 === r.A.emitter.listenerCount("log") && (r.A.ENABLE_CALLBACK = false, e3._notifyChange());
+            }, e3;
+          }();
+          o.emitter = new (a2())(), t2.A = o;
+        }, 811: function(e2, t2, i2) {
+          "use strict";
+          var n = function() {
+            function e3() {
+            }
+            return e3.install = function() {
+              Object.setPrototypeOf = Object.setPrototypeOf || function(e4, t3) {
+                return e4.__proto__ = t3, e4;
+              }, Object.assign = Object.assign || function(e4) {
+                if (null == e4) throw new TypeError("Cannot convert undefined or null to object");
+                for (var t3 = Object(e4), i3 = 1; i3 < arguments.length; i3++) {
+                  var n2 = arguments[i3];
+                  if (null != n2) for (var a2 in n2) n2.hasOwnProperty(a2) && (t3[a2] = n2[a2]);
+                }
+                return t3;
+              }, String.prototype.startsWith || Object.defineProperty(String.prototype, "startsWith", { value: function(e4, t3) {
+                var i3 = t3 > 0 ? 0 | t3 : 0;
+                return this.substring(i3, i3 + e4.length) === e4;
+              } }), "function" != typeof self.Promise && i2(964).polyfill();
+            }, e3;
+          }();
+          n.install(), t2.A = n;
+        }, 861: function(e2, t2, i2) {
+          function n(e3) {
+            var t3 = {};
+            function i3(n3) {
+              if (t3[n3]) return t3[n3].exports;
+              var a3 = t3[n3] = { i: n3, id: n3, l: false, loaded: false, exports: {} };
+              return e3[n3].call(a3.exports, a3, a3.exports, i3), a3.l = true, a3.loaded = true, a3.exports;
+            }
+            i3.m = e3, i3.c = t3, i3.d = function(e4, t4) {
+              for (var n3 in t4) i3.o(t4, n3) && !i3.o(e4, n3) && Object.defineProperty(e4, n3, { enumerable: true, get: t4[n3] });
+            }, i3.r = function(e4) {
+              "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(e4, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(e4, "__esModule", { value: true });
+            }, i3.n = function(e4) {
+              var t4 = e4 && e4.__esModule ? function() {
+                return e4.default;
+              } : function() {
+                return e4;
+              };
+              return i3.d(t4, { a: t4 }), t4;
+            }, i3.o = function(e4, t4) {
+              return Object.prototype.hasOwnProperty.call(e4, t4);
+            }, i3.g = function() {
+              if ("object" == typeof globalThis) return globalThis;
+              try {
+                return this || new Function("return this")();
+              } catch (e4) {
+                if ("object" == typeof self) return self;
+              }
+            }(), i3.p = "/";
+            var n2 = i3(ENTRY_MODULE);
+            return n2.default || n2;
+          }
+          var a2 = "[\\.|\\-|\\+|\\w|/|@]+", r = "\\(\\s*(/\\*.*?\\*/)?\\s*.*?(" + a2 + ").*?\\)";
+          function o(e3) {
+            return (e3 + "").replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
+          }
+          function s2(e3) {
+            return !isNaN(1 * e3);
+          }
+          function d(e3, t3, n2) {
+            var d2 = {};
+            d2[n2] = [];
+            var _2 = t3.toString(), h = _2.match(/^(?:function\s*\w*\s*)?\(\s*\w+\s*,\s*\w+\s*,\s*(\w+)\s*\)/);
+            if (!h) return d2;
+            for (var c, l = h[1], u = new RegExp("(\\\\n|\\W)" + o(l) + r, "g"); c = u.exec(_2); ) "dll-reference" !== c[3] && d2[n2].push(c[3]);
+            for (u = new RegExp("\\(" + o(l) + '\\("(dll-reference\\s(' + a2 + '))"\\)\\)' + r, "g"); c = u.exec(_2); ) e3[c[2]] || (d2[n2].push(c[1]), e3[c[2]] = i2(c[1]).m), d2[c[2]] = d2[c[2]] || [], d2[c[2]].push(c[4]);
+            for (var f = Object.keys(d2), p = 0; p < f.length; p++) for (var m = 0; m < d2[f[p]].length; m++) s2(d2[f[p]][m]) && (d2[f[p]][m] = 1 * d2[f[p]][m]);
+            return d2;
+          }
+          function _(e3) {
+            return Object.keys(e3).reduce(function(t3, i3) {
+              return t3 || e3[i3].length > 0;
+            }, false);
+          }
+          e2.exports = function(e3, t3) {
+            t3 = t3 || {};
+            var a3 = { main: i2.m }, r2 = t3.all ? { main: Object.keys(a3.main) } : function(e4, t4) {
+              for (var i3 = { main: [t4] }, n2 = { main: [] }, a4 = { main: {} }; _(i3); ) for (var r3 = Object.keys(i3), o3 = 0; o3 < r3.length; o3++) {
+                var s4 = r3[o3], h2 = i3[s4].pop();
+                if (a4[s4] = a4[s4] || {}, !a4[s4][h2] && e4[s4][h2]) {
+                  a4[s4][h2] = true, n2[s4] = n2[s4] || [], n2[s4].push(h2);
+                  for (var c2 = d(e4, e4[s4][h2], s4), l = Object.keys(c2), u = 0; u < l.length; u++) i3[l[u]] = i3[l[u]] || [], i3[l[u]] = i3[l[u]].concat(c2[l[u]]);
+                }
+              }
+              return n2;
+            }(a3, e3), o2 = "";
+            Object.keys(r2).filter(function(e4) {
+              return "main" !== e4;
+            }).forEach(function(e4) {
+              for (var t4 = 0; r2[e4][t4]; ) t4++;
+              r2[e4].push(t4), a3[e4][t4] = "(function(module, exports, __webpack_require__) { module.exports = __webpack_require__; })", o2 = o2 + "var " + e4 + " = (" + n.toString().replace("ENTRY_MODULE", JSON.stringify(t4)) + ")({" + r2[e4].map(function(t5) {
+                return JSON.stringify(t5) + ": " + a3[e4][t5].toString();
+              }).join(",") + "});\n";
+            }), o2 = o2 + "new ((" + n.toString().replace("ENTRY_MODULE", JSON.stringify(e3)) + ")({" + r2.main.map(function(e4) {
+              return JSON.stringify(e4) + ": " + a3.main[e4].toString();
+            }).join(",") + "}))(self);";
+            var s3 = new self.Blob([o2], { type: "text/javascript" });
+            if (t3.bare) return s3;
+            var h = (self.URL || self.webkitURL || self.mozURL || self.msURL).createObjectURL(s3), c = new self.Worker(h);
+            return c.objectURL = h, c;
+          };
+        }, 403: function(e2, t2) {
+          "use strict";
+          var i2;
+          !function(e3) {
+            e3.ERROR = "error", e3.SOURCE_OPEN = "source_open", e3.UPDATE_END = "update_end", e3.BUFFER_FULL = "buffer_full", e3.START_STREAMING = "start_streaming", e3.END_STREAMING = "end_streaming";
+          }(i2 || (i2 = {})), t2.A = i2;
+        }, 726: function(e2, t2) {
+          "use strict";
+          var i2;
+          !function(e3) {
+            e3.IO_ERROR = "io_error", e3.DEMUX_ERROR = "demux_error", e3.INIT_SEGMENT = "init_segment", e3.MEDIA_SEGMENT = "media_segment", e3.LOADING_COMPLETE = "loading_complete", e3.RECOVERED_EARLY_EOF = "recovered_early_eof", e3.MEDIA_INFO = "media_info", e3.METADATA_ARRIVED = "metadata_arrived", e3.SCRIPTDATA_ARRIVED = "scriptdata_arrived", e3.TIMED_ID3_METADATA_ARRIVED = "timed_id3_metadata_arrived", e3.PGS_SUBTITLE_ARRIVED = "pgs_subtitle_arrived", e3.SYNCHRONOUS_KLV_METADATA_ARRIVED = "synchronous_klv_metadata_arrived", e3.ASYNCHRONOUS_KLV_METADATA_ARRIVED = "asynchronous_klv_metadata_arrived", e3.SMPTE2038_METADATA_ARRIVED = "smpte2038_metadata_arrived", e3.SEI_ARRIVED = "sei_arrived", e3.SCTE35_METADATA_ARRIVED = "scte35_metadata_arrived", e3.PES_PRIVATE_DATA_DESCRIPTOR = "pes_private_data_descriptor", e3.PES_PRIVATE_DATA_ARRIVED = "pes_private_data_arrived", e3.STATISTICS_INFO = "statistics_info", e3.RECOMMEND_SEEKPOINT = "recommend_seekpoint";
+          }(i2 || (i2 = {})), t2.A = i2;
+        }, 877: function(e2, t2, i2) {
+          "use strict";
+          i2(856), i2(947), i2(867), i2(403), i2(346), i2(527), i2(726), i2(117), i2(355);
+        }, 117: function(e2, t2) {
+          "use strict";
+          var i2;
+          !function(e3) {
+            e3.ERROR = "error", e3.LOADING_COMPLETE = "loading_complete", e3.RECOVERED_EARLY_EOF = "recovered_early_eof", e3.MEDIA_INFO = "media_info", e3.METADATA_ARRIVED = "metadata_arrived", e3.SCRIPTDATA_ARRIVED = "scriptdata_arrived", e3.TIMED_ID3_METADATA_ARRIVED = "timed_id3_metadata_arrived", e3.PGS_SUBTITLE_ARRIVED = "pgs_subtitle_arrived", e3.SYNCHRONOUS_KLV_METADATA_ARRIVED = "synchronous_klv_metadata_arrived", e3.ASYNCHRONOUS_KLV_METADATA_ARRIVED = "asynchronous_klv_metadata_arrived", e3.SMPTE2038_METADATA_ARRIVED = "smpte2038_metadata_arrived", e3.SEI_ARRIVED = "sei_arrived", e3.SCTE35_METADATA_ARRIVED = "scte35_metadata_arrived", e3.PES_PRIVATE_DATA_DESCRIPTOR = "pes_private_data_descriptor", e3.PES_PRIVATE_DATA_ARRIVED = "pes_private_data_arrived", e3.STATISTICS_INFO = "statistics_info", e3.DESTROYING = "destroying";
+          }(i2 || (i2 = {})), t2.A = i2;
+        } }, t = {};
+        function i(n) {
+          var a2 = t[n];
+          if (void 0 !== a2) return a2.exports;
+          var r = t[n] = { exports: {} };
+          return e[n].call(r.exports, r, r.exports, i), r.exports;
+        }
+        return i.m = e, i.n = function(e2) {
+          var t2 = e2 && e2.__esModule ? function() {
+            return e2.default;
+          } : function() {
+            return e2;
+          };
+          return i.d(t2, { a: t2 }), t2;
+        }, i.d = function(e2, t2) {
+          if (Array.isArray(t2)) for (var n = 0; n < t2.length; ) {
+            var a2 = t2[n++], r = t2[n++];
+            i.o(e2, a2) ? 0 === r && n++ : 0 === r ? Object.defineProperty(e2, a2, { enumerable: true, value: t2[n++] }) : Object.defineProperty(e2, a2, { enumerable: true, get: r });
+          }
+          else for (var a2 in t2) i.o(t2, a2) && !i.o(e2, a2) && Object.defineProperty(e2, a2, { enumerable: true, get: t2[a2] });
+        }, i.g = function() {
+          if ("object" == typeof globalThis) return globalThis;
+          try {
+            return this || new Function("return this")();
+          } catch (e2) {
+            if ("object" == typeof window) return window;
+          }
+        }(), i.o = function(e2, t2) {
+          return Object.prototype.hasOwnProperty.call(e2, t2);
+        }, i(976);
+      }();
+    });
+  }
+});
+
 // node_modules/dashjs/dist/dash.all.min.js
 var require_dash_all_min = __commonJS({
   "node_modules/dashjs/dist/dash.all.min.js"(exports, module) {
@@ -18180,10 +23107,10 @@ var require_dash_all_min = __commonJS({
 });
 
 // src/index.tsx
-import React49, { Button as Button21, Select, Slider as Slider2, Toggle as Toggle3, useEffect as useEffect33, useState as useState37 } from "sdk";
+import React51, { Button as Button22, Select, Slider as Slider2, Toggle as Toggle3, useEffect as useEffect35, useState as useState39 } from "sdk";
 
 // src/pages/MainPage.tsx
-import React48, { Button as Button20, useEffect as useEffect32, useState as useState36 } from "sdk";
+import React50, { Button as Button21, useEffect as useEffect34, useState as useState38 } from "sdk";
 
 // src/components/BiliAppShell.tsx
 import React3 from "sdk";
@@ -21507,6 +26434,406 @@ button.bili-dynamic-stat {
   justify-content: flex-end;
   padding: 0 20px 8px;
 }
+
+/* ---------- P6 \u76F4\u64AD feed ---------- */
+.bili-live-feed {
+  display: grid;
+  gap: 12px;
+}
+.bili-live-areas {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 2px;
+}
+.bili-live-subareas {
+  margin-top: -6px;
+}
+.bili-live-area {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-area-active {
+  background: color-mix(in srgb, hsl(var(--primary, 240 100% 60%)) 14%, transparent);
+  border-color: hsl(var(--primary, 240 100% 60%));
+  color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-live-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.bili-live-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 220ms var(--bili-spring), box-shadow 220ms var(--bili-ease);
+}
+.bili-live-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+}
+.bili-live-card-cover {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 40%, transparent);
+}
+.bili-live-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bili-live-card-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(240, 71, 71, 0.9);
+}
+.bili-live-card-online {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+}
+.bili-live-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.7em;
+}
+.bili-live-card-owner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.bili-live-card-face {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+.bili-live-card-name {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-live-card-area {
+  font-size: 11px;
+  color: hsl(var(--primary, 240 100% 60%));
+  margin-left: auto;
+  flex: none;
+}
+.bili-live-empty {
+  padding: 28px 0;
+  text-align: center;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-more {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+/* ---------- P6 \u76F4\u64AD\u95F4\u89C6\u56FE ---------- */
+.bili-live {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+  padding: 12px;
+  align-items: start;
+}
+.bili-live-main {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.bili-live-player {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+}
+.bili-live-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+.bili-live-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.55);
+  text-align: center;
+  padding: 16px;
+}
+.bili-live-room-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+}
+.bili-live-room-head {
+  display: grid;
+  gap: 6px;
+}
+.bili-live-room-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.bili-live-room-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-room-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: rgba(120, 120, 120, 0.25);
+}
+.bili-live-room-status-on {
+  background: rgba(240, 71, 71, 0.16);
+  color: #f04747;
+}
+.bili-live-room-desc {
+  font-size: 13px;
+  color: hsl(var(--muted-foreground, 0 0% 55%));
+  line-height: 1.6;
+  margin: 0;
+  max-height: 3.2em;
+  overflow: hidden;
+}
+.bili-live-room-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-room-uid {
+  border: none;
+  background: none;
+  color: hsl(var(--primary, 240 100% 60%));
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+.bili-live-side {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 8px;
+  min-height: 420px;
+  max-height: calc(100vh - 140px);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  padding: 10px;
+}
+.bili-live-danmaku-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  padding-bottom: 6px;
+  border-bottom: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 40%, transparent);
+}
+.bili-live-ws {
+  font-size: 11px;
+  font-weight: 400;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-live-ws-on {
+  color: #46b250;
+}
+.bili-live-danmaku-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 2px;
+  font-size: 13px;
+  min-height: 0;
+}
+.bili-live-danmaku-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  line-height: 1.5;
+  animation: bili-fade-in 220ms var(--bili-ease);
+}
+.bili-live-danmaku-user {
+  font-weight: 600;
+  color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-live-danmaku-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bili-live-danmaku-gift {
+  background: rgba(255, 215, 64, 0.1);
+  border: 1px solid rgba(255, 215, 64, 0.35);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+.bili-live-danmaku-gift .bili-live-danmaku-user {
+  color: #e0a800;
+}
+.bili-live-danmaku-sc {
+  background: rgba(96, 165, 250, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.bili-live-danmaku-sc .bili-live-danmaku-user {
+  color: #60a5fa;
+}
+.bili-live-danmaku-detail {
+  color: #e0a800;
+  font-weight: 700;
+}
+.bili-live-danmaku-system {
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  font-size: 12px;
+  width: 100%;
+  text-align: center;
+}
+.bili-live-send {
+  display: flex;
+  gap: 8px;
+}
+.bili-live-send-input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 40%, transparent);
+  color: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.bili-live-send-input:focus {
+  border-color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-live-send-btn {
+  flex: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  background: hsl(var(--primary, 240 100% 60%));
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.bili-live-send-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.bili-live-send-error {
+  font-size: 12px;
+  color: #f04747;
+}
+.bili-live-quality {
+  position: relative;
+}
+.bili-live-quality-btn {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.bili-live-quality-menu {
+  position: absolute;
+  right: 0;
+  bottom: 110%;
+  z-index: 30;
+  display: grid;
+  gap: 2px;
+  min-width: 140px;
+  padding: 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, transparent);
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  animation: bili-popover-in 160ms var(--bili-ease);
+}
+.bili-live-quality-option {
+  text-align: left;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.bili-live-quality-option:hover {
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 50%, transparent);
+}
+.bili-live-quality-option-active {
+  color: hsl(var(--primary, 240 100% 60%));
+  font-weight: 600;
+}
+@media (max-width: 900px) {
+  .bili-live {
+    grid-template-columns: 1fr;
+  }
+  .bili-live-side {
+    max-height: 480px;
+    min-height: 360px;
+  }
+}
 `;
 
 // src/components/BiliTopNav.tsx
@@ -21545,6 +26872,10 @@ function openSeason(seasonId) {
 function openDynDetail(dynId) {
   stack.push(memory);
   switchView({ name: "dynDetail", dynId });
+}
+function openLive(roomId) {
+  stack.push(memory);
+  switchView({ name: "live", roomId });
 }
 function openMessages() {
   stack.push(memory);
@@ -22063,13 +27394,17 @@ import React5 from "sdk";
 function DynamicCard({ card, onLike, onOpenVideo, hideImages }) {
   const [liking, setLiking] = React5.useState(false);
   function openCard() {
-    if (!card.dynId && card.cardType !== "video") return;
+    if (!card.dynId && card.cardType !== "video" && card.cardType !== "live") return;
     if (card.cardType === "video") {
       if (onOpenVideo) {
         onOpenVideo(card);
       } else if (card.video?.bvid) {
         openWatch({ name: "watch", bvid: card.video.bvid, aid: card.video.aid || void 0, cid: 0 });
       }
+      return;
+    }
+    if (card.cardType === "live" && card.live?.roomId) {
+      openLive(card.live.roomId);
       return;
     }
     openDynDetail(card.dynId);
@@ -22210,7 +27545,7 @@ function DynamicPage() {
 }
 
 // src/pages/HomePage.tsx
-import React18, { Button as Button5, useEffect as useEffect12, useState as useState12 } from "sdk";
+import React19, { Button as Button6, useEffect as useEffect13, useState as useState13 } from "sdk";
 
 // src/components/HomeFeed.tsx
 import React9 from "sdk";
@@ -22257,8 +27592,7 @@ var TABS = [
   { key: "search", label: "\u641C\u7D22", available: true },
   { key: "bangumi", label: "\u8FFD\u756A", available: true },
   { key: "cinema", label: "\u5F71\u89C6", available: true },
-  // 直播由 P6 填充，当前为禁用占位
-  { key: "live", label: "\u76F4\u64AD", available: false }
+  { key: "live", label: "\u76F4\u64AD", available: true }
 ];
 function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onSearch, onBangumi, onCinema, onLive }) {
   const handlers = {
@@ -22317,377 +27651,19 @@ function HomeFeed({
   ), /* @__PURE__ */ React9.createElement("span", null, loading ? "\u52A0\u8F7D\u4E2D" : `${videos.length} \u6761`)), comingSoon ? /* @__PURE__ */ React9.createElement("div", { className: "bili-state" }, "\u529F\u80FD\u5F00\u53D1\u4E2D\uFF0C\u656C\u8BF7\u671F\u5F85") : searchGuide ? searchEmpty ?? /* @__PURE__ */ React9.createElement("div", { className: "bili-state" }, "\u8F93\u5165\u5173\u952E\u8BCD\u5F00\u59CB\u641C\u7D22") : /* @__PURE__ */ React9.createElement(React9.Fragment, null, mode === "search" ? /* @__PURE__ */ React9.createElement("div", { className: "bili-feed-context" }, "\u641C\u7D22\u7ED3\u679C") : null, error ? /* @__PURE__ */ React9.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React9.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891") : null, !error && !loading && videos.length === 0 ? /* @__PURE__ */ React9.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u89C6\u9891") : null, !error && videos.length > 0 ? /* @__PURE__ */ React9.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React9.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null));
 }
 
-// src/components/HotSubTabs.tsx
-import React10, { Button as Button4 } from "sdk";
-var SUBS = [
-  { key: "all", label: "\u7EFC\u5408\u70ED\u95E8" },
-  { key: "ranking", label: "\u6392\u884C\u699C" },
-  { key: "weekly", label: "\u6BCF\u5468\u5FC5\u770B" },
-  { key: "precious", label: "\u5165\u7AD9\u5FC5\u5237" }
-];
-function HotSubTabs({ sub, onSub }) {
-  return /* @__PURE__ */ React10.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u70ED\u95E8\u5206\u7C7B" }, SUBS.map((item) => /* @__PURE__ */ React10.createElement(
-    Button4,
-    {
-      key: item.key,
-      "aria-selected": sub === item.key,
-      className: sub === item.key ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
-      variant: "ghost",
-      size: "sm",
-      role: "tab",
-      type: "button",
-      onClick: () => onSub(item.key)
-    },
-    item.label
-  )));
-}
-
-// src/components/PgcSectionFeed.tsx
-import React12, { useEffect as useEffect5, useState as useState5 } from "sdk";
-
-// src/components/PgcCard.tsx
-import React11 from "sdk";
-function PgcCard({ card }) {
-  return /* @__PURE__ */ React11.createElement("button", { className: "bili-pgc-card", type: "button", onClick: () => openSeason(card.seasonId) }, /* @__PURE__ */ React11.createElement("span", { className: "bili-cover-wrap" }, card.cover ? /* @__PURE__ */ React11.createElement(BiliImage, { className: "bili-pgc-cover", src: card.cover, loading: "lazy" }) : /* @__PURE__ */ React11.createElement("span", { className: "bili-cover-empty" }, "Bilibili"), card.score != null ? /* @__PURE__ */ React11.createElement("span", { className: "bili-pgc-score" }, card.score.toFixed(1)) : null), /* @__PURE__ */ React11.createElement("span", { className: "bili-video-body" }, /* @__PURE__ */ React11.createElement("strong", { title: card.title }, card.title || "\u672A\u547D\u540D\u756A\u5267"), /* @__PURE__ */ React11.createElement("small", null, card.indexShow || "\u656C\u8BF7\u671F\u5F85")));
-}
-
-// src/components/PgcSectionFeed.tsx
-function PgcSectionFeed({ kind }) {
-  const [sections, setSections] = useState5([]);
-  const [loading, setLoading] = useState5(false);
-  const [error, setError] = useState5("");
-  useEffect5(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError("");
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    sdk.bilibili.season.pgcTabs({ kind }).then((data) => {
-      if (!cancelled) {
-        setSections(data);
-        setLoading(false);
-      }
-    }).catch((reason) => {
-      if (!cancelled) {
-        setError(reason.message);
-        setLoading(false);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [kind]);
-  return /* @__PURE__ */ React12.createElement("section", { className: "bili-pgc-feed" }, error ? /* @__PURE__ */ React12.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React12.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D") : null, !error && !loading && sections.length === 0 ? /* @__PURE__ */ React12.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u5185\u5BB9") : null, !error && sections.map(
-    (section) => section.items.length > 0 ? /* @__PURE__ */ React12.createElement("div", { className: "bili-pgc-section", key: section.title }, /* @__PURE__ */ React12.createElement("div", { className: "bili-pgc-section-title" }, section.title), /* @__PURE__ */ React12.createElement("div", { className: "bili-pgc-track" }, section.items.map((card) => /* @__PURE__ */ React12.createElement(PgcCard, { key: `${card.seasonId}-${card.seasonType}`, card })))) : null
-  ));
-}
-
-// src/components/PreciousPanel.tsx
-import React13, { useEffect as useEffect6, useState as useState6 } from "sdk";
-function PreciousPanel() {
-  const [title, setTitle] = useState6("");
-  const [explain, setExplain] = useState6("");
-  const [videos, setVideos] = useState6([]);
-  const [loading, setLoading] = useState6(false);
-  const [error, setError] = useState6("");
-  useEffect6(() => {
-    let cancelled = false;
-    setLoading(true);
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    sdk.bilibili.ranking.precious().then((data) => {
-      if (!cancelled) {
-        setTitle(data.title);
-        setExplain(data.explain);
-        setVideos(data.videos);
-        setLoading(false);
-      }
-    }).catch((reason) => {
-      if (!cancelled) {
-        setError(reason.message);
-        setLoading(false);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  return /* @__PURE__ */ React13.createElement("section", { className: "bili-rank-panel" }, title ? /* @__PURE__ */ React13.createElement("div", { className: "bili-precious-head" }, /* @__PURE__ */ React13.createElement("div", { className: "bili-precious-title" }, title), explain ? /* @__PURE__ */ React13.createElement("div", { className: "bili-precious-explain" }, explain) : null) : null, error ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u5165\u7AD9\u5FC5\u5237") : null, !error && !loading && videos.length === 0 ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u89C6\u9891") : null, !error && videos.length > 0 ? /* @__PURE__ */ React13.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React13.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null);
-}
-
-// src/components/RankingPanel.tsx
-import React14, { useEffect as useEffect7, useState as useState7 } from "sdk";
-var RIDS = [
-  { rid: 0, name: "\u5168\u7AD9" },
-  { rid: 1, name: "\u52A8\u753B" },
-  { rid: 3, name: "\u97F3\u4E50" },
-  { rid: 129, name: "\u821E\u8E48" },
-  { rid: 4, name: "\u6E38\u620F" },
-  { rid: 36, name: "\u77E5\u8BC6" },
-  { rid: 188, name: "\u79D1\u6280" },
-  { rid: 234, name: "\u8FD0\u52A8" },
-  { rid: 223, name: "\u6C7D\u8F66" },
-  { rid: 160, name: "\u751F\u6D3B" },
-  { rid: 211, name: "\u7F8E\u98DF" },
-  { rid: 217, name: "\u52A8\u7269\u5708" },
-  { rid: 119, name: "\u9B3C\u755C" },
-  { rid: 155, name: "\u65F6\u5C1A" },
-  { rid: 5, name: "\u5A31\u4E50" },
-  { rid: 181, name: "\u5F71\u89C6" }
-];
-var PGC_TYPES = [
-  { type: 1, name: "\u756A\u5267" },
-  { type: 4, name: "\u56FD\u521B" },
-  { type: 2, name: "\u7535\u5F71" },
-  { type: 5, name: "\u7535\u89C6\u5267" },
-  { type: 3, name: "\u7EAA\u5F55\u7247" },
-  { type: 7, name: "\u7EFC\u827A" }
-];
-function RankingPanel() {
-  const [tab, setTab] = useState7("video");
-  const [rid, setRid] = useState7(0);
-  const [videos, setVideos] = useState7([]);
-  const [pgcType, setPgcType] = useState7(1);
-  const [pgcVideos, setPgcVideos] = useState7([]);
-  const [loading, setLoading] = useState7(false);
-  const [error, setError] = useState7("");
-  useEffect7(() => {
-    if (tab !== "video") return;
-    let cancelled = false;
-    setLoading(true);
-    setError("");
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    sdk.bilibili.ranking.videos(rid).then((data) => {
-      if (!cancelled) {
-        setVideos(data);
-        setLoading(false);
-      }
-    }).catch((reason) => {
-      if (!cancelled) {
-        setError(errorMessage(reason));
-        setLoading(false);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [tab, rid]);
-  useEffect7(() => {
-    if (tab !== "pgc") return;
-    let cancelled = false;
-    setLoading(true);
-    setError("");
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    sdk.bilibili.season.pgcRank({ seasonType: pgcType }).then((data) => {
-      if (!cancelled) {
-        setPgcVideos(data);
-        setLoading(false);
-      }
-    }).catch((reason) => {
-      if (!cancelled) {
-        setError(errorMessage(reason));
-        setLoading(false);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [tab, pgcType]);
-  return /* @__PURE__ */ React14.createElement("section", { className: "bili-rank-panel" }, /* @__PURE__ */ React14.createElement("div", { className: "bili-rank-tabs" }, /* @__PURE__ */ React14.createElement(
-    "button",
-    {
-      type: "button",
-      className: tab === "video" ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
-      onClick: () => setTab("video")
-    },
-    "\u89C6\u9891\u699C"
-  ), /* @__PURE__ */ React14.createElement(
-    "button",
-    {
-      type: "button",
-      className: tab === "pgc" ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
-      onClick: () => setTab("pgc")
-    },
-    "PGC \u699C"
-  )), tab === "video" ? /* @__PURE__ */ React14.createElement("div", { className: "bili-rank-rids" }, RIDS.map((item) => /* @__PURE__ */ React14.createElement(
-    "button",
-    {
-      key: item.rid,
-      type: "button",
-      className: rid === item.rid ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
-      onClick: () => setRid(item.rid)
-    },
-    item.name
-  ))) : /* @__PURE__ */ React14.createElement("div", { className: "bili-rank-rids" }, PGC_TYPES.map((item) => /* @__PURE__ */ React14.createElement(
-    "button",
-    {
-      key: item.type,
-      type: "button",
-      className: pgcType === item.type ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
-      onClick: () => setPgcType(item.type)
-    },
-    item.name
-  ))), error ? /* @__PURE__ */ React14.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React14.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u6392\u884C\u699C") : null, !error && !loading && tab === "video" && videos.length === 0 ? /* @__PURE__ */ React14.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u699C\u5355\u6570\u636E") : null, !error && !loading && tab === "pgc" && pgcVideos.length === 0 ? /* @__PURE__ */ React14.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u699C\u5355\u6570\u636E") : null, !error && tab === "video" && videos.length > 0 ? /* @__PURE__ */ React14.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React14.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null, !error && tab === "pgc" && pgcVideos.length > 0 ? /* @__PURE__ */ React14.createElement("div", { className: "bili-pgc-track bili-pgc-track-wrap" }, pgcVideos.map((card) => /* @__PURE__ */ React14.createElement(PgcCard, { key: `${card.seasonId}-${card.seasonType}`, card }))) : null);
-}
-
-// src/components/SearchBox.tsx
-import React15, { TextField, useEffect as useEffect8, useRef as useRef3, useState as useState8 } from "sdk";
-function SearchBox({ value, onChange, onSubmit, placeholder, disabled }) {
-  const [suggestions, setSuggestions] = useState8([]);
-  const [open, setOpen] = useState8(false);
-  const containerRef = useRef3(null);
-  useEffect8(() => {
-    const keyword = value.trim();
-    if (!keyword) {
-      setSuggestions([]);
-      setOpen(false);
-      return;
-    }
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      const sdk = getState().sdk;
-      if (!sdk) return;
-      sdk.bilibili.search.suggest(keyword).then((data) => {
-        if (!cancelled) {
-          setSuggestions(data);
-          setOpen(data.length > 0);
-        }
-      }).catch(() => {
-        if (!cancelled) {
-          setSuggestions([]);
-          setOpen(false);
-        }
-      });
-    }, 300);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [value]);
-  useEffect8(() => {
-    function onDocumentClick(event) {
-      const el = containerRef.current;
-      if (el && event.target instanceof Node && !el.contains(event.target)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", onDocumentClick);
-    return () => document.removeEventListener("mousedown", onDocumentClick);
-  }, []);
-  function pickSuggestion(keyword) {
-    onChange(keyword);
-    setOpen(false);
-    onSubmit();
-  }
-  return /* @__PURE__ */ React15.createElement("div", { className: "bili-search-box", ref: containerRef }, /* @__PURE__ */ React15.createElement(
-    TextField,
-    {
-      value,
-      disabled,
-      onChange: (event) => onChange(event.currentTarget.value),
-      placeholder,
-      onFocus: () => {
-        if (suggestions.length > 0) setOpen(true);
-      }
-    }
-  ), open ? /* @__PURE__ */ React15.createElement("ul", { className: "bili-suggest-dropdown", role: "listbox" }, suggestions.map((item, index) => /* @__PURE__ */ React15.createElement("li", { key: `${item}-${index}` }, /* @__PURE__ */ React15.createElement("button", { type: "button", className: "bili-suggest-item", onClick: () => pickSuggestion(item) }, item)))) : null);
-}
-
-// src/components/SearchEmptyPanel.tsx
-import React16, { useEffect as useEffect9, useState as useState9 } from "sdk";
-function SearchEmptyPanel({ history, onPick, onClearHistory }) {
-  const [hotwords, setHotwords] = useState9([]);
-  const [loading, setLoading] = useState9(false);
-  useEffect9(() => {
-    let cancelled = false;
-    setLoading(true);
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    sdk.bilibili.search.hotwords().then((data) => {
-      if (!cancelled) {
-        setHotwords(data);
-        setLoading(false);
-      }
-    }).catch(() => {
-      if (!cancelled) setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  return /* @__PURE__ */ React16.createElement("div", { className: "bili-search-empty" }, history.length > 0 ? /* @__PURE__ */ React16.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React16.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React16.createElement("span", null, "\u641C\u7D22\u5386\u53F2"), /* @__PURE__ */ React16.createElement("button", { type: "button", className: "bili-search-clear", onClick: onClearHistory }, "\u6E05\u7A7A")), /* @__PURE__ */ React16.createElement("div", { className: "bili-search-words" }, history.map((item) => /* @__PURE__ */ React16.createElement("button", { key: item, type: "button", className: "bili-search-word", onClick: () => onPick(item) }, item)))) : null, /* @__PURE__ */ React16.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React16.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React16.createElement("span", null, "\u70ED\u641C\u699C")), loading ? /* @__PURE__ */ React16.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u70ED\u641C") : hotwords.length > 0 ? /* @__PURE__ */ React16.createElement("ol", { className: "bili-hotword-list" }, hotwords.slice(0, 20).map((item, index) => /* @__PURE__ */ React16.createElement("li", { key: item.keyword }, /* @__PURE__ */ React16.createElement("button", { type: "button", className: "bili-hotword-item", onClick: () => onPick(item.showName || item.keyword) }, /* @__PURE__ */ React16.createElement("span", { className: index < 3 ? "bili-hotword-rank bili-hotword-rank-top" : "bili-hotword-rank" }, index + 1), item.showName || item.keyword)))) : /* @__PURE__ */ React16.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u70ED\u641C")));
-}
-
-// src/components/WeeklyPanel.tsx
-import React17, { useEffect as useEffect10, useState as useState10 } from "sdk";
-function WeeklyPanel() {
-  const [series, setSeries] = useState10([]);
-  const [number, setNumber] = useState10(null);
-  const [videos, setVideos] = useState10([]);
-  const [loading, setLoading] = useState10(false);
-  const [error, setError] = useState10("");
-  useEffect10(() => {
-    let cancelled = false;
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    sdk.bilibili.ranking.weeks().then((data) => {
-      if (!cancelled) {
-        setSeries(data);
-        setNumber((previous) => previous ?? data[0]?.number ?? null);
-      }
-    }).catch((reason) => {
-      if (!cancelled) setError(reason.message);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  useEffect10(() => {
-    if (number == null) return;
-    let cancelled = false;
-    setLoading(true);
-    setError("");
-    const sdk = getState().sdk;
-    if (!sdk) return;
-    sdk.bilibili.ranking.weekDetail(number).then((data) => {
-      if (!cancelled) {
-        setVideos(data);
-        setLoading(false);
-      }
-    }).catch((reason) => {
-      if (!cancelled) {
-        setError(reason.message);
-        setLoading(false);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [number]);
-  return /* @__PURE__ */ React17.createElement("section", { className: "bili-rank-panel" }, /* @__PURE__ */ React17.createElement("div", { className: "bili-rank-rids" }, series.map((item) => /* @__PURE__ */ React17.createElement(
-    "button",
-    {
-      key: item.number,
-      type: "button",
-      className: number === item.number ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
-      onClick: () => setNumber(item.number)
-    },
-    item.name || `\u7B2C ${item.number} \u671F`
-  ))), error ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u6BCF\u5468\u5FC5\u770B") : null, !error && !loading && videos.length === 0 && number != null ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u89C6\u9891") : null, !error && videos.length > 0 ? /* @__PURE__ */ React17.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React17.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null);
-}
+// src/components/LiveFeed.tsx
+import React10, { Button as Button4, useEffect as useEffect6, useState as useState6 } from "sdk";
 
 // src/hooks/usePagedFeed.ts
-import { useEffect as useEffect11, useRef as useRef4, useState as useState11 } from "sdk";
+import { useEffect as useEffect5, useRef as useRef3, useState as useState5 } from "sdk";
 function usePagedFeed(fetcher, options = {}) {
   const { key, enabled = true } = options;
-  const [items, setItems] = useState11([]);
-  const [page, setPage] = useState11(1);
-  const [loading, setLoading] = useState11(false);
-  const [error, setError] = useState11("");
-  const requestSeqRef = useRef4(0);
-  useEffect11(() => {
+  const [items, setItems] = useState5([]);
+  const [page, setPage] = useState5(1);
+  const [loading, setLoading] = useState5(false);
+  const [error, setError] = useState5("");
+  const requestSeqRef = useRef3(0);
+  useEffect5(() => {
     if (!enabled) {
       requestSeqRef.current += 1;
       setItems([]);
@@ -22727,27 +27703,471 @@ function usePagedFeed(fetcher, options = {}) {
   return { items, page, loading, error, reload, reset };
 }
 
+// src/components/LiveFeed.tsx
+function LiveFeed({ onOpenLive }) {
+  const feed = usePagedFeed(
+    (page, _refresh) => homeCall((sdk) => sdk.bilibili.live.recommend({ page })).then((result) => result.rooms),
+    { key: "live-feed" }
+  );
+  const [areas, setAreas] = useState6([]);
+  const [parentId, setParentId] = useState6(0);
+  const [subId, setSubId] = useState6(0);
+  useEffect6(() => {
+    homeCall((sdk) => sdk.bilibili.live.areas()).then((list) => setAreas(list)).catch(() => setAreas([]));
+  }, []);
+  const activeArea = areas.find((area) => area.id === parentId) ?? null;
+  const activeSub = activeArea?.children.find((sub) => sub.id === subId) ?? null;
+  const rooms = feed.items.filter((room) => {
+    if (!activeArea) return true;
+    if (activeArea.name !== room.areaParentName) return false;
+    if (activeSub && activeSub.name !== room.areaName) return false;
+    return true;
+  });
+  function pickParent(id) {
+    setParentId(id);
+    setSubId(0);
+  }
+  return /* @__PURE__ */ React10.createElement("div", { className: "bili-live-feed" }, /* @__PURE__ */ React10.createElement("div", { className: "bili-live-areas" }, /* @__PURE__ */ React10.createElement(
+    Button4,
+    {
+      className: parentId === 0 ? "bili-live-area bili-live-area-active" : "bili-live-area",
+      size: "sm",
+      type: "button",
+      variant: "ghost",
+      onClick: () => pickParent(0)
+    },
+    "\u5168\u90E8"
+  ), areas.map((area) => /* @__PURE__ */ React10.createElement(
+    Button4,
+    {
+      key: area.id,
+      className: parentId === area.id ? "bili-live-area bili-live-area-active" : "bili-live-area",
+      size: "sm",
+      type: "button",
+      variant: "ghost",
+      onClick: () => pickParent(area.id)
+    },
+    area.name
+  ))), activeArea && activeArea.children.length > 0 ? /* @__PURE__ */ React10.createElement("div", { className: "bili-live-areas bili-live-subareas" }, /* @__PURE__ */ React10.createElement(
+    Button4,
+    {
+      className: subId === 0 ? "bili-live-area bili-live-area-active" : "bili-live-area",
+      size: "sm",
+      type: "button",
+      variant: "ghost",
+      onClick: () => setSubId(0)
+    },
+    "\u5168\u90E8\u5206\u533A"
+  ), activeArea.children.map((sub) => /* @__PURE__ */ React10.createElement(
+    Button4,
+    {
+      key: sub.id,
+      className: subId === sub.id ? "bili-live-area bili-live-area-active" : "bili-live-area",
+      size: "sm",
+      type: "button",
+      variant: "ghost",
+      onClick: () => setSubId(sub.id)
+    },
+    sub.name
+  ))) : null, feed.error ? /* @__PURE__ */ React10.createElement("div", { className: "bili-feed-error" }, feed.error) : null, !feed.loading && rooms.length === 0 && !feed.error ? /* @__PURE__ */ React10.createElement("div", { className: "bili-live-empty" }, "\u8BE5\u5206\u533A\u6682\u65E0\u63A8\u8350\u76F4\u64AD") : null, rooms.length > 0 ? /* @__PURE__ */ React10.createElement(React10.Fragment, null, /* @__PURE__ */ React10.createElement("div", { className: "bili-live-grid" }, rooms.map((room) => /* @__PURE__ */ React10.createElement(LiveCard, { key: room.roomId, room, onOpen: () => onOpenLive(room.roomId) }))), /* @__PURE__ */ React10.createElement("div", { className: "bili-live-more" }, /* @__PURE__ */ React10.createElement(Button4, { size: "sm", variant: "outline", type: "button", onClick: feed.reload, disabled: feed.loading }, feed.loading ? "\u52A0\u8F7D\u4E2D\u2026" : "\u6362\u4E00\u6279"))) : null);
+}
+function LiveCard({ room, onOpen }) {
+  return /* @__PURE__ */ React10.createElement("button", { type: "button", className: "bili-live-card", onClick: onOpen }, /* @__PURE__ */ React10.createElement("div", { className: "bili-live-card-cover" }, /* @__PURE__ */ React10.createElement(BiliImage, { className: "bili-live-card-img", src: room.cover, alt: room.title, loading: "lazy" }), /* @__PURE__ */ React10.createElement("span", { className: "bili-live-card-badge" }, "\u76F4\u64AD\u4E2D"), /* @__PURE__ */ React10.createElement("span", { className: "bili-live-card-online" }, formatOnline(room.online), "\u4EBA")), /* @__PURE__ */ React10.createElement("strong", { className: "bili-live-card-title", title: room.title }, room.title || "\u672A\u547D\u540D\u76F4\u64AD"), /* @__PURE__ */ React10.createElement("div", { className: "bili-live-card-owner" }, /* @__PURE__ */ React10.createElement(BiliImage, { className: "bili-live-card-face", src: room.face, alt: room.uname, loading: "lazy" }), /* @__PURE__ */ React10.createElement("span", { className: "bili-live-card-name" }, room.uname), /* @__PURE__ */ React10.createElement("small", { className: "bili-live-card-area" }, room.areaName)));
+}
+function formatOnline(count) {
+  if (count >= 1e4) {
+    return `${(count / 1e4).toFixed(1).replace(/\.0$/, "")}\u4E07`;
+  }
+  return String(count);
+}
+function homeCall(call) {
+  const sdk = getState().sdk;
+  if (!sdk) return Promise.reject(new Error("Bilibili \u63D2\u4EF6\u5C1A\u672A\u521D\u59CB\u5316"));
+  return call(sdk);
+}
+
+// src/components/HotSubTabs.tsx
+import React11, { Button as Button5 } from "sdk";
+var SUBS = [
+  { key: "all", label: "\u7EFC\u5408\u70ED\u95E8" },
+  { key: "ranking", label: "\u6392\u884C\u699C" },
+  { key: "weekly", label: "\u6BCF\u5468\u5FC5\u770B" },
+  { key: "precious", label: "\u5165\u7AD9\u5FC5\u5237" }
+];
+function HotSubTabs({ sub, onSub }) {
+  return /* @__PURE__ */ React11.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u70ED\u95E8\u5206\u7C7B" }, SUBS.map((item) => /* @__PURE__ */ React11.createElement(
+    Button5,
+    {
+      key: item.key,
+      "aria-selected": sub === item.key,
+      className: sub === item.key ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      variant: "ghost",
+      size: "sm",
+      role: "tab",
+      type: "button",
+      onClick: () => onSub(item.key)
+    },
+    item.label
+  )));
+}
+
+// src/components/PgcSectionFeed.tsx
+import React13, { useEffect as useEffect7, useState as useState7 } from "sdk";
+
+// src/components/PgcCard.tsx
+import React12 from "sdk";
+function PgcCard({ card }) {
+  return /* @__PURE__ */ React12.createElement("button", { className: "bili-pgc-card", type: "button", onClick: () => openSeason(card.seasonId) }, /* @__PURE__ */ React12.createElement("span", { className: "bili-cover-wrap" }, card.cover ? /* @__PURE__ */ React12.createElement(BiliImage, { className: "bili-pgc-cover", src: card.cover, loading: "lazy" }) : /* @__PURE__ */ React12.createElement("span", { className: "bili-cover-empty" }, "Bilibili"), card.score != null ? /* @__PURE__ */ React12.createElement("span", { className: "bili-pgc-score" }, card.score.toFixed(1)) : null), /* @__PURE__ */ React12.createElement("span", { className: "bili-video-body" }, /* @__PURE__ */ React12.createElement("strong", { title: card.title }, card.title || "\u672A\u547D\u540D\u756A\u5267"), /* @__PURE__ */ React12.createElement("small", null, card.indexShow || "\u656C\u8BF7\u671F\u5F85")));
+}
+
+// src/components/PgcSectionFeed.tsx
+function PgcSectionFeed({ kind }) {
+  const [sections, setSections] = useState7([]);
+  const [loading, setLoading] = useState7(false);
+  const [error, setError] = useState7("");
+  useEffect7(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.season.pgcTabs({ kind }).then((data) => {
+      if (!cancelled) {
+        setSections(data);
+        setLoading(false);
+      }
+    }).catch((reason) => {
+      if (!cancelled) {
+        setError(reason.message);
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [kind]);
+  return /* @__PURE__ */ React13.createElement("section", { className: "bili-pgc-feed" }, error ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D") : null, !error && !loading && sections.length === 0 ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u5185\u5BB9") : null, !error && sections.map(
+    (section) => section.items.length > 0 ? /* @__PURE__ */ React13.createElement("div", { className: "bili-pgc-section", key: section.title }, /* @__PURE__ */ React13.createElement("div", { className: "bili-pgc-section-title" }, section.title), /* @__PURE__ */ React13.createElement("div", { className: "bili-pgc-track" }, section.items.map((card) => /* @__PURE__ */ React13.createElement(PgcCard, { key: `${card.seasonId}-${card.seasonType}`, card })))) : null
+  ));
+}
+
+// src/components/PreciousPanel.tsx
+import React14, { useEffect as useEffect8, useState as useState8 } from "sdk";
+function PreciousPanel() {
+  const [title, setTitle] = useState8("");
+  const [explain, setExplain] = useState8("");
+  const [videos, setVideos] = useState8([]);
+  const [loading, setLoading] = useState8(false);
+  const [error, setError] = useState8("");
+  useEffect8(() => {
+    let cancelled = false;
+    setLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.ranking.precious().then((data) => {
+      if (!cancelled) {
+        setTitle(data.title);
+        setExplain(data.explain);
+        setVideos(data.videos);
+        setLoading(false);
+      }
+    }).catch((reason) => {
+      if (!cancelled) {
+        setError(reason.message);
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return /* @__PURE__ */ React14.createElement("section", { className: "bili-rank-panel" }, title ? /* @__PURE__ */ React14.createElement("div", { className: "bili-precious-head" }, /* @__PURE__ */ React14.createElement("div", { className: "bili-precious-title" }, title), explain ? /* @__PURE__ */ React14.createElement("div", { className: "bili-precious-explain" }, explain) : null) : null, error ? /* @__PURE__ */ React14.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React14.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u5165\u7AD9\u5FC5\u5237") : null, !error && !loading && videos.length === 0 ? /* @__PURE__ */ React14.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u89C6\u9891") : null, !error && videos.length > 0 ? /* @__PURE__ */ React14.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React14.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null);
+}
+
+// src/components/RankingPanel.tsx
+import React15, { useEffect as useEffect9, useState as useState9 } from "sdk";
+var RIDS = [
+  { rid: 0, name: "\u5168\u7AD9" },
+  { rid: 1, name: "\u52A8\u753B" },
+  { rid: 3, name: "\u97F3\u4E50" },
+  { rid: 129, name: "\u821E\u8E48" },
+  { rid: 4, name: "\u6E38\u620F" },
+  { rid: 36, name: "\u77E5\u8BC6" },
+  { rid: 188, name: "\u79D1\u6280" },
+  { rid: 234, name: "\u8FD0\u52A8" },
+  { rid: 223, name: "\u6C7D\u8F66" },
+  { rid: 160, name: "\u751F\u6D3B" },
+  { rid: 211, name: "\u7F8E\u98DF" },
+  { rid: 217, name: "\u52A8\u7269\u5708" },
+  { rid: 119, name: "\u9B3C\u755C" },
+  { rid: 155, name: "\u65F6\u5C1A" },
+  { rid: 5, name: "\u5A31\u4E50" },
+  { rid: 181, name: "\u5F71\u89C6" }
+];
+var PGC_TYPES = [
+  { type: 1, name: "\u756A\u5267" },
+  { type: 4, name: "\u56FD\u521B" },
+  { type: 2, name: "\u7535\u5F71" },
+  { type: 5, name: "\u7535\u89C6\u5267" },
+  { type: 3, name: "\u7EAA\u5F55\u7247" },
+  { type: 7, name: "\u7EFC\u827A" }
+];
+function RankingPanel() {
+  const [tab, setTab] = useState9("video");
+  const [rid, setRid] = useState9(0);
+  const [videos, setVideos] = useState9([]);
+  const [pgcType, setPgcType] = useState9(1);
+  const [pgcVideos, setPgcVideos] = useState9([]);
+  const [loading, setLoading] = useState9(false);
+  const [error, setError] = useState9("");
+  useEffect9(() => {
+    if (tab !== "video") return;
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.ranking.videos(rid).then((data) => {
+      if (!cancelled) {
+        setVideos(data);
+        setLoading(false);
+      }
+    }).catch((reason) => {
+      if (!cancelled) {
+        setError(errorMessage(reason));
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, rid]);
+  useEffect9(() => {
+    if (tab !== "pgc") return;
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.season.pgcRank({ seasonType: pgcType }).then((data) => {
+      if (!cancelled) {
+        setPgcVideos(data);
+        setLoading(false);
+      }
+    }).catch((reason) => {
+      if (!cancelled) {
+        setError(errorMessage(reason));
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [tab, pgcType]);
+  return /* @__PURE__ */ React15.createElement("section", { className: "bili-rank-panel" }, /* @__PURE__ */ React15.createElement("div", { className: "bili-rank-tabs" }, /* @__PURE__ */ React15.createElement(
+    "button",
+    {
+      type: "button",
+      className: tab === "video" ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
+      onClick: () => setTab("video")
+    },
+    "\u89C6\u9891\u699C"
+  ), /* @__PURE__ */ React15.createElement(
+    "button",
+    {
+      type: "button",
+      className: tab === "pgc" ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
+      onClick: () => setTab("pgc")
+    },
+    "PGC \u699C"
+  )), tab === "video" ? /* @__PURE__ */ React15.createElement("div", { className: "bili-rank-rids" }, RIDS.map((item) => /* @__PURE__ */ React15.createElement(
+    "button",
+    {
+      key: item.rid,
+      type: "button",
+      className: rid === item.rid ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
+      onClick: () => setRid(item.rid)
+    },
+    item.name
+  ))) : /* @__PURE__ */ React15.createElement("div", { className: "bili-rank-rids" }, PGC_TYPES.map((item) => /* @__PURE__ */ React15.createElement(
+    "button",
+    {
+      key: item.type,
+      type: "button",
+      className: pgcType === item.type ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
+      onClick: () => setPgcType(item.type)
+    },
+    item.name
+  ))), error ? /* @__PURE__ */ React15.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React15.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u6392\u884C\u699C") : null, !error && !loading && tab === "video" && videos.length === 0 ? /* @__PURE__ */ React15.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u699C\u5355\u6570\u636E") : null, !error && !loading && tab === "pgc" && pgcVideos.length === 0 ? /* @__PURE__ */ React15.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u699C\u5355\u6570\u636E") : null, !error && tab === "video" && videos.length > 0 ? /* @__PURE__ */ React15.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React15.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null, !error && tab === "pgc" && pgcVideos.length > 0 ? /* @__PURE__ */ React15.createElement("div", { className: "bili-pgc-track bili-pgc-track-wrap" }, pgcVideos.map((card) => /* @__PURE__ */ React15.createElement(PgcCard, { key: `${card.seasonId}-${card.seasonType}`, card }))) : null);
+}
+
+// src/components/SearchBox.tsx
+import React16, { TextField, useEffect as useEffect10, useRef as useRef4, useState as useState10 } from "sdk";
+function SearchBox({ value, onChange, onSubmit, placeholder, disabled }) {
+  const [suggestions, setSuggestions] = useState10([]);
+  const [open, setOpen] = useState10(false);
+  const containerRef = useRef4(null);
+  useEffect10(() => {
+    const keyword = value.trim();
+    if (!keyword) {
+      setSuggestions([]);
+      setOpen(false);
+      return;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      const sdk = getState().sdk;
+      if (!sdk) return;
+      sdk.bilibili.search.suggest(keyword).then((data) => {
+        if (!cancelled) {
+          setSuggestions(data);
+          setOpen(data.length > 0);
+        }
+      }).catch(() => {
+        if (!cancelled) {
+          setSuggestions([]);
+          setOpen(false);
+        }
+      });
+    }, 300);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [value]);
+  useEffect10(() => {
+    function onDocumentClick(event) {
+      const el = containerRef.current;
+      if (el && event.target instanceof Node && !el.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocumentClick);
+    return () => document.removeEventListener("mousedown", onDocumentClick);
+  }, []);
+  function pickSuggestion(keyword) {
+    onChange(keyword);
+    setOpen(false);
+    onSubmit();
+  }
+  return /* @__PURE__ */ React16.createElement("div", { className: "bili-search-box", ref: containerRef }, /* @__PURE__ */ React16.createElement(
+    TextField,
+    {
+      value,
+      disabled,
+      onChange: (event) => onChange(event.currentTarget.value),
+      placeholder,
+      onFocus: () => {
+        if (suggestions.length > 0) setOpen(true);
+      }
+    }
+  ), open ? /* @__PURE__ */ React16.createElement("ul", { className: "bili-suggest-dropdown", role: "listbox" }, suggestions.map((item, index) => /* @__PURE__ */ React16.createElement("li", { key: `${item}-${index}` }, /* @__PURE__ */ React16.createElement("button", { type: "button", className: "bili-suggest-item", onClick: () => pickSuggestion(item) }, item)))) : null);
+}
+
+// src/components/SearchEmptyPanel.tsx
+import React17, { useEffect as useEffect11, useState as useState11 } from "sdk";
+function SearchEmptyPanel({ history, onPick, onClearHistory }) {
+  const [hotwords, setHotwords] = useState11([]);
+  const [loading, setLoading] = useState11(false);
+  useEffect11(() => {
+    let cancelled = false;
+    setLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.search.hotwords().then((data) => {
+      if (!cancelled) {
+        setHotwords(data);
+        setLoading(false);
+      }
+    }).catch(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return /* @__PURE__ */ React17.createElement("div", { className: "bili-search-empty" }, history.length > 0 ? /* @__PURE__ */ React17.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React17.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React17.createElement("span", null, "\u641C\u7D22\u5386\u53F2"), /* @__PURE__ */ React17.createElement("button", { type: "button", className: "bili-search-clear", onClick: onClearHistory }, "\u6E05\u7A7A")), /* @__PURE__ */ React17.createElement("div", { className: "bili-search-words" }, history.map((item) => /* @__PURE__ */ React17.createElement("button", { key: item, type: "button", className: "bili-search-word", onClick: () => onPick(item) }, item)))) : null, /* @__PURE__ */ React17.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React17.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React17.createElement("span", null, "\u70ED\u641C\u699C")), loading ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u70ED\u641C") : hotwords.length > 0 ? /* @__PURE__ */ React17.createElement("ol", { className: "bili-hotword-list" }, hotwords.slice(0, 20).map((item, index) => /* @__PURE__ */ React17.createElement("li", { key: item.keyword }, /* @__PURE__ */ React17.createElement("button", { type: "button", className: "bili-hotword-item", onClick: () => onPick(item.showName || item.keyword) }, /* @__PURE__ */ React17.createElement("span", { className: index < 3 ? "bili-hotword-rank bili-hotword-rank-top" : "bili-hotword-rank" }, index + 1), item.showName || item.keyword)))) : /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u70ED\u641C")));
+}
+
+// src/components/WeeklyPanel.tsx
+import React18, { useEffect as useEffect12, useState as useState12 } from "sdk";
+function WeeklyPanel() {
+  const [series, setSeries] = useState12([]);
+  const [number, setNumber] = useState12(null);
+  const [videos, setVideos] = useState12([]);
+  const [loading, setLoading] = useState12(false);
+  const [error, setError] = useState12("");
+  useEffect12(() => {
+    let cancelled = false;
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.ranking.weeks().then((data) => {
+      if (!cancelled) {
+        setSeries(data);
+        setNumber((previous) => previous ?? data[0]?.number ?? null);
+      }
+    }).catch((reason) => {
+      if (!cancelled) setError(reason.message);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  useEffect12(() => {
+    if (number == null) return;
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.ranking.weekDetail(number).then((data) => {
+      if (!cancelled) {
+        setVideos(data);
+        setLoading(false);
+      }
+    }).catch((reason) => {
+      if (!cancelled) {
+        setError(reason.message);
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [number]);
+  return /* @__PURE__ */ React18.createElement("section", { className: "bili-rank-panel" }, /* @__PURE__ */ React18.createElement("div", { className: "bili-rank-rids" }, series.map((item) => /* @__PURE__ */ React18.createElement(
+    "button",
+    {
+      key: item.number,
+      type: "button",
+      className: number === item.number ? "bili-rank-rid bili-rank-rid-active" : "bili-rank-rid",
+      onClick: () => setNumber(item.number)
+    },
+    item.name || `\u7B2C ${item.number} \u671F`
+  ))), error ? /* @__PURE__ */ React18.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React18.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u6BCF\u5468\u5FC5\u770B") : null, !error && !loading && videos.length === 0 && number != null ? /* @__PURE__ */ React18.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u89C6\u9891") : null, !error && videos.length > 0 ? /* @__PURE__ */ React18.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React18.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null);
+}
+
 // src/pages/HomePage.tsx
 var RECOMMEND_SEED = Math.floor(Math.random() * 30) + 1;
 function HomePage() {
-  const [query, setQuery] = useState12("");
-  const [mode, setMode] = useState12("recommend");
-  const [popularSub, setPopularSub] = useState12("all");
-  const [popularActive, setPopularActive] = useState12(false);
-  const [searchKeyword, setSearchKeyword] = useState12("");
-  const [config, setConfig] = useState12(getState().config);
-  useEffect12(() => subscribe(() => setConfig(getState().config)), []);
+  const [query, setQuery] = useState13("");
+  const [mode, setMode] = useState13("recommend");
+  const [popularSub, setPopularSub] = useState13("all");
+  const [popularActive, setPopularActive] = useState13(false);
+  const [searchKeyword, setSearchKeyword] = useState13("");
+  const [config, setConfig] = useState13(getState().config);
+  useEffect13(() => subscribe(() => setConfig(getState().config)), []);
   const searchHistory = config.searchHistory;
   const recommend = usePagedFeed(
-    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.recommendVideos(RECOMMEND_SEED + page, refresh)),
+    (page, refresh) => homeCall2((sdk) => sdk.bilibili.home.recommendVideos(RECOMMEND_SEED + page, refresh)),
     { key: "recommend" }
   );
   const popular = usePagedFeed(
-    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.popularVideos(page, refresh)),
+    (page, refresh) => homeCall2((sdk) => sdk.bilibili.home.popularVideos(page, refresh)),
     { key: "popular", enabled: popularActive }
   );
   const search = usePagedFeed(
-    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.searchVideos(searchKeyword, page, refresh)),
+    (page, refresh) => homeCall2((sdk) => sdk.bilibili.home.searchVideos(searchKeyword, page, refresh)),
     { key: searchKeyword, enabled: searchKeyword.length > 0 }
   );
   const active = mode === "popular" ? popular : mode === "search" ? search : recommend;
@@ -22798,8 +28218,7 @@ function HomePage() {
     else if (mode === "recommend") recommend.reload();
   }
   const searchGuide = mode === "search" && searchKeyword.length === 0;
-  const comingSoon = mode === "live";
-  const mainFeed = mode === "popular" ? /* @__PURE__ */ React18.createElement(React18.Fragment, null, /* @__PURE__ */ React18.createElement(HotSubTabs, { sub: popularSub, onSub: setPopularSub }), popularSub === "all" ? /* @__PURE__ */ React18.createElement(
+  const mainFeed = mode === "popular" ? /* @__PURE__ */ React19.createElement(React19.Fragment, null, /* @__PURE__ */ React19.createElement(HotSubTabs, { sub: popularSub, onSub: setPopularSub }), popularSub === "all" ? /* @__PURE__ */ React19.createElement(
     HomeFeed,
     {
       error: active.error,
@@ -22814,7 +28233,7 @@ function HomePage() {
       onCinema: switchToCinema,
       onLive: switchToLive
     }
-  ) : popularSub === "ranking" ? /* @__PURE__ */ React18.createElement(RankingPanel, null) : popularSub === "weekly" ? /* @__PURE__ */ React18.createElement(WeeklyPanel, null) : /* @__PURE__ */ React18.createElement(PreciousPanel, null)) : mode === "bangumi" || mode === "cinema" ? /* @__PURE__ */ React18.createElement(PgcSectionFeed, { kind: mode === "bangumi" ? "bangumi" : "cinema" }) : /* @__PURE__ */ React18.createElement(
+  ) : popularSub === "ranking" ? /* @__PURE__ */ React19.createElement(RankingPanel, null) : popularSub === "weekly" ? /* @__PURE__ */ React19.createElement(WeeklyPanel, null) : /* @__PURE__ */ React19.createElement(PreciousPanel, null)) : mode === "bangumi" || mode === "cinema" ? /* @__PURE__ */ React19.createElement(PgcSectionFeed, { kind: mode === "bangumi" ? "bangumi" : "cinema" }) : mode === "live" ? /* @__PURE__ */ React19.createElement(LiveFeed, { onOpenLive: openLive }) : /* @__PURE__ */ React19.createElement(
     HomeFeed,
     {
       error: active.error,
@@ -22822,7 +28241,7 @@ function HomePage() {
       mode,
       videos: active.items,
       searchGuide,
-      searchEmpty: /* @__PURE__ */ React18.createElement(
+      searchEmpty: /* @__PURE__ */ React19.createElement(
         SearchEmptyPanel,
         {
           history: searchHistory,
@@ -22833,7 +28252,6 @@ function HomePage() {
           onClearHistory: clearSearchHistory
         }
       ),
-      comingSoon,
       onPopular: switchToPopular,
       onRecommend: switchToRecommend,
       onSearch: switchToSearch,
@@ -22842,7 +28260,7 @@ function HomePage() {
       onLive: switchToLive
     }
   );
-  return /* @__PURE__ */ React18.createElement("section", { className: "bili-home" }, /* @__PURE__ */ React18.createElement("form", { className: "bili-search", onSubmit: (event) => handleSearch(event) }, /* @__PURE__ */ React18.createElement(
+  return /* @__PURE__ */ React19.createElement("section", { className: "bili-home" }, /* @__PURE__ */ React19.createElement("form", { className: "bili-search", onSubmit: (event) => handleSearch(event) }, /* @__PURE__ */ React19.createElement(
     SearchBox,
     {
       value: query,
@@ -22850,24 +28268,306 @@ function HomePage() {
       onSubmit: () => submitSearch(query),
       placeholder: "\u641C\u7D22\u89C6\u9891"
     }
-  ), /* @__PURE__ */ React18.createElement(Button5, { type: "submit", disabled: active.loading, size: "sm" }, "\u641C\u7D22"), /* @__PURE__ */ React18.createElement(Button5, { variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, "\u5237\u65B0")), mainFeed);
+  ), /* @__PURE__ */ React19.createElement(Button6, { type: "submit", disabled: active.loading, size: "sm" }, "\u641C\u7D22"), /* @__PURE__ */ React19.createElement(Button6, { variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, "\u5237\u65B0")), mainFeed);
 }
-function homeCall(call) {
+function homeCall2(call) {
   const sdk = getState().sdk;
   if (!sdk) return Promise.reject(new Error("Bilibili \u63D2\u4EF6\u5C1A\u672A\u521D\u59CB\u5316"));
   return call(sdk);
 }
 
+// src/pages/LivePage.tsx
+import React20, { useEffect as useEffect14, useRef as useRef5, useState as useState14 } from "sdk";
+
+// src/player/livePlayer.ts
+var import_mpegts = __toESM(require_mpegts(), 1);
+var LivePlayer = class {
+  player = null;
+  destroyed = false;
+  video;
+  onError;
+  constructor(video, onError) {
+    this.video = video;
+    this.onError = onError;
+  }
+  /** 播放 http-flv 流；切换画质时用新 URL 重建播放器 */
+  load(url) {
+    if (this.destroyed) return;
+    this.destroyPlayer();
+    if (!import_mpegts.default.isSupported()) {
+      this.onError("\u5F53\u524D\u73AF\u5883\u4E0D\u652F\u6301\u76F4\u64AD\u64AD\u653E\uFF0C\u53EF\u5C1D\u8BD5\u5916\u90E8\u6253\u5F00");
+      return;
+    }
+    const player = import_mpegts.default.createPlayer(
+      { type: "flv", isLive: true, url },
+      {
+        enableWorker: false,
+        lazyLoad: false,
+        liveBufferLatencyChasing: true,
+        liveBufferLatencyMaxLatency: 3,
+        liveBufferLatencyMinRemain: 1
+      }
+    );
+    player.on(import_mpegts.default.Events.ERROR, () => {
+      this.onError("\u76F4\u64AD\u6D41\u64AD\u653E\u5931\u8D25\uFF0C\u53EF\u5C1D\u8BD5\u5207\u6362\u753B\u8D28\u6216\u5916\u90E8\u6253\u5F00");
+    });
+    player.attachMediaElement(this.video);
+    player.load();
+    Promise.resolve(player.play()).catch(() => {
+      this.onError("\u76F4\u64AD\u64AD\u653E\u88AB\u6D4F\u89C8\u5668\u62E6\u622A\uFF0C\u8BF7\u70B9\u51FB\u64AD\u653E");
+    });
+    this.player = player;
+  }
+  destroy() {
+    this.destroyed = true;
+    this.destroyPlayer();
+  }
+  destroyPlayer() {
+    if (this.player) {
+      this.player.destroy();
+      this.player = null;
+    }
+  }
+};
+
+// src/pages/LivePage.tsx
+var danmakuSeq = 0;
+function pushDanmaku(setter, entry) {
+  danmakuSeq += 1;
+  setter((prev) => [...prev.slice(-199), { ...entry, id: `dm-${danmakuSeq}` }]);
+}
+function LivePage({ roomId }) {
+  const [room, setRoom] = useState14(null);
+  const [stream, setStream] = useState14(null);
+  const [currentQn, setCurrentQn] = useState14(null);
+  const [danmaku, setDanmaku] = useState14([]);
+  const [wsConnected, setWsConnected] = useState14(false);
+  const [input, setInput] = useState14("");
+  const [cooldown, setCooldown] = useState14(0);
+  const [playError, setPlayError] = useState14("");
+  const [loadError, setLoadError] = useState14("");
+  const [sendError, setSendError] = useState14("");
+  const [qualityOpen, setQualityOpen] = useState14(false);
+  const videoRef = useRef5(null);
+  const playerRef = useRef5(null);
+  const listRef = useRef5(null);
+  useEffect14(() => {
+    let active = true;
+    setRoom(null);
+    setStream(null);
+    setLoadError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    Promise.all([
+      sdk.bilibili.live.room({ roomId }),
+      sdk.bilibili.live.stream({ roomId })
+    ]).then(([roomInfo, streamInfo]) => {
+      if (!active) return;
+      setRoom(roomInfo);
+      setStream(streamInfo);
+    }).catch((err) => {
+      if (active) setLoadError(errorMessage(err));
+    });
+    return () => {
+      active = false;
+    };
+  }, [roomId]);
+  useEffect14(() => {
+    if (!stream || stream.durl.length === 0) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const player = new LivePlayer(video, (message) => setPlayError(message));
+    playerRef.current = player;
+    player.load(stream.durl[0].url);
+    setPlayError("");
+    return () => {
+      player.destroy();
+      playerRef.current = null;
+    };
+  }, [stream]);
+  useEffect14(() => {
+    let ws = null;
+    let active = true;
+    setWsConnected(false);
+    setDanmaku([]);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.live.danmakuWsUrl({ roomId }).then((url) => {
+      if (!active) return;
+      ws = new WebSocket(url);
+      ws.onopen = () => setWsConnected(true);
+      ws.onclose = () => {
+        if (!active) return;
+        setWsConnected(false);
+        pushDanmaku(setDanmaku, { type: "system", user: "", text: "\u5F39\u5E55\u8FDE\u63A5\u5DF2\u65AD\u5F00" });
+      };
+      ws.onerror = () => {
+        if (active) setWsConnected(false);
+      };
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          const entry = parseDanmakuMessage(message);
+          if (entry) pushDanmaku(setDanmaku, entry);
+        } catch {
+        }
+      };
+    }).catch((err) => {
+      if (!active) return;
+      setWsConnected(false);
+      pushDanmaku(setDanmaku, { type: "system", user: "", text: errorMessage(err) });
+    });
+    return () => {
+      active = false;
+      if (ws) ws.close();
+    };
+  }, [roomId]);
+  useEffect14(() => {
+    const timer = setInterval(() => {
+      getState().sdk?.bilibili.live.heartbeat({ roomId }).catch(() => {
+      });
+    }, 6e4);
+    return () => clearInterval(timer);
+  }, [roomId]);
+  useEffect14(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [danmaku]);
+  useEffect14(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((count) => count - 1), 1e3);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+  function sendDanmaku() {
+    const text = input.trim();
+    if (!text || cooldown > 0) return;
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    setCooldown(30);
+    setSendError("");
+    sdk.bilibili.live.sendDanmaku({ roomId, text }).then((result) => {
+      if (result.ok) {
+        setInput("");
+        pushDanmaku(setDanmaku, { type: "danmu", user: "\u6211", text });
+      } else {
+        setSendError(result.message || "\u53D1\u9001\u5931\u8D25\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5");
+      }
+    }).catch((err) => setSendError(errorMessage(err)));
+  }
+  function switchQuality(qn) {
+    if (qn === currentQn) return;
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    setQualityOpen(false);
+    sdk.bilibili.live.stream({ roomId, qn }).then((next) => {
+      setStream(next);
+      setCurrentQn(qn);
+    }).catch((err) => setPlayError(errorMessage(err)));
+  }
+  const live = room?.liveStatus === 1;
+  return /* @__PURE__ */ React20.createElement("section", { className: "bili-live" }, /* @__PURE__ */ React20.createElement("div", { className: "bili-live-main" }, /* @__PURE__ */ React20.createElement("div", { className: "bili-live-player" }, /* @__PURE__ */ React20.createElement("video", { ref: videoRef, className: "bili-live-video", controls: true, playsInline: true }), playError ? /* @__PURE__ */ React20.createElement("div", { className: "bili-live-overlay" }, playError) : null, loadError ? /* @__PURE__ */ React20.createElement("div", { className: "bili-live-overlay" }, loadError, /* @__PURE__ */ React20.createElement("a", { className: "bili-link-button", href: `https://live.bilibili.com/${roomId}`, target: "_blank", rel: "noreferrer" }, "\u5916\u90E8\u6253\u5F00\u76F4\u64AD\u95F4")) : null, !stream && !loadError ? /* @__PURE__ */ React20.createElement("div", { className: "bili-live-overlay" }, "\u6B63\u5728\u52A0\u8F7D\u76F4\u64AD\u95F4\u2026") : null), room ? /* @__PURE__ */ React20.createElement("div", { className: "bili-live-room-card" }, /* @__PURE__ */ React20.createElement("div", { className: "bili-live-room-head" }, /* @__PURE__ */ React20.createElement("strong", { className: "bili-live-room-title", title: room.title }, room.title || "\u672A\u547D\u540D\u76F4\u64AD\u95F4"), /* @__PURE__ */ React20.createElement("div", { className: "bili-live-room-meta" }, /* @__PURE__ */ React20.createElement("span", { className: live ? "bili-live-room-status bili-live-room-status-on" : "bili-live-room-status" }, live ? "\u76F4\u64AD\u4E2D" : "\u672A\u5F00\u64AD"), /* @__PURE__ */ React20.createElement("span", null, formatOnline2(room.online), "\u4EBA\u89C2\u770B"), /* @__PURE__ */ React20.createElement("span", null, room.parentAreaName, " \xB7 ", room.areaName))), /* @__PURE__ */ React20.createElement("p", { className: "bili-live-room-desc" }, room.description || "\u6682\u65E0\u7B80\u4ECB"), /* @__PURE__ */ React20.createElement("div", { className: "bili-live-room-foot" }, /* @__PURE__ */ React20.createElement("button", { type: "button", className: "bili-live-room-uid", onClick: () => openSpace(room.uid) }, "UP ", room.uid), /* @__PURE__ */ React20.createElement("span", null, formatCount3(room.attention), " \u5173\u6CE8"), /* @__PURE__ */ React20.createElement("a", { className: "bili-link-button", href: `https://live.bilibili.com/${roomId}`, target: "_blank", rel: "noreferrer" }, "\u5916\u90E8\u6253\u5F00"))) : null), /* @__PURE__ */ React20.createElement("aside", { className: "bili-live-side" }, /* @__PURE__ */ React20.createElement("div", { className: "bili-live-danmaku-head" }, "\u5F39\u5E55", /* @__PURE__ */ React20.createElement("span", { className: wsConnected ? "bili-live-ws bili-live-ws-on" : "bili-live-ws" }, wsConnected ? "\u5DF2\u8FDE\u63A5" : "\u672A\u8FDE\u63A5")), /* @__PURE__ */ React20.createElement("div", { className: "bili-live-danmaku-list", ref: listRef }, danmaku.map((entry) => /* @__PURE__ */ React20.createElement("div", { key: entry.id, className: `bili-live-danmaku-item bili-live-danmaku-${entry.type}` }, entry.type === "system" ? /* @__PURE__ */ React20.createElement("span", { className: "bili-live-danmaku-system" }, entry.text) : /* @__PURE__ */ React20.createElement(React20.Fragment, null, /* @__PURE__ */ React20.createElement("strong", { className: "bili-live-danmaku-user" }, entry.user, "\uFF1A"), /* @__PURE__ */ React20.createElement("span", { className: "bili-live-danmaku-text" }, entry.text), entry.detail ? /* @__PURE__ */ React20.createElement("small", { className: "bili-live-danmaku-detail" }, entry.detail) : null)))), /* @__PURE__ */ React20.createElement("div", { className: "bili-live-send" }, /* @__PURE__ */ React20.createElement(
+    "input",
+    {
+      className: "bili-live-send-input",
+      value: input,
+      placeholder: "\u53D1\u4E2A\u53CB\u5584\u7684\u5F39\u5E55",
+      maxLength: 30,
+      onChange: (event) => setInput(event.target.value),
+      onKeyDown: (event) => {
+        if (event.key === "Enter") sendDanmaku();
+      }
+    }
+  ), /* @__PURE__ */ React20.createElement(
+    "button",
+    {
+      type: "button",
+      className: "bili-live-send-btn",
+      onClick: sendDanmaku,
+      disabled: cooldown > 0 || input.trim().length === 0
+    },
+    cooldown > 0 ? `${cooldown}s` : "\u53D1\u9001"
+  )), sendError ? /* @__PURE__ */ React20.createElement("div", { className: "bili-live-send-error" }, sendError) : null, stream && stream.qualityDescription.length > 0 ? /* @__PURE__ */ React20.createElement("div", { className: "bili-live-quality" }, /* @__PURE__ */ React20.createElement(
+    "button",
+    {
+      type: "button",
+      className: "bili-live-quality-btn",
+      onClick: () => setQualityOpen((open) => !open)
+    },
+    "\u753B\u8D28 ",
+    currentQn ? qualityName(stream, currentQn) : "\u81EA\u52A8"
+  ), qualityOpen ? /* @__PURE__ */ React20.createElement("div", { className: "bili-live-quality-menu" }, stream.qualityDescription.map((quality) => /* @__PURE__ */ React20.createElement(
+    "button",
+    {
+      key: quality.qn,
+      type: "button",
+      className: currentQn === quality.qn ? "bili-live-quality-option bili-live-quality-option-active" : "bili-live-quality-option",
+      onClick: () => switchQuality(quality.qn)
+    },
+    quality.desc
+  ))) : null) : null));
+}
+function parseDanmakuMessage(message) {
+  const cmd = message.cmd || "";
+  if (cmd === "DANMU_MSG") {
+    const info = message.data?.info;
+    const text = Array.isArray(info) && typeof info[1] === "string" ? info[1] : "";
+    const user = Array.isArray(info) && Array.isArray(info[2]) && typeof info[2][1] === "string" ? info[2][1] : "\u5F39\u5E55";
+    return { type: "danmu", user, text };
+  }
+  if (cmd === "SEND_GIFT") {
+    const data = message.data;
+    const payload = data?.data;
+    if (!payload) return null;
+    return {
+      type: "gift",
+      user: payload.uname || "\u795E\u79D8\u7528\u6237",
+      text: `\u9001\u51FA\u4E86 ${payload.giftName || "\u793C\u7269"}${payload.num ? ` \xD7${payload.num}` : ""}`
+    };
+  }
+  if (cmd === "SUPER_CHAT_MESSAGE") {
+    const data = message.data;
+    const payload = data?.data;
+    if (!payload) return null;
+    return {
+      type: "sc",
+      user: payload.user_info?.uname || "\u795E\u79D8\u7528\u6237",
+      text: payload.message || "",
+      detail: payload.price ? `\xA5${payload.price}` : void 0
+    };
+  }
+  if (cmd === "CONNECTION_ERROR") {
+    const data = message.data;
+    return { type: "system", user: "", text: data?.message || "\u5F39\u5E55\u8FDE\u63A5\u5931\u8D25" };
+  }
+  if (cmd === "CONNECTION_LOST") {
+    return { type: "system", user: "", text: "\u5F39\u5E55\u8FDE\u63A5\u5DF2\u65AD\u5F00\uFF0C\u7A0D\u540E\u81EA\u52A8\u91CD\u8FDE" };
+  }
+  return null;
+}
+function qualityName(stream, qn) {
+  const quality = stream.qualityDescription.find((item) => item.qn === qn);
+  return quality ? quality.desc : String(qn);
+}
+function formatOnline2(count) {
+  if (count >= 1e4) return `${(count / 1e4).toFixed(1).replace(/\.0$/, "")}\u4E07`;
+  return String(count);
+}
+function formatCount3(value) {
+  if (value >= 1e8) return `${(value / 1e8).toFixed(1)}\u4EBF`;
+  if (value >= 1e4) return `${(value / 1e4).toFixed(1)}\u4E07`;
+  return String(value);
+}
+
 // src/pages/MessagesPage.tsx
-import React19, { useEffect as useEffect13, useRef as useRef5, useState as useState13 } from "sdk";
+import React21, { useEffect as useEffect15, useRef as useRef6, useState as useState15 } from "sdk";
 function MessagesPage() {
-  const [sessions, setSessions] = useState13([]);
-  const [beginTs, setBeginTs] = useState13(null);
-  const [hasMore, setHasMore] = useState13(false);
-  const [loading, setLoading] = useState13(false);
-  const [error, setError] = useState13("");
-  const requestSeqRef = useRef5(0);
-  useEffect13(() => {
+  const [sessions, setSessions] = useState15([]);
+  const [beginTs, setBeginTs] = useState15(null);
+  const [hasMore, setHasMore] = useState15(false);
+  const [loading, setLoading] = useState15(false);
+  const [error, setError] = useState15("");
+  const requestSeqRef = useRef6(0);
+  useEffect15(() => {
     const seq = requestSeqRef.current + 1;
     requestSeqRef.current = seq;
     setLoading(true);
@@ -22901,9 +28601,9 @@ function MessagesPage() {
       setHasMore(page.hasMore);
     }).catch((reason) => setError(errorMessage(reason))).finally(() => setLoading(false));
   }
-  if (loading && sessions.length === 0) return /* @__PURE__ */ React19.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u4F1A\u8BDD");
-  if (error && sessions.length === 0) return /* @__PURE__ */ React19.createElement("div", { className: "bili-state bili-state-error" }, error);
-  return /* @__PURE__ */ React19.createElement("section", { className: "bili-messages" }, sessions.length === 0 && !loading ? /* @__PURE__ */ React19.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u79C1\u4FE1\u4F1A\u8BDD") : null, sessions.map((session) => /* @__PURE__ */ React19.createElement(
+  if (loading && sessions.length === 0) return /* @__PURE__ */ React21.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u4F1A\u8BDD");
+  if (error && sessions.length === 0) return /* @__PURE__ */ React21.createElement("div", { className: "bili-state bili-state-error" }, error);
+  return /* @__PURE__ */ React21.createElement("section", { className: "bili-messages" }, sessions.length === 0 && !loading ? /* @__PURE__ */ React21.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u79C1\u4FE1\u4F1A\u8BDD") : null, sessions.map((session) => /* @__PURE__ */ React21.createElement(
     "button",
     {
       className: "bili-message-session",
@@ -22911,20 +28611,20 @@ function MessagesPage() {
       type: "button",
       onClick: () => openChat(session.talkerId)
     },
-    /* @__PURE__ */ React19.createElement("span", { className: "bili-message-session-avatar" }, session.face ? /* @__PURE__ */ React19.createElement(BiliImage, { className: "bili-dynamic-avatar", src: session.face, alt: session.name }) : /* @__PURE__ */ React19.createElement("span", { className: "bili-profile-avatar bili-profile-avatar-empty" }, session.name ? session.name.slice(0, 1) : String(session.talkerId).slice(-2))),
-    /* @__PURE__ */ React19.createElement("span", { className: "bili-message-session-body" }, /* @__PURE__ */ React19.createElement("strong", null, session.name || `UID ${session.talkerId}`), /* @__PURE__ */ React19.createElement("small", null, session.lastMsg?.content || "\u6682\u65E0\u6D88\u606F")),
-    session.unreadCount > 0 ? /* @__PURE__ */ React19.createElement("span", { className: "bili-message-badge" }, session.unreadCount > 99 ? "99+" : session.unreadCount) : null
-  )), error ? /* @__PURE__ */ React19.createElement("div", { className: "bili-state bili-state-error" }, error) : null, hasMore ? /* @__PURE__ */ React19.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null);
+    /* @__PURE__ */ React21.createElement("span", { className: "bili-message-session-avatar" }, session.face ? /* @__PURE__ */ React21.createElement(BiliImage, { className: "bili-dynamic-avatar", src: session.face, alt: session.name }) : /* @__PURE__ */ React21.createElement("span", { className: "bili-profile-avatar bili-profile-avatar-empty" }, session.name ? session.name.slice(0, 1) : String(session.talkerId).slice(-2))),
+    /* @__PURE__ */ React21.createElement("span", { className: "bili-message-session-body" }, /* @__PURE__ */ React21.createElement("strong", null, session.name || `UID ${session.talkerId}`), /* @__PURE__ */ React21.createElement("small", null, session.lastMsg?.content || "\u6682\u65E0\u6D88\u606F")),
+    session.unreadCount > 0 ? /* @__PURE__ */ React21.createElement("span", { className: "bili-message-badge" }, session.unreadCount > 99 ? "99+" : session.unreadCount) : null
+  )), error ? /* @__PURE__ */ React21.createElement("div", { className: "bili-state bili-state-error" }, error) : null, hasMore ? /* @__PURE__ */ React21.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null);
 }
 
 // src/pages/MinePage.tsx
-import React25, { Button as Button10, useEffect as useEffect19, useState as useState19 } from "sdk";
+import React27, { Button as Button11, useEffect as useEffect21, useState as useState21 } from "sdk";
 
 // src/components/AccountCard.tsx
-import React20, { Button as Button6, useEffect as useEffect14, useState as useState14 } from "sdk";
+import React22, { Button as Button7, useEffect as useEffect16, useState as useState16 } from "sdk";
 function AccountCard({ loginInfo }) {
-  const [stats, setStats] = useState14(null);
-  useEffect14(() => {
+  const [stats, setStats] = useState16(null);
+  useEffect16(() => {
     let active = true;
     const sdk = getState().sdk;
     if (!sdk || !loginInfo?.loggedIn) return;
@@ -22943,25 +28643,25 @@ function AccountCard({ loginInfo }) {
       active = false;
     };
   }, [loginInfo?.loggedIn]);
-  return /* @__PURE__ */ React20.createElement("section", { className: "bili-account-card" }, /* @__PURE__ */ React20.createElement("div", { className: "bili-account-card-main" }, /* @__PURE__ */ React20.createElement(BiliImage, { className: "bili-account-card-avatar", src: loginInfo?.avatar || "", alt: loginInfo?.nickname || "\u5934\u50CF" }), /* @__PURE__ */ React20.createElement("span", { className: "bili-account-card-id" }, /* @__PURE__ */ React20.createElement("strong", null, loginInfo?.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React20.createElement("small", null, "UID ", loginInfo?.userId || "-"))), stats ? /* @__PURE__ */ React20.createElement("div", { className: "bili-account-card-stats" }, /* @__PURE__ */ React20.createElement(AccountStat, { label: "\u6536\u85CF\u5939", value: stats.folders }), /* @__PURE__ */ React20.createElement(AccountStat, { label: "\u7A0D\u540E\u518D\u770B", value: stats.toView }), /* @__PURE__ */ React20.createElement(AccountStat, { label: "\u6536\u85CF\u89C6\u9891", value: stats.collected })) : null, /* @__PURE__ */ React20.createElement(Button6, { variant: "outline", size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55"));
+  return /* @__PURE__ */ React22.createElement("section", { className: "bili-account-card" }, /* @__PURE__ */ React22.createElement("div", { className: "bili-account-card-main" }, /* @__PURE__ */ React22.createElement(BiliImage, { className: "bili-account-card-avatar", src: loginInfo?.avatar || "", alt: loginInfo?.nickname || "\u5934\u50CF" }), /* @__PURE__ */ React22.createElement("span", { className: "bili-account-card-id" }, /* @__PURE__ */ React22.createElement("strong", null, loginInfo?.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React22.createElement("small", null, "UID ", loginInfo?.userId || "-"))), stats ? /* @__PURE__ */ React22.createElement("div", { className: "bili-account-card-stats" }, /* @__PURE__ */ React22.createElement(AccountStat, { label: "\u6536\u85CF\u5939", value: stats.folders }), /* @__PURE__ */ React22.createElement(AccountStat, { label: "\u7A0D\u540E\u518D\u770B", value: stats.toView }), /* @__PURE__ */ React22.createElement(AccountStat, { label: "\u6536\u85CF\u89C6\u9891", value: stats.collected })) : null, /* @__PURE__ */ React22.createElement(Button7, { variant: "outline", size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55"));
 }
 function AccountStat({ label, value }) {
-  return /* @__PURE__ */ React20.createElement("span", { className: "bili-account-card-stat" }, /* @__PURE__ */ React20.createElement("strong", null, value), /* @__PURE__ */ React20.createElement("small", null, label));
+  return /* @__PURE__ */ React22.createElement("span", { className: "bili-account-card-stat" }, /* @__PURE__ */ React22.createElement("strong", null, value), /* @__PURE__ */ React22.createElement("small", null, label));
 }
 
 // src/components/AccountLibraryTabs.tsx
-import React22, { Button as Button7, useEffect as useEffect16, useState as useState16 } from "sdk";
+import React24, { Button as Button8, useEffect as useEffect18, useState as useState18 } from "sdk";
 
 // src/components/FavoriteManagePanel.tsx
-import React21, { TextField as TextField2, useEffect as useEffect15, useState as useState15 } from "sdk";
+import React23, { TextField as TextField2, useEffect as useEffect17, useState as useState17 } from "sdk";
 function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder, onChanged }) {
-  const [selected, setSelected] = useState15(/* @__PURE__ */ new Set());
-  const [folderDialog, setFolderDialog] = useState15(null);
-  const [confirm, setConfirm] = useState15(null);
-  const [moveDialog, setMoveDialog] = useState15(null);
-  const [busy, setBusy] = useState15(false);
-  const [message, setMessage] = useState15("");
-  useEffect15(() => {
+  const [selected, setSelected] = useState17(/* @__PURE__ */ new Set());
+  const [folderDialog, setFolderDialog] = useState17(null);
+  const [confirm, setConfirm] = useState17(null);
+  const [moveDialog, setMoveDialog] = useState17(null);
+  const [busy, setBusy] = useState17(false);
+  const [message, setMessage] = useState17("");
+  useEffect17(() => {
     setSelected(/* @__PURE__ */ new Set());
   }, [selectedFolderId]);
   const selectedIds = items.filter((item) => selected.has(item.video.aid)).map((item) => item.video.aid);
@@ -23039,14 +28739,14 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       setBusy(false);
     }
   }
-  return /* @__PURE__ */ React21.createElement("div", { className: "bili-fav-manage" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-fav-manage-toolbar" }, /* @__PURE__ */ React21.createElement("button", { type: "button", className: "bili-fav-manage-action", onClick: () => setFolderDialog({ kind: "create" }), disabled: busy }, "\u65B0\u5EFA\u6536\u85CF\u5939"), selectedIds.length > 0 ? /* @__PURE__ */ React21.createElement("span", { className: "bili-fav-manage-selected" }, selectedIds.length, " \u4E2A\u5DF2\u9009") : null), /* @__PURE__ */ React21.createElement("div", { className: "bili-folder-list" }, folders.map((folder) => /* @__PURE__ */ React21.createElement(
+  return /* @__PURE__ */ React23.createElement("div", { className: "bili-fav-manage" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-fav-manage-toolbar" }, /* @__PURE__ */ React23.createElement("button", { type: "button", className: "bili-fav-manage-action", onClick: () => setFolderDialog({ kind: "create" }), disabled: busy }, "\u65B0\u5EFA\u6536\u85CF\u5939"), selectedIds.length > 0 ? /* @__PURE__ */ React23.createElement("span", { className: "bili-fav-manage-selected" }, selectedIds.length, " \u4E2A\u5DF2\u9009") : null), /* @__PURE__ */ React23.createElement("div", { className: "bili-folder-list" }, folders.map((folder) => /* @__PURE__ */ React23.createElement(
     "div",
     {
       key: `${folder.owned ? "own" : "collected"}-${folder.id}`,
       className: folder.id === selectedFolderId ? "bili-folder-manage-row bili-folder-item-active" : "bili-folder-manage-row"
     },
-    /* @__PURE__ */ React21.createElement("button", { type: "button", className: "bili-folder-item bili-folder-item-grow", onClick: () => onSelectFolder(folder.id) }, /* @__PURE__ */ React21.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"), /* @__PURE__ */ React21.createElement("small", null, folder.mediaCount, " \u4E2A \xB7 ", folder.owned ? "\u521B\u5EFA" : "\u6536\u85CF")),
-    folder.owned ? /* @__PURE__ */ React21.createElement(
+    /* @__PURE__ */ React23.createElement("button", { type: "button", className: "bili-folder-item bili-folder-item-grow", onClick: () => onSelectFolder(folder.id) }, /* @__PURE__ */ React23.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"), /* @__PURE__ */ React23.createElement("small", null, folder.mediaCount, " \u4E2A \xB7 ", folder.owned ? "\u521B\u5EFA" : "\u6536\u85CF")),
+    folder.owned ? /* @__PURE__ */ React23.createElement(
       "button",
       {
         type: "button",
@@ -23056,7 +28756,7 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       },
       "\u91CD\u547D\u540D"
     ) : null,
-    folder.owned ? /* @__PURE__ */ React21.createElement(
+    folder.owned ? /* @__PURE__ */ React23.createElement(
       "button",
       {
         type: "button",
@@ -23066,19 +28766,19 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       },
       "\u5220\u9664"
     ) : null
-  ))), /* @__PURE__ */ React21.createElement("div", { className: "bili-folder-videos" }, items.length === 0 ? /* @__PURE__ */ React21.createElement("div", { className: "bili-library-empty" }, /* @__PURE__ */ React21.createElement("strong", null, "\u6536\u85CF\u5939\u5185\u5BB9"), /* @__PURE__ */ React21.createElement("span", null, "\u8BE5\u6536\u85CF\u5939\u6682\u65E0\u89C6\u9891")) : /* @__PURE__ */ React21.createElement(React21.Fragment, null, /* @__PURE__ */ React21.createElement("div", { className: "bili-video-grid" }, items.map((item) => {
+  ))), /* @__PURE__ */ React23.createElement("div", { className: "bili-folder-videos" }, items.length === 0 ? /* @__PURE__ */ React23.createElement("div", { className: "bili-library-empty" }, /* @__PURE__ */ React23.createElement("strong", null, "\u6536\u85CF\u5939\u5185\u5BB9"), /* @__PURE__ */ React23.createElement("span", null, "\u8BE5\u6536\u85CF\u5939\u6682\u65E0\u89C6\u9891")) : /* @__PURE__ */ React23.createElement(React23.Fragment, null, /* @__PURE__ */ React23.createElement("div", { className: "bili-video-grid" }, items.map((item) => {
     const checked = selected.has(item.video.aid);
-    return /* @__PURE__ */ React21.createElement(
+    return /* @__PURE__ */ React23.createElement(
       "div",
       {
         key: `${item.video.bvid}-${item.favoriteTime}`,
         className: checked ? "bili-fav-manage-card bili-fav-manage-card-checked" : "bili-fav-manage-card",
         onClick: () => toggleSelect(item.video.aid)
       },
-      /* @__PURE__ */ React21.createElement("label", { className: "bili-fav-manage-check" }, /* @__PURE__ */ React21.createElement("input", { type: "checkbox", checked, onChange: () => toggleSelect(item.video.aid) })),
-      /* @__PURE__ */ React21.createElement(VideoCard, { video: item.video })
+      /* @__PURE__ */ React23.createElement("label", { className: "bili-fav-manage-check" }, /* @__PURE__ */ React23.createElement("input", { type: "checkbox", checked, onChange: () => toggleSelect(item.video.aid) })),
+      /* @__PURE__ */ React23.createElement(VideoCard, { video: item.video })
     );
-  })), selectedIds.length > 0 ? /* @__PURE__ */ React21.createElement("div", { className: "bili-fav-manage-bulk" }, /* @__PURE__ */ React21.createElement(
+  })), selectedIds.length > 0 ? /* @__PURE__ */ React23.createElement("div", { className: "bili-fav-manage-bulk" }, /* @__PURE__ */ React23.createElement(
     "button",
     {
       type: "button",
@@ -23087,7 +28787,7 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       disabled: busy
     },
     "\u5220\u9664\u6240\u9009"
-  ), moveTargets.length > 0 ? /* @__PURE__ */ React21.createElement(
+  ), moveTargets.length > 0 ? /* @__PURE__ */ React23.createElement(
     "button",
     {
       type: "button",
@@ -23096,7 +28796,7 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       disabled: busy
     },
     "\u79FB\u52A8\u5230\u2026"
-  ) : null) : null)), message ? /* @__PURE__ */ React21.createElement("div", { className: "bili-state bili-state-error" }, message) : null, folderDialog ? /* @__PURE__ */ React21.createElement(
+  ) : null) : null)), message ? /* @__PURE__ */ React23.createElement("div", { className: "bili-state bili-state-error" }, message) : null, folderDialog ? /* @__PURE__ */ React23.createElement(
     InputDialog,
     {
       title: folderDialog.kind === "create" ? "\u65B0\u5EFA\u6536\u85CF\u5939" : "\u91CD\u547D\u540D\u6536\u85CF\u5939",
@@ -23105,7 +28805,7 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       onCancel: () => setFolderDialog(null),
       onConfirm: submitFolderDialog
     }
-  ) : null, confirm ? /* @__PURE__ */ React21.createElement(
+  ) : null, confirm ? /* @__PURE__ */ React23.createElement(
     ConfirmDialog,
     {
       title: confirm.kind === "deleteFolder" ? "\u5220\u9664\u6536\u85CF\u5939" : "\u5220\u9664\u6240\u9009\u89C6\u9891",
@@ -23114,7 +28814,7 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       onCancel: () => setConfirm(null),
       onConfirm: () => runConfirm(confirm)
     }
-  ) : null, moveDialog ? /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-mask" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-dialog" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-title" }, "\u79FB\u52A8\u5230\u6536\u85CF\u5939"), /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-copy" }, "\u9009\u62E9\u76EE\u6807\u6536\u85CF\u5939\uFF08\u5171 ", moveDialog.ids.length, " \u4E2A\u89C6\u9891\uFF09"), /* @__PURE__ */ React21.createElement("div", { className: "bili-move-targets" }, moveTargets.map((folder) => /* @__PURE__ */ React21.createElement(
+  ) : null, moveDialog ? /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-mask" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-dialog" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-title" }, "\u79FB\u52A8\u5230\u6536\u85CF\u5939"), /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-copy" }, "\u9009\u62E9\u76EE\u6807\u6536\u85CF\u5939\uFF08\u5171 ", moveDialog.ids.length, " \u4E2A\u89C6\u9891\uFF09"), /* @__PURE__ */ React23.createElement("div", { className: "bili-move-targets" }, moveTargets.map((folder) => /* @__PURE__ */ React23.createElement(
     "button",
     {
       key: folder.id,
@@ -23123,9 +28823,9 @@ function FavoriteManagePanel({ folders, selectedFolderId, items, onSelectFolder,
       onClick: () => runMove(folder),
       disabled: busy
     },
-    /* @__PURE__ */ React21.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
-    /* @__PURE__ */ React21.createElement("small", null, folder.mediaCount, " \u4E2A \xB7 ", folder.owned ? "\u521B\u5EFA" : "\u6536\u85CF")
-  ))), /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-actions" }, /* @__PURE__ */ React21.createElement("button", { type: "button", className: "bili-confirm-btn", onClick: () => setMoveDialog(null), disabled: busy }, "\u53D6\u6D88")))) : null);
+    /* @__PURE__ */ React23.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
+    /* @__PURE__ */ React23.createElement("small", null, folder.mediaCount, " \u4E2A \xB7 ", folder.owned ? "\u521B\u5EFA" : "\u6536\u85CF")
+  ))), /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-actions" }, /* @__PURE__ */ React23.createElement("button", { type: "button", className: "bili-confirm-btn", onClick: () => setMoveDialog(null), disabled: busy }, "\u53D6\u6D88")))) : null);
 }
 function InputDialog({
   title,
@@ -23134,8 +28834,8 @@ function InputDialog({
   onCancel,
   onConfirm
 }) {
-  const [value, setValue] = useState15(initial);
-  return /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-mask" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-dialog" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-title" }, title), /* @__PURE__ */ React21.createElement(TextField2, { value, onChange: (event) => setValue(event.currentTarget.value) }), /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-actions" }, /* @__PURE__ */ React21.createElement("button", { type: "button", className: "bili-confirm-btn", onClick: onCancel, disabled: busy }, "\u53D6\u6D88"), /* @__PURE__ */ React21.createElement(
+  const [value, setValue] = useState17(initial);
+  return /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-mask" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-dialog" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-title" }, title), /* @__PURE__ */ React23.createElement(TextField2, { value, onChange: (event) => setValue(event.currentTarget.value) }), /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-actions" }, /* @__PURE__ */ React23.createElement("button", { type: "button", className: "bili-confirm-btn", onClick: onCancel, disabled: busy }, "\u53D6\u6D88"), /* @__PURE__ */ React23.createElement(
     "button",
     {
       type: "button",
@@ -23153,7 +28853,7 @@ function ConfirmDialog({
   onCancel,
   onConfirm
 }) {
-  return /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-mask" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-dialog" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-title" }, title), /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-copy" }, copy), /* @__PURE__ */ React21.createElement("div", { className: "bili-confirm-actions" }, /* @__PURE__ */ React21.createElement("button", { type: "button", className: "bili-confirm-btn", onClick: onCancel, disabled: busy }, "\u53D6\u6D88"), /* @__PURE__ */ React21.createElement("button", { type: "button", className: "bili-confirm-btn bili-confirm-btn-danger", onClick: onConfirm, disabled: busy }, busy ? "\u5904\u7406\u4E2D\u2026" : "\u786E\u8BA4"))));
+  return /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-mask" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-dialog" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-title" }, title), /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-copy" }, copy), /* @__PURE__ */ React23.createElement("div", { className: "bili-confirm-actions" }, /* @__PURE__ */ React23.createElement("button", { type: "button", className: "bili-confirm-btn", onClick: onCancel, disabled: busy }, "\u53D6\u6D88"), /* @__PURE__ */ React23.createElement("button", { type: "button", className: "bili-confirm-btn bili-confirm-btn-danger", onClick: onConfirm, disabled: busy }, busy ? "\u5904\u7406\u4E2D\u2026" : "\u786E\u8BA4"))));
 }
 
 // src/components/AccountLibraryTabs.tsx
@@ -23164,21 +28864,21 @@ var tabs = [
   { id: "bangumi", label: "\u8FFD\u756A" }
 ];
 function AccountLibraryTabs() {
-  const [state2, setState2] = useState16(getState);
-  const [active, setActive] = useState16("history");
-  const [historyItems, setHistoryItems] = useState16([]);
-  const [toViewItems, setToViewItems] = useState16([]);
-  const [folders, setFolders] = useState16([]);
-  const [favoriteItems, setFavoriteItems] = useState16([]);
-  const [bangumiFollows, setBangumiFollows] = useState16([]);
-  const [selectedFolderId, setSelectedFolderId] = useState16(null);
-  const [manageMode, setManageMode] = useState16(false);
-  const [loading, setLoading] = useState16(false);
-  const [error, setError] = useState16("");
-  useEffect16(() => subscribe(() => setState2(getState())), []);
+  const [state2, setState2] = useState18(getState);
+  const [active, setActive] = useState18("history");
+  const [historyItems, setHistoryItems] = useState18([]);
+  const [toViewItems, setToViewItems] = useState18([]);
+  const [folders, setFolders] = useState18([]);
+  const [favoriteItems, setFavoriteItems] = useState18([]);
+  const [bangumiFollows, setBangumiFollows] = useState18([]);
+  const [selectedFolderId, setSelectedFolderId] = useState18(null);
+  const [manageMode, setManageMode] = useState18(false);
+  const [loading, setLoading] = useState18(false);
+  const [error, setError] = useState18("");
+  useEffect18(() => subscribe(() => setState2(getState())), []);
   const loggedIn = Boolean(state2.loginInfo?.loggedIn);
   const activeLabel = tabs.find((tab) => tab.id === active)?.label ?? "\u8D26\u53F7\u5185\u5BB9";
-  useEffect16(() => {
+  useEffect18(() => {
     if (!loggedIn) {
       setHistoryItems([]);
       setToViewItems([]);
@@ -23191,12 +28891,12 @@ function AccountLibraryTabs() {
     }
     void loadActive();
   }, [active, loggedIn]);
-  useEffect16(() => {
+  useEffect18(() => {
     if (!loggedIn || active !== "favorites" || !selectedFolderId) return;
     void loadFavoriteItems(selectedFolderId);
   }, [active, loggedIn, selectedFolderId]);
-  return /* @__PURE__ */ React22.createElement("section", { className: "bili-library" }, /* @__PURE__ */ React22.createElement("div", { className: "bili-tabs", role: "tablist" }, tabs.map((tab) => /* @__PURE__ */ React22.createElement(
-    Button7,
+  return /* @__PURE__ */ React24.createElement("section", { className: "bili-library" }, /* @__PURE__ */ React24.createElement("div", { className: "bili-tabs", role: "tablist" }, tabs.map((tab) => /* @__PURE__ */ React24.createElement(
+    Button8,
     {
       key: tab.id,
       className: tab.id === active ? "bili-tab bili-tab-active" : "bili-tab",
@@ -23206,19 +28906,19 @@ function AccountLibraryTabs() {
       onClick: () => setActive(tab.id)
     },
     tab.label
-  ))), !loggedIn ? /* @__PURE__ */ React22.createElement(LibraryEmpty, { title: activeLabel, copy: "\u767B\u5F55\u540E\u53EF\u67E5\u770B\u8D26\u53F7\u5185\u5BB9" }) : error ? /* @__PURE__ */ React22.createElement(LibraryEmpty, { error: true, title: activeLabel, copy: error }) : loading ? /* @__PURE__ */ React22.createElement(LibraryEmpty, { title: activeLabel, copy: "\u6B63\u5728\u52A0\u8F7D\u8D26\u53F7\u5185\u5BB9" }) : renderContent());
+  ))), !loggedIn ? /* @__PURE__ */ React24.createElement(LibraryEmpty, { title: activeLabel, copy: "\u767B\u5F55\u540E\u53EF\u67E5\u770B\u8D26\u53F7\u5185\u5BB9" }) : error ? /* @__PURE__ */ React24.createElement(LibraryEmpty, { error: true, title: activeLabel, copy: error }) : loading ? /* @__PURE__ */ React24.createElement(LibraryEmpty, { title: activeLabel, copy: "\u6B63\u5728\u52A0\u8F7D\u8D26\u53F7\u5185\u5BB9" }) : renderContent());
   function renderContent() {
     if (active === "history") {
-      if (historyItems.length === 0) return /* @__PURE__ */ React22.createElement(LibraryEmpty, { title: "\u5386\u53F2\u8BB0\u5F55", copy: "\u6682\u65E0\u5386\u53F2\u8BB0\u5F55" });
-      return /* @__PURE__ */ React22.createElement("div", { className: "bili-library-list" }, historyItems.map((item) => /* @__PURE__ */ React22.createElement(VideoCard, { key: `${item.video.bvid}-${item.viewedAt}`, video: item.video })));
+      if (historyItems.length === 0) return /* @__PURE__ */ React24.createElement(LibraryEmpty, { title: "\u5386\u53F2\u8BB0\u5F55", copy: "\u6682\u65E0\u5386\u53F2\u8BB0\u5F55" });
+      return /* @__PURE__ */ React24.createElement("div", { className: "bili-library-list" }, historyItems.map((item) => /* @__PURE__ */ React24.createElement(VideoCard, { key: `${item.video.bvid}-${item.viewedAt}`, video: item.video })));
     }
     if (active === "watchLater") {
-      if (toViewItems.length === 0) return /* @__PURE__ */ React22.createElement(LibraryEmpty, { title: "\u7A0D\u540E\u518D\u770B", copy: "\u7A0D\u540E\u518D\u770B\u5217\u8868\u4E3A\u7A7A" });
-      return /* @__PURE__ */ React22.createElement("div", { className: "bili-library-list" }, toViewItems.map((item) => /* @__PURE__ */ React22.createElement(VideoCard, { key: `${item.video.bvid}-${item.addedAt}`, video: item.video })));
+      if (toViewItems.length === 0) return /* @__PURE__ */ React24.createElement(LibraryEmpty, { title: "\u7A0D\u540E\u518D\u770B", copy: "\u7A0D\u540E\u518D\u770B\u5217\u8868\u4E3A\u7A7A" });
+      return /* @__PURE__ */ React24.createElement("div", { className: "bili-library-list" }, toViewItems.map((item) => /* @__PURE__ */ React24.createElement(VideoCard, { key: `${item.video.bvid}-${item.addedAt}`, video: item.video })));
     }
     if (active === "bangumi") {
-      if (bangumiFollows.length === 0) return /* @__PURE__ */ React22.createElement(LibraryEmpty, { title: "\u8FFD\u756A", copy: "\u8FD8\u6CA1\u6709\u8FFD\u756A" });
-      return /* @__PURE__ */ React22.createElement("div", { className: "bili-bangumi-follow-grid" }, bangumiFollows.map((item) => /* @__PURE__ */ React22.createElement(
+      if (bangumiFollows.length === 0) return /* @__PURE__ */ React24.createElement(LibraryEmpty, { title: "\u8FFD\u756A", copy: "\u8FD8\u6CA1\u6709\u8FFD\u756A" });
+      return /* @__PURE__ */ React24.createElement("div", { className: "bili-bangumi-follow-grid" }, bangumiFollows.map((item) => /* @__PURE__ */ React24.createElement(
         "button",
         {
           key: item.seasonId,
@@ -23226,13 +28926,13 @@ function AccountLibraryTabs() {
           className: "bili-bangumi-follow-card",
           onClick: () => openSeason(item.seasonId)
         },
-        /* @__PURE__ */ React22.createElement("span", { className: "bili-cover-wrap" }, item.cover ? /* @__PURE__ */ React22.createElement(BiliImage, { className: "bili-pgc-cover", src: item.cover, loading: "lazy" }) : /* @__PURE__ */ React22.createElement("span", { className: "bili-cover-empty" }, "Bilibili"), item.badge ? /* @__PURE__ */ React22.createElement("span", { className: "bili-pgc-score" }, item.badge) : null),
-        /* @__PURE__ */ React22.createElement("span", { className: "bili-video-body" }, /* @__PURE__ */ React22.createElement("strong", { title: item.title }, item.title || "\u672A\u547D\u540D\u756A\u5267"), /* @__PURE__ */ React22.createElement("small", null, item.isFinish === 1 ? "\u5DF2\u5B8C\u7ED3" : `\u5171 ${item.totalCount} \u96C6`))
+        /* @__PURE__ */ React24.createElement("span", { className: "bili-cover-wrap" }, item.cover ? /* @__PURE__ */ React24.createElement(BiliImage, { className: "bili-pgc-cover", src: item.cover, loading: "lazy" }) : /* @__PURE__ */ React24.createElement("span", { className: "bili-cover-empty" }, "Bilibili"), item.badge ? /* @__PURE__ */ React24.createElement("span", { className: "bili-pgc-score" }, item.badge) : null),
+        /* @__PURE__ */ React24.createElement("span", { className: "bili-video-body" }, /* @__PURE__ */ React24.createElement("strong", { title: item.title }, item.title || "\u672A\u547D\u540D\u756A\u5267"), /* @__PURE__ */ React24.createElement("small", null, item.isFinish === 1 ? "\u5DF2\u5B8C\u7ED3" : `\u5171 ${item.totalCount} \u96C6`))
       )));
     }
-    if (folders.length === 0) return /* @__PURE__ */ React22.createElement(LibraryEmpty, { title: "\u6536\u85CF\u5939", copy: "\u6682\u65E0\u6536\u85CF\u5939" });
-    return /* @__PURE__ */ React22.createElement("div", { className: "bili-favorite-browser" }, /* @__PURE__ */ React22.createElement("div", { className: "bili-folder-list" }, !manageMode ? /* @__PURE__ */ React22.createElement(
-      Button7,
+    if (folders.length === 0) return /* @__PURE__ */ React24.createElement(LibraryEmpty, { title: "\u6536\u85CF\u5939", copy: "\u6682\u65E0\u6536\u85CF\u5939" });
+    return /* @__PURE__ */ React24.createElement("div", { className: "bili-favorite-browser" }, /* @__PURE__ */ React24.createElement("div", { className: "bili-folder-list" }, !manageMode ? /* @__PURE__ */ React24.createElement(
+      Button8,
       {
         className: "bili-fav-manage-entry",
         variant: "ghost",
@@ -23241,8 +28941,8 @@ function AccountLibraryTabs() {
         onClick: () => setManageMode(true)
       },
       "\u7BA1\u7406"
-    ) : /* @__PURE__ */ React22.createElement(
-      Button7,
+    ) : /* @__PURE__ */ React24.createElement(
+      Button8,
       {
         className: "bili-fav-manage-entry",
         variant: "ghost",
@@ -23251,8 +28951,8 @@ function AccountLibraryTabs() {
         onClick: () => setManageMode(false)
       },
       "\u5B8C\u6210"
-    ), folders.map((folder) => /* @__PURE__ */ React22.createElement(
-      Button7,
+    ), folders.map((folder) => /* @__PURE__ */ React24.createElement(
+      Button8,
       {
         className: folder.id === selectedFolderId ? "bili-folder-item bili-folder-item-active" : "bili-folder-item",
         variant: "ghost",
@@ -23261,9 +28961,9 @@ function AccountLibraryTabs() {
         type: "button",
         onClick: () => setSelectedFolderId(folder.id)
       },
-      /* @__PURE__ */ React22.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
-      /* @__PURE__ */ React22.createElement("small", null, folder.mediaCount, " \u4E2A \xB7 ", folder.owned ? "\u521B\u5EFA" : "\u6536\u85CF")
-    ))), /* @__PURE__ */ React22.createElement("div", { className: "bili-folder-videos" }, manageMode ? /* @__PURE__ */ React22.createElement(
+      /* @__PURE__ */ React24.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
+      /* @__PURE__ */ React24.createElement("small", null, folder.mediaCount, " \u4E2A \xB7 ", folder.owned ? "\u521B\u5EFA" : "\u6536\u85CF")
+    ))), /* @__PURE__ */ React24.createElement("div", { className: "bili-folder-videos" }, manageMode ? /* @__PURE__ */ React24.createElement(
       FavoriteManagePanel,
       {
         folders,
@@ -23274,7 +28974,7 @@ function AccountLibraryTabs() {
           void loadActive();
         }
       }
-    ) : favoriteItems.length === 0 ? /* @__PURE__ */ React22.createElement(LibraryEmpty, { title: "\u6536\u85CF\u5939\u5185\u5BB9", copy: "\u8BE5\u6536\u85CF\u5939\u6682\u65E0\u89C6\u9891" }) : favoriteItems.map((item) => /* @__PURE__ */ React22.createElement(VideoCard, { key: `${item.video.bvid}-${item.favoriteTime}`, video: item.video }))));
+    ) : favoriteItems.length === 0 ? /* @__PURE__ */ React24.createElement(LibraryEmpty, { title: "\u6536\u85CF\u5939\u5185\u5BB9", copy: "\u8BE5\u6536\u85CF\u5939\u6682\u65E0\u89C6\u9891" }) : favoriteItems.map((item) => /* @__PURE__ */ React24.createElement(VideoCard, { key: `${item.video.bvid}-${item.favoriteTime}`, video: item.video }))));
   }
   async function loadActive() {
     const sdk = getState().sdk;
@@ -23317,20 +29017,20 @@ function AccountLibraryTabs() {
   }
 }
 function LibraryEmpty({ title, copy, error = false }) {
-  return /* @__PURE__ */ React22.createElement("div", { className: error ? "bili-library-empty bili-state-error" : "bili-library-empty" }, /* @__PURE__ */ React22.createElement("strong", null, title), /* @__PURE__ */ React22.createElement("span", null, copy));
+  return /* @__PURE__ */ React24.createElement("div", { className: error ? "bili-library-empty bili-state-error" : "bili-library-empty" }, /* @__PURE__ */ React24.createElement("strong", null, title), /* @__PURE__ */ React24.createElement("span", null, copy));
 }
 
 // src/components/DynamicPublishDialog.tsx
-import React23, { Button as Button8, useEffect as useEffect17, useRef as useRef6, useState as useState17 } from "sdk";
+import React25, { Button as Button9, useEffect as useEffect19, useRef as useRef7, useState as useState19 } from "sdk";
 var maxLength = 1e3;
 var cooldownSeconds = 30;
 function DynamicPublishDialog({ open, onClose }) {
-  const [content, setContent] = useState17("");
-  const [publishing, setPublishing] = useState17(false);
-  const [cooldown, setCooldown] = useState17(0);
-  const contentRef = useRef6(content);
+  const [content, setContent] = useState19("");
+  const [publishing, setPublishing] = useState19(false);
+  const [cooldown, setCooldown] = useState19(0);
+  const contentRef = useRef7(content);
   contentRef.current = content;
-  useEffect17(() => {
+  useEffect19(() => {
     if (!open) return;
     const closeOnDown = (event) => {
       if (event.target === event.currentTarget) onClose();
@@ -23338,7 +29038,7 @@ function DynamicPublishDialog({ open, onClose }) {
     document.addEventListener("mousedown", closeOnDown);
     return () => document.removeEventListener("mousedown", closeOnDown);
   }, [open, onClose]);
-  useEffect17(() => {
+  useEffect19(() => {
     if (cooldown <= 0) return;
     const timer = setTimeout(() => setCooldown((value) => Math.max(0, value - 1)), 1e3);
     return () => clearTimeout(timer);
@@ -23366,7 +29066,7 @@ function DynamicPublishDialog({ open, onClose }) {
       sdk.ui.notify(errorMessage(reason));
     }).finally(() => setPublishing(false));
   }
-  return /* @__PURE__ */ React23.createElement("div", { className: "bili-dialog-backdrop", onMouseDown: () => onClose() }, /* @__PURE__ */ React23.createElement("form", { className: "bili-dialog", onSubmit: submit, onMouseDown: (event) => event.stopPropagation() }, /* @__PURE__ */ React23.createElement("div", { className: "bili-dialog-title" }, "\u53D1\u5E03\u52A8\u6001"), /* @__PURE__ */ React23.createElement(
+  return /* @__PURE__ */ React25.createElement("div", { className: "bili-dialog-backdrop", onMouseDown: () => onClose() }, /* @__PURE__ */ React25.createElement("form", { className: "bili-dialog", onSubmit: submit, onMouseDown: (event) => event.stopPropagation() }, /* @__PURE__ */ React25.createElement("div", { className: "bili-dialog-title" }, "\u53D1\u5E03\u52A8\u6001"), /* @__PURE__ */ React25.createElement(
     "textarea",
     {
       className: "bili-dynamic-publish-input",
@@ -23375,22 +29075,22 @@ function DynamicPublishDialog({ open, onClose }) {
       placeholder: "\u5206\u4EAB\u4F60\u7684\u52A8\u6001\u2026",
       onChange: (event) => setContent(event.currentTarget.value.slice(0, maxLength))
     }
-  ), /* @__PURE__ */ React23.createElement("div", { className: "bili-dynamic-publish-count" }, content.length, "/", maxLength), /* @__PURE__ */ React23.createElement("div", { className: "bili-dialog-actions" }, /* @__PURE__ */ React23.createElement(Button8, { variant: "ghost", size: "sm", type: "button", onClick: onClose }, "\u53D6\u6D88"), /* @__PURE__ */ React23.createElement(Button8, { size: "sm", type: "submit", disabled: !canPublish }, publishing ? "\u53D1\u5E03\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u5E03"))));
+  ), /* @__PURE__ */ React25.createElement("div", { className: "bili-dynamic-publish-count" }, content.length, "/", maxLength), /* @__PURE__ */ React25.createElement("div", { className: "bili-dialog-actions" }, /* @__PURE__ */ React25.createElement(Button9, { variant: "ghost", size: "sm", type: "button", onClick: onClose }, "\u53D6\u6D88"), /* @__PURE__ */ React25.createElement(Button9, { size: "sm", type: "submit", disabled: !canPublish }, publishing ? "\u53D1\u5E03\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u5E03"))));
 }
 
 // src/components/LoginPanel.tsx
-import React24, { Button as Button9, useEffect as useEffect18, useState as useState18 } from "sdk";
+import React26, { Button as Button10, useEffect as useEffect20, useState as useState20 } from "sdk";
 function LoginPanel() {
-  const [state2, setState2] = useState18(getState);
-  useEffect18(() => {
+  const [state2, setState2] = useState20(getState);
+  useEffect20(() => {
     const unsubscribe = subscribe(() => setState2(getState()));
     void refreshLoginStatus();
     return unsubscribe;
   }, []);
   const account = state2.loginInfo;
   const loggedIn = Boolean(account?.loggedIn);
-  return /* @__PURE__ */ React24.createElement("section", { className: "bili-login-panel" }, /* @__PURE__ */ React24.createElement("div", { className: "bili-login-heading" }, /* @__PURE__ */ React24.createElement("span", null, /* @__PURE__ */ React24.createElement("strong", null, "\u8D26\u53F7"), /* @__PURE__ */ React24.createElement("small", null, loggedIn ? "\u5DF2\u767B\u5F55" : account?.loginExpired ? "\u767B\u5F55\u8FC7\u671F" : "\u672A\u767B\u5F55")), /* @__PURE__ */ React24.createElement(
-    Button9,
+  return /* @__PURE__ */ React26.createElement("section", { className: "bili-login-panel" }, /* @__PURE__ */ React26.createElement("div", { className: "bili-login-heading" }, /* @__PURE__ */ React26.createElement("span", null, /* @__PURE__ */ React26.createElement("strong", null, "\u8D26\u53F7"), /* @__PURE__ */ React26.createElement("small", null, loggedIn ? "\u5DF2\u767B\u5F55" : account?.loginExpired ? "\u767B\u5F55\u8FC7\u671F" : "\u672A\u767B\u5F55")), /* @__PURE__ */ React26.createElement(
+    Button10,
     {
       variant: "outline",
       size: "sm",
@@ -23399,38 +29099,38 @@ function LoginPanel() {
       disabled: state2.loginPolling
     },
     "\u5237\u65B0"
-  )), loggedIn && account ? /* @__PURE__ */ React24.createElement("div", { className: "bili-account" }, /* @__PURE__ */ React24.createElement(BiliImage, { src: account.avatar, className: "bili-avatar" }), /* @__PURE__ */ React24.createElement("span", { className: "bili-account-main" }, /* @__PURE__ */ React24.createElement("strong", null, account.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React24.createElement("small", null, "UID ", account.userId || "-")), /* @__PURE__ */ React24.createElement(Button9, { size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55")) : /* @__PURE__ */ React24.createElement("div", { className: "bili-login-flow" }, state2.loginQr ? /* @__PURE__ */ React24.createElement("img", { className: "bili-qr", src: state2.loginQr.qrImage, alt: "Bilibili \u767B\u5F55\u4E8C\u7EF4\u7801" }) : /* @__PURE__ */ React24.createElement("div", { className: "bili-qr-placeholder" }, "\u4E8C\u7EF4\u7801"), /* @__PURE__ */ React24.createElement("div", { className: "bili-login-actions" }, state2.loginPolling ? /* @__PURE__ */ React24.createElement(Button9, { size: "sm", type: "button", onClick: () => stopQrLogin() }, "\u53D6\u6D88\u767B\u5F55") : /* @__PURE__ */ React24.createElement(Button9, { size: "sm", type: "button", onClick: () => void startQrLogin() }, "\u751F\u6210\u4E8C\u7EF4\u7801"))), state2.loginError ? /* @__PURE__ */ React24.createElement("p", { className: "bili-status" }, state2.loginError) : null);
+  )), loggedIn && account ? /* @__PURE__ */ React26.createElement("div", { className: "bili-account" }, /* @__PURE__ */ React26.createElement(BiliImage, { src: account.avatar, className: "bili-avatar" }), /* @__PURE__ */ React26.createElement("span", { className: "bili-account-main" }, /* @__PURE__ */ React26.createElement("strong", null, account.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React26.createElement("small", null, "UID ", account.userId || "-")), /* @__PURE__ */ React26.createElement(Button10, { size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55")) : /* @__PURE__ */ React26.createElement("div", { className: "bili-login-flow" }, state2.loginQr ? /* @__PURE__ */ React26.createElement("img", { className: "bili-qr", src: state2.loginQr.qrImage, alt: "Bilibili \u767B\u5F55\u4E8C\u7EF4\u7801" }) : /* @__PURE__ */ React26.createElement("div", { className: "bili-qr-placeholder" }, "\u4E8C\u7EF4\u7801"), /* @__PURE__ */ React26.createElement("div", { className: "bili-login-actions" }, state2.loginPolling ? /* @__PURE__ */ React26.createElement(Button10, { size: "sm", type: "button", onClick: () => stopQrLogin() }, "\u53D6\u6D88\u767B\u5F55") : /* @__PURE__ */ React26.createElement(Button10, { size: "sm", type: "button", onClick: () => void startQrLogin() }, "\u751F\u6210\u4E8C\u7EF4\u7801"))), state2.loginError ? /* @__PURE__ */ React26.createElement("p", { className: "bili-status" }, state2.loginError) : null);
 }
 
 // src/pages/MinePage.tsx
 function MinePage() {
-  const [runtimeState, setRuntimeState] = useState19(getState);
-  const [publishOpen, setPublishOpen] = useState19(false);
-  useEffect19(() => {
+  const [runtimeState, setRuntimeState] = useState21(getState);
+  const [publishOpen, setPublishOpen] = useState21(false);
+  useEffect21(() => {
     const unsubscribe = subscribe(() => setRuntimeState(getState()));
     void refreshLoginStatus().catch(() => void 0);
     return unsubscribe;
   }, []);
   const loggedIn = Boolean(runtimeState.loginInfo?.loggedIn);
-  return /* @__PURE__ */ React25.createElement("section", { className: "bili-mine" }, loggedIn ? /* @__PURE__ */ React25.createElement(AccountCard, { loginInfo: runtimeState.loginInfo }) : /* @__PURE__ */ React25.createElement(LoginPanel, null), loggedIn ? /* @__PURE__ */ React25.createElement("div", { className: "bili-mine-actions" }, /* @__PURE__ */ React25.createElement(Button10, { size: "sm", type: "button", onClick: () => setPublishOpen(true) }, "\u53D1\u5E03\u52A8\u6001"), /* @__PURE__ */ React25.createElement(Button10, { variant: "outline", size: "sm", type: "button", onClick: openMessages }, "\u79C1\u4FE1"), /* @__PURE__ */ React25.createElement(Button10, { variant: "outline", size: "sm", type: "button", onClick: openNotifications }, "\u901A\u77E5")) : null, loggedIn ? /* @__PURE__ */ React25.createElement(AccountLibraryTabs, null) : null, /* @__PURE__ */ React25.createElement(DynamicPublishDialog, { open: publishOpen, onClose: () => setPublishOpen(false) }));
+  return /* @__PURE__ */ React27.createElement("section", { className: "bili-mine" }, loggedIn ? /* @__PURE__ */ React27.createElement(AccountCard, { loginInfo: runtimeState.loginInfo }) : /* @__PURE__ */ React27.createElement(LoginPanel, null), loggedIn ? /* @__PURE__ */ React27.createElement("div", { className: "bili-mine-actions" }, /* @__PURE__ */ React27.createElement(Button11, { size: "sm", type: "button", onClick: () => setPublishOpen(true) }, "\u53D1\u5E03\u52A8\u6001"), /* @__PURE__ */ React27.createElement(Button11, { variant: "outline", size: "sm", type: "button", onClick: openMessages }, "\u79C1\u4FE1"), /* @__PURE__ */ React27.createElement(Button11, { variant: "outline", size: "sm", type: "button", onClick: openNotifications }, "\u901A\u77E5")) : null, loggedIn ? /* @__PURE__ */ React27.createElement(AccountLibraryTabs, null) : null, /* @__PURE__ */ React27.createElement(DynamicPublishDialog, { open: publishOpen, onClose: () => setPublishOpen(false) }));
 }
 
 // src/pages/NotificationsPage.tsx
-import React26, { useEffect as useEffect20, useRef as useRef7, useState as useState20 } from "sdk";
+import React28, { useEffect as useEffect22, useRef as useRef8, useState as useState22 } from "sdk";
 var filters = [
   { id: "all", label: "\u5168\u90E8" },
   { id: "reply", label: "\u56DE\u590D" },
   { id: "at", label: "@\u6211" }
 ];
 function NotificationsPage() {
-  const [entries, setEntries] = useState20([]);
-  const [filter, setFilter] = useState20("all");
-  const [cursorId, setCursorId] = useState20(null);
-  const [isEnd, setIsEnd] = useState20(false);
-  const [loading, setLoading] = useState20(false);
-  const [error, setError] = useState20("");
-  const requestSeqRef = useRef7(0);
-  useEffect20(() => {
+  const [entries, setEntries] = useState22([]);
+  const [filter, setFilter] = useState22("all");
+  const [cursorId, setCursorId] = useState22(null);
+  const [isEnd, setIsEnd] = useState22(false);
+  const [loading, setLoading] = useState22(false);
+  const [error, setError] = useState22("");
+  const requestSeqRef = useRef8(0);
+  useEffect22(() => {
     const seq = requestSeqRef.current + 1;
     requestSeqRef.current = seq;
     setLoading(true);
@@ -23482,10 +29182,15 @@ function NotificationsPage() {
       openDynDetail(dynMatch[1]);
       return;
     }
+    const liveMatch = uri.match(/live\.bilibili\.com\/(\d+)/);
+    if (liveMatch) {
+      openLive(Number(liveMatch[1]));
+      return;
+    }
   }
-  if (loading && entries.length === 0) return /* @__PURE__ */ React26.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u901A\u77E5");
-  if (error && entries.length === 0) return /* @__PURE__ */ React26.createElement("div", { className: "bili-state bili-state-error" }, error);
-  return /* @__PURE__ */ React26.createElement("section", { className: "bili-notifications" }, /* @__PURE__ */ React26.createElement("div", { className: "bili-notify-filters" }, filters.map((item) => /* @__PURE__ */ React26.createElement(
+  if (loading && entries.length === 0) return /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u901A\u77E5");
+  if (error && entries.length === 0) return /* @__PURE__ */ React28.createElement("div", { className: "bili-state bili-state-error" }, error);
+  return /* @__PURE__ */ React28.createElement("section", { className: "bili-notifications" }, /* @__PURE__ */ React28.createElement("div", { className: "bili-notify-filters" }, filters.map((item) => /* @__PURE__ */ React28.createElement(
     "button",
     {
       key: item.id,
@@ -23494,7 +29199,7 @@ function NotificationsPage() {
       onClick: () => setFilter(item.id)
     },
     item.label
-  ))), visibleEntries().length === 0 && !loading ? /* @__PURE__ */ React26.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u901A\u77E5") : null, visibleEntries().map((entry) => /* @__PURE__ */ React26.createElement("button", { className: "bili-notify-entry", key: entry.id, type: "button", onClick: () => openEntry(entry) }, /* @__PURE__ */ React26.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.userFace, alt: entry.userName }), /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-entry-body" }, /* @__PURE__ */ React26.createElement("strong", null, entry.userName, entry.replyType.includes("at") ? /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-tag" }, "@\u6211") : null), /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-entry-desc" }, entry.sourceContent || entry.desc || entry.title), /* @__PURE__ */ React26.createElement("small", null, formatTime2(entry.replyTime))))), error ? /* @__PURE__ */ React26.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !isEnd ? /* @__PURE__ */ React26.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null);
+  ))), visibleEntries().length === 0 && !loading ? /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u901A\u77E5") : null, visibleEntries().map((entry) => /* @__PURE__ */ React28.createElement("button", { className: "bili-notify-entry", key: entry.id, type: "button", onClick: () => openEntry(entry) }, /* @__PURE__ */ React28.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.userFace, alt: entry.userName }), /* @__PURE__ */ React28.createElement("span", { className: "bili-notify-entry-body" }, /* @__PURE__ */ React28.createElement("strong", null, entry.userName, entry.replyType.includes("at") ? /* @__PURE__ */ React28.createElement("span", { className: "bili-notify-tag" }, "@\u6211") : null), /* @__PURE__ */ React28.createElement("span", { className: "bili-notify-entry-desc" }, entry.sourceContent || entry.desc || entry.title), /* @__PURE__ */ React28.createElement("small", null, formatTime2(entry.replyTime))))), error ? /* @__PURE__ */ React28.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !isEnd ? /* @__PURE__ */ React28.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null);
 }
 function formatTime2(timestamp) {
   const date = new Date(timestamp * 1e3);
@@ -23507,13 +29212,13 @@ function formatTime2(timestamp) {
 }
 
 // src/pages/SeasonPage.tsx
-import React27, { Button as Button11, useEffect as useEffect21, useState as useState21 } from "sdk";
+import React29, { Button as Button12, useEffect as useEffect23, useState as useState23 } from "sdk";
 function SeasonPage({ seasonId }) {
-  const [detail, setDetail] = useState21(null);
-  const [loading, setLoading] = useState21(false);
-  const [error, setError] = useState21("");
-  const [followBusy, setFollowBusy] = useState21(false);
-  useEffect21(() => {
+  const [detail, setDetail] = useState23(null);
+  const [loading, setLoading] = useState23(false);
+  const [error, setError] = useState23("");
+  const [followBusy, setFollowBusy] = useState23(false);
+  useEffect23(() => {
     let cancelled = false;
     setLoading(true);
     setError("");
@@ -23547,10 +29252,10 @@ function SeasonPage({ seasonId }) {
       setFollowBusy(false);
     });
   }
-  if (loading) return /* @__PURE__ */ React27.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u756A\u5267\u8BE6\u60C5");
-  if (error) return /* @__PURE__ */ React27.createElement("div", { className: "bili-state bili-state-error" }, error);
-  if (!detail) return /* @__PURE__ */ React27.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u756A\u5267\u4FE1\u606F");
-  return /* @__PURE__ */ React27.createElement("section", { className: "bili-season-page" }, /* @__PURE__ */ React27.createElement("div", { className: "bili-season-header" }, /* @__PURE__ */ React27.createElement(BiliImage, { className: "bili-season-cover", src: detail.cover, alt: detail.title }), /* @__PURE__ */ React27.createElement("div", { className: "bili-season-info" }, /* @__PURE__ */ React27.createElement("div", { className: "bili-season-title" }, detail.title), /* @__PURE__ */ React27.createElement("div", { className: "bili-season-meta" }, detail.score != null ? /* @__PURE__ */ React27.createElement("span", null, "\u8BC4\u5206 ", detail.score.score.toFixed(1), "\uFF08", detail.score.count, " \u4EBA\uFF09") : null, detail.newEp ? /* @__PURE__ */ React27.createElement("span", null, "\u6700\u65B0\uFF1A", detail.newEp) : null, /* @__PURE__ */ React27.createElement("span", null, "\u5171 ", detail.total, " \u96C6")), detail.evaluate ? /* @__PURE__ */ React27.createElement("div", { className: "bili-season-evaluate" }, detail.evaluate) : null, /* @__PURE__ */ React27.createElement("div", null, /* @__PURE__ */ React27.createElement(Button11, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, detail.isFollowed ? "\u5DF2\u8FFD\u756A" : "\u8FFD\u756A")))), /* @__PURE__ */ React27.createElement("div", { className: "bili-season-section-title" }, "\u9009\u96C6"), /* @__PURE__ */ React27.createElement("div", { className: "bili-season-episodes" }, detail.episodes.map((episode) => /* @__PURE__ */ React27.createElement(
+  if (loading) return /* @__PURE__ */ React29.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u756A\u5267\u8BE6\u60C5");
+  if (error) return /* @__PURE__ */ React29.createElement("div", { className: "bili-state bili-state-error" }, error);
+  if (!detail) return /* @__PURE__ */ React29.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u756A\u5267\u4FE1\u606F");
+  return /* @__PURE__ */ React29.createElement("section", { className: "bili-season-page" }, /* @__PURE__ */ React29.createElement("div", { className: "bili-season-header" }, /* @__PURE__ */ React29.createElement(BiliImage, { className: "bili-season-cover", src: detail.cover, alt: detail.title }), /* @__PURE__ */ React29.createElement("div", { className: "bili-season-info" }, /* @__PURE__ */ React29.createElement("div", { className: "bili-season-title" }, detail.title), /* @__PURE__ */ React29.createElement("div", { className: "bili-season-meta" }, detail.score != null ? /* @__PURE__ */ React29.createElement("span", null, "\u8BC4\u5206 ", detail.score.score.toFixed(1), "\uFF08", detail.score.count, " \u4EBA\uFF09") : null, detail.newEp ? /* @__PURE__ */ React29.createElement("span", null, "\u6700\u65B0\uFF1A", detail.newEp) : null, /* @__PURE__ */ React29.createElement("span", null, "\u5171 ", detail.total, " \u96C6")), detail.evaluate ? /* @__PURE__ */ React29.createElement("div", { className: "bili-season-evaluate" }, detail.evaluate) : null, /* @__PURE__ */ React29.createElement("div", null, /* @__PURE__ */ React29.createElement(Button12, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, detail.isFollowed ? "\u5DF2\u8FFD\u756A" : "\u8FFD\u756A")))), /* @__PURE__ */ React29.createElement("div", { className: "bili-season-section-title" }, "\u9009\u96C6"), /* @__PURE__ */ React29.createElement("div", { className: "bili-season-episodes" }, detail.episodes.map((episode) => /* @__PURE__ */ React29.createElement(
     "button",
     {
       key: episode.epId,
@@ -23566,8 +29271,8 @@ function SeasonPage({ seasonId }) {
         epId: episode.epId
       })
     },
-    /* @__PURE__ */ React27.createElement("span", { className: "bili-season-episode-title" }, episode.longTitle || episode.title || `ep${episode.epId}`),
-    /* @__PURE__ */ React27.createElement("span", { className: "bili-season-episode-duration" }, formatDuration2(episode.duration / 1e3))
+    /* @__PURE__ */ React29.createElement("span", { className: "bili-season-episode-title" }, episode.longTitle || episode.title || `ep${episode.epId}`),
+    /* @__PURE__ */ React29.createElement("span", { className: "bili-season-episode-duration" }, formatDuration2(episode.duration / 1e3))
   ))));
 }
 function formatDuration2(seconds) {
@@ -23583,25 +29288,25 @@ function pad2(value) {
 }
 
 // src/pages/SpacePage.tsx
-import React28, { Button as Button12, useEffect as useEffect22, useRef as useRef8, useState as useState22 } from "sdk";
+import React30, { Button as Button13, useEffect as useEffect24, useRef as useRef9, useState as useState24 } from "sdk";
 function SpacePage({ mid }) {
-  const [space, setSpace] = useState22(null);
-  const [videos, setVideos] = useState22([]);
-  const [page, setPage] = useState22(1);
-  const [loading, setLoading] = useState22(false);
-  const [videosLoading, setVideosLoading] = useState22(false);
-  const [error, setError] = useState22("");
-  const [followBusy, setFollowBusy] = useState22(false);
-  const [tab, setTab] = useState22("videos");
-  const [dynamics, setDynamics] = useState22([]);
-  const [dynOffset, setDynOffset] = useState22("");
-  const [dynHasMore, setDynHasMore] = useState22(false);
-  const [dynLoading, setDynLoading] = useState22(false);
-  const [topBusy, setTopBusy] = useState22("");
-  const dynSeqRef = useRef8(0);
+  const [space, setSpace] = useState24(null);
+  const [videos, setVideos] = useState24([]);
+  const [page, setPage] = useState24(1);
+  const [loading, setLoading] = useState24(false);
+  const [videosLoading, setVideosLoading] = useState24(false);
+  const [error, setError] = useState24("");
+  const [followBusy, setFollowBusy] = useState24(false);
+  const [tab, setTab] = useState24("videos");
+  const [dynamics, setDynamics] = useState24([]);
+  const [dynOffset, setDynOffset] = useState24("");
+  const [dynHasMore, setDynHasMore] = useState24(false);
+  const [dynLoading, setDynLoading] = useState24(false);
+  const [topBusy, setTopBusy] = useState24("");
+  const dynSeqRef = useRef9(0);
   const currentUid = Number(getState().loginInfo?.userId ?? 0);
   const isSelf = currentUid > 0 && currentUid === mid;
-  useEffect22(() => {
+  useEffect24(() => {
     let cancelled = false;
     setLoading(true);
     setError("");
@@ -23622,7 +29327,7 @@ function SpacePage({ mid }) {
       cancelled = true;
     };
   }, [mid]);
-  useEffect22(() => {
+  useEffect24(() => {
     let cancelled = false;
     setVideosLoading(true);
     const sdk = getState().sdk;
@@ -23639,7 +29344,7 @@ function SpacePage({ mid }) {
       cancelled = true;
     };
   }, [mid, page]);
-  useEffect22(() => {
+  useEffect24(() => {
     if (tab !== "dynamics") return;
     const seq = dynSeqRef.current + 1;
     dynSeqRef.current = seq;
@@ -23719,10 +29424,10 @@ function SpacePage({ mid }) {
       setFollowBusy(false);
     });
   }
-  if (loading) return /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D UP \u4E3B\u9875");
-  if (error && !space) return /* @__PURE__ */ React28.createElement("div", { className: "bili-state bili-state-error" }, error);
-  if (!space) return /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6682\u65E0 UP \u4FE1\u606F");
-  return /* @__PURE__ */ React28.createElement("section", { className: "bili-space" }, /* @__PURE__ */ React28.createElement("div", { className: "bili-space-card" }, /* @__PURE__ */ React28.createElement(BiliImage, { className: "bili-space-avatar", src: space.face, alt: space.name }), /* @__PURE__ */ React28.createElement("div", { className: "bili-space-info" }, /* @__PURE__ */ React28.createElement("div", { className: "bili-space-name" }, space.name, /* @__PURE__ */ React28.createElement("span", { className: "bili-space-level" }, "Lv.", space.level), space.liveRoom && space.liveRoom.liveStatus === 1 ? /* @__PURE__ */ React28.createElement("span", { className: "bili-space-live" }, "\u76F4\u64AD\u4E2D") : null), /* @__PURE__ */ React28.createElement("div", { className: "bili-space-sign" }, space.sign || "\u8FD9\u4E2A\u4EBA\u5F88\u61D2\uFF0C\u4EC0\u4E48\u90FD\u6CA1\u5199"), /* @__PURE__ */ React28.createElement("div", { className: "bili-space-stats" }, /* @__PURE__ */ React28.createElement("span", null, "\u89C6\u9891 ", space.archiveCount), /* @__PURE__ */ React28.createElement("span", null, "\u64AD\u653E ", formatCount3(space.view)), /* @__PURE__ */ React28.createElement("span", null, "\u7C89\u4E1D ", formatCount3(space.fans)), /* @__PURE__ */ React28.createElement("span", null, "\u83B7\u8D5E ", formatCount3(space.likes)))), /* @__PURE__ */ React28.createElement(Button12, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, space.isFollowed ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8")), /* @__PURE__ */ React28.createElement("div", { className: "bili-space-tabs" }, /* @__PURE__ */ React28.createElement(
+  if (loading) return /* @__PURE__ */ React30.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D UP \u4E3B\u9875");
+  if (error && !space) return /* @__PURE__ */ React30.createElement("div", { className: "bili-state bili-state-error" }, error);
+  if (!space) return /* @__PURE__ */ React30.createElement("div", { className: "bili-state" }, "\u6682\u65E0 UP \u4FE1\u606F");
+  return /* @__PURE__ */ React30.createElement("section", { className: "bili-space" }, /* @__PURE__ */ React30.createElement("div", { className: "bili-space-card" }, /* @__PURE__ */ React30.createElement(BiliImage, { className: "bili-space-avatar", src: space.face, alt: space.name }), /* @__PURE__ */ React30.createElement("div", { className: "bili-space-info" }, /* @__PURE__ */ React30.createElement("div", { className: "bili-space-name" }, space.name, /* @__PURE__ */ React30.createElement("span", { className: "bili-space-level" }, "Lv.", space.level), space.liveRoom && space.liveRoom.liveStatus === 1 ? /* @__PURE__ */ React30.createElement("span", { className: "bili-space-live" }, "\u76F4\u64AD\u4E2D") : null), /* @__PURE__ */ React30.createElement("div", { className: "bili-space-sign" }, space.sign || "\u8FD9\u4E2A\u4EBA\u5F88\u61D2\uFF0C\u4EC0\u4E48\u90FD\u6CA1\u5199"), /* @__PURE__ */ React30.createElement("div", { className: "bili-space-stats" }, /* @__PURE__ */ React30.createElement("span", null, "\u89C6\u9891 ", space.archiveCount), /* @__PURE__ */ React30.createElement("span", null, "\u64AD\u653E ", formatCount4(space.view)), /* @__PURE__ */ React30.createElement("span", null, "\u7C89\u4E1D ", formatCount4(space.fans)), /* @__PURE__ */ React30.createElement("span", null, "\u83B7\u8D5E ", formatCount4(space.likes)))), /* @__PURE__ */ React30.createElement(Button13, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, space.isFollowed ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8")), /* @__PURE__ */ React30.createElement("div", { className: "bili-space-tabs" }, /* @__PURE__ */ React30.createElement(
     "button",
     {
       type: "button",
@@ -23730,7 +29435,7 @@ function SpacePage({ mid }) {
       onClick: () => setTab("videos")
     },
     "\u6295\u7A3F"
-  ), /* @__PURE__ */ React28.createElement(
+  ), /* @__PURE__ */ React30.createElement(
     "button",
     {
       type: "button",
@@ -23738,7 +29443,7 @@ function SpacePage({ mid }) {
       onClick: () => setTab("dynamics")
     },
     "\u52A8\u6001"
-  )), tab === "videos" ? /* @__PURE__ */ React28.createElement(React28.Fragment, null, /* @__PURE__ */ React28.createElement("div", { className: "bili-space-section-title" }, "\u6295\u7A3F\u89C6\u9891"), videos.length === 0 && videosLoading ? /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891") : null, videos.length > 0 ? /* @__PURE__ */ React28.createElement(React28.Fragment, null, /* @__PURE__ */ React28.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React28.createElement(VideoCard, { key: `${video.bvid}-${video.aid}`, video }))), videosLoading ? /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u66F4\u591A") : /* @__PURE__ */ React28.createElement("button", { type: "button", className: "bili-space-load-more", onClick: () => setPage((previous) => previous + 1) }, "\u52A0\u8F7D\u66F4\u591A")) : null) : /* @__PURE__ */ React28.createElement("div", { className: "bili-dynamic-page" }, error ? /* @__PURE__ */ React28.createElement("div", { className: "bili-state bili-state-error" }, error) : null, dynLoading && dynamics.length === 0 ? /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001") : null, dynamics.map((card) => /* @__PURE__ */ React28.createElement("div", { className: "bili-dynamic-card-wrap", key: card.dynId }, /* @__PURE__ */ React28.createElement(DynamicCard, { card, onLike: handleLike }), isSelf ? /* @__PURE__ */ React28.createElement(
+  )), tab === "videos" ? /* @__PURE__ */ React30.createElement(React30.Fragment, null, /* @__PURE__ */ React30.createElement("div", { className: "bili-space-section-title" }, "\u6295\u7A3F\u89C6\u9891"), videos.length === 0 && videosLoading ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891") : null, videos.length > 0 ? /* @__PURE__ */ React30.createElement(React30.Fragment, null, /* @__PURE__ */ React30.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React30.createElement(VideoCard, { key: `${video.bvid}-${video.aid}`, video }))), videosLoading ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u66F4\u591A") : /* @__PURE__ */ React30.createElement("button", { type: "button", className: "bili-space-load-more", onClick: () => setPage((previous) => previous + 1) }, "\u52A0\u8F7D\u66F4\u591A")) : null) : /* @__PURE__ */ React30.createElement("div", { className: "bili-dynamic-page" }, error ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state bili-state-error" }, error) : null, dynLoading && dynamics.length === 0 ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001") : null, dynamics.map((card) => /* @__PURE__ */ React30.createElement("div", { className: "bili-dynamic-card-wrap", key: card.dynId }, /* @__PURE__ */ React30.createElement(DynamicCard, { card, onLike: handleLike }), isSelf ? /* @__PURE__ */ React30.createElement(
     "button",
     {
       type: "button",
@@ -23747,22 +29452,22 @@ function SpacePage({ mid }) {
       onClick: () => toggleTop(card)
     },
     card.isTop ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876"
-  ) : null)), dynamics.length === 0 && !dynLoading ? /* @__PURE__ */ React28.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u52A8\u6001") : null, dynHasMore ? /* @__PURE__ */ React28.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMoreDynamics, disabled: dynLoading }, dynLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null));
+  ) : null)), dynamics.length === 0 && !dynLoading ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u52A8\u6001") : null, dynHasMore ? /* @__PURE__ */ React30.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMoreDynamics, disabled: dynLoading }, dynLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null));
 }
-function formatCount3(value) {
+function formatCount4(value) {
   if (value >= 1e8) return `${(value / 1e8).toFixed(1)} \u4EBF`;
   if (value >= 1e4) return `${(value / 1e4).toFixed(1)} \u4E07`;
   return String(value);
 }
 
 // src/pages/WatchPage.tsx
-import React46, { useEffect as useEffect30, useRef as useRef13, useState as useState34 } from "sdk";
+import React48, { useEffect as useEffect32, useRef as useRef14, useState as useState36 } from "sdk";
 
 // src/components/CommentPanel.tsx
-import React30, { useCallback as useCallback2, useEffect as useEffect23, useState as useState23 } from "sdk";
+import React32, { useCallback as useCallback2, useEffect as useEffect25, useState as useState25 } from "sdk";
 
 // src/components/CommentItem.tsx
-import React29 from "sdk";
+import React31 from "sdk";
 var reportReasons = [
   { value: "ad", label: "\u5E7F\u544A" },
   { value: "spam", label: "\u5237\u5C4F" },
@@ -23797,7 +29502,7 @@ function CommentItem({
   onReportSubmit
 }) {
   const displayName = comment.member.name || `\u7528\u6237 ${comment.member.mid}`;
-  return /* @__PURE__ */ React29.createElement("article", { className: `bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}` }, /* @__PURE__ */ React29.createElement("div", { className: "bili-comment-main" }, /* @__PURE__ */ React29.createElement("div", { className: "bili-comment-user" }, /* @__PURE__ */ React29.createElement(BiliImage, { className: "bili-comment-avatar", fallbackSrc: fallbackAvatar, src: comment.member.avatar }), /* @__PURE__ */ React29.createElement("div", { className: "bili-comment-user-info" }, /* @__PURE__ */ React29.createElement("span", null, displayName), /* @__PURE__ */ React29.createElement("p", null, comment.ctime ? formatTime3(comment.ctime) : "\u521A\u521A", pinned || comment.isTop ? " \xB7 \u7F6E\u9876" : ""))), /* @__PURE__ */ React29.createElement("p", { className: "bili-comment-content" }, comment.content.message), comment.content.pictures.length > 0 ? /* @__PURE__ */ React29.createElement("div", { className: "bili-comment-pictures" }, comment.content.pictures.map((url) => /* @__PURE__ */ React29.createElement(BiliImage, { key: url, src: url, loading: "lazy" }))) : null, /* @__PURE__ */ React29.createElement("div", { className: "bili-comment-actions" }, /* @__PURE__ */ React29.createElement(
+  return /* @__PURE__ */ React31.createElement("article", { className: `bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}` }, /* @__PURE__ */ React31.createElement("div", { className: "bili-comment-main" }, /* @__PURE__ */ React31.createElement("div", { className: "bili-comment-user" }, /* @__PURE__ */ React31.createElement(BiliImage, { className: "bili-comment-avatar", fallbackSrc: fallbackAvatar, src: comment.member.avatar }), /* @__PURE__ */ React31.createElement("div", { className: "bili-comment-user-info" }, /* @__PURE__ */ React31.createElement("span", null, displayName), /* @__PURE__ */ React31.createElement("p", null, comment.ctime ? formatTime3(comment.ctime) : "\u521A\u521A", pinned || comment.isTop ? " \xB7 \u7F6E\u9876" : ""))), /* @__PURE__ */ React31.createElement("p", { className: "bili-comment-content" }, comment.content.message), comment.content.pictures.length > 0 ? /* @__PURE__ */ React31.createElement("div", { className: "bili-comment-pictures" }, comment.content.pictures.map((url) => /* @__PURE__ */ React31.createElement(BiliImage, { key: url, src: url, loading: "lazy" }))) : null, /* @__PURE__ */ React31.createElement("div", { className: "bili-comment-actions" }, /* @__PURE__ */ React31.createElement(
     "button",
     {
       className: `bili-thumb ${comment.liked ? "bili-thumb-active" : ""}`,
@@ -23806,9 +29511,9 @@ function CommentItem({
       type: "button",
       onClick: onLike
     },
-    /* @__PURE__ */ React29.createElement(ThumbIcon, null),
-    /* @__PURE__ */ React29.createElement("span", null, comment.likeCount > 0 ? formatCount4(comment.likeCount) : "")
-  ), /* @__PURE__ */ React29.createElement(
+    /* @__PURE__ */ React31.createElement(ThumbIcon, null),
+    /* @__PURE__ */ React31.createElement("span", null, comment.likeCount > 0 ? formatCount5(comment.likeCount) : "")
+  ), /* @__PURE__ */ React31.createElement(
     "button",
     {
       className: `bili-thumb ${comment.disliked ? "bili-thumb-active" : ""}`,
@@ -23817,17 +29522,17 @@ function CommentItem({
       type: "button",
       onClick: onDislike
     },
-    /* @__PURE__ */ React29.createElement(ThumbIcon, { down: true })
-  ), /* @__PURE__ */ React29.createElement("button", { disabled: !loggedIn, type: "button", onClick: onToggleReply }, replyOpen ? "\u6536\u8D77\u56DE\u590D\u6846" : "\u56DE\u590D"), comment.repliesCount > 0 ? /* @__PURE__ */ React29.createElement("button", { type: "button", onClick: onToggleReplies }, replyOpen ? "\u6536\u8D77\u56DE\u590D" : `\u5C55\u5F00 ${formatCount4(comment.repliesCount)} \u6761\u56DE\u590D`) : null, comment.canTop ? /* @__PURE__ */ React29.createElement("button", { disabled: busy, type: "button", onClick: onToggleTop }, comment.isTop || pinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876") : null, comment.canDelete ? /* @__PURE__ */ React29.createElement("button", { disabled: busy, type: "button", onClick: onDelete }, "\u5220\u9664") : null, /* @__PURE__ */ React29.createElement("button", { type: "button", onClick: onToggleReport }, "\u4E3E\u62A5")), repliesSlot, reportOpen ? /* @__PURE__ */ React29.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React29.createElement(
+    /* @__PURE__ */ React31.createElement(ThumbIcon, { down: true })
+  ), /* @__PURE__ */ React31.createElement("button", { disabled: !loggedIn, type: "button", onClick: onToggleReply }, replyOpen ? "\u6536\u8D77\u56DE\u590D\u6846" : "\u56DE\u590D"), comment.repliesCount > 0 ? /* @__PURE__ */ React31.createElement("button", { type: "button", onClick: onToggleReplies }, replyOpen ? "\u6536\u8D77\u56DE\u590D" : `\u5C55\u5F00 ${formatCount5(comment.repliesCount)} \u6761\u56DE\u590D`) : null, comment.canTop ? /* @__PURE__ */ React31.createElement("button", { disabled: busy, type: "button", onClick: onToggleTop }, comment.isTop || pinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876") : null, comment.canDelete ? /* @__PURE__ */ React31.createElement("button", { disabled: busy, type: "button", onClick: onDelete }, "\u5220\u9664") : null, /* @__PURE__ */ React31.createElement("button", { type: "button", onClick: onToggleReport }, "\u4E3E\u62A5")), repliesSlot, reportOpen ? /* @__PURE__ */ React31.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React31.createElement(
     "select",
     {
       value: reportDraft.reason,
       onChange: (event) => onReportReasonChange(event.currentTarget.value)
     },
-    reportReasons.map((reason) => /* @__PURE__ */ React29.createElement("option", { key: reason.value, value: reason.value }, reason.label))
-  ), /* @__PURE__ */ React29.createElement("input", { placeholder: "\u8865\u5145\u8BF4\u660E", value: reportDraft.content, onChange: (event) => onReportContentChange(event.currentTarget.value) }), /* @__PURE__ */ React29.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busy, type: "button", onClick: onReportSubmit }, "\u786E\u8BA4\u4E3E\u62A5")) : null));
+    reportReasons.map((reason) => /* @__PURE__ */ React31.createElement("option", { key: reason.value, value: reason.value }, reason.label))
+  ), /* @__PURE__ */ React31.createElement("input", { placeholder: "\u8865\u5145\u8BF4\u660E", value: reportDraft.content, onChange: (event) => onReportContentChange(event.currentTarget.value) }), /* @__PURE__ */ React31.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busy, type: "button", onClick: onReportSubmit }, "\u786E\u8BA4\u4E3E\u62A5")) : null));
 }
-function formatCount4(value) {
+function formatCount5(value) {
   if (value >= 1e8) return `${trim2(value / 1e8)}\u4EBF`;
   if (value >= 1e4) return `${trim2(value / 1e4)}\u4E07`;
   return String(Math.max(0, Math.floor(value || 0)));
@@ -23851,14 +29556,14 @@ function formatTime3(timestamp) {
   return `${y}-${m}-${d}`;
 }
 function ThumbIcon({ down = false }) {
-  return /* @__PURE__ */ React29.createElement("svg", { className: "bili-thumb-icon", viewBox: "0 0 27 27", fill: "currentColor", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true" }, down ? /* @__PURE__ */ React29.createElement(
+  return /* @__PURE__ */ React31.createElement("svg", { className: "bili-thumb-icon", viewBox: "0 0 27 27", fill: "currentColor", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true" }, down ? /* @__PURE__ */ React31.createElement(
     "path",
     {
       fillRule: "evenodd",
       clipRule: "evenodd",
       d: "M26.7229 0.5L21.5229 0.5L21.5229 16.0992L26.7229 16.0992L26.7229 0.5ZM0.815853 11.7382L3.07376 3.24339C3.44687 1.63037 4.88372 0.500027 6.53861 0.500027L18.9229 0.500028L18.9229 16.0722L16.6885 24.1271C16.4789 25.492 15.304 26.5 13.9218 26.5C12.3759 26.5 11.1228 25.2473 11.1228 23.7016L11.1228 16.1002L4.28068 16.1002C1.99391 16.0991 0.300502 13.9664 0.815853 11.7382Z"
     }
-  ) : /* @__PURE__ */ React29.createElement(
+  ) : /* @__PURE__ */ React31.createElement(
     "path",
     {
       fillRule: "evenodd",
@@ -23877,22 +29582,22 @@ var sortOptions = [
 function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
   const commentOid = oid ?? detail.aid;
   const commentType = type ?? 1;
-  const [sort, setSort] = useState23("replies");
-  const [comments, setComments] = useState23([]);
-  const [topComments, setTopComments] = useState23([]);
-  const [page, setPage] = useState23(1);
-  const [total, setTotal] = useState23(0);
-  const [hasMore, setHasMore] = useState23(false);
-  const [loading, setLoading] = useState23(false);
-  const [busyRpid, setBusyRpid] = useState23(null);
-  const [error, setError] = useState23("");
-  const [mainMessage, setMainMessage] = useState23("");
-  const [replyOpen, setReplyOpen] = useState23({});
-  const [replyDrafts, setReplyDrafts] = useState23({});
-  const [replyTargets, setReplyTargets] = useState23({});
-  const [replyStates, setReplyStates] = useState23({});
-  const [reportOpen, setReportOpen] = useState23({});
-  const [reportDrafts, setReportDrafts] = useState23({});
+  const [sort, setSort] = useState25("replies");
+  const [comments, setComments] = useState25([]);
+  const [topComments, setTopComments] = useState25([]);
+  const [page, setPage] = useState25(1);
+  const [total, setTotal] = useState25(0);
+  const [hasMore, setHasMore] = useState25(false);
+  const [loading, setLoading] = useState25(false);
+  const [busyRpid, setBusyRpid] = useState25(null);
+  const [error, setError] = useState25("");
+  const [mainMessage, setMainMessage] = useState25("");
+  const [replyOpen, setReplyOpen] = useState25({});
+  const [replyDrafts, setReplyDrafts] = useState25({});
+  const [replyTargets, setReplyTargets] = useState25({});
+  const [replyStates, setReplyStates] = useState25({});
+  const [reportOpen, setReportOpen] = useState25({});
+  const [reportDrafts, setReportDrafts] = useState25({});
   const loadPage = useCallback2(
     async (nextPage, append) => {
       if (!sdk) return;
@@ -23913,7 +29618,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
     },
     [commentOid, sdk, sort]
   );
-  useEffect23(() => {
+  useEffect25(() => {
     setComments([]);
     setTopComments([]);
     setPage(1);
@@ -23921,7 +29626,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
     setReplyStates({});
     void loadPage(1, false);
   }, [loadPage]);
-  return /* @__PURE__ */ React30.createElement("section", { className: "bili-comments" }, /* @__PURE__ */ React30.createElement("div", { className: "bili-comments-header" }, /* @__PURE__ */ React30.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React30.createElement("strong", null, "\u8BC4\u8BBA"), /* @__PURE__ */ React30.createElement("small", null, loading && comments.length === 0 ? "\u52A0\u8F7D\u4E2D" : `${formatCount5(total || detail.stats.replyCount)} \u6761`)), /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u8BC4\u8BBA\u6392\u5E8F" }, sortOptions.map((option) => /* @__PURE__ */ React30.createElement(
+  return /* @__PURE__ */ React32.createElement("section", { className: "bili-comments" }, /* @__PURE__ */ React32.createElement("div", { className: "bili-comments-header" }, /* @__PURE__ */ React32.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React32.createElement("strong", null, "\u8BC4\u8BBA"), /* @__PURE__ */ React32.createElement("small", null, loading && comments.length === 0 ? "\u52A0\u8F7D\u4E2D" : `${formatCount6(total || detail.stats.replyCount)} \u6761`)), /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u8BC4\u8BBA\u6392\u5E8F" }, sortOptions.map((option) => /* @__PURE__ */ React32.createElement(
     "button",
     {
       className: sort === option.value ? "bili-chip bili-chip-active" : "bili-chip",
@@ -23930,7 +29635,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
       onClick: () => setSort(option.value)
     },
     option.label
-  )))), /* @__PURE__ */ React30.createElement("form", { className: "bili-comment-editor", onSubmit: submitMainComment }, /* @__PURE__ */ React30.createElement(
+  )))), /* @__PURE__ */ React32.createElement("form", { className: "bili-comment-editor", onSubmit: submitMainComment }, /* @__PURE__ */ React32.createElement(
     "textarea",
     {
       disabled: !loggedIn || !sdk || busyRpid === 0,
@@ -23938,13 +29643,13 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
       value: mainMessage,
       onChange: (event) => setMainMessage(event.currentTarget.value)
     }
-  ), /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-editor-actions" }, /* @__PURE__ */ React30.createElement("span", null, mainMessage.trim().length, "/1000"), /* @__PURE__ */ React30.createElement("button", { className: "bili-button", disabled: !loggedIn || !sdk || busyRpid === 0 || !mainMessage.trim(), type: "submit" }, "\u53D1\u5E03"))), error ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, topComments.length > 0 ? /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-top-list" }, topComments.map((comment) => renderComment(comment, true))) : null, !loading && comments.length === 0 && !error ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u8BC4\u8BBA") : null, /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-list" }, comments.map((comment) => renderComment(comment, false))), /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-footer" }, hasMore ? /* @__PURE__ */ React30.createElement("button", { className: "bili-button bili-button-ghost", disabled: loading, type: "button", onClick: () => loadPage(page + 1, true) }, loading ? "\u52A0\u8F7D\u4E2D" : "\u52A0\u8F7D\u66F4\u591A") : comments.length > 0 ? /* @__PURE__ */ React30.createElement("span", null, "\u5DF2\u52A0\u8F7D\u5168\u90E8\u8BC4\u8BBA") : null));
+  ), /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-editor-actions" }, /* @__PURE__ */ React32.createElement("span", null, mainMessage.trim().length, "/1000"), /* @__PURE__ */ React32.createElement("button", { className: "bili-button", disabled: !loggedIn || !sdk || busyRpid === 0 || !mainMessage.trim(), type: "submit" }, "\u53D1\u5E03"))), error ? /* @__PURE__ */ React32.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, topComments.length > 0 ? /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-top-list" }, topComments.map((comment) => renderComment(comment, true))) : null, !loading && comments.length === 0 && !error ? /* @__PURE__ */ React32.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u8BC4\u8BBA") : null, /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-list" }, comments.map((comment) => renderComment(comment, false))), /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-footer" }, hasMore ? /* @__PURE__ */ React32.createElement("button", { className: "bili-button bili-button-ghost", disabled: loading, type: "button", onClick: () => loadPage(page + 1, true) }, loading ? "\u52A0\u8F7D\u4E2D" : "\u52A0\u8F7D\u66F4\u591A") : comments.length > 0 ? /* @__PURE__ */ React32.createElement("span", null, "\u5DF2\u52A0\u8F7D\u5168\u90E8\u8BC4\u8BBA") : null));
   function renderComment(comment, pinned) {
     const replyState = replyStates[comment.rpid];
     const reportDraft = reportDrafts[comment.rpid] ?? { reason: "ad", content: "" };
     const replyOpenThis = Boolean(replyOpen[comment.rpid]);
     const draft = replyDrafts[comment.rpid] ?? "";
-    return /* @__PURE__ */ React30.createElement(
+    return /* @__PURE__ */ React32.createElement(
       CommentItem,
       {
         key: `${pinned ? "top" : "comment"}-${comment.rpid}`,
@@ -23956,7 +29661,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
         replyOpen: replyOpenThis,
         reportOpen: Boolean(reportOpen[comment.rpid]),
         reportDraft,
-        repliesSlot: replyOpenThis ? /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-replies" }, replyState?.error ? /* @__PURE__ */ React30.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, replyState.error) : null, (replyState?.items ?? comment.replies).map((reply) => renderReply(reply, comment.rpid)), replyState?.hasMore ? /* @__PURE__ */ React30.createElement(
+        repliesSlot: replyOpenThis ? /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-replies" }, replyState?.error ? /* @__PURE__ */ React32.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, replyState.error) : null, (replyState?.items ?? comment.replies).map((reply) => renderReply(reply, comment.rpid)), replyState?.hasMore ? /* @__PURE__ */ React32.createElement(
           "button",
           {
             className: "bili-button bili-button-ghost",
@@ -23965,7 +29670,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
             onClick: () => loadReplies(comment.rpid, (replyState.page || 1) + 1, true)
           },
           replyState.loading ? "\u52A0\u8F7D\u4E2D" : "\u66F4\u591A\u56DE\u590D"
-        ) : null, /* @__PURE__ */ React30.createElement("form", { className: "bili-comment-reply-editor", onSubmit: (event) => submitReply(event, comment) }, /* @__PURE__ */ React30.createElement(
+        ) : null, /* @__PURE__ */ React32.createElement("form", { className: "bili-comment-reply-editor", onSubmit: (event) => submitReply(event, comment) }, /* @__PURE__ */ React32.createElement(
           "input",
           {
             disabled: !loggedIn || busyRpid === comment.rpid,
@@ -23973,7 +29678,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
             value: draft,
             onChange: (event) => setReplyDrafts((value) => ({ ...value, [comment.rpid]: event.currentTarget.value }))
           }
-        ), /* @__PURE__ */ React30.createElement("button", { className: "bili-button", disabled: !loggedIn || !draft.trim() || busyRpid === comment.rpid, type: "submit" }, "\u53D1\u9001"))) : null,
+        ), /* @__PURE__ */ React32.createElement("button", { className: "bili-button", disabled: !loggedIn || !draft.trim() || busyRpid === comment.rpid, type: "submit" }, "\u53D1\u9001"))) : null,
         onLike: () => toggleLike(comment),
         onDislike: () => toggleDislike(comment),
         onToggleReply: () => setReplyOpen((value) => ({ ...value, [comment.rpid]: !value[comment.rpid] })),
@@ -23989,7 +29694,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
   }
   function renderReply(reply, root) {
     const reportDraft = reportDrafts[reply.rpid] ?? { reason: "ad", content: "" };
-    return /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-reply-wrap", key: `reply-${reply.rpid}` }, /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-reply" }, /* @__PURE__ */ React30.createElement("strong", null, reply.member.name || `\u7528\u6237 ${reply.member.mid}`), /* @__PURE__ */ React30.createElement("span", null, reply.content.message), /* @__PURE__ */ React30.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleLike(reply) }, reply.liked ? "\u5DF2\u8D5E" : "\u8D5E", " ", reply.likeCount > 0 ? formatCount5(reply.likeCount) : ""), /* @__PURE__ */ React30.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleDislike(reply) }, reply.disliked ? "\u5DF2\u70B9\u8E29" : "\u70B9\u8E29"), /* @__PURE__ */ React30.createElement(
+    return /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-reply-wrap", key: `reply-${reply.rpid}` }, /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-reply" }, /* @__PURE__ */ React32.createElement("strong", null, reply.member.name || `\u7528\u6237 ${reply.member.mid}`), /* @__PURE__ */ React32.createElement("span", null, reply.content.message), /* @__PURE__ */ React32.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleLike(reply) }, reply.liked ? "\u5DF2\u8D5E" : "\u8D5E", " ", reply.likeCount > 0 ? formatCount6(reply.likeCount) : ""), /* @__PURE__ */ React32.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleDislike(reply) }, reply.disliked ? "\u5DF2\u70B9\u8E29" : "\u70B9\u8E29"), /* @__PURE__ */ React32.createElement(
       "button",
       {
         disabled: !loggedIn,
@@ -24001,7 +29706,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
         }
       },
       "\u56DE\u590D"
-    ), reply.canDelete ? /* @__PURE__ */ React30.createElement("button", { disabled: busyRpid === reply.rpid, type: "button", onClick: () => deleteComment(reply) }, "\u5220\u9664") : null, /* @__PURE__ */ React30.createElement("button", { type: "button", onClick: () => setReportOpen((value) => ({ ...value, [reply.rpid]: !value[reply.rpid] })) }, "\u4E3E\u62A5")), reportOpen[reply.rpid] ? /* @__PURE__ */ React30.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React30.createElement(
+    ), reply.canDelete ? /* @__PURE__ */ React32.createElement("button", { disabled: busyRpid === reply.rpid, type: "button", onClick: () => deleteComment(reply) }, "\u5220\u9664") : null, /* @__PURE__ */ React32.createElement("button", { type: "button", onClick: () => setReportOpen((value) => ({ ...value, [reply.rpid]: !value[reply.rpid] })) }, "\u4E3E\u62A5")), reportOpen[reply.rpid] ? /* @__PURE__ */ React32.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React32.createElement(
       "select",
       {
         value: reportDraft.reason,
@@ -24010,8 +29715,8 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
           [reply.rpid]: { ...reportDraft, reason: event.currentTarget.value }
         }))
       },
-      reportReasons.map((reason) => /* @__PURE__ */ React30.createElement("option", { key: reason.value, value: reason.value }, reason.label))
-    ), /* @__PURE__ */ React30.createElement(
+      reportReasons.map((reason) => /* @__PURE__ */ React32.createElement("option", { key: reason.value, value: reason.value }, reason.label))
+    ), /* @__PURE__ */ React32.createElement(
       "input",
       {
         placeholder: "\u8865\u5145\u8BF4\u660E",
@@ -24021,7 +29726,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
           [reply.rpid]: { ...reportDraft, content: event.currentTarget.value }
         }))
       }
-    ), /* @__PURE__ */ React30.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => reportComment(reply, reportDraft) }, "\u786E\u8BA4\u4E3E\u62A5")) : null);
+    ), /* @__PURE__ */ React32.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => reportComment(reply, reportDraft) }, "\u786E\u8BA4\u4E3E\u62A5")) : null);
   }
   async function submitMainComment(event) {
     event.preventDefault();
@@ -24238,7 +29943,7 @@ function mapReplyStates(states, map) {
   });
   return next;
 }
-function formatCount5(value) {
+function formatCount6(value) {
   if (value >= 1e8) return `${trim3(value / 1e8)}\u4EBF`;
   if (value >= 1e4) return `${trim3(value / 1e4)}\u4E07`;
   return String(Math.max(0, Math.floor(value || 0)));
@@ -24248,7 +29953,7 @@ function trim3(value) {
 }
 
 // src/components/DanmakuOverlay.tsx
-import React31, { useEffect as useEffect24, useRef as useRef9, useState as useState24 } from "sdk";
+import React33, { useEffect as useEffect26, useRef as useRef10, useState as useState26 } from "sdk";
 
 // src/danmaku/layout.ts
 function estimateTrackCount(height, fontSize) {
@@ -24384,17 +30089,17 @@ function DanmakuOverlay({
   selfDanmaku,
   onRecalled
 }) {
-  const layerRef = useRef9(null);
-  const sortedRef = useRef9([]);
-  const cursorRef = useRef9(0);
-  const lastVideoTimeRef = useRef9(0);
-  const activeTracksRef = useRef9([]);
-  const activeFixedRef = useRef9({ top: [], bottom: [] });
-  const renderCounterRef = useRef9(0);
-  const [visibleItems, setVisibleItems] = useState24([]);
-  const [menu, setMenu] = useState24(null);
-  const [reportOpen, setReportOpen] = useState24(false);
-  useEffect24(() => {
+  const layerRef = useRef10(null);
+  const sortedRef = useRef10([]);
+  const cursorRef = useRef10(0);
+  const lastVideoTimeRef = useRef10(0);
+  const activeTracksRef = useRef10([]);
+  const activeFixedRef = useRef10({ top: [], bottom: [] });
+  const renderCounterRef = useRef10(0);
+  const [visibleItems, setVisibleItems] = useState26([]);
+  const [menu, setMenu] = useState26(null);
+  const [reportOpen, setReportOpen] = useState26(false);
+  useEffect26(() => {
     if (!menu) return;
     const close = () => {
       setMenu(null);
@@ -24403,7 +30108,7 @@ function DanmakuOverlay({
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [menu]);
-  useEffect24(() => {
+  useEffect26(() => {
     const incoming = [...items].filter((item) => item.text.trim()).sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
     const old = sortedRef.current;
     const byId = /* @__PURE__ */ new Map();
@@ -24433,7 +30138,7 @@ function DanmakuOverlay({
     }
     sortedRef.current = merged;
   }, [items]);
-  useEffect24(() => {
+  useEffect26(() => {
     if (!settings.enabled) {
       activeTracksRef.current = [];
       setVisibleItems([]);
@@ -24527,7 +30232,7 @@ function DanmakuOverlay({
     };
   }, [settings.density, settings.enabled, settings.fontSize, settings.opacity, settings.speed, videoRef]);
   if (!settings.enabled) return null;
-  return /* @__PURE__ */ React31.createElement("div", { className: "bili-danmaku-layer", ref: layerRef }, visibleItems.map((item) => /* @__PURE__ */ React31.createElement(
+  return /* @__PURE__ */ React33.createElement("div", { className: "bili-danmaku-layer", ref: layerRef }, visibleItems.map((item) => /* @__PURE__ */ React33.createElement(
     "span",
     {
       className: `bili-danmaku-item ${item.mode === 2 ? "bili-danmaku-fixed bili-danmaku-fixed-top" : item.mode === 3 ? "bili-danmaku-fixed bili-danmaku-fixed-bottom" : ""} ${isSelfItem(item) ? "bili-danmaku-self" : ""}`,
@@ -24536,14 +30241,14 @@ function DanmakuOverlay({
       onMouseDown: (event) => handleDanmakuDown(item, event)
     },
     item.text
-  )), menu ? /* @__PURE__ */ React31.createElement(
+  )), menu ? /* @__PURE__ */ React33.createElement(
     "div",
     {
       className: "bili-danmaku-menu",
       style: { left: menu.x, top: menu.y },
       onMouseDown: (event) => event.stopPropagation()
     },
-    reportOpen ? /* @__PURE__ */ React31.createElement(React31.Fragment, null, /* @__PURE__ */ React31.createElement("div", { className: "bili-danmaku-menu-title" }, "\u4E3E\u62A5\u5F39\u5E55"), danmakuReportReasons.map((reason) => /* @__PURE__ */ React31.createElement(
+    reportOpen ? /* @__PURE__ */ React33.createElement(React33.Fragment, null, /* @__PURE__ */ React33.createElement("div", { className: "bili-danmaku-menu-title" }, "\u4E3E\u62A5\u5F39\u5E55"), danmakuReportReasons.map((reason) => /* @__PURE__ */ React33.createElement(
       "button",
       {
         className: "bili-danmaku-menu-item",
@@ -24552,7 +30257,7 @@ function DanmakuOverlay({
         onClick: () => reportDanmaku(reason.id)
       },
       reason.label
-    )), /* @__PURE__ */ React31.createElement(
+    )), /* @__PURE__ */ React33.createElement(
       "button",
       {
         className: "bili-danmaku-menu-item",
@@ -24560,7 +30265,7 @@ function DanmakuOverlay({
         onClick: () => setReportOpen(false)
       },
       "\u8FD4\u56DE"
-    )) : /* @__PURE__ */ React31.createElement(React31.Fragment, null, /* @__PURE__ */ React31.createElement("div", { className: "bili-danmaku-menu-title" }, menu.self ? "\u6211\u7684\u5F39\u5E55" : "\u5F39\u5E55\u64CD\u4F5C"), /* @__PURE__ */ React31.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: thumbupDanmaku }, "\u70B9\u8D5E"), /* @__PURE__ */ React31.createElement(
+    )) : /* @__PURE__ */ React33.createElement(React33.Fragment, null, /* @__PURE__ */ React33.createElement("div", { className: "bili-danmaku-menu-title" }, menu.self ? "\u6211\u7684\u5F39\u5E55" : "\u5F39\u5E55\u64CD\u4F5C"), /* @__PURE__ */ React33.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: thumbupDanmaku }, "\u70B9\u8D5E"), /* @__PURE__ */ React33.createElement(
       "button",
       {
         className: "bili-danmaku-menu-item",
@@ -24568,7 +30273,7 @@ function DanmakuOverlay({
         onClick: () => setReportOpen(true)
       },
       "\u4E3E\u62A5"
-    ), menu.self ? /* @__PURE__ */ React31.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: recallDanmaku }, "\u64A4\u56DE") : null)
+    ), menu.self ? /* @__PURE__ */ React33.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: recallDanmaku }, "\u64A4\u56DE") : null)
   ) : null);
   function handleDanmakuDown(item, event) {
     if (!sdk || !cid) return;
@@ -24635,7 +30340,7 @@ function lowerBoundByTime(items, time) {
 }
 
 // src/components/PlayerShell.tsx
-import React42, { Button as Button18, useCallback as useCallback3, useEffect as useEffect27, useRef as useRef12, useState as useState30 } from "sdk";
+import React44, { Button as Button19, useCallback as useCallback3, useEffect as useEffect29, useRef as useRef13, useState as useState32 } from "sdk";
 
 // src/player/dashPlayer.ts
 var import_dashjs = __toESM(require_dash_all_min(), 1);
@@ -24916,7 +30621,7 @@ function currentSecond(video) {
 }
 
 // src/components/DanmakuInput.tsx
-import React32, { Button as Button13, TextField as TextField3, useEffect as useEffect25, useState as useState25 } from "sdk";
+import React34, { Button as Button14, TextField as TextField3, useEffect as useEffect27, useState as useState27 } from "sdk";
 var maxDanmakuLength = 100;
 var cooldownSeconds2 = 4;
 function DanmakuInput({
@@ -24928,17 +30633,17 @@ function DanmakuInput({
   videoRef,
   onSent
 }) {
-  const [message, setMessage] = useState25("");
-  const [sending, setSending] = useState25(false);
-  const [cooldown, setCooldown] = useState25(0);
-  useEffect25(() => {
+  const [message, setMessage] = useState27("");
+  const [sending, setSending] = useState27(false);
+  const [cooldown, setCooldown] = useState27(0);
+  useEffect27(() => {
     if (cooldown <= 0) return;
     const timer = setTimeout(() => setCooldown((value) => Math.max(0, value - 1)), 1e3);
     return () => clearTimeout(timer);
   }, [cooldown]);
   const text = message.trim();
   const canSend = Boolean(sdk && selectedPage && text && !disabled && !sending && cooldown <= 0);
-  return /* @__PURE__ */ React32.createElement("form", { className: "bili-danmaku-input", onSubmit: submit }, /* @__PURE__ */ React32.createElement(
+  return /* @__PURE__ */ React34.createElement("form", { className: "bili-danmaku-input", onSubmit: submit }, /* @__PURE__ */ React34.createElement(
     TextField3,
     {
       disabled: disabled || sending,
@@ -24948,7 +30653,7 @@ function DanmakuInput({
       value: message,
       onChange: (event) => setMessage(event.currentTarget.value.slice(0, maxDanmakuLength))
     }
-  ), /* @__PURE__ */ React32.createElement("span", { className: "bili-danmaku-count" }, message.length, "/", maxDanmakuLength), /* @__PURE__ */ React32.createElement(Button13, { disabled: !canSend, size: "sm", type: "submit" }, sending ? "\u53D1\u9001\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u9001"));
+  ), /* @__PURE__ */ React34.createElement("span", { className: "bili-danmaku-count" }, message.length, "/", maxDanmakuLength), /* @__PURE__ */ React34.createElement(Button14, { disabled: !canSend, size: "sm", type: "submit" }, sending ? "\u53D1\u9001\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u9001"));
   function submit(event) {
     event.preventDefault();
     if (!sdk || !selectedPage || !canSend) return;
@@ -24989,13 +30694,13 @@ function DanmakuInput({
 }
 
 // src/components/DanmakuSettingsPopover.tsx
-import React34, { Slider, Toggle } from "sdk";
+import React36, { Slider, Toggle } from "sdk";
 
 // src/components/MenuPopover.tsx
-import React33, { useEffect as useEffect26, useRef as useRef10 } from "sdk";
+import React35, { useEffect as useEffect28, useRef as useRef11 } from "sdk";
 function MenuPopover({ onClose, style, className = "", triggerRef, children }) {
-  const ref = useRef10(null);
-  useEffect26(() => {
+  const ref = useRef11(null);
+  useEffect28(() => {
     const onDown = (e) => {
       const target = e.target;
       const node = ref.current;
@@ -25013,7 +30718,7 @@ function MenuPopover({ onClose, style, className = "", triggerRef, children }) {
       document.removeEventListener("keydown", onKey);
     };
   }, [onClose, triggerRef]);
-  return /* @__PURE__ */ React33.createElement("div", { className: `bili-menu-popover ${className}`, ref, style }, children);
+  return /* @__PURE__ */ React35.createElement("div", { className: `bili-menu-popover ${className}`, ref, style }, children);
 }
 
 // src/components/DanmakuSettingsPopover.tsx
@@ -25027,7 +30732,7 @@ function DanmakuSettingsPopover({
   style,
   triggerRef
 }) {
-  return /* @__PURE__ */ React34.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React34.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React34.createElement("strong", null, "\u5F39\u5E55"), /* @__PURE__ */ React34.createElement("small", null, loading ? "\u52A0\u8F7D\u4E2D" : `${count} \u6761`)), error ? /* @__PURE__ */ React34.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, /* @__PURE__ */ React34.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React34.createElement(Toggle, { on: settings.enabled, onChange: (enabled) => onChange({ ...settings, enabled }) }), /* @__PURE__ */ React34.createElement("span", null, "\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React34.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React34.createElement("span", null, "\u5B57\u53F7 ", settings.fontSize, "px"), /* @__PURE__ */ React34.createElement(
+  return /* @__PURE__ */ React36.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React36.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React36.createElement("strong", null, "\u5F39\u5E55"), /* @__PURE__ */ React36.createElement("small", null, loading ? "\u52A0\u8F7D\u4E2D" : `${count} \u6761`)), error ? /* @__PURE__ */ React36.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, /* @__PURE__ */ React36.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React36.createElement(Toggle, { on: settings.enabled, onChange: (enabled) => onChange({ ...settings, enabled }) }), /* @__PURE__ */ React36.createElement("span", null, "\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React36.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React36.createElement("span", null, "\u5B57\u53F7 ", settings.fontSize, "px"), /* @__PURE__ */ React36.createElement(
     Slider,
     {
       max: 32,
@@ -25036,7 +30741,7 @@ function DanmakuSettingsPopover({
       value: settings.fontSize,
       onChange: (fontSize) => onChange({ ...settings, fontSize })
     }
-  )), /* @__PURE__ */ React34.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React34.createElement("span", null, "\u900F\u660E\u5EA6 ", Math.round(settings.opacity * 100), "%"), /* @__PURE__ */ React34.createElement(
+  )), /* @__PURE__ */ React36.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React36.createElement("span", null, "\u900F\u660E\u5EA6 ", Math.round(settings.opacity * 100), "%"), /* @__PURE__ */ React36.createElement(
     Slider,
     {
       max: 1,
@@ -25045,7 +30750,7 @@ function DanmakuSettingsPopover({
       value: settings.opacity,
       onChange: (opacity) => onChange({ ...settings, opacity })
     }
-  )), /* @__PURE__ */ React34.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React34.createElement("span", null, "\u5BC6\u5EA6 ", Math.round(settings.density * 100), "%"), /* @__PURE__ */ React34.createElement(
+  )), /* @__PURE__ */ React36.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React36.createElement("span", null, "\u5BC6\u5EA6 ", Math.round(settings.density * 100), "%"), /* @__PURE__ */ React36.createElement(
     Slider,
     {
       max: 1,
@@ -25054,7 +30759,7 @@ function DanmakuSettingsPopover({
       value: settings.density,
       onChange: (density) => onChange({ ...settings, density })
     }
-  )), /* @__PURE__ */ React34.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React34.createElement("span", null, "\u901F\u5EA6 ", settings.speed.toFixed(1), "x"), /* @__PURE__ */ React34.createElement(
+  )), /* @__PURE__ */ React36.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React36.createElement("span", null, "\u901F\u5EA6 ", settings.speed.toFixed(1), "x"), /* @__PURE__ */ React36.createElement(
     Slider,
     {
       max: 1.8,
@@ -25067,7 +30772,7 @@ function DanmakuSettingsPopover({
 }
 
 // src/components/QualityMenu.tsx
-import React35, { Button as Button14, Icon } from "sdk";
+import React37, { Button as Button15, Icon } from "sdk";
 function QualityMenu({
   qualities,
   mode,
@@ -25079,8 +30784,8 @@ function QualityMenu({
   onManual,
   onPlaybackModeChange
 }) {
-  return /* @__PURE__ */ React35.createElement("div", { className: "bili-quality-menu" }, /* @__PURE__ */ React35.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React35.createElement("strong", null, "\u6E05\u6670\u5EA6"), /* @__PURE__ */ React35.createElement("small", null, playbackMode === "quality" ? mode === "auto" ? "\u81EA\u52A8" : "\u624B\u52A8" : "\u517C\u5BB9")), /* @__PURE__ */ React35.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u64AD\u653E\u6A21\u5F0F" }, /* @__PURE__ */ React35.createElement(
-    Button14,
+  return /* @__PURE__ */ React37.createElement("div", { className: "bili-quality-menu" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React37.createElement("strong", null, "\u6E05\u6670\u5EA6"), /* @__PURE__ */ React37.createElement("small", null, playbackMode === "quality" ? mode === "auto" ? "\u81EA\u52A8" : "\u624B\u52A8" : "\u517C\u5BB9")), /* @__PURE__ */ React37.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u64AD\u653E\u6A21\u5F0F" }, /* @__PURE__ */ React37.createElement(
+    Button15,
     {
       "aria-selected": playbackMode === "quality",
       className: playbackMode === "quality" ? "bili-chip bili-chip-active" : "bili-chip",
@@ -25091,8 +30796,8 @@ function QualityMenu({
       onClick: () => onPlaybackModeChange("quality")
     },
     "\u9AD8\u6E05"
-  ), /* @__PURE__ */ React35.createElement(
-    Button14,
+  ), /* @__PURE__ */ React37.createElement(
+    Button15,
     {
       "aria-selected": playbackMode === "compat",
       className: playbackMode === "compat" ? "bili-chip bili-chip-active" : "bili-chip",
@@ -25103,7 +30808,7 @@ function QualityMenu({
       onClick: () => onPlaybackModeChange("compat")
     },
     "\u517C\u5BB9"
-  )), qualities.length === 0 ? /* @__PURE__ */ React35.createElement("div", { className: "bili-state bili-state-compact" }, "\u6682\u65E0\u6E05\u6670\u5EA6\u4FE1\u606F") : /* @__PURE__ */ React35.createElement("div", { className: "bili-quality-list" }, /* @__PURE__ */ React35.createElement(
+  )), qualities.length === 0 ? /* @__PURE__ */ React37.createElement("div", { className: "bili-state bili-state-compact" }, "\u6682\u65E0\u6E05\u6670\u5EA6\u4FE1\u606F") : /* @__PURE__ */ React37.createElement("div", { className: "bili-quality-list" }, /* @__PURE__ */ React37.createElement(
     "button",
     {
       className: `bili-quality-option bili-quality-auto ${mode === "auto" ? "bili-quality-option-active" : ""}`,
@@ -25111,11 +30816,11 @@ function QualityMenu({
       type: "button",
       onClick: onAuto
     },
-    /* @__PURE__ */ React35.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React35.createElement(Icon, { name: "check", size: 14 }) : null, /* @__PURE__ */ React35.createElement("strong", null, "\u81EA\u52A8")),
-    /* @__PURE__ */ React35.createElement("small", null, currentLabel(currentQualityId, qualities))
+    /* @__PURE__ */ React37.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React37.createElement(Icon, { name: "check", size: 14 }) : null, /* @__PURE__ */ React37.createElement("strong", null, "\u81EA\u52A8")),
+    /* @__PURE__ */ React37.createElement("small", null, currentLabel(currentQualityId, qualities))
   ), qualities.map((quality) => {
     const active = mode === "manual" && selectedQualityId === quality.id;
-    return /* @__PURE__ */ React35.createElement(
+    return /* @__PURE__ */ React37.createElement(
       "button",
       {
         className: `bili-quality-option ${active ? "bili-quality-option-active" : ""}`,
@@ -25124,8 +30829,8 @@ function QualityMenu({
         type: "button",
         onClick: () => onManual(quality.id)
       },
-      /* @__PURE__ */ React35.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React35.createElement(Icon, { name: "check", size: 14 }) : null, /* @__PURE__ */ React35.createElement("strong", null, qualityText(quality))),
-      /* @__PURE__ */ React35.createElement("small", null, quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video")
+      /* @__PURE__ */ React37.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React37.createElement(Icon, { name: "check", size: 14 }) : null, /* @__PURE__ */ React37.createElement("strong", null, qualityText(quality))),
+      /* @__PURE__ */ React37.createElement("small", null, quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video")
     );
   })));
 }
@@ -25173,14 +30878,14 @@ function codeLabel(quality) {
 }
 
 // src/components/VideoInteractionBar.tsx
-import React39, { Button as Button17, Icon as Icon4, useRef as useRef11, useState as useState28 } from "sdk";
+import React41, { Button as Button18, Icon as Icon4, useRef as useRef12, useState as useState30 } from "sdk";
 
 // src/components/CoinPanel.tsx
-import React36, { Button as Button15, Toggle as Toggle2, useState as useState26 } from "sdk";
+import React38, { Button as Button16, Toggle as Toggle2, useState as useState28 } from "sdk";
 function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
-  const [multiply, setMultiply] = useState26(1);
-  const [alsoLike, setAlsoLike] = useState26(true);
-  return /* @__PURE__ */ React36.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React36.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React36.createElement("strong", null, "\u6295\u5E01\u652F\u6301"), /* @__PURE__ */ React36.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), /* @__PURE__ */ React36.createElement("div", { className: "bili-segment-row" }, /* @__PURE__ */ React36.createElement(
+  const [multiply, setMultiply] = useState28(1);
+  const [alsoLike, setAlsoLike] = useState28(true);
+  return /* @__PURE__ */ React38.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React38.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React38.createElement("strong", null, "\u6295\u5E01\u652F\u6301"), /* @__PURE__ */ React38.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), /* @__PURE__ */ React38.createElement("div", { className: "bili-segment-row" }, /* @__PURE__ */ React38.createElement(
     "button",
     {
       className: multiply === 1 ? "bili-segment bili-segment-active" : "bili-segment",
@@ -25189,7 +30894,7 @@ function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
       onClick: () => setMultiply(1)
     },
     "1 \u4E2A"
-  ), /* @__PURE__ */ React36.createElement(
+  ), /* @__PURE__ */ React38.createElement(
     "button",
     {
       className: multiply === 2 ? "bili-segment bili-segment-active" : "bili-segment",
@@ -25198,14 +30903,14 @@ function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
       onClick: () => setMultiply(2)
     },
     "2 \u4E2A"
-  )), /* @__PURE__ */ React36.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React36.createElement(Toggle2, { on: alsoLike, onChange: (value) => setAlsoLike(value) }), /* @__PURE__ */ React36.createElement("span", null, "\u540C\u65F6\u70B9\u8D5E")), /* @__PURE__ */ React36.createElement(Button15, { disabled: busy, size: "sm", type: "button", onClick: () => onSubmit(multiply, alsoLike) }, busy ? "\u63D0\u4EA4\u4E2D" : "\u786E\u8BA4\u6295\u5E01"));
+  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(Toggle2, { on: alsoLike, onChange: (value) => setAlsoLike(value) }), /* @__PURE__ */ React38.createElement("span", null, "\u540C\u65F6\u70B9\u8D5E")), /* @__PURE__ */ React38.createElement(Button16, { disabled: busy, size: "sm", type: "button", onClick: () => onSubmit(multiply, alsoLike) }, busy ? "\u63D0\u4EA4\u4E2D" : "\u786E\u8BA4\u6295\u5E01"));
 }
 
 // src/components/FavoritePanel.tsx
-import React37, { Button as Button16, Icon as Icon2, useState as useState27 } from "sdk";
+import React39, { Button as Button17, Icon as Icon2, useState as useState29 } from "sdk";
 function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) {
   const ownedFolders = folders.filter((folder) => folder.owned);
-  const [selected, setSelected] = useState27(
+  const [selected, setSelected] = useState29(
     () => Object.fromEntries(ownedFolders.map((folder) => [folder.id, folder.favState > 0]))
   );
   const hasOwnedFolders = ownedFolders.length > 0;
@@ -25220,7 +30925,7 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
     }
     onSubmit(addMediaIds, delMediaIds);
   }
-  return /* @__PURE__ */ React37.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React37.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React37.createElement("strong", null, "\u6536\u85CF\u5230"), /* @__PURE__ */ React37.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), !hasOwnedFolders ? /* @__PURE__ */ React37.createElement("span", { className: "bili-menu-empty" }, "\u6682\u65E0\u53EF\u5199\u5165\u7684\u6536\u85CF\u5939") : /* @__PURE__ */ React37.createElement("div", { className: "bili-folder-scroll" }, ownedFolders.map((folder) => /* @__PURE__ */ React37.createElement(
+  return /* @__PURE__ */ React39.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React39.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React39.createElement("strong", null, "\u6536\u85CF\u5230"), /* @__PURE__ */ React39.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), !hasOwnedFolders ? /* @__PURE__ */ React39.createElement("span", { className: "bili-menu-empty" }, "\u6682\u65E0\u53EF\u5199\u5165\u7684\u6536\u85CF\u5939") : /* @__PURE__ */ React39.createElement("div", { className: "bili-folder-scroll" }, ownedFolders.map((folder) => /* @__PURE__ */ React39.createElement(
     "button",
     {
       className: `bili-menu-item ${selected[folder.id] ? "bili-menu-item-active" : ""}`,
@@ -25229,14 +30934,14 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
       type: "button",
       onClick: () => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))
     },
-    selected[folder.id] ? /* @__PURE__ */ React37.createElement(Icon2, { name: "check", size: 14 }) : null,
-    /* @__PURE__ */ React37.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
-    /* @__PURE__ */ React37.createElement("small", null, selected[folder.id] ? "\u5DF2\u9009\u62E9" : `${folder.mediaCount} \u4E2A`)
-  ))), /* @__PURE__ */ React37.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React37.createElement(Button16, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
+    selected[folder.id] ? /* @__PURE__ */ React39.createElement(Icon2, { name: "check", size: 14 }) : null,
+    /* @__PURE__ */ React39.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
+    /* @__PURE__ */ React39.createElement("small", null, selected[folder.id] ? "\u5DF2\u9009\u62E9" : `${folder.mediaCount} \u4E2A`)
+  ))), /* @__PURE__ */ React39.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React39.createElement(Button17, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
 }
 
 // src/components/WatchMoreMenu.tsx
-import React38, { Icon as Icon3 } from "sdk";
+import React40, { Icon as Icon3 } from "sdk";
 function WatchMoreMenu({
   onExternalOpen,
   onCopyLink,
@@ -25245,7 +30950,7 @@ function WatchMoreMenu({
   style,
   triggerRef
 }) {
-  return /* @__PURE__ */ React38.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React38.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React38.createElement("strong", null, "\u66F4\u591A")), /* @__PURE__ */ React38.createElement(
+  return /* @__PURE__ */ React40.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React40.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React40.createElement("strong", null, "\u66F4\u591A")), /* @__PURE__ */ React40.createElement(
     "button",
     {
       className: "bili-menu-item",
@@ -25255,9 +30960,9 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React38.createElement(Icon3, { name: "externalLink", size: 16 }),
-    /* @__PURE__ */ React38.createElement("span", null, "\u5916\u90E8\u6253\u5F00")
-  ), /* @__PURE__ */ React38.createElement(
+    /* @__PURE__ */ React40.createElement(Icon3, { name: "externalLink", size: 16 }),
+    /* @__PURE__ */ React40.createElement("span", null, "\u5916\u90E8\u6253\u5F00")
+  ), /* @__PURE__ */ React40.createElement(
     "button",
     {
       className: "bili-menu-item",
@@ -25267,9 +30972,9 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React38.createElement(Icon3, { name: "copy", size: 16 }),
-    /* @__PURE__ */ React38.createElement("span", null, "\u590D\u5236\u94FE\u63A5")
-  ), /* @__PURE__ */ React38.createElement(
+    /* @__PURE__ */ React40.createElement(Icon3, { name: "copy", size: 16 }),
+    /* @__PURE__ */ React40.createElement("span", null, "\u590D\u5236\u94FE\u63A5")
+  ), /* @__PURE__ */ React40.createElement(
     "button",
     {
       className: "bili-menu-item",
@@ -25279,8 +30984,8 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React38.createElement(Icon3, { name: "screenshots", size: 16 }),
-    /* @__PURE__ */ React38.createElement("span", null, "\u622A\u56FE\u76EE\u5F55")
+    /* @__PURE__ */ React40.createElement(Icon3, { name: "screenshots", size: 16 }),
+    /* @__PURE__ */ React40.createElement("span", null, "\u622A\u56FE\u76EE\u5F55")
   ));
 }
 
@@ -25300,16 +31005,16 @@ function VideoInteractionBar({
   onCopyLink,
   onOpenScreenshotFolder
 }) {
-  const wrapRef = useRef11(null);
-  const coinAnchorRef = useRef11(null);
-  const favoriteAnchorRef = useRef11(null);
-  const moreAnchorRef = useRef11(null);
-  const [coinOpen, setCoinOpen] = useState28(false);
-  const [favoriteOpen, setFavoriteOpen] = useState28(false);
-  const [moreOpen, setMoreOpen] = useState28(false);
-  const [coinPos, setCoinPos] = useState28({ left: 0, top: 0 });
-  const [favoritePos, setFavoritePos] = useState28({ left: 0, top: 0 });
-  const [morePos, setMorePos] = useState28({ right: 0, top: 0 });
+  const wrapRef = useRef12(null);
+  const coinAnchorRef = useRef12(null);
+  const favoriteAnchorRef = useRef12(null);
+  const moreAnchorRef = useRef12(null);
+  const [coinOpen, setCoinOpen] = useState30(false);
+  const [favoriteOpen, setFavoriteOpen] = useState30(false);
+  const [moreOpen, setMoreOpen] = useState30(false);
+  const [coinPos, setCoinPos] = useState30({ left: 0, top: 0 });
+  const [favoritePos, setFavoritePos] = useState30({ left: 0, top: 0 });
+  const [morePos, setMorePos] = useState30({ right: 0, top: 0 });
   const disabled = loading || !state2;
   const writeDisabled = disabled || !loggedIn || Boolean(busy);
   function toggleCoin() {
@@ -25333,44 +31038,44 @@ function VideoInteractionBar({
     if (align === "right") return { right: wr.right - er.right, top };
     return { left: er.left - wr.left, top };
   }
-  return /* @__PURE__ */ React39.createElement("div", { className: "bili-interaction-wrap", ref: wrapRef }, /* @__PURE__ */ React39.createElement("div", { className: "bili-interaction-bar", "aria-label": "\u89C6\u9891\u4E92\u52A8" }, /* @__PURE__ */ React39.createElement(
+  return /* @__PURE__ */ React41.createElement("div", { className: "bili-interaction-wrap", ref: wrapRef }, /* @__PURE__ */ React41.createElement("div", { className: "bili-interaction-bar", "aria-label": "\u89C6\u9891\u4E92\u52A8" }, /* @__PURE__ */ React41.createElement(
     ActionButton,
     {
       active: Boolean(state2?.liked),
       disabled: writeDisabled,
       icon: "heartFilled",
       label: "\u70B9\u8D5E",
-      value: formatCount6(state2?.stats.likeCount),
+      value: formatCount7(state2?.stats.likeCount),
       onClick: onLike
     }
-  ), /* @__PURE__ */ React39.createElement("span", { className: "bili-popover-anchor", ref: coinAnchorRef }, /* @__PURE__ */ React39.createElement(
+  ), /* @__PURE__ */ React41.createElement("span", { className: "bili-popover-anchor", ref: coinAnchorRef }, /* @__PURE__ */ React41.createElement(
     ActionButton,
     {
       active: Boolean(state2?.coinCount),
       disabled: writeDisabled,
       label: "\u6295\u5E01",
-      value: state2?.coinCount ? `\u5DF2\u6295 ${state2.coinCount}` : formatCount6(state2?.stats.coinCount),
+      value: state2?.coinCount ? `\u5DF2\u6295 ${state2.coinCount}` : formatCount7(state2?.stats.coinCount),
       onMouseDown: toggleCoin
     }
-  )), /* @__PURE__ */ React39.createElement("span", { className: "bili-popover-anchor", ref: favoriteAnchorRef }, /* @__PURE__ */ React39.createElement(
+  )), /* @__PURE__ */ React41.createElement("span", { className: "bili-popover-anchor", ref: favoriteAnchorRef }, /* @__PURE__ */ React41.createElement(
     ActionButton,
     {
       active: Boolean(state2?.favorited),
       disabled: writeDisabled,
       icon: state2?.favorited ? "starFilled" : "starOutline",
       label: "\u6536\u85CF",
-      value: formatCount6(state2?.stats.favoriteCount),
+      value: formatCount7(state2?.stats.favoriteCount),
       onMouseDown: toggleFavorite
     }
-  )), /* @__PURE__ */ React39.createElement(
+  )), /* @__PURE__ */ React41.createElement(
     ActionButton,
     {
       disabled: disabled || Boolean(busy),
       label: "\u5206\u4EAB",
-      value: formatCount6(state2?.stats.shareCount),
+      value: formatCount7(state2?.stats.shareCount),
       onClick: onShare
     }
-  ), /* @__PURE__ */ React39.createElement(
+  ), /* @__PURE__ */ React41.createElement(
     ActionButton,
     {
       active: Boolean(state2?.toView),
@@ -25380,7 +31085,7 @@ function VideoInteractionBar({
       value: state2?.toView ? "\u5DF2\u52A0\u5165" : "",
       onClick: onToView
     }
-  ), /* @__PURE__ */ React39.createElement(ActionButton, { disabled: disabled || Boolean(busy), icon: "warning", label: "\u4E3E\u62A5", value: "", onClick: onReport }), /* @__PURE__ */ React39.createElement("span", { className: "bili-popover-anchor", ref: moreAnchorRef }, /* @__PURE__ */ React39.createElement(ActionButton, { disabled, label: "\u66F4\u591A", value: "", onMouseDown: toggleMore }))), coinOpen ? /* @__PURE__ */ React39.createElement(
+  ), /* @__PURE__ */ React41.createElement(ActionButton, { disabled: disabled || Boolean(busy), icon: "warning", label: "\u4E3E\u62A5", value: "", onClick: onReport }), /* @__PURE__ */ React41.createElement("span", { className: "bili-popover-anchor", ref: moreAnchorRef }, /* @__PURE__ */ React41.createElement(ActionButton, { disabled, label: "\u66F4\u591A", value: "", onMouseDown: toggleMore }))), coinOpen ? /* @__PURE__ */ React41.createElement(
     CoinPanel,
     {
       busy: busy === "coin",
@@ -25389,7 +31094,7 @@ function VideoInteractionBar({
       style: { left: coinPos.left ?? 0, top: coinPos.top },
       triggerRef: coinAnchorRef
     }
-  ) : null, favoriteOpen && state2 ? /* @__PURE__ */ React39.createElement(
+  ) : null, favoriteOpen && state2 ? /* @__PURE__ */ React41.createElement(
     FavoritePanel,
     {
       busy: busy === "favorite",
@@ -25399,7 +31104,7 @@ function VideoInteractionBar({
       style: { left: favoritePos.left ?? 0, top: favoritePos.top },
       triggerRef: favoriteAnchorRef
     }
-  ) : null, moreOpen ? /* @__PURE__ */ React39.createElement(
+  ) : null, moreOpen ? /* @__PURE__ */ React41.createElement(
     WatchMoreMenu,
     {
       onClose: () => setMoreOpen(false),
@@ -25412,8 +31117,8 @@ function VideoInteractionBar({
   ) : null);
 }
 function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDown }) {
-  return /* @__PURE__ */ React39.createElement(
-    Button17,
+  return /* @__PURE__ */ React41.createElement(
+    Button18,
     {
       className: active ? "bili-interaction-button bili-interaction-button-active" : "bili-interaction-button",
       disabled,
@@ -25423,12 +31128,12 @@ function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDo
       onClick,
       onMouseDown
     },
-    icon ? /* @__PURE__ */ React39.createElement(Icon4, { name: icon, size: 15 }) : null,
-    /* @__PURE__ */ React39.createElement("span", null, label),
-    value ? /* @__PURE__ */ React39.createElement("small", null, value) : null
+    icon ? /* @__PURE__ */ React41.createElement(Icon4, { name: icon, size: 15 }) : null,
+    /* @__PURE__ */ React41.createElement("span", null, label),
+    value ? /* @__PURE__ */ React41.createElement("small", null, value) : null
   );
 }
-function formatCount6(value) {
+function formatCount7(value) {
   if (!value) return "";
   if (value >= 1e8) return `${trim4(value / 1e8)}\u4EBF`;
   if (value >= 1e4) return `${trim4(value / 1e4)}\u4E07`;
@@ -25439,10 +31144,10 @@ function trim4(value) {
 }
 
 // src/components/VideoPlayerControls.tsx
-import React41, { Icon as Icon6 } from "sdk";
+import React43, { Icon as Icon6 } from "sdk";
 
 // src/components/ScreenshotButton.tsx
-import React40, { Icon as Icon5, useState as useState29 } from "sdk";
+import React42, { Icon as Icon5, useState as useState31 } from "sdk";
 
 // src/player/frameCapture.ts
 function captureVideoFrame(video) {
@@ -25469,8 +31174,8 @@ function screenshotFileName(bvid, cid, seconds) {
 
 // src/components/ScreenshotButton.tsx
 function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
-  const [saving, setSaving] = useState29(false);
-  return /* @__PURE__ */ React40.createElement(
+  const [saving, setSaving] = useState31(false);
+  return /* @__PURE__ */ React42.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -25479,8 +31184,8 @@ function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
       type: "button",
       onClick: saveScreenshot
     },
-    /* @__PURE__ */ React40.createElement(Icon5, { name: "screenshots", size: 16 }),
-    saving ? /* @__PURE__ */ React40.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
+    /* @__PURE__ */ React42.createElement(Icon5, { name: "screenshots", size: 16 }),
+    saving ? /* @__PURE__ */ React42.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
   );
   async function saveScreenshot() {
     if (!sdk || !selectedPage || !videoRef.current) return;
@@ -25529,7 +31234,7 @@ function VideoPlayerControls({
 }) {
   const progress = duration2 > 0 ? Math.min(100, Math.max(0, currentTime / duration2 * 100)) : 0;
   const seekStyle = { "--progress": `${progress}%` };
-  return /* @__PURE__ */ React41.createElement("div", { className: `bili-player-controls ${visible ? "" : "bili-player-controls-hidden"}` }, /* @__PURE__ */ React41.createElement("div", { className: "bili-player-playbar" }, /* @__PURE__ */ React41.createElement(
+  return /* @__PURE__ */ React43.createElement("div", { className: `bili-player-controls ${visible ? "" : "bili-player-controls-hidden"}` }, /* @__PURE__ */ React43.createElement("div", { className: "bili-player-playbar" }, /* @__PURE__ */ React43.createElement(
     "input",
     {
       "aria-label": "\u64AD\u653E\u8FDB\u5EA6",
@@ -25543,7 +31248,7 @@ function VideoPlayerControls({
       value: Math.min(currentTime, Math.max(1, duration2)),
       onChange: (event) => onSeek(Number(event.currentTarget.value))
     }
-  ), /* @__PURE__ */ React41.createElement("span", { className: "bili-player-time" }, formatDuration3(currentTime)), /* @__PURE__ */ React41.createElement("span", { className: "bili-player-time" }, formatDuration3(duration2))), /* @__PURE__ */ React41.createElement("div", { className: "bili-player-controls-row" }, /* @__PURE__ */ React41.createElement(
+  ), /* @__PURE__ */ React43.createElement("span", { className: "bili-player-time" }, formatDuration3(currentTime)), /* @__PURE__ */ React43.createElement("span", { className: "bili-player-time" }, formatDuration3(duration2))), /* @__PURE__ */ React43.createElement("div", { className: "bili-player-controls-row" }, /* @__PURE__ */ React43.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -25552,8 +31257,8 @@ function VideoPlayerControls({
       type: "button",
       onClick: onTogglePlay
     },
-    /* @__PURE__ */ React41.createElement(Icon6, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
-  ), /* @__PURE__ */ React41.createElement(
+    /* @__PURE__ */ React43.createElement(Icon6, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
+  ), /* @__PURE__ */ React43.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -25562,8 +31267,8 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleMute
     },
-    /* @__PURE__ */ React41.createElement(Icon6, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
-  ), /* @__PURE__ */ React41.createElement(
+    /* @__PURE__ */ React43.createElement(Icon6, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
+  ), /* @__PURE__ */ React43.createElement(
     "input",
     {
       "aria-label": "\u97F3\u91CF",
@@ -25576,7 +31281,7 @@ function VideoPlayerControls({
       value: muted ? 0 : volume,
       onChange: (event) => onChangeVolume(Number(event.currentTarget.value))
     }
-  ), /* @__PURE__ */ React41.createElement("span", { className: "bili-player-rate-wrap" }, /* @__PURE__ */ React41.createElement(
+  ), /* @__PURE__ */ React43.createElement("span", { className: "bili-player-rate-wrap" }, /* @__PURE__ */ React43.createElement(
     "select",
     {
       "aria-label": "\u500D\u901F",
@@ -25585,8 +31290,8 @@ function VideoPlayerControls({
       value: rate,
       onChange: (event) => onChangeRate(Number(event.currentTarget.value))
     },
-    rates.map((value) => /* @__PURE__ */ React41.createElement("option", { key: value, value }, value, "x"))
-  )), /* @__PURE__ */ React41.createElement(
+    rates.map((value) => /* @__PURE__ */ React43.createElement("option", { key: value, value }, value, "x"))
+  )), /* @__PURE__ */ React43.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -25596,9 +31301,9 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleQuality
     },
-    /* @__PURE__ */ React41.createElement(Icon6, { name: "settings", size: 16 }),
-    /* @__PURE__ */ React41.createElement("small", null, qualityLabel)
-  ), /* @__PURE__ */ React41.createElement(
+    /* @__PURE__ */ React43.createElement(Icon6, { name: "settings", size: 16 }),
+    /* @__PURE__ */ React43.createElement("small", null, qualityLabel)
+  ), /* @__PURE__ */ React43.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -25607,9 +31312,9 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleDanmaku
     },
-    /* @__PURE__ */ React41.createElement(Icon6, { name: "playlistFilled", size: 16 }),
-    /* @__PURE__ */ React41.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
-  ), /* @__PURE__ */ React41.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React41.createElement(
+    /* @__PURE__ */ React43.createElement(Icon6, { name: "playlistFilled", size: 16 }),
+    /* @__PURE__ */ React43.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
+  ), /* @__PURE__ */ React43.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React43.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -25618,7 +31323,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleFullscreen
     },
-    /* @__PURE__ */ React41.createElement(Icon6, { name: "fullscreen", size: 18 })
+    /* @__PURE__ */ React43.createElement(Icon6, { name: "fullscreen", size: 18 })
   )));
 }
 function formatDuration3(seconds) {
@@ -25672,34 +31377,34 @@ function PlayerShell({
   onDanmakuRecalled,
   commentsPanel
 }) {
-  const videoRef = useRef12(null);
-  const shellRef = useRef12(null);
-  const qualityTriggerRef = useRef12(null);
-  const danmakuTriggerRef = useRef12(null);
-  const playerRef = useRef12(null);
-  const reporterRef = useRef12(null);
-  const sourceStartedAtRef = useRef12(0);
-  const fallbackRequestedRef = useRef12(false);
-  const [dashState, setDashState] = useState30({
+  const videoRef = useRef13(null);
+  const shellRef = useRef13(null);
+  const qualityTriggerRef = useRef13(null);
+  const danmakuTriggerRef = useRef13(null);
+  const playerRef = useRef13(null);
+  const reporterRef = useRef13(null);
+  const sourceStartedAtRef = useRef13(0);
+  const fallbackRequestedRef = useRef13(false);
+  const [dashState, setDashState] = useState32({
     mode: "auto",
     selectedQualityId: "",
     currentQualityId: "",
     error: ""
   });
-  const [mediaError, setMediaError] = useState30("");
-  const [isPlaying, setIsPlaying] = useState30(false);
-  const [currentTime, setCurrentTime] = useState30(0);
-  const [duration2, setDuration] = useState30(0);
-  const selectedPageRef = useRef12(selectedPage);
+  const [mediaError, setMediaError] = useState32("");
+  const [isPlaying, setIsPlaying] = useState32(false);
+  const [currentTime, setCurrentTime] = useState32(0);
+  const [duration2, setDuration] = useState32(0);
+  const selectedPageRef = useRef13(selectedPage);
   selectedPageRef.current = selectedPage;
-  const [volume, setVolume] = useState30(1);
-  const [muted, setMuted] = useState30(false);
-  const [rate, setRate] = useState30(defaultPlaybackRate);
-  const [fullscreen, setFullscreen] = useState30(false);
-  const [qualityOpen, setQualityOpen] = useState30(false);
-  const [danmakuOpen, setDanmakuOpen] = useState30(false);
-  const [hovering, setHovering] = useState30(false);
-  const onTimeUpdateRef = useRef12(onTimeUpdate);
+  const [volume, setVolume] = useState32(1);
+  const [muted, setMuted] = useState32(false);
+  const [rate, setRate] = useState32(defaultPlaybackRate);
+  const [fullscreen, setFullscreen] = useState32(false);
+  const [qualityOpen, setQualityOpen] = useState32(false);
+  const [danmakuOpen, setDanmakuOpen] = useState32(false);
+  const [hovering, setHovering] = useState32(false);
+  const onTimeUpdateRef = useRef13(onTimeUpdate);
   onTimeUpdateRef.current = onTimeUpdate;
   const rememberTime = useCallback3(() => {
     const video = videoRef.current;
@@ -25726,7 +31431,7 @@ function PlayerShell({
   const toggleDanmakuEnabled = useCallback3(() => {
     onDanmakuSettingsChange({ ...danmakuSettings, enabled: !danmakuSettings.enabled });
   }, [danmakuSettings, onDanmakuSettingsChange]);
-  useEffect27(() => {
+  useEffect29(() => {
     const video = videoRef.current;
     if (!video || !playback?.manifestUrl && !playback?.directUrl) return;
     setDashState({ mode: "auto", selectedQualityId: "", currentQualityId: "", error: "" });
@@ -25765,12 +31470,12 @@ function PlayerShell({
       video.load();
     };
   }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, syncVideoState]);
-  useEffect27(() => {
+  useEffect29(() => {
     if (dashState.error && playback && !playback.directUrl) {
       requestPlaybackFallback(false);
     }
   }, [dashState.error, playback?.directUrl, playback?.playbackId]);
-  useEffect27(() => {
+  useEffect29(() => {
     const video = videoRef.current;
     if (!sdk || !video || !selectedPage || !playback) return;
     const reporter = createProgressReporter({
@@ -25787,7 +31492,7 @@ function PlayerShell({
       if (reporterRef.current === reporter) reporterRef.current = null;
     };
   }, [detail.aid, detail.bvid, playback?.playbackId, selectedPage?.cid, syncProgress]);
-  useEffect27(() => {
+  useEffect29(() => {
     const video = videoRef.current;
     if (!video) return;
     video.volume = volume;
@@ -25818,7 +31523,7 @@ function PlayerShell({
       rememberTime();
     };
   }, [playback?.directUrl, rememberTime, syncVideoState]);
-  useEffect27(() => {
+  useEffect29(() => {
     const video = videoRef.current;
     const shell = shellRef.current;
     if (!video || !shell) return;
@@ -25846,7 +31551,7 @@ function PlayerShell({
   function toggleDanmaku() {
     setDanmakuOpen((value) => !value);
   }
-  return /* @__PURE__ */ React42.createElement("div", { className: "bili-watch-main" }, /* @__PURE__ */ React42.createElement(
+  return /* @__PURE__ */ React44.createElement("div", { className: "bili-watch-main" }, /* @__PURE__ */ React44.createElement(
     "div",
     {
       className: `bili-player-shell ${fullscreen ? "bili-player-shell-fullscreen" : ""}`,
@@ -25854,8 +31559,8 @@ function PlayerShell({
       onMouseEnter: () => setHovering(true),
       onMouseLeave: () => setHovering(false)
     },
-    /* @__PURE__ */ React42.createElement("video", { className: "bili-video-element", playsInline: true, ref: videoRef }),
-    /* @__PURE__ */ React42.createElement(
+    /* @__PURE__ */ React44.createElement("video", { className: "bili-video-element", playsInline: true, ref: videoRef }),
+    /* @__PURE__ */ React44.createElement(
       DanmakuOverlay,
       {
         items: danmakuItems,
@@ -25867,8 +31572,8 @@ function PlayerShell({
         onRecalled: onDanmakuRecalled
       }
     ),
-    loadingPlayback || !playback || playbackError ? /* @__PURE__ */ React42.createElement("div", { className: "bili-player-overlay" }, /* @__PURE__ */ React42.createElement("strong", null, playbackError ? "\u64AD\u653E\u5931\u8D25" : loadingPlayback ? "\u6B63\u5728\u521B\u5EFA\u64AD\u653E\u4F1A\u8BDD" : "\u7B49\u5F85\u64AD\u653E\u6E90"), playbackError ? /* @__PURE__ */ React42.createElement("span", null, playbackError) : null, playbackError ? /* @__PURE__ */ React42.createElement("div", { className: "bili-player-overlay-actions" }, /* @__PURE__ */ React42.createElement(Button18, { size: "sm", type: "button", onClick: onReloadPlayback }, "\u91CD\u8F7D"), /* @__PURE__ */ React42.createElement(Button18, { variant: "outline", size: "sm", type: "button", onClick: openExternal }, "\u5916\u90E8\u6253\u5F00")) : null) : null,
-    /* @__PURE__ */ React42.createElement(
+    loadingPlayback || !playback || playbackError ? /* @__PURE__ */ React44.createElement("div", { className: "bili-player-overlay" }, /* @__PURE__ */ React44.createElement("strong", null, playbackError ? "\u64AD\u653E\u5931\u8D25" : loadingPlayback ? "\u6B63\u5728\u521B\u5EFA\u64AD\u653E\u4F1A\u8BDD" : "\u7B49\u5F85\u64AD\u653E\u6E90"), playbackError ? /* @__PURE__ */ React44.createElement("span", null, playbackError) : null, playbackError ? /* @__PURE__ */ React44.createElement("div", { className: "bili-player-overlay-actions" }, /* @__PURE__ */ React44.createElement(Button19, { size: "sm", type: "button", onClick: onReloadPlayback }, "\u91CD\u8F7D"), /* @__PURE__ */ React44.createElement(Button19, { variant: "outline", size: "sm", type: "button", onClick: openExternal }, "\u5916\u90E8\u6253\u5F00")) : null) : null,
+    /* @__PURE__ */ React44.createElement(
       VideoPlayerControls,
       {
         canControl,
@@ -25898,14 +31603,14 @@ function PlayerShell({
         volume
       }
     ),
-    qualityOpen ? /* @__PURE__ */ React42.createElement(
+    qualityOpen ? /* @__PURE__ */ React44.createElement(
       MenuPopover,
       {
         onClose: () => setQualityOpen(false),
         style: { position: "absolute", right: 12, bottom: 80, zIndex: 50 },
         triggerRef: qualityTriggerRef
       },
-      /* @__PURE__ */ React42.createElement(
+      /* @__PURE__ */ React44.createElement(
         QualityMenu,
         {
           currentQualityId: dashState.currentQualityId,
@@ -25926,7 +31631,7 @@ function PlayerShell({
         }
       )
     ) : null,
-    danmakuOpen ? /* @__PURE__ */ React42.createElement(
+    danmakuOpen ? /* @__PURE__ */ React44.createElement(
       DanmakuSettingsPopover,
       {
         settings: danmakuSettings,
@@ -25939,7 +31644,7 @@ function PlayerShell({
         triggerRef: danmakuTriggerRef
       }
     ) : null
-  ), /* @__PURE__ */ React42.createElement(
+  ), /* @__PURE__ */ React44.createElement(
     DanmakuInput,
     {
       detail,
@@ -25950,7 +31655,7 @@ function PlayerShell({
       videoRef,
       onSent: onDanmakuSent
     }
-  ), /* @__PURE__ */ React42.createElement(
+  ), /* @__PURE__ */ React44.createElement(
     VideoInteractionBar,
     {
       busy: interactionBusy,
@@ -25967,7 +31672,7 @@ function PlayerShell({
       onCopyLink: onShare,
       onOpenScreenshotFolder: openScreenshotFolder
     }
-  ), interactionError ? /* @__PURE__ */ React42.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, interactionError) : null, /* @__PURE__ */ React42.createElement("section", { className: "bili-video-detail-panel" }, /* @__PURE__ */ React42.createElement("div", { className: "bili-video-heading" }, /* @__PURE__ */ React42.createElement("strong", null, detail.title || "Untitled"), /* @__PURE__ */ React42.createElement("small", null, detail.owner.name || "\u672A\u77E5 UP \u4E3B", " \xB7 ", formatCount7(detail.stats.viewCount), " \u64AD\u653E \xB7", " ", formatCount7(detail.stats.danmakuCount), " \u5F39\u5E55")), /* @__PURE__ */ React42.createElement("p", null, detail.description || "\u6682\u65E0\u7B80\u4ECB")), commentsPanel);
+  ), interactionError ? /* @__PURE__ */ React44.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, interactionError) : null, /* @__PURE__ */ React44.createElement("section", { className: "bili-video-detail-panel" }, /* @__PURE__ */ React44.createElement("div", { className: "bili-video-heading" }, /* @__PURE__ */ React44.createElement("strong", null, detail.title || "Untitled"), /* @__PURE__ */ React44.createElement("small", null, detail.owner.name || "\u672A\u77E5 UP \u4E3B", " \xB7 ", formatCount8(detail.stats.viewCount), " \u64AD\u653E \xB7", " ", formatCount8(detail.stats.danmakuCount), " \u5F39\u5E55")), /* @__PURE__ */ React44.createElement("p", null, detail.description || "\u6682\u65E0\u7B80\u4ECB")), commentsPanel);
   function togglePlay() {
     const video = videoRef.current;
     if (!video) return;
@@ -26023,7 +31728,7 @@ function PlayerShell({
     });
   }
 }
-function formatCount7(value) {
+function formatCount8(value) {
   if (value >= 1e8) return `${trim5(value / 1e8)}\u4EBF`;
   if (value >= 1e4) return `${trim5(value / 1e4)}\u4E07`;
   return String(Math.max(0, Math.floor(value || 0)));
@@ -26059,15 +31764,15 @@ function playSafely2(video) {
 }
 
 // src/components/WatchSidebarTabs.tsx
-import React45, { useState as useState32 } from "sdk";
+import React47, { useState as useState34 } from "sdk";
 
 // src/components/RelatedPanel.tsx
-import React43, { useEffect as useEffect28, useState as useState31 } from "sdk";
+import React45, { useEffect as useEffect30, useState as useState33 } from "sdk";
 function RelatedPanel({ bvid, aid }) {
-  const [items, setItems] = useState31([]);
-  const [loading, setLoading] = useState31(false);
-  const [error, setError] = useState31("");
-  useEffect28(() => {
+  const [items, setItems] = useState33([]);
+  const [loading, setLoading] = useState33(false);
+  const [error, setError] = useState33("");
+  useEffect30(() => {
     let active = true;
     const sdk = getState().sdk;
     if (!sdk || !bvid && !aid) return;
@@ -26085,18 +31790,18 @@ function RelatedPanel({ bvid, aid }) {
     };
   }, [aid, bvid]);
   if (error || !loading && items.length === 0) {
-    return /* @__PURE__ */ React43.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React43.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React43.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React43.createElement("small", null, "\u6682\u65E0")), /* @__PURE__ */ React43.createElement("span", { className: "bili-feed-context" }, "\u6682\u65E0\u53EF\u63A8\u8350\u89C6\u9891"));
+    return /* @__PURE__ */ React45.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React45.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React45.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React45.createElement("small", null, "\u6682\u65E0")), /* @__PURE__ */ React45.createElement("span", { className: "bili-feed-context" }, "\u6682\u65E0\u53EF\u63A8\u8350\u89C6\u9891"));
   }
-  return /* @__PURE__ */ React43.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React43.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React43.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React43.createElement("small", null, items.length, " \u6761")), /* @__PURE__ */ React43.createElement("div", { className: "bili-related-list" }, items.map((video) => /* @__PURE__ */ React43.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))));
+  return /* @__PURE__ */ React45.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React45.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React45.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React45.createElement("small", null, items.length, " \u6761")), /* @__PURE__ */ React45.createElement("div", { className: "bili-related-list" }, items.map((video) => /* @__PURE__ */ React45.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))));
 }
 
 // src/components/VideoOwnerRow.tsx
-import React44, { Button as Button19 } from "sdk";
+import React46, { Button as Button20 } from "sdk";
 function VideoOwnerRow({ busy, loggedIn, state: state2, onFollow, onOpenSpace }) {
   const owner = state2?.owner;
-  return /* @__PURE__ */ React44.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React44.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React44.createElement(BiliImage, { className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React44.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React44.createElement("span", null, /* @__PURE__ */ React44.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React44.createElement("small", null, owner ? `${formatCount8(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React44.createElement(Button19, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
+  return /* @__PURE__ */ React46.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React46.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React46.createElement(BiliImage, { className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React46.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React46.createElement("span", null, /* @__PURE__ */ React46.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React46.createElement("small", null, owner ? `${formatCount9(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React46.createElement(Button20, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
 }
-function formatCount8(value) {
+function formatCount9(value) {
   if (value >= 1e8) return `${trim6(value / 1e8)}\u4EBF`;
   if (value >= 1e4) return `${trim6(value / 1e4)}\u4E07`;
   return String(Math.max(0, Math.floor(value || 0)));
@@ -26120,8 +31825,8 @@ function WatchSidebarTabs({
   pagesLabel,
   hideOwner
 }) {
-  const [open, setOpen] = useState32(false);
-  return /* @__PURE__ */ React45.createElement("aside", { className: `bili-watch-side ${open ? "bili-watch-side-open" : ""}` }, /* @__PURE__ */ React45.createElement("button", { className: "bili-watch-side-toggle", type: "button", onClick: () => setOpen((value) => !value) }, /* @__PURE__ */ React45.createElement("span", null, hideOwner ? `${pagesLabel ?? "\u9009\u96C6"} \xB7 \u76F8\u5173\u63A8\u8350` : `UP \xB7 ${pagesLabel ?? "\u5206P"} \xB7 \u76F8\u5173\u63A8\u8350`), /* @__PURE__ */ React45.createElement("small", null, open ? "\u6536\u8D77" : "\u5C55\u5F00")), /* @__PURE__ */ React45.createElement("div", { className: "bili-watch-side-content" }, !hideOwner ? /* @__PURE__ */ React45.createElement(
+  const [open, setOpen] = useState34(false);
+  return /* @__PURE__ */ React47.createElement("aside", { className: `bili-watch-side ${open ? "bili-watch-side-open" : ""}` }, /* @__PURE__ */ React47.createElement("button", { className: "bili-watch-side-toggle", type: "button", onClick: () => setOpen((value) => !value) }, /* @__PURE__ */ React47.createElement("span", null, hideOwner ? `${pagesLabel ?? "\u9009\u96C6"} \xB7 \u76F8\u5173\u63A8\u8350` : `UP \xB7 ${pagesLabel ?? "\u5206P"} \xB7 \u76F8\u5173\u63A8\u8350`), /* @__PURE__ */ React47.createElement("small", null, open ? "\u6536\u8D77" : "\u5C55\u5F00")), /* @__PURE__ */ React47.createElement("div", { className: "bili-watch-side-content" }, !hideOwner ? /* @__PURE__ */ React47.createElement(
     VideoOwnerRow,
     {
       busy: followBusy,
@@ -26130,7 +31835,7 @@ function WatchSidebarTabs({
       onFollow: onFollowOwner,
       onOpenSpace
     }
-  ) : null, /* @__PURE__ */ React45.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React45.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React45.createElement("strong", null, pagesLabel ?? "\u5206 P"), /* @__PURE__ */ React45.createElement("small", null, pages.length, " \u4E2A")), /* @__PURE__ */ React45.createElement("div", { className: "bili-page-list" }, pages.map((page) => /* @__PURE__ */ React45.createElement(
+  ) : null, /* @__PURE__ */ React47.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React47.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React47.createElement("strong", null, pagesLabel ?? "\u5206 P"), /* @__PURE__ */ React47.createElement("small", null, pages.length, " \u4E2A")), /* @__PURE__ */ React47.createElement("div", { className: "bili-page-list" }, pages.map((page) => /* @__PURE__ */ React47.createElement(
     "button",
     {
       className: `bili-page-item ${selectedPageCid === page.cid ? "bili-page-item-active" : ""}`,
@@ -26138,9 +31843,9 @@ function WatchSidebarTabs({
       type: "button",
       onClick: () => onSelectPage(page)
     },
-    /* @__PURE__ */ React45.createElement("span", null, page.page, ". ", page.title || `CID ${page.cid}`),
-    /* @__PURE__ */ React45.createElement("small", null, formatDuration4(page.duration))
-  )))), /* @__PURE__ */ React45.createElement(RelatedPanel, { bvid, aid })));
+    /* @__PURE__ */ React47.createElement("span", null, page.page, ". ", page.title || `CID ${page.cid}`),
+    /* @__PURE__ */ React47.createElement("small", null, formatDuration4(page.duration))
+  )))), /* @__PURE__ */ React47.createElement(RelatedPanel, { bvid, aid })));
   function openOwnerSpace() {
     const mid = interactionState?.owner.mid;
     if (!mid) return;
@@ -26256,18 +31961,18 @@ function errorMessageOf(error) {
 }
 
 // src/hooks/useVideoInteraction.ts
-import { useEffect as useEffect29, useState as useState33 } from "sdk";
+import { useEffect as useEffect31, useState as useState35 } from "sdk";
 function useVideoInteraction({
   aid,
   bvid,
   ownerMid,
   loggedIn
 }) {
-  const [state2, setState2] = useState33(null);
-  const [loading, setLoading] = useState33(false);
-  const [error, setError] = useState33("");
-  const [busy, setBusy] = useState33("");
-  useEffect29(() => {
+  const [state2, setState2] = useState35(null);
+  const [loading, setLoading] = useState35(false);
+  const [error, setError] = useState35("");
+  const [busy, setBusy] = useState35("");
+  useEffect31(() => {
     let active = true;
     const sdk = getState().sdk;
     if (!sdk || !aid && !bvid) return;
@@ -26421,7 +32126,7 @@ async function copyText(value) {
 
 // src/pages/WatchPage.tsx
 function WatchPage({ target }) {
-  const [query] = useState34(() => ({
+  const [query] = useState36(() => ({
     bvid: target.bvid,
     aid: target.aid,
     cid: target.cid,
@@ -26430,31 +32135,31 @@ function WatchPage({ target }) {
     epId: target.epId
   }));
   const isSeason = query.type === "season" || query.seasonId != null;
-  const [detail, setDetail] = useState34(null);
-  const [seasonDetail, setSeasonDetail] = useState34(null);
-  const [selectedPage, setSelectedPage] = useState34(null);
-  const [selectedEp, setSelectedEp] = useState34(null);
-  const [seasonFollowBusy, setSeasonFollowBusy] = useState34(false);
-  const [playback, setPlayback] = useState34(null);
-  const [loadingDetail, setLoadingDetail] = useState34(false);
-  const [loadingPlayback, setLoadingPlayback] = useState34(false);
-  const [detailError, setDetailError] = useState34("");
-  const [playbackError, setPlaybackError] = useState34("");
-  const [reloadNonce, setReloadNonce] = useState34(0);
-  const [playbackMode, setPlaybackMode] = useState34("quality");
-  const [localProgress, setLocalProgress] = useState34(null);
-  const [syncProgress, setSyncProgress] = useState34(true);
-  const [danmakuItems, setDanmakuItems] = useState34([]);
-  const [danmakuLoading, setDanmakuLoading] = useState34(false);
-  const [danmakuError, setDanmakuError] = useState34("");
-  const [danmakuSettings, setDanmakuSettings] = useState34(defaultDanmakuSettings);
-  const danmakuLoaderRef = useRef13(null);
-  const selfDanmakuRef = useRef13(/* @__PURE__ */ new Map());
-  const [defaultPlaybackRate, setDefaultPlaybackRate] = useState34(1);
-  const [runtimeState, setRuntimeState] = useState34(getState);
-  const progressRef = useRef13({});
-  const touchedProgressRef = useRef13({});
-  const fallbackAttemptsRef = useRef13({});
+  const [detail, setDetail] = useState36(null);
+  const [seasonDetail, setSeasonDetail] = useState36(null);
+  const [selectedPage, setSelectedPage] = useState36(null);
+  const [selectedEp, setSelectedEp] = useState36(null);
+  const [seasonFollowBusy, setSeasonFollowBusy] = useState36(false);
+  const [playback, setPlayback] = useState36(null);
+  const [loadingDetail, setLoadingDetail] = useState36(false);
+  const [loadingPlayback, setLoadingPlayback] = useState36(false);
+  const [detailError, setDetailError] = useState36("");
+  const [playbackError, setPlaybackError] = useState36("");
+  const [reloadNonce, setReloadNonce] = useState36(0);
+  const [playbackMode, setPlaybackMode] = useState36("quality");
+  const [localProgress, setLocalProgress] = useState36(null);
+  const [syncProgress, setSyncProgress] = useState36(true);
+  const [danmakuItems, setDanmakuItems] = useState36([]);
+  const [danmakuLoading, setDanmakuLoading] = useState36(false);
+  const [danmakuError, setDanmakuError] = useState36("");
+  const [danmakuSettings, setDanmakuSettings] = useState36(defaultDanmakuSettings);
+  const danmakuLoaderRef = useRef14(null);
+  const selfDanmakuRef = useRef14(/* @__PURE__ */ new Map());
+  const [defaultPlaybackRate, setDefaultPlaybackRate] = useState36(1);
+  const [runtimeState, setRuntimeState] = useState36(getState);
+  const progressRef = useRef14({});
+  const touchedProgressRef = useRef14({});
+  const fallbackAttemptsRef = useRef14({});
   const videoDetail = seasonDetail ? seasonToVideoDetail(seasonDetail, selectedEp) : detail;
   const activePage = isSeason ? selectedEp ? episodeToPage(selectedEp) : null : selectedPage;
   const interaction = useVideoInteraction({
@@ -26463,12 +32168,12 @@ function WatchPage({ target }) {
     ownerMid: videoDetail?.owner.mid,
     loggedIn: Boolean(runtimeState.loginInfo?.loggedIn)
   });
-  useEffect30(() => {
+  useEffect32(() => {
     const unsubscribe = subscribe(() => setRuntimeState(getState()));
     void refreshLoginStatus();
     return unsubscribe;
   }, []);
-  useEffect30(() => {
+  useEffect32(() => {
     let active = true;
     loadConfig().then((config) => {
       if (active) {
@@ -26493,7 +32198,7 @@ function WatchPage({ target }) {
       active = false;
     };
   }, []);
-  useEffect30(() => {
+  useEffect32(() => {
     const sdk = getState().sdk;
     if (!sdk) return;
     if (isSeason) {
@@ -26574,7 +32279,7 @@ function WatchPage({ target }) {
       active = false;
     };
   }, [isSeason, query.aid, query.bvid, query.cid, query.epId, query.seasonId]);
-  useEffect30(() => {
+  useEffect32(() => {
     const sdk = getState().sdk;
     if (!sdk || !videoDetail || !activePage) return;
     let active = true;
@@ -26598,7 +32303,7 @@ function WatchPage({ target }) {
       active = false;
     };
   }, [videoDetail?.aid, videoDetail?.bvid, playbackMode, reloadNonce, activePage?.cid, selectedEp?.epId]);
-  useEffect30(() => {
+  useEffect32(() => {
     const sdk = getState().sdk;
     if (!sdk || !videoDetail || !activePage) return;
     const loader = new DanmakuSegmentLoader({
@@ -26681,7 +32386,7 @@ function WatchPage({ target }) {
     }
     setPlaybackMode(mode);
   }
-  return /* @__PURE__ */ React46.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React46.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React46.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u8BE6\u60C5") : null, !detailError && !loadingDetail && videoDetail ? /* @__PURE__ */ React46.createElement(React46.Fragment, null, isSeason && seasonDetail ? /* @__PURE__ */ React46.createElement("div", { className: "bili-season-followbar" }, /* @__PURE__ */ React46.createElement("span", { className: "bili-season-followbar-score" }, seasonDetail.score != null ? `\u8BC4\u5206 ${seasonDetail.score.score.toFixed(1)}` : ""), /* @__PURE__ */ React46.createElement("span", { className: "bili-season-followbar-new" }, seasonDetail.newEp ? `\u6700\u65B0\uFF1A${seasonDetail.newEp}` : ""), /* @__PURE__ */ React46.createElement(
+  return /* @__PURE__ */ React48.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React48.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React48.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u8BE6\u60C5") : null, !detailError && !loadingDetail && videoDetail ? /* @__PURE__ */ React48.createElement(React48.Fragment, null, isSeason && seasonDetail ? /* @__PURE__ */ React48.createElement("div", { className: "bili-season-followbar" }, /* @__PURE__ */ React48.createElement("span", { className: "bili-season-followbar-score" }, seasonDetail.score != null ? `\u8BC4\u5206 ${seasonDetail.score.score.toFixed(1)}` : ""), /* @__PURE__ */ React48.createElement("span", { className: "bili-season-followbar-new" }, seasonDetail.newEp ? `\u6700\u65B0\uFF1A${seasonDetail.newEp}` : ""), /* @__PURE__ */ React48.createElement(
     "button",
     {
       type: "button",
@@ -26690,7 +32395,7 @@ function WatchPage({ target }) {
       disabled: !runtimeState.loginInfo?.loggedIn || seasonFollowBusy
     },
     seasonDetail.isFollowed ? "\u5DF2\u8FFD\u756A" : "\u8FFD\u756A"
-  )) : null, /* @__PURE__ */ React46.createElement("section", { className: "bili-watch-grid" }, /* @__PURE__ */ React46.createElement(
+  )) : null, /* @__PURE__ */ React48.createElement("section", { className: "bili-watch-grid" }, /* @__PURE__ */ React48.createElement(
     PlayerShell,
     {
       detail: videoDetail,
@@ -26733,9 +32438,9 @@ function WatchPage({ target }) {
       onDanmakuSent: handleDanmakuSent,
       selfDanmaku: selfDanmakuRef.current,
       onDanmakuRecalled: handleDanmakuRecalled,
-      commentsPanel: /* @__PURE__ */ React46.createElement(CommentPanel, { detail: videoDetail, loggedIn: Boolean(runtimeState.loginInfo?.loggedIn), sdk: getState().sdk })
+      commentsPanel: /* @__PURE__ */ React48.createElement(CommentPanel, { detail: videoDetail, loggedIn: Boolean(runtimeState.loginInfo?.loggedIn), sdk: getState().sdk })
     }
-  ), /* @__PURE__ */ React46.createElement(
+  ), /* @__PURE__ */ React48.createElement(
     WatchSidebarTabs,
     {
       aid: videoDetail.aid,
@@ -26816,18 +32521,18 @@ function seasonToVideoDetail(season, episode) {
 }
 
 // src/pages/DynDetailPage.tsx
-import React47, { useEffect as useEffect31, useRef as useRef14, useState as useState35 } from "sdk";
+import React49, { useEffect as useEffect33, useRef as useRef15, useState as useState37 } from "sdk";
 function DynDetailPage({ dynId }) {
-  const [card, setCard] = useState35(null);
-  const [loading, setLoading] = useState35(true);
-  const [error, setError] = useState35("");
-  const [forwards, setForwards] = useState35([]);
-  const [forwardsOffset, setForwardsOffset] = useState35("");
-  const [forwardsLoading, setForwardsLoading] = useState35(false);
-  const [forwardsHasMore, setForwardsHasMore] = useState35(false);
-  const [previewIndex, setPreviewIndex] = useState35(null);
-  const requestSeqRef = useRef14(0);
-  useEffect31(() => {
+  const [card, setCard] = useState37(null);
+  const [loading, setLoading] = useState37(true);
+  const [error, setError] = useState37("");
+  const [forwards, setForwards] = useState37([]);
+  const [forwardsOffset, setForwardsOffset] = useState37("");
+  const [forwardsLoading, setForwardsLoading] = useState37(false);
+  const [forwardsHasMore, setForwardsHasMore] = useState37(false);
+  const [previewIndex, setPreviewIndex] = useState37(null);
+  const requestSeqRef = useRef15(0);
+  useEffect33(() => {
     const seq = requestSeqRef.current + 1;
     requestSeqRef.current = seq;
     setLoading(true);
@@ -26876,11 +32581,11 @@ function DynDetailPage({ dynId }) {
       sdk.ui.notify(errorMessage(reason));
     });
   }
-  if (loading) return /* @__PURE__ */ React47.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001");
-  if (error && !card) return /* @__PURE__ */ React47.createElement("div", { className: "bili-state bili-state-error" }, error);
-  if (!card) return /* @__PURE__ */ React47.createElement("div", { className: "bili-state" }, "\u52A8\u6001\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664");
+  if (loading) return /* @__PURE__ */ React49.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001");
+  if (error && !card) return /* @__PURE__ */ React49.createElement("div", { className: "bili-state bili-state-error" }, error);
+  if (!card) return /* @__PURE__ */ React49.createElement("div", { className: "bili-state" }, "\u52A8\u6001\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664");
   const images = card.images;
-  return /* @__PURE__ */ React47.createElement("section", { className: "bili-dyn-detail" }, /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-detail-card" }, /* @__PURE__ */ React47.createElement(DynamicCard, { card, onLike: handleLike, onOpenVideo: () => void 0, hideImages: true }), images.length > 0 ? /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-detail-images" }, images.map((src, index) => /* @__PURE__ */ React47.createElement(
+  return /* @__PURE__ */ React49.createElement("section", { className: "bili-dyn-detail" }, /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-detail-card" }, /* @__PURE__ */ React49.createElement(DynamicCard, { card, onLike: handleLike, onOpenVideo: () => void 0, hideImages: true }), images.length > 0 ? /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-detail-images" }, images.map((src, index) => /* @__PURE__ */ React49.createElement(
     "button",
     {
       className: "bili-dyn-detail-image-wrap",
@@ -26888,8 +32593,8 @@ function DynDetailPage({ dynId }) {
       type: "button",
       onClick: () => setPreviewIndex(index)
     },
-    /* @__PURE__ */ React47.createElement(BiliImage, { className: "bili-dyn-detail-image", src, loading: "lazy" })
-  ))) : null, card.forward ? /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-detail-forward" }, /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u7684\u52A8\u6001"), /* @__PURE__ */ React47.createElement(DynamicCard, { card: card.forward, onLike: () => Promise.resolve(), onOpenVideo: () => void 0 })) : null), forwardsHasMore || forwards.length > 0 ? /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u5217\u8868") : null, forwards.length > 0 ? /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-forwards" }, forwards.map((entry) => /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-forward-entry", key: entry.dynId }, /* @__PURE__ */ React47.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.face, alt: entry.name }), /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-forward-entry-body" }, /* @__PURE__ */ React47.createElement("strong", null, entry.name), /* @__PURE__ */ React47.createElement("small", null, entry.pubTime), /* @__PURE__ */ React47.createElement("p", null, entry.content))))) : null, forwardsHasMore ? /* @__PURE__ */ React47.createElement(
+    /* @__PURE__ */ React49.createElement(BiliImage, { className: "bili-dyn-detail-image", src, loading: "lazy" })
+  ))) : null, card.forward ? /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-detail-forward" }, /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u7684\u52A8\u6001"), /* @__PURE__ */ React49.createElement(DynamicCard, { card: card.forward, onLike: () => Promise.resolve(), onOpenVideo: () => void 0 })) : null), forwardsHasMore || forwards.length > 0 ? /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u5217\u8868") : null, forwards.length > 0 ? /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-forwards" }, forwards.map((entry) => /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-forward-entry", key: entry.dynId }, /* @__PURE__ */ React49.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.face, alt: entry.name }), /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-forward-entry-body" }, /* @__PURE__ */ React49.createElement("strong", null, entry.name), /* @__PURE__ */ React49.createElement("small", null, entry.pubTime), /* @__PURE__ */ React49.createElement("p", null, entry.content))))) : null, forwardsHasMore ? /* @__PURE__ */ React49.createElement(
     "button",
     {
       type: "button",
@@ -26898,7 +32603,7 @@ function DynDetailPage({ dynId }) {
       disabled: forwardsLoading
     },
     forwardsLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A\u8F6C\u53D1"
-  ) : null, /* @__PURE__ */ React47.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8BC4\u8BBA"), /* @__PURE__ */ React47.createElement(
+  ) : null, /* @__PURE__ */ React49.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8BC4\u8BBA"), /* @__PURE__ */ React49.createElement(
     CommentPanel,
     {
       detail: emptyDetail,
@@ -26907,7 +32612,7 @@ function DynDetailPage({ dynId }) {
       oid: card.commentId || dynId,
       type: card.commentType || 17
     }
-  ), previewIndex !== null && images[previewIndex] ? /* @__PURE__ */ React47.createElement("div", { className: "bili-image-preview-backdrop", onClick: () => setPreviewIndex(null) }, /* @__PURE__ */ React47.createElement("div", { className: "bili-image-preview-wrap" }, /* @__PURE__ */ React47.createElement(BiliImage, { className: "bili-image-preview", src: images[previewIndex], alt: "\u9884\u89C8\u5927\u56FE" }), /* @__PURE__ */ React47.createElement("div", { className: "bili-image-preview-nav" }, /* @__PURE__ */ React47.createElement(
+  ), previewIndex !== null && images[previewIndex] ? /* @__PURE__ */ React49.createElement("div", { className: "bili-image-preview-backdrop", onClick: () => setPreviewIndex(null) }, /* @__PURE__ */ React49.createElement("div", { className: "bili-image-preview-wrap" }, /* @__PURE__ */ React49.createElement(BiliImage, { className: "bili-image-preview", src: images[previewIndex], alt: "\u9884\u89C8\u5927\u56FE" }), /* @__PURE__ */ React49.createElement("div", { className: "bili-image-preview-nav" }, /* @__PURE__ */ React49.createElement(
     "button",
     {
       className: "bili-image-preview-nav-btn",
@@ -26919,7 +32624,7 @@ function DynDetailPage({ dynId }) {
       }
     },
     "\u4E0A\u4E00\u5F20"
-  ), /* @__PURE__ */ React47.createElement("span", null, previewIndex + 1, "/", images.length), /* @__PURE__ */ React47.createElement(
+  ), /* @__PURE__ */ React49.createElement("span", null, previewIndex + 1, "/", images.length), /* @__PURE__ */ React49.createElement(
     "button",
     {
       className: "bili-image-preview-nav-btn",
@@ -26949,15 +32654,15 @@ var emptyDetail = {
 
 // src/pages/MainPage.tsx
 function MainPage() {
-  const [view, setView] = useState36(getNavView);
-  const [runtimeState, setRuntimeState] = useState36(getState);
-  useEffect32(() => subscribeNav(setView), []);
-  useEffect32(() => subscribe(() => setRuntimeState(getState())), []);
-  useEffect32(() => {
+  const [view, setView] = useState38(getNavView);
+  const [runtimeState, setRuntimeState] = useState38(getState);
+  useEffect34(() => subscribeNav(setView), []);
+  useEffect34(() => subscribe(() => setRuntimeState(getState())), []);
+  useEffect34(() => {
     clearViewScroll();
     return clearViewScroll;
   }, []);
-  useEffect32(() => {
+  useEffect34(() => {
     const frame = requestAnimationFrame(() => {
       const el = document.querySelector(".app-page-surface");
       if (el) el.scrollTop = getViewScroll(view.name);
@@ -26968,11 +32673,11 @@ function MainPage() {
   const loggedIn = Boolean(loginInfo?.loggedIn);
   const title = view.name === "watch" ? "\u64AD\u653E" : view.name === "space" ? "UP \u4E3B\u9875" : view.name === "season" ? "\u756A\u5267\u8BE6\u60C5" : view.name === "live" ? "\u76F4\u64AD\u95F4" : view.name === "settings" ? "\u8BBE\u7F6E" : view.name === "dynDetail" ? "\u52A8\u6001\u8BE6\u60C5" : view.name === "article" ? "\u4E13\u680F" : view.name === "messages" ? "\u79C1\u4FE1" : view.name === "chat" ? "\u4F1A\u8BDD" : view.name === "notifications" ? "\u901A\u77E5" : "Bilibili";
   const subtitle = view.name === "watch" ? view.bvid || (view.aid ? `av${view.aid}` : "\u64AD\u653E") : view.name === "mine" ? loggedIn && loginInfo?.nickname ? loginInfo.nickname : "\u8D26\u53F7\u4E2D\u5FC3" : "EasyGameHub";
-  const actions = view.name === "home" ? /* @__PURE__ */ React48.createElement("a", { className: "bili-link-button", href: "https://www.bilibili.com", target: "_blank", rel: "noreferrer" }, "\u6253\u5F00 B \u7AD9") : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "dynDetail" || view.name === "article" || view.name === "messages" || view.name === "chat" || view.name === "notifications" ? /* @__PURE__ */ React48.createElement(Button20, { variant: "outline", size: "sm", type: "button", onClick: goBackNav }, "\u8FD4\u56DE") : void 0;
-  return /* @__PURE__ */ React48.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React48.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React48.createElement(HomePage, null)), /* @__PURE__ */ React48.createElement("div", { className: view.name === "dynamic" ? "" : "bili-hidden" }, /* @__PURE__ */ React48.createElement(DynamicPage, null)), /* @__PURE__ */ React48.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React48.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React48.createElement(WatchPage, { key: watchKey(view), target: view }) : null, view.name === "space" ? /* @__PURE__ */ React48.createElement(SpacePage, { key: `space-${view.mid}`, mid: view.mid }) : null, view.name === "season" ? /* @__PURE__ */ React48.createElement(SeasonPage, { key: `season-${view.seasonId}`, seasonId: view.seasonId }) : null, view.name === "live" ? /* @__PURE__ */ React48.createElement(PlaceholderPage, { label: "\u76F4\u64AD\u95F4" }) : null, view.name === "settings" ? /* @__PURE__ */ React48.createElement(PlaceholderPage, { label: "\u8BBE\u7F6E" }) : null, view.name === "dynDetail" ? /* @__PURE__ */ React48.createElement(DynDetailPage, { key: view.dynId, dynId: view.dynId }) : null, view.name === "article" ? /* @__PURE__ */ React48.createElement(PlaceholderPage, { label: "\u4E13\u680F" }) : null, view.name === "messages" ? /* @__PURE__ */ React48.createElement(MessagesPage, null) : null, view.name === "chat" ? /* @__PURE__ */ React48.createElement(ChatPage, { key: `chat-${view.uid}`, uid: view.uid }) : null, view.name === "notifications" ? /* @__PURE__ */ React48.createElement(NotificationsPage, null) : null);
+  const actions = view.name === "home" ? /* @__PURE__ */ React50.createElement("a", { className: "bili-link-button", href: "https://www.bilibili.com", target: "_blank", rel: "noreferrer" }, "\u6253\u5F00 B \u7AD9") : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "dynDetail" || view.name === "article" || view.name === "messages" || view.name === "chat" || view.name === "notifications" ? /* @__PURE__ */ React50.createElement(Button21, { variant: "outline", size: "sm", type: "button", onClick: goBackNav }, "\u8FD4\u56DE") : void 0;
+  return /* @__PURE__ */ React50.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React50.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React50.createElement(HomePage, null)), /* @__PURE__ */ React50.createElement("div", { className: view.name === "dynamic" ? "" : "bili-hidden" }, /* @__PURE__ */ React50.createElement(DynamicPage, null)), /* @__PURE__ */ React50.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React50.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React50.createElement(WatchPage, { key: watchKey(view), target: view }) : null, view.name === "space" ? /* @__PURE__ */ React50.createElement(SpacePage, { key: `space-${view.mid}`, mid: view.mid }) : null, view.name === "season" ? /* @__PURE__ */ React50.createElement(SeasonPage, { key: `season-${view.seasonId}`, seasonId: view.seasonId }) : null, view.name === "live" ? /* @__PURE__ */ React50.createElement(LivePage, { key: `live-${view.roomId}`, roomId: view.roomId }) : null, view.name === "settings" ? /* @__PURE__ */ React50.createElement(PlaceholderPage, { label: "\u8BBE\u7F6E" }) : null, view.name === "dynDetail" ? /* @__PURE__ */ React50.createElement(DynDetailPage, { key: view.dynId, dynId: view.dynId }) : null, view.name === "article" ? /* @__PURE__ */ React50.createElement(PlaceholderPage, { label: "\u4E13\u680F" }) : null, view.name === "messages" ? /* @__PURE__ */ React50.createElement(MessagesPage, null) : null, view.name === "chat" ? /* @__PURE__ */ React50.createElement(ChatPage, { key: `chat-${view.uid}`, uid: view.uid }) : null, view.name === "notifications" ? /* @__PURE__ */ React50.createElement(NotificationsPage, null) : null);
 }
 function PlaceholderPage({ label }) {
-  return /* @__PURE__ */ React48.createElement("div", { className: "bili-placeholder-page" }, /* @__PURE__ */ React48.createElement("div", { className: "bili-placeholder-label" }, label), /* @__PURE__ */ React48.createElement("div", { className: "bili-placeholder-hint" }, "\u529F\u80FD\u5F00\u53D1\u4E2D"));
+  return /* @__PURE__ */ React50.createElement("div", { className: "bili-placeholder-page" }, /* @__PURE__ */ React50.createElement("div", { className: "bili-placeholder-label" }, label), /* @__PURE__ */ React50.createElement("div", { className: "bili-placeholder-hint" }, "\u529F\u80FD\u5F00\u53D1\u4E2D"));
 }
 function watchKey(view) {
   if (view.name !== "watch") return "";
@@ -27002,10 +32707,10 @@ function teardown() {
   disposeRuntime();
 }
 function BilibiliSettingsSection() {
-  const [config, setConfig] = useState37(defaultConfig);
-  const [saving, setSaving] = useState37(false);
-  const [message, setMessage] = useState37("");
-  useEffect33(() => {
+  const [config, setConfig] = useState39(defaultConfig);
+  const [saving, setSaving] = useState39(false);
+  const [message, setMessage] = useState39("");
+  useEffect35(() => {
     let active = true;
     loadConfig().then((next) => {
       if (active) setConfig(next);
@@ -27016,7 +32721,7 @@ function BilibiliSettingsSection() {
       active = false;
     };
   }, []);
-  return /* @__PURE__ */ React49.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React49.createElement("style", null, cssText), /* @__PURE__ */ React49.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React49.createElement("strong", null, "Bilibili"), /* @__PURE__ */ React49.createElement("small", null, "\u5185\u7F6E\u89C6\u9891\u63D2\u4EF6")), /* @__PURE__ */ React49.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React49.createElement(Toggle3, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) }), /* @__PURE__ */ React49.createElement("span", null, "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9")), /* @__PURE__ */ React49.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React49.createElement(Toggle3, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React49.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React49.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React49.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React49.createElement(
+  return /* @__PURE__ */ React51.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React51.createElement("style", null, cssText), /* @__PURE__ */ React51.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React51.createElement("strong", null, "Bilibili"), /* @__PURE__ */ React51.createElement("small", null, "\u5185\u7F6E\u89C6\u9891\u63D2\u4EF6")), /* @__PURE__ */ React51.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React51.createElement(Toggle3, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) }), /* @__PURE__ */ React51.createElement("span", null, "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9")), /* @__PURE__ */ React51.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React51.createElement(Toggle3, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React51.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React51.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React51.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React51.createElement(
     Slider2,
     {
       max: 32,
@@ -27025,7 +32730,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuFontSize,
       onChange: (danmakuFontSize) => update({ danmakuFontSize })
     }
-  )), /* @__PURE__ */ React49.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React49.createElement("span", null, "\u5F39\u5E55\u900F\u660E\u5EA6 ", Math.round(config.danmakuOpacity * 100), "%"), /* @__PURE__ */ React49.createElement(
+  )), /* @__PURE__ */ React51.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React51.createElement("span", null, "\u5F39\u5E55\u900F\u660E\u5EA6 ", Math.round(config.danmakuOpacity * 100), "%"), /* @__PURE__ */ React51.createElement(
     Slider2,
     {
       max: 1,
@@ -27034,7 +32739,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuOpacity,
       onChange: (danmakuOpacity) => update({ danmakuOpacity })
     }
-  )), /* @__PURE__ */ React49.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React49.createElement("span", null, "\u5F39\u5E55\u5BC6\u5EA6 ", Math.round(config.danmakuDensity * 100), "%"), /* @__PURE__ */ React49.createElement(
+  )), /* @__PURE__ */ React51.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React51.createElement("span", null, "\u5F39\u5E55\u5BC6\u5EA6 ", Math.round(config.danmakuDensity * 100), "%"), /* @__PURE__ */ React51.createElement(
     Slider2,
     {
       max: 1,
@@ -27043,7 +32748,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuDensity,
       onChange: (danmakuDensity) => update({ danmakuDensity })
     }
-  )), /* @__PURE__ */ React49.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React49.createElement("span", null, "\u5F39\u5E55\u901F\u5EA6 ", config.danmakuSpeed.toFixed(1), "x"), /* @__PURE__ */ React49.createElement(
+  )), /* @__PURE__ */ React51.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React51.createElement("span", null, "\u5F39\u5E55\u901F\u5EA6 ", config.danmakuSpeed.toFixed(1), "x"), /* @__PURE__ */ React51.createElement(
     Slider2,
     {
       max: 1.8,
@@ -27052,7 +32757,7 @@ function BilibiliSettingsSection() {
       value: config.danmakuSpeed,
       onChange: (danmakuSpeed) => update({ danmakuSpeed })
     }
-  )), /* @__PURE__ */ React49.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React49.createElement("span", null, "\u9ED8\u8BA4\u500D\u901F"), /* @__PURE__ */ React49.createElement(
+  )), /* @__PURE__ */ React51.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React51.createElement("span", null, "\u9ED8\u8BA4\u500D\u901F"), /* @__PURE__ */ React51.createElement(
     Select,
     {
       name: "defaultPlaybackRate",
@@ -27060,7 +32765,7 @@ function BilibiliSettingsSection() {
       options: [0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => ({ value: String(rate), label: `${rate}x` })),
       onChange: (value) => update({ defaultPlaybackRate: Number(value) })
     }
-  )), /* @__PURE__ */ React49.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React49.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F"), /* @__PURE__ */ React49.createElement(
+  )), /* @__PURE__ */ React51.createElement("label", { className: "bili-setting-field" }, /* @__PURE__ */ React51.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F"), /* @__PURE__ */ React51.createElement(
     Select,
     {
       name: "defaultQualityMode",
@@ -27068,7 +32773,7 @@ function BilibiliSettingsSection() {
       options: [{ value: "auto", label: "\u81EA\u52A8" }],
       onChange: () => update({ defaultQualityMode: "auto" })
     }
-  )), /* @__PURE__ */ React49.createElement("div", { className: "bili-action-row" }, /* @__PURE__ */ React49.createElement(Button21, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406\u7F13\u5B58"), /* @__PURE__ */ React49.createElement(Button21, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u622A\u56FE\u76EE\u5F55")), message ? /* @__PURE__ */ React49.createElement("div", { className: "bili-state bili-state-compact" }, message) : null);
+  )), /* @__PURE__ */ React51.createElement("div", { className: "bili-action-row" }, /* @__PURE__ */ React51.createElement(Button22, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406\u7F13\u5B58"), /* @__PURE__ */ React51.createElement(Button22, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u622A\u56FE\u76EE\u5F55")), message ? /* @__PURE__ */ React51.createElement("div", { className: "bili-state bili-state-compact" }, message) : null);
   function update(next) {
     const merged = { ...config, ...next };
     setConfig(merged);
@@ -27099,6 +32804,9 @@ export {
   teardown
 };
 /*! Bundled license information:
+
+mpegts.js/dist/mpegts.js:
+  (*! For license information please see mpegts.js.LICENSE.txt *)
 
 dashjs/dist/dash.all.min.js:
   (*! For license information please see dash.all.min.js.LICENSE.txt *)

@@ -1,5 +1,5 @@
 import React from "sdk";
-import { openDynDetail, openWatch } from "../navigation";
+import { openDynDetail, openLive, openWatch } from "../navigation";
 import type { BiliDynamicCard, BiliDynamicLive, BiliDynamicVideo } from "../types";
 import { BiliImage } from "./BiliImage";
 
@@ -18,13 +18,18 @@ export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCa
 
   function openCard() {
     // 无 dyn_id 的卡片（部分转发原文等）不可跳详情
-    if (!card.dynId && card.cardType !== "video") return;
+    if (!card.dynId && card.cardType !== "video" && card.cardType !== "live") return;
     if (card.cardType === "video") {
       if (onOpenVideo) {
         onOpenVideo(card);
       } else if (card.video?.bvid) {
         openWatch({ name: "watch", bvid: card.video.bvid, aid: card.video.aid || undefined, cid: 0 });
       }
+      return;
+    }
+    // 直播卡片直接进直播间（P6）
+    if (card.cardType === "live" && card.live?.roomId) {
+      openLive(card.live.roomId);
       return;
     }
     openDynDetail(card.dynId);

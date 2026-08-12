@@ -1,5 +1,6 @@
 import React, { Button, useEffect, useState } from "sdk";
 import { HomeFeed } from "../components/HomeFeed";
+import { LiveFeed } from "../components/LiveFeed";
 import type { HomeMode } from "../components/HomeFeedTabs";
 import { HotSubTabs, type HotSubMode } from "../components/HotSubTabs";
 import { PgcSectionFeed } from "../components/PgcSectionFeed";
@@ -9,6 +10,7 @@ import { SearchBox } from "../components/SearchBox";
 import { SearchEmptyPanel } from "../components/SearchEmptyPanel";
 import { WeeklyPanel } from "../components/WeeklyPanel";
 import { usePagedFeed } from "../hooks/usePagedFeed";
+import { openLive } from "../navigation";
 import { getState, saveConfig, subscribe, withSearchHistory } from "../runtime";
 import type { PluginSdk } from "../types";
 
@@ -107,7 +109,6 @@ export function HomePage() {
   }
 
   const searchGuide = mode === "search" && searchKeyword.length === 0;
-  const comingSoon = mode === "live";
 
   const mainFeed =
     mode === "popular" ? (
@@ -137,6 +138,8 @@ export function HomePage() {
       </>
     ) : mode === "bangumi" || mode === "cinema" ? (
       <PgcSectionFeed kind={mode === "bangumi" ? "bangumi" : "cinema"} />
+    ) : mode === "live" ? (
+      <LiveFeed onOpenLive={openLive} />
     ) : (
       <HomeFeed
         error={active.error}
@@ -154,7 +157,6 @@ export function HomePage() {
             onClearHistory={clearSearchHistory}
           />
         }
-        comingSoon={comingSoon}
         onPopular={switchToPopular}
         onRecommend={switchToRecommend}
         onSearch={switchToSearch}
