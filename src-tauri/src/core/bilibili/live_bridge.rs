@@ -5,6 +5,7 @@
 //! 无插件连接时自动断开上游（引用计数归零后 shutdown）。
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 
@@ -16,10 +17,29 @@ use serde_json::json;
 use tokio::sync::broadcast;
 use tokio::sync::Mutex as AsyncMutex;
 
-use super::client::anonymous_client;
+use super::client::optional_account_client;
 
 /// 房间注册表：room_id → 房间桥。
 static REGISTRY: OnceLock<AsyncMutex<HashMap<u64, Arc<RoomBridge>>>> = OnceLock::new();
+
+/// 工具数据目录（proxy 启动时注入，弹幕桥取登录态客户端用）。
+static TOOL_DIR: OnceLock<PathBuf> = OnceLock::new();
+
+/// 注入数据目录（由 proxy server 启动时调用一次）。
+pub fn init(tool_dir: PathBuf) {
+    let _ = TOOL_DIR.set(tool_dir);
+}
+
+/// 取当前登录用户 mid（未登录返回 0）。
+fn current_mid(tool_dir: &std::path::Path) -> u64 {
+    let Ok(Some(cookie)) = super::account::load_cookie(tool_dir) else {
+        return 0;
+    };
+    let Some(account) = super::account::cookie_to_account(&cookie) else {
+        return 0;
+    };
+    account.dede_user_id.parse::<u64>().ok().unwrap_or(0)
+}
 
 /// 单个直播间的上游连接桥。
 struct RoomBridge {
@@ -85,8 +105,16 @@ async fn ensure_bridge(room_id: u64) -> Result<Arc<RoomBridge>, String> {
         return Ok(bridge.clone());
     }
 
-    // 创建上游连接：匿名客户端取 danmu_info（host + token）
-    let client = anonymous_client().map_err(|e| e.to_string())?;
+    // 创建上游连接：danmu_info 匿名请求会触发 wbi 风控（-352），用登录态客户端（未登录退回匿名）；
+    // 未登录时先请求 nav 让 cookie jar 种上 buvid，同样能通过 wbi 校验
+    let tool_dir = TOOL_DIR
+        .get()
+        .cloned()
+        .ok_or("live bridge not initialized")?;
+    let client = optional_account_client(&tool_dir).map_err(|e| e.to_string())?;
+    if !client.has_login_cookies() {
+        let _ = client.login().nav().await;
+    }
     let info = client
         .live()
         .danmu_info(room_id, 0)
@@ -96,10 +124,23 @@ async fn ensure_bridge(room_id: u64) -> Result<Arc<RoomBridge>, String> {
         .host_list
         .first()
         .ok_or_else(|| "danmu host list is empty".to_string())?;
-    let (mut rx, handle) =
-        LiveWsClient::connect(&host.host, host.wss_port as u16, &info.token, room_id)
-            .await
-            .map_err(|e| e.to_string())?;
+    if info.token.is_empty() {
+        return Err("弹幕 token 为空（getDanmuInfo 未返回有效 token）".to_string());
+    }
+    let wss_port = if host.wss_port == 0 {
+        443
+    } else {
+        host.wss_port as u16
+    };
+    let uid = current_mid(&tool_dir);
+    log::info!(
+        "live bridge room {room_id}: host={} wss_port={wss_port} token_len={} uid={uid}",
+        host.host,
+        info.token.len()
+    );
+    let (mut rx, handle) = LiveWsClient::connect(&host.host, wss_port, &info.token, room_id, uid)
+        .await
+        .map_err(|e| e.to_string())?;
 
     let (broadcast_tx, _) = broadcast::channel(512);
     let forward_tx = broadcast_tx.clone();

@@ -67,18 +67,20 @@ impl LiveWsHandle {
 pub struct LiveWsClient;
 
 impl LiveWsClient {
-    /// 连接直播弹幕服务器（心跳间隔 30 秒）。
+    /// 连接直播弹幕服务器（心跳间隔 30 秒）。`uid` 为登录用户 mid（游客传 0）。
     pub async fn connect(
         host: &str,
         wss_port: u16,
         token: &str,
         room_id: u64,
+        uid: u64,
     ) -> Result<(mpsc::Receiver<LiveWsMessage>, LiveWsHandle), LiveWsError> {
         Self::connect_with_heartbeat(
             host,
             wss_port,
             token,
             room_id,
+            uid,
             heartbeat::HEARTBEAT_INTERVAL,
         )
         .await
@@ -90,12 +92,14 @@ impl LiveWsClient {
         wss_port: u16,
         token: &str,
         room_id: u64,
+        uid: u64,
         heartbeat_interval: Duration,
     ) -> Result<(mpsc::Receiver<LiveWsMessage>, LiveWsHandle), LiveWsError> {
         Self::connect_url(
             &format!("wss://{host}:{wss_port}/sub"),
             room_id,
             token,
+            uid,
             heartbeat_interval,
         )
         .await
@@ -106,9 +110,10 @@ impl LiveWsClient {
         url: &str,
         room_id: u64,
         token: &str,
+        uid: u64,
         heartbeat_interval: Duration,
     ) -> Result<(mpsc::Receiver<LiveWsMessage>, LiveWsHandle), LiveWsError> {
-        let ws = connect_and_auth(url, room_id, token).await?;
+        let ws = connect_and_auth(url, room_id, token, uid).await?;
         let url = url.to_string();
 
         let (tx, rx) = mpsc::channel(512);
@@ -118,7 +123,7 @@ impl LiveWsClient {
         let client = LiveWsClient;
         tokio::spawn(async move {
             client
-                .run(ws, url, room_id, token, heartbeat_interval, tx, shutdown_rx)
+                .run(ws, url, room_id, token, uid, heartbeat_interval, tx, shutdown_rx)
                 .await;
         });
 
@@ -136,6 +141,7 @@ impl LiveWsClient {
         url: String,
         room_id: u64,
         token: String,
+        uid: u64,
         heartbeat_interval: Duration,
         tx: mpsc::Sender<LiveWsMessage>,
         mut shutdown: watch::Receiver<bool>,
@@ -163,7 +169,7 @@ impl LiveWsClient {
                 _ = tokio::time::sleep(delay) => {}
                 _ = shutdown.changed() => return,
             }
-            match connect_and_auth(&url, room_id, &token).await {
+            match connect_and_auth(&url, room_id, &token, uid).await {
                 Ok(next) => {
                     ws = next;
                     attempts = 0;
@@ -223,10 +229,11 @@ async fn connect_and_auth(
     url: &str,
     room_id: u64,
     token: &str,
+    uid: u64,
 ) -> Result<WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>, LiveWsError>
 {
     let (mut ws, _) = tokio_tungstenite::connect_async(url).await?;
-    ws.send(Message::Binary(heartbeat::auth_frame(room_id, token)))
+    ws.send(Message::Binary(heartbeat::auth_frame(room_id, token, uid)))
         .await?;
 
     let deadline = tokio::time::sleep(heartbeat::AUTH_TIMEOUT);
@@ -235,8 +242,11 @@ async fn connect_and_auth(
         tokio::select! {
             _ = &mut deadline => return Err(LiveWsError::AuthTimeout),
             message = ws.next() => {
-                let Some(Ok(Message::Binary(bytes))) = message else {
+                let Some(Ok(message)) = message else {
                     return Err(LiveWsError::Closed);
+                };
+                let Message::Binary(bytes) = message else {
+                    continue;
                 };
                 for packet in decode_packets(&bytes).unwrap_or_default() {
                     if packet.op == OP_AUTH_REPLY {
@@ -283,6 +293,7 @@ mod tests {
             let value: Value = serde_json::from_slice(&packets[0].body).expect("auth json");
             assert_eq!(value["roomid"], 424242);
             assert_eq!(value["key"], "mock-token");
+            assert_eq!(value["uid"], 96868451);
 
             // 回认证成功
             ws.send(Message::Binary(encode_packet(
@@ -350,6 +361,7 @@ mod tests {
             &format!("ws://127.0.0.1:{port}/sub"),
             424242,
             "mock-token",
+            96868451,
             Duration::from_millis(100),
         )
         .await
@@ -396,6 +408,7 @@ mod tests {
             &format!("ws://127.0.0.1:{port}/sub"),
             1,
             "bad-token",
+            0,
             Duration::from_secs(30),
         )
         .await;

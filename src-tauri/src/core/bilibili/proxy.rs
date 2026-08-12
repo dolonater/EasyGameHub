@@ -42,6 +42,8 @@ pub async fn start_proxy(data_dir: PathBuf) -> Result<u16, anyhow::Error> {
     if let Some(state) = *lock.lock().unwrap() {
         return Ok(state.port);
     }
+    // 弹幕 WS 桥需要工具目录（取登录态客户端避免 danmu_info 风控）
+    super::live_bridge::init(data_dir.clone());
 
     let app = Router::new()
         .route(

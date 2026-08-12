@@ -15,10 +15,10 @@ pub const AUTH_TIMEOUT: Duration = Duration::from_secs(5);
 /// 认证协议版本（brotli 压缩）。
 pub const AUTH_PROTOVER: u16 = 3;
 
-/// 构造认证帧（op=7）。
-pub fn auth_frame(room_id: u64, token: &str) -> Vec<u8> {
+/// 构造认证帧（op=7）。`uid` 为登录用户 mid，游客传 0。
+pub fn auth_frame(room_id: u64, token: &str, uid: u64) -> Vec<u8> {
     let body = json!({
-        "uid": 0,
+        "uid": uid,
         "roomid": room_id,
         "protover": AUTH_PROTOVER,
         "platform": "web",
@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn auth_frame_contains_room_and_token() {
-        let frame = auth_frame(12345, "secret-token");
+        let frame = auth_frame(12345, "secret-token", 42);
         let packets = decode_packets(&frame).expect("decode");
         assert_eq!(packets.len(), 1);
         assert_eq!(packets[0].op, OP_AUTH);
@@ -49,6 +49,7 @@ mod tests {
         let value: serde_json::Value = serde_json::from_slice(&packets[0].body).expect("json body");
         assert_eq!(value["roomid"], 12345);
         assert_eq!(value["key"], "secret-token");
+        assert_eq!(value["uid"], 42);
         assert_eq!(value["protover"], AUTH_PROTOVER);
     }
 
