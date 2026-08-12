@@ -20,6 +20,22 @@ use super::playback;
 
 const BROWSER_UA: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+/// 全局复用媒体转发客户端：分段/封面/直播流共享连接池（TLS 会话 + DNS 缓存），
+/// 避免每个分段都重新握手——B 站 dash 每视频数百分段，冷连接会显著拖慢起播。
+/// 参考 bili-rust stream.rs：转发全程用 `bili.http()` 的同一客户端。
+static MEDIA_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
+
+fn media_client() -> &'static reqwest::Client {
+    MEDIA_CLIENT.get_or_init(|| {
+        reqwest::Client::builder()
+            .user_agent(BROWSER_UA)
+            .connect_timeout(Duration::from_secs(5))
+            .pool_idle_timeout(Duration::from_secs(120))
+            .build()
+            .expect("failed to build bilibili media client")
+    })
+}
+
 #[derive(Debug, Clone, Copy)]
 struct ProxyState {
     port: u16,
@@ -181,12 +197,7 @@ async fn request_media_with_referer(
     headers: &HeaderMap,
     referer: &str,
 ) -> Result<Response, (StatusCode, String)> {
-    let client = reqwest::Client::builder()
-        .user_agent(BROWSER_UA)
-        .connect_timeout(Duration::from_secs(5))
-        .build()
-        .map_err(internal)?;
-    let mut request = client
+    let mut request = media_client()
         .get(raw_url)
         .header("Referer", referer)
         .header("User-Agent", BROWSER_UA);
@@ -273,11 +284,7 @@ fn validate_cover_url(raw_url: &str) -> Result<(), (StatusCode, String)> {
 }
 
 async fn request_cover(raw_url: &str) -> Result<reqwest::Response, (StatusCode, String)> {
-    let client = reqwest::Client::builder()
-        .user_agent(BROWSER_UA)
-        .build()
-        .map_err(internal)?;
-    let upstream = client
+    let upstream = media_client()
         .get(raw_url)
         .header("Referer", "https://www.bilibili.com/")
         .header("User-Agent", BROWSER_UA)

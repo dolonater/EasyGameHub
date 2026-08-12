@@ -60,8 +60,8 @@
       "bvid": "BV19LM16MEHC",
       "aid": 117042187343543,
       "cid": 40619083086,
-      "progressSeconds": 3,
-      "updatedAt": 1786537579
+      "progressSeconds": 6,
+      "updatedAt": 1786537899
     },
     {
       "bvid": "BV1BQud67Egq",
@@ -148,6 +148,13 @@
       "updatedAt": 1786451111
     },
     {
+      "bvid": "BV1PauQ61EpE",
+      "aid": 117068980618933,
+      "cid": 40766934681,
+      "progressSeconds": 9,
+      "updatedAt": 1786537867
+    },
+    {
       "bvid": "BV1Unub69EpX",
       "aid": 117053210036656,
       "cid": 40679050181,
@@ -230,6 +237,13 @@
       "cid": 40767654502,
       "progressSeconds": 9,
       "updatedAt": 1786426480
+    },
+    {
+      "bvid": "BV1cout63Epq",
+      "aid": 117053478469847,
+      "cid": 40682651807,
+      "progressSeconds": 72,
+      "updatedAt": 1786537884
     },
     {
       "bvid": "BV1e4ZAByEX8",
