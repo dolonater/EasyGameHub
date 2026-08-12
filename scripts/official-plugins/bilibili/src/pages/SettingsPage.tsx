@@ -161,10 +161,32 @@ export function SettingsPage() {
               <Select
                 name="defaultQualityMode"
                 value={config.defaultQualityMode}
-                options={[{ value: "auto", label: "自动" }]}
-                onChange={() => update({ defaultQualityMode: "auto" })}
+                options={[
+                  { value: "auto", label: "自动" },
+                  { value: "manual", label: "手动" },
+                ]}
+                onChange={(defaultQualityMode: string) =>
+                  update({ defaultQualityMode: defaultQualityMode as BilibiliPluginConfig["defaultQualityMode"] })
+                }
               />
             </div>
+            {config.defaultQualityMode === "manual" ? (
+              <div className="bili-setting-field">
+                <span>默认清晰度</span>
+                <Select
+                  name="defaultQualityQn"
+                  value={String(config.defaultQualityQn)}
+                  options={[
+                    { value: "0", label: "最高可用" },
+                    { value: "80", label: "1080P" },
+                    { value: "64", label: "720P" },
+                    { value: "32", label: "480P" },
+                    { value: "16", label: "360P" },
+                  ]}
+                  onChange={(defaultQualityQn: string) => update({ defaultQualityQn: Number(defaultQualityQn) })}
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}

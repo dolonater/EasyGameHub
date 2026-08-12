@@ -70,6 +70,8 @@ export function WatchPage({ target }: WatchPageProps) {
   // 自己发送的弹幕：id → 发送时间戳秒（5 分钟窗口内描边 + 可操作）
   const selfDanmakuRef = useRef<Map<string, number>>(new Map());
   const [defaultPlaybackRate, setDefaultPlaybackRate] = useState(1);
+  const [qualityMode, setQualityMode] = useState<"auto" | "manual">("auto");
+  const [qualityQn, setQualityQn] = useState(0);
   const [runtimeState, setRuntimeState] = useState(getState);
   const progressRef = useRef<Record<number, number>>({});
   const touchedProgressRef = useRef<Record<number, boolean>>({});
@@ -101,6 +103,8 @@ export function WatchPage({ target }: WatchPageProps) {
         if (active) {
           setSyncProgress(config.syncProgress);
           setDefaultPlaybackRate(config.defaultPlaybackRate);
+          setQualityMode(config.defaultQualityMode);
+          setQualityQn(config.defaultQualityQn);
           setPlaybackMode(config.defaultFormat === "mp4" ? "compat" : "quality");
           setCodecPreference(config.codecPreference);
           setAudioPreference(config.audioPreference);
@@ -237,6 +241,7 @@ export function WatchPage({ target }: WatchPageProps) {
         aid: videoDetail.aid,
         cid: activePage.cid,
         preferProgressive: playbackMode === "compat",
+        quality: qualityMode === "manual" && qualityQn > 0 ? qualityQn : undefined,
         codecPreference,
         audioPreference,
         epId: selectedEp?.epId,

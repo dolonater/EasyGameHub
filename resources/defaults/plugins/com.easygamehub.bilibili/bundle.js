@@ -27336,6 +27336,7 @@ var defaultConfig = {
   danmakuSpeed: 1,
   defaultPlaybackRate: 1,
   defaultQualityMode: "auto",
+  defaultQualityQn: 0,
   searchHistory: [],
   bufferMode: "auto",
   defaultFormat: "dash",
@@ -27479,7 +27480,8 @@ function normalizeConfig(value) {
     danmakuDensity: clampNumber(source.danmakuDensity, 0.25, 1, defaultConfig.danmakuDensity),
     danmakuSpeed: clampNumber(source.danmakuSpeed, 0.6, 1.8, defaultConfig.danmakuSpeed),
     defaultPlaybackRate: clampRate(source.defaultPlaybackRate),
-    defaultQualityMode: "auto",
+    defaultQualityMode: pick(["auto", "manual"], source.defaultQualityMode, defaultConfig.defaultQualityMode),
+    defaultQualityQn: pickQualityQn(source.defaultQualityQn),
     searchHistory: normalizeSearchHistory(source.searchHistory),
     bufferMode: pick(["auto", "small", "medium", "large"], source.bufferMode, defaultConfig.bufferMode),
     defaultFormat: pick(["dash", "mp4"], source.defaultFormat, defaultConfig.defaultFormat),
@@ -27487,6 +27489,12 @@ function normalizeConfig(value) {
     audioPreference: pick(["standard", "flac"], source.audioPreference, defaultConfig.audioPreference),
     autoPlay: source.autoPlay !== false
   };
+}
+function pickQualityQn(value) {
+  if (typeof value === "number" && Number.isFinite(value) && [0, 16, 32, 64, 80].includes(value)) {
+    return value;
+  }
+  return 0;
 }
 function pick(allowed, value, fallback) {
   return typeof value === "string" && allowed.includes(value) ? value : fallback;
@@ -30134,10 +30142,27 @@ function SettingsPage() {
     {
       name: "defaultQualityMode",
       value: config.defaultQualityMode,
-      options: [{ value: "auto", label: "\u81EA\u52A8" }],
-      onChange: () => update({ defaultQualityMode: "auto" })
+      options: [
+        { value: "auto", label: "\u81EA\u52A8" },
+        { value: "manual", label: "\u624B\u52A8" }
+      ],
+      onChange: (defaultQualityMode) => update({ defaultQualityMode })
     }
-  )))) : null, loaded && tab === "danmaku" ? /* @__PURE__ */ React32.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React32.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React32.createElement("div", { className: "bili-settings-group-title" }, "\u5F39\u5E55"), /* @__PURE__ */ React32.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React32.createElement(Toggle, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React32.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React32.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React32.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React32.createElement(
+  )), config.defaultQualityMode === "manual" ? /* @__PURE__ */ React32.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React32.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6"), /* @__PURE__ */ React32.createElement(
+    Select,
+    {
+      name: "defaultQualityQn",
+      value: String(config.defaultQualityQn),
+      options: [
+        { value: "0", label: "\u6700\u9AD8\u53EF\u7528" },
+        { value: "80", label: "1080P" },
+        { value: "64", label: "720P" },
+        { value: "32", label: "480P" },
+        { value: "16", label: "360P" }
+      ],
+      onChange: (defaultQualityQn) => update({ defaultQualityQn: Number(defaultQualityQn) })
+    }
+  )) : null)) : null, loaded && tab === "danmaku" ? /* @__PURE__ */ React32.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React32.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React32.createElement("div", { className: "bili-settings-group-title" }, "\u5F39\u5E55"), /* @__PURE__ */ React32.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React32.createElement(Toggle, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React32.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React32.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React32.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React32.createElement(
     Slider,
     {
       max: 32,
@@ -33203,6 +33228,8 @@ function WatchPage({ target }) {
   const danmakuLoaderRef = useRef15(null);
   const selfDanmakuRef = useRef15(/* @__PURE__ */ new Map());
   const [defaultPlaybackRate, setDefaultPlaybackRate] = useState39(1);
+  const [qualityMode, setQualityMode] = useState39("auto");
+  const [qualityQn, setQualityQn] = useState39(0);
   const [runtimeState, setRuntimeState] = useState39(getState);
   const progressRef = useRef15({});
   const touchedProgressRef = useRef15({});
@@ -33226,6 +33253,8 @@ function WatchPage({ target }) {
       if (active) {
         setSyncProgress(config.syncProgress);
         setDefaultPlaybackRate(config.defaultPlaybackRate);
+        setQualityMode(config.defaultQualityMode);
+        setQualityQn(config.defaultQualityQn);
         setPlaybackMode(config.defaultFormat === "mp4" ? "compat" : "quality");
         setCodecPreference(config.codecPreference);
         setAudioPreference(config.audioPreference);
@@ -33344,6 +33373,7 @@ function WatchPage({ target }) {
       aid: videoDetail.aid,
       cid: activePage.cid,
       preferProgressive: playbackMode === "compat",
+      quality: qualityMode === "manual" && qualityQn > 0 ? qualityQn : void 0,
       codecPreference,
       audioPreference,
       epId: selectedEp?.epId

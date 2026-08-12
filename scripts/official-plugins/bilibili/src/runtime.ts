@@ -20,7 +20,8 @@ export interface BilibiliPluginConfig {
   danmakuDensity: number;
   danmakuSpeed: number;
   defaultPlaybackRate: number;
-  defaultQualityMode: "auto";
+  defaultQualityMode: "auto" | "manual";
+  defaultQualityQn: number;
   searchHistory: string[];
   // P7 播放器设置
   bufferMode: "auto" | "small" | "medium" | "large";
@@ -39,6 +40,7 @@ export const defaultConfig: BilibiliPluginConfig = {
   danmakuSpeed: 1,
   defaultPlaybackRate: 1,
   defaultQualityMode: "auto",
+  defaultQualityQn: 0,
   searchHistory: [],
   bufferMode: "auto",
   defaultFormat: "dash",
@@ -202,7 +204,8 @@ function normalizeConfig(value: unknown): BilibiliPluginConfig {
     danmakuDensity: clampNumber(source.danmakuDensity, 0.25, 1, defaultConfig.danmakuDensity),
     danmakuSpeed: clampNumber(source.danmakuSpeed, 0.6, 1.8, defaultConfig.danmakuSpeed),
     defaultPlaybackRate: clampRate(source.defaultPlaybackRate),
-    defaultQualityMode: "auto",
+    defaultQualityMode: pick(["auto", "manual"], source.defaultQualityMode, defaultConfig.defaultQualityMode),
+    defaultQualityQn: pickQualityQn(source.defaultQualityQn),
     searchHistory: normalizeSearchHistory(source.searchHistory),
     bufferMode: pick(["auto", "small", "medium", "large"], source.bufferMode, defaultConfig.bufferMode),
     defaultFormat: pick(["dash", "mp4"], source.defaultFormat, defaultConfig.defaultFormat),
@@ -210,6 +213,14 @@ function normalizeConfig(value: unknown): BilibiliPluginConfig {
     audioPreference: pick(["standard", "flac"], source.audioPreference, defaultConfig.audioPreference),
     autoPlay: source.autoPlay !== false,
   };
+}
+
+/** 默认清晰度 qn（0 = 最高可用，非法值回退 0） */
+function pickQualityQn(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value) && [0, 16, 32, 64, 80].includes(value)) {
+    return value;
+  }
+  return 0;
 }
 
 /** 从白名单中取值，非法时回退默认 */
