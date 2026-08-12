@@ -1430,6 +1430,8 @@ export const cssText = `
   gap: 14px;
   min-height: 58px;
   padding: 10px 16px;
+  /* 顶栏整体上移 10%（悬浮贴顶更紧凑） */
+  transform: translateY(-10%);
 }
 .bili-brand,
 .bili-profile-button,
@@ -4153,7 +4155,7 @@ button.bili-dynamic-stat {
   flex: 1 1 auto;
   min-width: 0;
   overflow-y: auto;
-  padding-top: 72px;
+  padding-top: 65px;
   border-radius: 14px;
 }
 .bili-sidebar {
@@ -4162,7 +4164,7 @@ button.bili-dynamic-stat {
   justify-content: space-between;
   flex: 0 0 auto;
   width: 184px;
-  margin-top: 72px;
+  margin-top: 65px;
   padding: 10px;
   overflow-y: auto;
   transition: width 240ms var(--bili-spring);
@@ -4322,7 +4324,9 @@ button.bili-dynamic-stat {
 }
 .bili-home-toolbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 .bili-search-page {
   display: grid;

@@ -1,5 +1,6 @@
-import React, { Button, useEffect, useState } from "sdk";
+import React, { Button, Icon, useEffect, useState } from "sdk";
 import { HomeFeed } from "../components/HomeFeed";
+import { HomeFeedTabs } from "../components/HomeFeedTabs";
 import { LiveFeed } from "../components/LiveFeed";
 import type { HomeMode } from "../components/HomeFeedTabs";
 import { HotSubTabs, type HotSubMode } from "../components/HotSubTabs";
@@ -68,18 +69,7 @@ export function HomePage() {
       <>
         <HotSubTabs sub={popularSub} onSub={setPopularSub} />
         {popularSub === "all" ? (
-          <HomeFeed
-            error={active.error}
-            loading={active.loading}
-            mode={mode}
-            videos={active.items}
-            searchGuide={false}
-            onPopular={switchToPopular}
-            onRecommend={switchToRecommend}
-            onBangumi={switchToBangumi}
-            onCinema={switchToCinema}
-            onLive={switchToLive}
-          />
+          <HomeFeed error={active.error} loading={active.loading} videos={active.items} searchGuide={false} />
         ) : popularSub === "ranking" ? (
           <RankingPanel />
         ) : popularSub === "weekly" ? (
@@ -93,25 +83,23 @@ export function HomePage() {
     ) : mode === "live" ? (
       <LiveFeed onOpenLive={openLive} />
     ) : (
-      <HomeFeed
-        error={active.error}
-        loading={active.loading}
-        mode={mode}
-        videos={active.items}
-        searchGuide={false}
-        onPopular={switchToPopular}
-        onRecommend={switchToRecommend}
-        onBangumi={switchToBangumi}
-        onCinema={switchToCinema}
-        onLive={switchToLive}
-      />
+      <HomeFeed error={active.error} loading={active.loading} videos={active.items} searchGuide={false} />
     );
 
   return (
     <section className="bili-home">
       <div className="bili-home-toolbar">
-        <Button variant="outline" size="sm" type="button" onClick={refreshCurrent} disabled={active.loading}>
-          刷新
+        <HomeFeedTabs
+          mode={mode}
+          loading={active.loading}
+          onRecommend={switchToRecommend}
+          onPopular={switchToPopular}
+          onBangumi={switchToBangumi}
+          onCinema={switchToCinema}
+          onLive={switchToLive}
+        />
+        <Button aria-label="刷新" variant="outline" size="sm" type="button" onClick={refreshCurrent} disabled={active.loading}>
+          <Icon name="reset" size={15} />
         </Button>
       </div>
       {mainFeed}

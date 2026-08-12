@@ -62,7 +62,6 @@ export function SearchPage({ keyword }: { keyword: string }) {
       <HomeFeed
         error={search.error}
         loading={search.loading}
-        mode="recommend"
         videos={search.items}
         searchGuide={searchGuide}
         searchEmpty={
@@ -77,11 +76,6 @@ export function SearchPage({ keyword }: { keyword: string }) {
             }}
           />
         }
-        onRecommend={() => undefined}
-        onPopular={() => undefined}
-        onBangumi={() => undefined}
-        onCinema={() => undefined}
-        onLive={() => undefined}
       />
     </section>
   );

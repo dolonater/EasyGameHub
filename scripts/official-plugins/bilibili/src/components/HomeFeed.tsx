@@ -1,10 +1,8 @@
 import React from "sdk";
 import type { BiliVideoCard } from "../types";
 import { VideoCard } from "./VideoCard";
-import { HomeFeedTabs, type HomeMode } from "./HomeFeedTabs";
 
 interface HomeFeedProps {
-  mode: HomeMode;
   loading: boolean;
   error: string;
   videos: BiliVideoCard[];
@@ -14,42 +12,11 @@ interface HomeFeedProps {
   searchEmpty?: unknown;
   /** 追番/影视/直播占位提示（P2/P6 填充后移除） */
   comingSoon?: boolean;
-  onRecommend(): void;
-  onPopular(): void;
-  onBangumi(): void;
-  onCinema(): void;
-  onLive(): void;
 }
 
-export function HomeFeed({
-  mode,
-  loading,
-  error,
-  videos,
-  searchGuide,
-  searchEmpty,
-  comingSoon,
-  onRecommend,
-  onPopular,
-  onBangumi,
-  onCinema,
-  onLive,
-}: HomeFeedProps) {
+export function HomeFeed({ loading, error, videos, searchGuide, searchEmpty, comingSoon }: HomeFeedProps) {
   return (
     <section className="bili-feed-panel">
-      <div className="bili-feed-heading">
-        <HomeFeedTabs
-          mode={mode}
-          loading={loading}
-          onRecommend={onRecommend}
-          onPopular={onPopular}
-          onBangumi={onBangumi}
-          onCinema={onCinema}
-          onLive={onLive}
-        />
-        <span>{loading ? "加载中" : `${videos.length} 条`}</span>
-      </div>
-
       {comingSoon ? (
         <div className="bili-state">功能开发中，敬请期待</div>
       ) : searchGuide ? (

@@ -23107,7 +23107,7 @@ var require_dash_all_min = __commonJS({
 });
 
 // src/pages/MainPage.tsx
-import React61, { Button as Button24, Icon as Icon10, useEffect as useEffect42, useState as useState46 } from "sdk";
+import React61, { Button as Button24, Icon as Icon11, useEffect as useEffect42, useState as useState46 } from "sdk";
 
 // src/components/BiliAppShell.tsx
 import React4 from "sdk";
@@ -24545,6 +24545,8 @@ var cssText = `
   gap: 14px;
   min-height: 58px;
   padding: 10px 16px;
+  /* \u9876\u680F\u6574\u4F53\u4E0A\u79FB 10%\uFF08\u60AC\u6D6E\u8D34\u9876\u66F4\u7D27\u51D1\uFF09 */
+  transform: translateY(-10%);
 }
 .bili-brand,
 .bili-profile-button,
@@ -27268,7 +27270,7 @@ button.bili-dynamic-stat {
   flex: 1 1 auto;
   min-width: 0;
   overflow-y: auto;
-  padding-top: 72px;
+  padding-top: 65px;
   border-radius: 14px;
 }
 .bili-sidebar {
@@ -27277,7 +27279,7 @@ button.bili-dynamic-stat {
   justify-content: space-between;
   flex: 0 0 auto;
   width: 184px;
-  margin-top: 72px;
+  margin-top: 65px;
   padding: 10px;
   overflow-y: auto;
   transition: width 240ms var(--bili-spring);
@@ -27437,7 +27439,9 @@ button.bili-dynamic-stat {
 }
 .bili-home-toolbar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 .bili-search-page {
   display: grid;
@@ -28698,10 +28702,10 @@ function DynamicPage() {
 }
 
 // src/pages/HomePage.tsx
-import React21, { Button as Button6, useState as useState14 } from "sdk";
+import React21, { Button as Button6, Icon as Icon3, useState as useState14 } from "sdk";
 
 // src/components/HomeFeed.tsx
-import React13 from "sdk";
+import React12 from "sdk";
 
 // src/components/VideoCard.tsx
 import React11 from "sdk";
@@ -28737,8 +28741,13 @@ function progressPercent(video) {
   return Math.min(100, Math.max(0, video.progress / video.duration * 100));
 }
 
+// src/components/HomeFeed.tsx
+function HomeFeed({ loading, error, videos, searchGuide, searchEmpty, comingSoon }) {
+  return /* @__PURE__ */ React12.createElement("section", { className: "bili-feed-panel" }, comingSoon ? /* @__PURE__ */ React12.createElement("div", { className: "bili-state" }, "\u529F\u80FD\u5F00\u53D1\u4E2D\uFF0C\u656C\u8BF7\u671F\u5F85") : searchGuide ? searchEmpty ?? /* @__PURE__ */ React12.createElement("div", { className: "bili-state" }, "\u8F93\u5165\u5173\u952E\u8BCD\u5F00\u59CB\u641C\u7D22") : /* @__PURE__ */ React12.createElement(React12.Fragment, null, error ? /* @__PURE__ */ React12.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React12.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891") : null, !error && !loading && videos.length === 0 ? /* @__PURE__ */ React12.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u89C6\u9891") : null, !error && videos.length > 0 ? /* @__PURE__ */ React12.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React12.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null));
+}
+
 // src/components/HomeFeedTabs.tsx
-import React12, { Button as Button3 } from "sdk";
+import React13, { Button as Button3 } from "sdk";
 var TABS = [
   { key: "recommend", label: "\u63A8\u8350", available: true },
   { key: "popular", label: "\u70ED\u95E8", available: true },
@@ -28754,7 +28763,7 @@ function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onBangumi, onCine
     cinema: onCinema,
     live: onLive
   };
-  return /* @__PURE__ */ React12.createElement("div", { className: "bili-feed-tabs", role: "tablist", "aria-label": "\u9996\u9875\u5185\u5BB9" }, TABS.map((tab) => /* @__PURE__ */ React12.createElement(
+  return /* @__PURE__ */ React13.createElement("div", { className: "bili-feed-tabs", role: "tablist", "aria-label": "\u9996\u9875\u5185\u5BB9" }, TABS.map((tab) => /* @__PURE__ */ React13.createElement(
     Button3,
     {
       key: tab.key,
@@ -28769,35 +28778,6 @@ function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onBangumi, onCine
     },
     tab.label
   )));
-}
-
-// src/components/HomeFeed.tsx
-function HomeFeed({
-  mode,
-  loading,
-  error,
-  videos,
-  searchGuide,
-  searchEmpty,
-  comingSoon,
-  onRecommend,
-  onPopular,
-  onBangumi,
-  onCinema,
-  onLive
-}) {
-  return /* @__PURE__ */ React13.createElement("section", { className: "bili-feed-panel" }, /* @__PURE__ */ React13.createElement("div", { className: "bili-feed-heading" }, /* @__PURE__ */ React13.createElement(
-    HomeFeedTabs,
-    {
-      mode,
-      loading,
-      onRecommend,
-      onPopular,
-      onBangumi,
-      onCinema,
-      onLive
-    }
-  ), /* @__PURE__ */ React13.createElement("span", null, loading ? "\u52A0\u8F7D\u4E2D" : `${videos.length} \u6761`)), comingSoon ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u529F\u80FD\u5F00\u53D1\u4E2D\uFF0C\u656C\u8BF7\u671F\u5F85") : searchGuide ? searchEmpty ?? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u8F93\u5165\u5173\u952E\u8BCD\u5F00\u59CB\u641C\u7D22") : /* @__PURE__ */ React13.createElement(React13.Fragment, null, error ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891") : null, !error && !loading && videos.length === 0 ? /* @__PURE__ */ React13.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u89C6\u9891") : null, !error && videos.length > 0 ? /* @__PURE__ */ React13.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React13.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))) : null));
 }
 
 // src/components/LiveFeed.tsx
@@ -29243,36 +29223,19 @@ function HomePage() {
     if (mode === "popular" && popularSub === "all") popular.reload();
     else if (mode === "recommend") recommend.reload();
   }
-  const mainFeed = mode === "popular" ? /* @__PURE__ */ React21.createElement(React21.Fragment, null, /* @__PURE__ */ React21.createElement(HotSubTabs, { sub: popularSub, onSub: setPopularSub }), popularSub === "all" ? /* @__PURE__ */ React21.createElement(
-    HomeFeed,
+  const mainFeed = mode === "popular" ? /* @__PURE__ */ React21.createElement(React21.Fragment, null, /* @__PURE__ */ React21.createElement(HotSubTabs, { sub: popularSub, onSub: setPopularSub }), popularSub === "all" ? /* @__PURE__ */ React21.createElement(HomeFeed, { error: active.error, loading: active.loading, videos: active.items, searchGuide: false }) : popularSub === "ranking" ? /* @__PURE__ */ React21.createElement(RankingPanel, null) : popularSub === "weekly" ? /* @__PURE__ */ React21.createElement(WeeklyPanel, null) : /* @__PURE__ */ React21.createElement(PreciousPanel, null)) : mode === "bangumi" || mode === "cinema" ? /* @__PURE__ */ React21.createElement(PgcSectionFeed, { kind: mode === "bangumi" ? "bangumi" : "cinema" }) : mode === "live" ? /* @__PURE__ */ React21.createElement(LiveFeed, { onOpenLive: openLive }) : /* @__PURE__ */ React21.createElement(HomeFeed, { error: active.error, loading: active.loading, videos: active.items, searchGuide: false });
+  return /* @__PURE__ */ React21.createElement("section", { className: "bili-home" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-home-toolbar" }, /* @__PURE__ */ React21.createElement(
+    HomeFeedTabs,
     {
-      error: active.error,
-      loading: active.loading,
       mode,
-      videos: active.items,
-      searchGuide: false,
-      onPopular: switchToPopular,
+      loading: active.loading,
       onRecommend: switchToRecommend,
+      onPopular: switchToPopular,
       onBangumi: switchToBangumi,
       onCinema: switchToCinema,
       onLive: switchToLive
     }
-  ) : popularSub === "ranking" ? /* @__PURE__ */ React21.createElement(RankingPanel, null) : popularSub === "weekly" ? /* @__PURE__ */ React21.createElement(WeeklyPanel, null) : /* @__PURE__ */ React21.createElement(PreciousPanel, null)) : mode === "bangumi" || mode === "cinema" ? /* @__PURE__ */ React21.createElement(PgcSectionFeed, { kind: mode === "bangumi" ? "bangumi" : "cinema" }) : mode === "live" ? /* @__PURE__ */ React21.createElement(LiveFeed, { onOpenLive: openLive }) : /* @__PURE__ */ React21.createElement(
-    HomeFeed,
-    {
-      error: active.error,
-      loading: active.loading,
-      mode,
-      videos: active.items,
-      searchGuide: false,
-      onPopular: switchToPopular,
-      onRecommend: switchToRecommend,
-      onBangumi: switchToBangumi,
-      onCinema: switchToCinema,
-      onLive: switchToLive
-    }
-  );
-  return /* @__PURE__ */ React21.createElement("section", { className: "bili-home" }, /* @__PURE__ */ React21.createElement("div", { className: "bili-home-toolbar" }, /* @__PURE__ */ React21.createElement(Button6, { variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, "\u5237\u65B0")), mainFeed);
+  ), /* @__PURE__ */ React21.createElement(Button6, { "aria-label": "\u5237\u65B0", variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, /* @__PURE__ */ React21.createElement(Icon3, { name: "reset", size: 15 }))), mainFeed);
 }
 function homeCall2(call) {
   const sdk = getState().sdk;
@@ -29925,7 +29888,7 @@ function formatCount4(value) {
 }
 
 // src/pages/MinePage.tsx
-import React30, { Icon as Icon3, useEffect as useEffect22, useState as useState22 } from "sdk";
+import React30, { Icon as Icon4, useEffect as useEffect22, useState as useState22 } from "sdk";
 
 // src/components/AccountCard.tsx
 import React27, { Button as Button8, useEffect as useEffect19, useState as useState19 } from "sdk";
@@ -30051,7 +30014,7 @@ function MinePage() {
   return /* @__PURE__ */ React30.createElement("section", { className: "bili-mine" }, loggedIn ? /* @__PURE__ */ React30.createElement(AccountCard, { loginInfo: runtimeState.loginInfo }) : /* @__PURE__ */ React30.createElement(LoginPanel, null), /* @__PURE__ */ React30.createElement("div", { className: "bili-mine-entries" }, /* @__PURE__ */ React30.createElement(MineEntry, { icon: "playtime", label: "\u5386\u53F2\u8BB0\u5F55", onClick: openHistory }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "bookmarkFilled", label: "\u6536\u85CF\u5939", onClick: openFavorites }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "playlistFilled", label: "\u7A0D\u540E\u518D\u770B", onClick: openWatchLater }), /* @__PURE__ */ React30.createElement(MineEntry, { icon: "starFill", label: "\u8FFD\u756A", onClick: openBangumi }), loggedIn ? /* @__PURE__ */ React30.createElement(MineEntry, { icon: "edit", label: "\u53D1\u5E03\u52A8\u6001", onClick: () => setPublishOpen(true) }) : null), /* @__PURE__ */ React30.createElement(DynamicPublishDialog, { open: publishOpen, onClose: () => setPublishOpen(false) }));
 }
 function MineEntry({ icon, label, onClick }) {
-  return /* @__PURE__ */ React30.createElement("button", { className: "bili-mine-entry", type: "button", onClick }, /* @__PURE__ */ React30.createElement("span", { className: "bili-mine-entry-glyph" }, /* @__PURE__ */ React30.createElement(Icon3, { name: icon, size: 18 })), /* @__PURE__ */ React30.createElement("span", { className: "bili-mine-entry-label" }, label));
+  return /* @__PURE__ */ React30.createElement("button", { className: "bili-mine-entry", type: "button", onClick }, /* @__PURE__ */ React30.createElement("span", { className: "bili-mine-entry-glyph" }, /* @__PURE__ */ React30.createElement(Icon4, { name: icon, size: 18 })), /* @__PURE__ */ React30.createElement("span", { className: "bili-mine-entry-label" }, label));
 }
 
 // src/pages/NotificationsPage.tsx
@@ -30438,7 +30401,6 @@ function SearchPage({ keyword }) {
     {
       error: search.error,
       loading: search.loading,
-      mode: "recommend",
       videos: search.items,
       searchGuide,
       searchEmpty: /* @__PURE__ */ React36.createElement(
@@ -30454,12 +30416,7 @@ function SearchPage({ keyword }) {
             });
           }
         }
-      ),
-      onRecommend: () => void 0,
-      onPopular: () => void 0,
-      onBangumi: () => void 0,
-      onCinema: () => void 0,
-      onLive: () => void 0
+      )
     }
   ));
 }
@@ -32348,7 +32305,7 @@ function DanmakuSettingsPopover({
 }
 
 // src/components/QualityMenu.tsx
-import React48, { Button as Button18, Icon as Icon4 } from "sdk";
+import React48, { Button as Button18, Icon as Icon5 } from "sdk";
 function QualityMenu({
   qualities,
   mode,
@@ -32392,7 +32349,7 @@ function QualityMenu({
       type: "button",
       onClick: onAuto
     },
-    /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React48.createElement(Icon4, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, "\u81EA\u52A8")),
+    /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React48.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, "\u81EA\u52A8")),
     /* @__PURE__ */ React48.createElement("small", null, currentLabel(currentQualityId, qualities))
   ), qualities.map((quality) => {
     const active = mode === "manual" && selectedQualityId === quality.id;
@@ -32405,7 +32362,7 @@ function QualityMenu({
         type: "button",
         onClick: () => onManual(quality.id)
       },
-      /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React48.createElement(Icon4, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, qualityText(quality))),
+      /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React48.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, qualityText(quality))),
       /* @__PURE__ */ React48.createElement("small", null, quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video")
     );
   })));
@@ -32454,7 +32411,7 @@ function codeLabel(quality) {
 }
 
 // src/components/VideoInteractionBar.tsx
-import React52, { Button as Button21, Icon as Icon7, useRef as useRef13, useState as useState38 } from "sdk";
+import React52, { Button as Button21, Icon as Icon8, useRef as useRef13, useState as useState38 } from "sdk";
 
 // src/components/CoinPanel.tsx
 import React49, { Button as Button19, Toggle as Toggle3, useState as useState36 } from "sdk";
@@ -32483,7 +32440,7 @@ function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
 }
 
 // src/components/FavoritePanel.tsx
-import React50, { Button as Button20, Icon as Icon5, useState as useState37 } from "sdk";
+import React50, { Button as Button20, Icon as Icon6, useState as useState37 } from "sdk";
 function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) {
   const ownedFolders = folders.filter((folder) => folder.owned);
   const [selected, setSelected] = useState37(
@@ -32510,14 +32467,14 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
       type: "button",
       onClick: () => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))
     },
-    selected[folder.id] ? /* @__PURE__ */ React50.createElement(Icon5, { name: "check", size: 14 }) : null,
+    selected[folder.id] ? /* @__PURE__ */ React50.createElement(Icon6, { name: "check", size: 14 }) : null,
     /* @__PURE__ */ React50.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
     /* @__PURE__ */ React50.createElement("small", null, selected[folder.id] ? "\u5DF2\u9009\u62E9" : `${folder.mediaCount} \u4E2A`)
   ))), /* @__PURE__ */ React50.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React50.createElement(Button20, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
 }
 
 // src/components/WatchMoreMenu.tsx
-import React51, { Icon as Icon6 } from "sdk";
+import React51, { Icon as Icon7 } from "sdk";
 function WatchMoreMenu({
   onExternalOpen,
   onCopyLink,
@@ -32536,7 +32493,7 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon6, { name: "externalLink", size: 16 }),
+    /* @__PURE__ */ React51.createElement(Icon7, { name: "externalLink", size: 16 }),
     /* @__PURE__ */ React51.createElement("span", null, "\u5916\u90E8\u6253\u5F00")
   ), /* @__PURE__ */ React51.createElement(
     "button",
@@ -32548,7 +32505,7 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon6, { name: "copy", size: 16 }),
+    /* @__PURE__ */ React51.createElement(Icon7, { name: "copy", size: 16 }),
     /* @__PURE__ */ React51.createElement("span", null, "\u590D\u5236\u94FE\u63A5")
   ), /* @__PURE__ */ React51.createElement(
     "button",
@@ -32560,7 +32517,7 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon6, { name: "screenshots", size: 16 }),
+    /* @__PURE__ */ React51.createElement(Icon7, { name: "screenshots", size: 16 }),
     /* @__PURE__ */ React51.createElement("span", null, "\u622A\u56FE\u76EE\u5F55")
   ));
 }
@@ -32704,7 +32661,7 @@ function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDo
       onClick,
       onMouseDown
     },
-    icon ? /* @__PURE__ */ React52.createElement(Icon7, { name: icon, size: 15 }) : null,
+    icon ? /* @__PURE__ */ React52.createElement(Icon8, { name: icon, size: 15 }) : null,
     /* @__PURE__ */ React52.createElement("span", null, label),
     value ? /* @__PURE__ */ React52.createElement("small", null, value) : null
   );
@@ -32720,10 +32677,10 @@ function trim4(value) {
 }
 
 // src/components/VideoPlayerControls.tsx
-import React54, { Icon as Icon9 } from "sdk";
+import React54, { Icon as Icon10 } from "sdk";
 
 // src/components/ScreenshotButton.tsx
-import React53, { Icon as Icon8, useState as useState39 } from "sdk";
+import React53, { Icon as Icon9, useState as useState39 } from "sdk";
 
 // src/player/frameCapture.ts
 function captureVideoFrame(video) {
@@ -32760,7 +32717,7 @@ function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
       type: "button",
       onClick: saveScreenshot
     },
-    /* @__PURE__ */ React53.createElement(Icon8, { name: "screenshots", size: 16 }),
+    /* @__PURE__ */ React53.createElement(Icon9, { name: "screenshots", size: 16 }),
     saving ? /* @__PURE__ */ React53.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
   );
   async function saveScreenshot() {
@@ -32833,7 +32790,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onTogglePlay
     },
-    /* @__PURE__ */ React54.createElement(Icon9, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
+    /* @__PURE__ */ React54.createElement(Icon10, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
   ), /* @__PURE__ */ React54.createElement(
     "button",
     {
@@ -32843,7 +32800,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleMute
     },
-    /* @__PURE__ */ React54.createElement(Icon9, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
+    /* @__PURE__ */ React54.createElement(Icon10, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
   ), /* @__PURE__ */ React54.createElement(
     "input",
     {
@@ -32877,7 +32834,7 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleQuality
     },
-    /* @__PURE__ */ React54.createElement(Icon9, { name: "settings", size: 16 }),
+    /* @__PURE__ */ React54.createElement(Icon10, { name: "settings", size: 16 }),
     /* @__PURE__ */ React54.createElement("small", null, qualityLabel)
   ), /* @__PURE__ */ React54.createElement(
     "button",
@@ -32888,7 +32845,7 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleDanmaku
     },
-    /* @__PURE__ */ React54.createElement(Icon9, { name: "playlistFilled", size: 16 }),
+    /* @__PURE__ */ React54.createElement(Icon10, { name: "playlistFilled", size: 16 }),
     /* @__PURE__ */ React54.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
   ), /* @__PURE__ */ React54.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React54.createElement(
     "button",
@@ -32899,7 +32856,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleFullscreen
     },
-    /* @__PURE__ */ React54.createElement(Icon9, { name: "fullscreen", size: 18 })
+    /* @__PURE__ */ React54.createElement(Icon10, { name: "fullscreen", size: 18 })
   )));
 }
 function formatDuration3(seconds) {
@@ -34292,7 +34249,7 @@ function MainPage() {
   const loggedIn = Boolean(loginInfo?.loggedIn);
   const title = view.name === "watch" ? "\u64AD\u653E" : view.name === "space" ? "UP \u4E3B\u9875" : view.name === "season" ? "\u756A\u5267\u8BE6\u60C5" : view.name === "live" ? "\u76F4\u64AD\u95F4" : view.name === "liveHome" ? "\u76F4\u64AD" : view.name === "history" ? "\u5386\u53F2\u8BB0\u5F55" : view.name === "watchLater" ? "\u7A0D\u540E\u518D\u770B" : view.name === "favorites" ? "\u6536\u85CF\u5939" : view.name === "bangumi" ? "\u8FFD\u756A" : view.name === "settings" ? "\u8BBE\u7F6E" : view.name === "search" ? "\u641C\u7D22" : view.name === "dynDetail" ? "\u52A8\u6001\u8BE6\u60C5" : view.name === "article" ? "\u4E13\u680F" : view.name === "chat" ? "\u4F1A\u8BDD" : view.name === "notifications" ? "\u901A\u77E5" : "Bilibili";
   const subtitle = view.name === "watch" ? view.bvid || (view.aid ? `av${view.aid}` : "\u64AD\u653E") : view.name === "mine" ? loggedIn && loginInfo?.nickname ? loginInfo.nickname : "\u8D26\u53F7\u4E2D\u5FC3" : "EasyGameHub";
-  const actions = view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React61.createElement(Button24, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React61.createElement(Icon10, { name: "skipBackFilled", size: 15 })) : void 0;
+  const actions = view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React61.createElement(Button24, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React61.createElement(Icon11, { name: "skipBackFilled", size: 15 })) : void 0;
   return /* @__PURE__ */ React61.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React61.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(HomePage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "dynamic" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(DynamicPage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React61.createElement(WatchPage, { key: watchKey(view), target: view }) : null, view.name === "space" ? /* @__PURE__ */ React61.createElement(SpacePage, { key: `space-${view.mid}`, mid: view.mid }) : null, view.name === "season" ? /* @__PURE__ */ React61.createElement(SeasonPage, { key: `season-${view.seasonId}`, seasonId: view.seasonId }) : null, view.name === "live" ? /* @__PURE__ */ React61.createElement(LivePage, { key: `live-${view.roomId}`, roomId: view.roomId }) : null, view.name === "liveHome" ? /* @__PURE__ */ React61.createElement(LiveHomePage, null) : null, view.name === "history" ? /* @__PURE__ */ React61.createElement(HistoryPage, null) : null, view.name === "watchLater" ? /* @__PURE__ */ React61.createElement(WatchLaterPage, null) : null, view.name === "favorites" ? /* @__PURE__ */ React61.createElement(FavoritesPage, null) : null, view.name === "bangumi" ? /* @__PURE__ */ React61.createElement(BangumiPage, null) : null, view.name === "settings" ? /* @__PURE__ */ React61.createElement(SettingsPage, null) : null, view.name === "search" ? /* @__PURE__ */ React61.createElement(SearchPage, { keyword: view.keyword ?? "" }) : null, view.name === "dynDetail" ? /* @__PURE__ */ React61.createElement(DynDetailPage, { key: view.dynId, dynId: view.dynId }) : null, view.name === "article" ? /* @__PURE__ */ React61.createElement(ArticlePage, { key: `article-${view.articleId}`, articleId: view.articleId }) : null, view.name === "chat" ? /* @__PURE__ */ React61.createElement(ChatPage, { key: `chat-${view.uid}`, uid: view.uid }) : null, view.name === "notifications" ? /* @__PURE__ */ React61.createElement(NotificationsPage, null) : null);
 }
 function watchKey(view) {
