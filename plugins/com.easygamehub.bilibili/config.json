@@ -10,7 +10,7 @@
   "danmakuSpeed": 1,
   "defaultFormat": "dash",
   "defaultPlaybackRate": 1,
-  "defaultQualityMode": "auto",
+  "defaultQualityMode": "manual",
   "defaultQualityQn": 0,
   "searchHistory": [
     "罗叔"

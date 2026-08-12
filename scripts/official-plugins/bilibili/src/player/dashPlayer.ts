@@ -112,12 +112,22 @@ export function createDashPlayer(
     emitState({ error: dashErrorMessage(event) });
   };
 
+  // manual 初始模式：开局就把 ABR 可用带宽设为目标轨带宽（+1 保证 >= 命中），
+  // 首段即拉目标清晰度，避免"先低轨起播再切换"的黑屏（参考 bili-rust：开局单轨直选）。
+  // 此时 STREAM_INITIALIZED 后的 setQualityFor 目标与当前一致，幂等无切换。
+  const initialTarget =
+    options.initialMode === "manual"
+      ? options.qualities.find(
+          (quality) => quality.id === (options.initialQualityId || highestQualityId(options.qualities)),
+        )
+      : undefined;
   player.updateSettings({
     streaming: {
       abr: {
         autoSwitchBitrate: {
           video: true,
         },
+        ...(initialTarget?.bandwidth ? { initialBitrate: { video: initialTarget.bandwidth + 1 } } : {}),
       },
       buffer: bufferSettings(options.bufferMode ?? "auto"),
     },

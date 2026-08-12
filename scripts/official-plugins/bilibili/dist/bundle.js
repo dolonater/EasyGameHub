@@ -31444,12 +31444,16 @@ function createDashPlayer(video, manifestUrl, options) {
   const onError = (event) => {
     emitState({ error: dashErrorMessage(event) });
   };
+  const initialTarget = options.initialMode === "manual" ? options.qualities.find(
+    (quality) => quality.id === (options.initialQualityId || highestQualityId(options.qualities))
+  ) : void 0;
   player.updateSettings({
     streaming: {
       abr: {
         autoSwitchBitrate: {
           video: true
-        }
+        },
+        ...initialTarget?.bandwidth ? { initialBitrate: { video: initialTarget.bandwidth + 1 } } : {}
       },
       buffer: bufferSettings(options.bufferMode ?? "auto")
     }
