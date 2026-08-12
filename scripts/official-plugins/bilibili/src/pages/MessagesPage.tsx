@@ -3,10 +3,10 @@ import type { BiliMessageSession } from "../types";
 import { errorMessage, getState } from "../runtime";
 import { openChat } from "../navigation";
 
-/** 私信会话列表：cursor 分页 + 未读角标，点击进入会话。 */
+/** 私信会话列表：begin_ts 时间游标分页 + 未读角标，点击进入会话。 */
 export function MessagesPage() {
   const [sessions, setSessions] = useState<BiliMessageSession[]>([]);
-  const [cursor, setCursor] = useState("");
+  const [beginTs, setBeginTs] = useState<number | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -23,7 +23,7 @@ export function MessagesPage() {
       .then((page) => {
         if (requestSeqRef.current !== seq) return;
         setSessions(page.sessions);
-        setCursor(page.nextOffset ?? "");
+        setBeginTs(page.nextOffset ? Number(page.nextOffset) : null);
         setHasMore(page.hasMore);
       })
       .catch((reason: Error) => {
@@ -38,18 +38,18 @@ export function MessagesPage() {
   }, []);
 
   function loadMore() {
-    if (loading || !hasMore || !cursor) return;
+    if (loading || !hasMore || beginTs === null) return;
     setLoading(true);
     const sdk = getState().sdk;
     if (!sdk) return;
     sdk.bilibili.message
-      .sessions({ cursor })
+      .sessions({ beginTs: beginTs })
       .then((page) => {
         setSessions((previous) => {
           const seen = new Set(previous.map((session: BiliMessageSession) => session.talkerId));
           return [...previous, ...page.sessions.filter((session: BiliMessageSession) => !seen.has(session.talkerId))];
         });
-        setCursor(page.nextOffset ?? "");
+        setBeginTs(page.nextOffset ? Number(page.nextOffset) : null);
         setHasMore(page.hasMore);
       })
       .catch((reason: Error) => setError(errorMessage(reason)))

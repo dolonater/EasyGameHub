@@ -12,9 +12,10 @@
   ],
   "request": {
     "method": "GET",
-    "url": "https://api.bilibili.com/x/session/web/v1/session/sessions",
+    "url": "https://api.vc.bilibili.com/session_svr/v1/session_svr/new_sessions",
     "query": {
-      "cursor": "abc"
+      "mobi_app": "web",
+      "begin_ts": "1710000000"
     },
     "required_headers": [
       "user-agent",
@@ -37,16 +38,15 @@
           "session_type": 1,
           "unread_count": 3,
           "last_msg": {
-            "msg_id": 1001,
-            "content": "你好",
+            "msg_seqno": 10,
+            "content": "{\"content\":\"你好\"}",
             "sender_uid": 2084572,
             "timestamp": 1710000000,
             "msg_type": 2
           }
         }
       ],
-      "has_more": true,
-      "next_offset": "next-token"
+      "has_more": true
     }
   },
   "cases": [

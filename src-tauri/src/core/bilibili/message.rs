@@ -19,15 +19,19 @@ const MESSAGE_PAGE_SIZE: u32 = 30;
 
 pub async fn message_sessions(
     client: &BpiClient,
-    cursor: Option<String>,
+    begin_ts: Option<u64>,
 ) -> Result<BiliMessageSessionsPage, BpiError> {
     let mut params = MessageSessionsParams::new();
-    if let Some(cursor) = cursor {
-        if !cursor.trim().is_empty() {
-            params = params.with_cursor(cursor)?;
-        }
+    if let Some(begin_ts) = begin_ts {
+        params = params.with_begin_ts(begin_ts);
     }
     let data = client.message().sessions(params).await?;
+    // vc 版会话列表无 next_offset：用第一条会话时间戳作游标
+    let next_offset = data
+        .session_list
+        .last()
+        .and_then(|session| session.last_msg.as_ref())
+        .map(|msg| msg.timestamp.to_string());
     Ok(BiliMessageSessionsPage {
         sessions: data
             .session_list
@@ -36,7 +40,7 @@ pub async fn message_sessions(
                 talker_id: session.talker_id,
                 unread_count: session.unread_count,
                 last_msg: session.last_msg.map(|msg| BiliMessageItem {
-                    msg_id: msg.msg_id,
+                    msg_id: msg.msg_seqno,
                     sender_uid: msg.sender_uid,
                     content: msg.content,
                     timestamp: msg.timestamp,
@@ -45,27 +49,32 @@ pub async fn message_sessions(
             })
             .collect(),
         has_more: data.has_more,
-        next_offset: data.next_offset,
+        next_offset,
     })
 }
 
 pub async fn message_history(
     client: &BpiClient,
     talker_uid: u64,
-    cursor: Option<u64>,
+    begin_seqno: Option<u64>,
 ) -> Result<BiliMessageHistoryPage, BpiError> {
     let mut params = MessageHistoryParams::new(talker_uid, SESSION_TYPE_SINGLE)?;
-    if let Some(cursor) = cursor {
-        params = params.with_cursor(cursor);
+    if let Some(begin_seqno) = begin_seqno {
+        params = params.with_begin_seqno(begin_seqno);
     }
     params = params.with_size(MESSAGE_PAGE_SIZE)?;
     let data = client.message().messages(params).await?;
+    let next_offset = if data.has_more && data.max_seqno > 0 {
+        Some(data.max_seqno)
+    } else {
+        None
+    };
     Ok(BiliMessageHistoryPage {
         messages: data
             .messages
             .into_iter()
             .map(|msg| BiliMessageItem {
-                msg_id: msg.msg_id,
+                msg_id: msg.msg_seqno,
                 sender_uid: msg.sender_uid,
                 content: msg.content,
                 timestamp: msg.timestamp,
@@ -73,7 +82,7 @@ pub async fn message_history(
             })
             .collect(),
         has_more: data.has_more,
-        next_offset: data.next_offset,
+        next_offset,
     })
 }
 
@@ -143,6 +152,7 @@ pub async fn message_reply_feed(
                 reply_time: item.reply_time,
                 title: item.item.title,
                 desc: item.item.desc,
+                source_content: item.item.source_content,
                 uri: item.item.uri,
                 reply_type: item.item.reply_type,
             })

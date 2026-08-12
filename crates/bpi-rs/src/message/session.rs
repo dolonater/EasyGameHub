@@ -5,15 +5,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{BpiError, BpiResult};
 
-/// 会话列表接口参数。
+/// 会话列表接口参数（vc 版 `session_svr/new_sessions`）。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageSessionsParams {
-    cursor: Option<String>,
+    begin_ts: Option<u64>,
 }
 
 impl Default for MessageSessionsParams {
     fn default() -> Self {
-        Self { cursor: None }
+        Self { begin_ts: None }
     }
 }
 
@@ -22,27 +22,27 @@ impl MessageSessionsParams {
         Self::default()
     }
 
-    /// 设置分页游标（响应中的 `next_offset`）。
-    pub fn with_cursor(mut self, cursor: impl Into<String>) -> BpiResult<Self> {
-        self.cursor = Some(normalize_non_blank("cursor", cursor.into())?);
-        Ok(self)
+    /// 设置时间游标：0 表示最新；否则为上一页最早会话的时间戳。
+    pub fn with_begin_ts(mut self, begin_ts: u64) -> Self {
+        self.begin_ts = Some(begin_ts);
+        self
     }
 
     pub fn query_pairs(&self) -> Vec<(&'static str, String)> {
-        let mut query = Vec::new();
-        if let Some(cursor) = &self.cursor {
-            query.push(("cursor", cursor.clone()));
+        let mut query = vec![("mobi_app", "web".to_string())];
+        if let Some(begin_ts) = self.begin_ts {
+            query.push(("begin_ts", begin_ts.to_string()));
         }
         query
     }
 }
 
-/// 历史消息接口参数。
+/// 历史消息接口参数（vc 版 `svr_sync/fetch_session_msgs`）。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MessageHistoryParams {
     talker_id: u64,
     session_type: u32,
-    cursor: Option<u64>,
+    begin_seqno: Option<u64>,
     size: Option<u32>,
 }
 
@@ -57,14 +57,14 @@ impl MessageHistoryParams {
         Ok(Self {
             talker_id,
             session_type,
-            cursor: None,
+            begin_seqno: None,
             size: None,
         })
     }
 
-    /// 设置游标：0 表示最新消息；否则为响应中的 `next_offset`。
-    pub fn with_cursor(mut self, cursor: u64) -> Self {
-        self.cursor = Some(cursor);
+    /// 设置消息序号游标：0 表示最新消息；否则为上一页响应的 `max_seqno`。
+    pub fn with_begin_seqno(mut self, begin_seqno: u64) -> Self {
+        self.begin_seqno = Some(begin_seqno);
         self
     }
 
@@ -82,11 +82,13 @@ impl MessageHistoryParams {
 
     pub fn query_pairs(&self) -> Vec<(&'static str, String)> {
         let mut query = vec![
+            ("sender_device_id", "1".to_string()),
             ("talker_id", self.talker_id.to_string()),
             ("session_type", self.session_type.to_string()),
+            ("mobi_app", "web".to_string()),
         ];
-        if let Some(cursor) = self.cursor {
-            query.push(("cursor", cursor.to_string()));
+        if let Some(begin_seqno) = self.begin_seqno {
+            query.push(("begin_seqno", begin_seqno.to_string()));
         }
         if let Some(size) = self.size {
             query.push(("size", size.to_string()));
@@ -95,15 +97,14 @@ impl MessageHistoryParams {
     }
 }
 
-/// 会话列表响应数据。
+/// 会话列表响应数据（vc 版）。
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MessageSessionsData {
     #[serde(default)]
     pub session_list: Vec<MessageSession>,
-    #[serde(default)]
+    /// vc 版 has_more 为数字（0/1），容错解析
+    #[serde(default, deserialize_with = "deserialize_bool_from_number")]
     pub has_more: bool,
-    #[serde(default)]
-    pub next_offset: Option<String>,
 }
 
 /// 单个会话。
@@ -123,7 +124,7 @@ pub struct MessageSession {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MessageLastMsg {
     #[serde(default)]
-    pub msg_id: u64,
+    pub msg_seqno: u64,
     #[serde(default)]
     pub content: String,
     #[serde(default)]
@@ -134,30 +135,69 @@ pub struct MessageLastMsg {
     pub msg_type: u32,
 }
 
-/// 历史消息响应数据。
+/// 历史消息响应数据（vc 版）。
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MessageHistoryData {
     #[serde(default)]
     pub messages: Vec<MessageItem>,
-    #[serde(default)]
+    /// vc 版 has_more 为数字（0/1），容错解析
+    #[serde(default, deserialize_with = "deserialize_bool_from_number")]
     pub has_more: bool,
     #[serde(default)]
-    pub next_offset: Option<u64>,
+    pub max_seqno: u64,
 }
 
 /// 单条消息。
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MessageItem {
     #[serde(default)]
-    pub msg_id: u64,
+    pub msg_seqno: u64,
+    #[serde(default)]
+    pub msg_key: u64,
     #[serde(default)]
     pub sender_uid: u64,
     #[serde(default)]
-    pub content: String,
+    pub msg_type: u32,
     #[serde(default)]
     pub timestamp: i64,
+    /// content 为 JSON 字符串（如 {"content":"你好"}），解析为文本。
+    #[serde(default, deserialize_with = "deserialize_message_content")]
+    pub content: String,
+    /// 原始 content JSON 字符串。
     #[serde(default)]
-    pub msg_type: u32,
+    pub raw_content: String,
+}
+
+/// 私信 content 解析：content 字段是 JSON 字符串（{"content":"你好"}），
+/// 提取其中的 content 文本；解析失败回退原文。
+fn deserialize_message_content<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let raw = String::deserialize(deserializer).unwrap_or_default();
+    if let Ok(value) = serde_json::from_str::<serde_json::Value>(&raw) {
+        if let Some(text) = value.get("content").and_then(serde_json::Value::as_str) {
+            return Ok(text.to_string());
+        }
+    }
+    Ok(raw)
+}
+
+/// vc 版 has_more 为数字（0/1），兼容 bool。
+fn deserialize_bool_from_number<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum BoolValue {
+        Bool(bool),
+        Int(i64),
+    }
+    match BoolValue::deserialize(deserializer)? {
+        BoolValue::Bool(value) => Ok(value),
+        BoolValue::Int(value) => Ok(value != 0),
+    }
 }
 
 fn normalize_non_blank(field: &'static str, value: String) -> BpiResult<String> {
@@ -176,26 +216,35 @@ mod tests {
     use super::*;
 
     #[test]
-    fn sessions_params_serializes_cursor() -> BpiResult<()> {
+    fn sessions_params_serializes_begin_ts() {
         let params = MessageSessionsParams::new();
-        assert!(params.query_pairs().is_empty());
+        assert_eq!(params.query_pairs(), vec![("mobi_app", "web".to_string())]);
 
-        let params = MessageSessionsParams::new().with_cursor("abc")?;
-        assert_eq!(params.query_pairs(), vec![("cursor", "abc".to_string())]);
-        Ok(())
+        let params = MessageSessionsParams::new().with_begin_ts(1710000000);
+        assert_eq!(
+            params.query_pairs(),
+            vec![
+                ("mobi_app", "web".to_string()),
+                ("begin_ts", "1710000000".to_string()),
+            ]
+        );
     }
 
     #[test]
     fn history_params_validates_and_serializes() -> BpiResult<()> {
         assert!(MessageHistoryParams::new(0, 1).is_err());
 
-        let params = MessageHistoryParams::new(123, 1)?.with_cursor(999).with_size(30)?;
+        let params = MessageHistoryParams::new(123, 1)?
+            .with_begin_seqno(999)
+            .with_size(30)?;
         assert_eq!(
             params.query_pairs(),
             vec![
+                ("sender_device_id", "1".to_string()),
                 ("talker_id", "123".to_string()),
                 ("session_type", "1".to_string()),
-                ("cursor", "999".to_string()),
+                ("mobi_app", "web".to_string()),
+                ("begin_seqno", "999".to_string()),
                 ("size", "30".to_string()),
             ]
         );
@@ -219,6 +268,32 @@ mod tests {
     }
 
     #[test]
+    fn has_more_accepts_number() {
+        let sessions: MessageSessionsData =
+            serde_json::from_str(r#"{"session_list":[],"has_more":1}"#).expect("number should parse");
+        assert!(sessions.has_more);
+        let history: MessageHistoryData =
+            serde_json::from_str(r#"{"messages":[],"has_more":0,"max_seqno":5}"#).expect("number should parse");
+        assert!(!history.has_more);
+        assert_eq!(history.max_seqno, 5);
+    }
+
+    #[test]
+    fn message_content_parses_json_content() {
+        let item: MessageItem = serde_json::from_str(
+            r#"{"msg_seqno":10,"sender_uid":1,"content":"{\"content\":\"你好\"}","timestamp":1710000000,"msg_type":2}"#,
+        )
+        .expect("should parse");
+        assert_eq!(item.content, "你好");
+        assert_eq!(item.msg_seqno, 10);
+
+        // 非 JSON 原文回退
+        let item: MessageItem =
+            serde_json::from_str(r#"{"content":"纯文本"}"#).expect("should parse");
+        assert_eq!(item.content, "纯文本");
+    }
+
+    #[test]
     fn contract_requires_authenticated_read_of_sessions() -> BpiResult<()> {
         use crate::probe::contract::HttpMethod;
         use crate::probe::endpoint_contract::EndpointContract;
@@ -233,7 +308,7 @@ mod tests {
             .request
             .url
             .as_str()
-            .contains("/x/session/web/v1/session/sessions"));
+            .contains("/session_svr/v1/session_svr/new_sessions"));
         Ok(())
     }
 
@@ -251,7 +326,7 @@ mod tests {
             .request
             .url
             .as_str()
-            .contains("/x/session/web/v1/session/msg"));
+            .contains("/svr_sync/v1/svr_sync/fetch_session_msgs"));
         Ok(())
     }
 }

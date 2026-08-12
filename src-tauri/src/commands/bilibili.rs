@@ -792,10 +792,10 @@ pub async fn bilibili_dynamic_forwards(
 #[tauri::command]
 pub async fn bilibili_message_sessions(
     state: State<'_, AppState>,
-    cursor: Option<String>,
+    begin_ts: Option<u64>,
 ) -> Result<BiliMessageSessionsPage, String> {
     let client = client::account_client(&state.tool_dir).map_err(bpi_error)?;
-    message::message_sessions(&client, cursor)
+    message::message_sessions(&client, begin_ts)
         .await
         .map_err(bpi_error)
 }

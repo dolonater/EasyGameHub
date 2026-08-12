@@ -3,22 +3,15 @@
   "data": {
     "messages": [
       {
-        "msg_id": 1001,
+        "msg_seqno": 10,
         "sender_uid": 2084572,
-        "content": "你好",
+        "content": "{\"content\":\"你好\"}",
         "timestamp": 1710000000,
-        "msg_type": 2
-      },
-      {
-        "msg_id": 1000,
-        "sender_uid": 999,
-        "content": "在吗",
-        "timestamp": 1709999000,
         "msg_type": 2
       }
     ],
     "has_more": true,
-    "next_offset": 98
+    "max_seqno": 10
   },
   "message": "0",
   "ttl": 1

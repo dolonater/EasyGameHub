@@ -627,7 +627,7 @@ export interface BiliDynamicCreated {
       forwards(args: { dynId: string; offset?: string }): Promise<BiliDynamicForwardsPage>;
     };
     message: {
-      sessions(args: { cursor?: string }): Promise<BiliMessageSessionsPage>;
+      sessions(args: { beginTs?: number }): Promise<BiliMessageSessionsPage>;
       history(args: { talkerUid: number; cursor?: number }): Promise<BiliMessageHistoryPage>;
       send(args: { uid: number; content: string }): Promise<BiliOperationResult>;
       unread(): Promise<BiliMessageUnread>;

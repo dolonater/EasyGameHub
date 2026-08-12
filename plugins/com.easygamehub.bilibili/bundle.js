@@ -22862,7 +22862,7 @@ function homeCall(call) {
 import React19, { useEffect as useEffect13, useRef as useRef5, useState as useState13 } from "sdk";
 function MessagesPage() {
   const [sessions, setSessions] = useState13([]);
-  const [cursor, setCursor] = useState13("");
+  const [beginTs, setBeginTs] = useState13(null);
   const [hasMore, setHasMore] = useState13(false);
   const [loading, setLoading] = useState13(false);
   const [error, setError] = useState13("");
@@ -22876,7 +22876,7 @@ function MessagesPage() {
     sdk.bilibili.message.sessions({}).then((page) => {
       if (requestSeqRef.current !== seq) return;
       setSessions(page.sessions);
-      setCursor(page.nextOffset ?? "");
+      setBeginTs(page.nextOffset ? Number(page.nextOffset) : null);
       setHasMore(page.hasMore);
     }).catch((reason) => {
       if (requestSeqRef.current === seq) setError(errorMessage(reason));
@@ -22888,16 +22888,16 @@ function MessagesPage() {
     };
   }, []);
   function loadMore() {
-    if (loading || !hasMore || !cursor) return;
+    if (loading || !hasMore || beginTs === null) return;
     setLoading(true);
     const sdk = getState().sdk;
     if (!sdk) return;
-    sdk.bilibili.message.sessions({ cursor }).then((page) => {
+    sdk.bilibili.message.sessions({ beginTs }).then((page) => {
       setSessions((previous) => {
         const seen = new Set(previous.map((session) => session.talkerId));
         return [...previous, ...page.sessions.filter((session) => !seen.has(session.talkerId))];
       });
-      setCursor(page.nextOffset ?? "");
+      setBeginTs(page.nextOffset ? Number(page.nextOffset) : null);
       setHasMore(page.hasMore);
     }).catch((reason) => setError(errorMessage(reason))).finally(() => setLoading(false));
   }
@@ -23494,7 +23494,7 @@ function NotificationsPage() {
       onClick: () => setFilter(item.id)
     },
     item.label
-  ))), visibleEntries().length === 0 && !loading ? /* @__PURE__ */ React26.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u901A\u77E5") : null, visibleEntries().map((entry) => /* @__PURE__ */ React26.createElement("button", { className: "bili-notify-entry", key: entry.id, type: "button", onClick: () => openEntry(entry) }, /* @__PURE__ */ React26.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.userFace, alt: entry.userName }), /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-entry-body" }, /* @__PURE__ */ React26.createElement("strong", null, entry.userName, entry.replyType.includes("at") ? /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-tag" }, "@\u6211") : null), /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-entry-desc" }, entry.desc || entry.title), /* @__PURE__ */ React26.createElement("small", null, formatTime2(entry.replyTime))))), error ? /* @__PURE__ */ React26.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !isEnd ? /* @__PURE__ */ React26.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null);
+  ))), visibleEntries().length === 0 && !loading ? /* @__PURE__ */ React26.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u901A\u77E5") : null, visibleEntries().map((entry) => /* @__PURE__ */ React26.createElement("button", { className: "bili-notify-entry", key: entry.id, type: "button", onClick: () => openEntry(entry) }, /* @__PURE__ */ React26.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.userFace, alt: entry.userName }), /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-entry-body" }, /* @__PURE__ */ React26.createElement("strong", null, entry.userName, entry.replyType.includes("at") ? /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-tag" }, "@\u6211") : null), /* @__PURE__ */ React26.createElement("span", { className: "bili-notify-entry-desc" }, entry.sourceContent || entry.desc || entry.title), /* @__PURE__ */ React26.createElement("small", null, formatTime2(entry.replyTime))))), error ? /* @__PURE__ */ React26.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !isEnd ? /* @__PURE__ */ React26.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null);
 }
 function formatTime2(timestamp) {
   const date = new Date(timestamp * 1e3);

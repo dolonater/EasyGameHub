@@ -13,8 +13,10 @@ const UNREAD_COUNT_ENDPOINT: &str = "https://api.vc.bilibili.com/x/im/web/msgfee
 const REPLY_FEED_ENDPOINT: &str = "https://api.bilibili.com/x/msgfeed/reply";
 const SINGLE_UNREAD_ENDPOINT: &str =
     "https://api.vc.bilibili.com/session_svr/v1/session_svr/single_unread";
-const SESSIONS_ENDPOINT: &str = "https://api.bilibili.com/x/session/web/v1/session/sessions";
-const HISTORY_ENDPOINT: &str = "https://api.bilibili.com/x/session/web/v1/session/msg";
+const SESSIONS_ENDPOINT: &str =
+    "https://api.vc.bilibili.com/session_svr/v1/session_svr/new_sessions";
+const HISTORY_ENDPOINT: &str =
+    "https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs";
 
 /// 消息 API 客户端。
 #[derive(Clone, Copy)]

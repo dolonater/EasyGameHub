@@ -347,6 +347,8 @@ pub struct BiliReplyFeedEntry {
     pub reply_time: u64,
     pub title: String,
     pub desc: String,
+    /// 对我的回复内容（source_content，区别于源评论 title/desc）
+    pub source_content: String,
     pub uri: String,
     pub reply_type: String,
 }

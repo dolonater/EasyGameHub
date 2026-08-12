@@ -12,11 +12,13 @@
   ],
   "request": {
     "method": "GET",
-    "url": "https://api.bilibili.com/x/session/web/v1/session/msg",
+    "url": "https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs",
     "query": {
+      "sender_device_id": "1",
       "talker_id": "2084572",
       "session_type": "1",
-      "cursor": "0",
+      "mobi_app": "web",
+      "begin_seqno": "0",
       "size": "30"
     },
     "required_headers": [
@@ -36,15 +38,15 @@
     "data": {
       "messages": [
         {
-          "msg_id": 1001,
+          "msg_seqno": 10,
           "sender_uid": 2084572,
-          "content": "你好",
+          "content": "{\"content\":\"你好\"}",
           "timestamp": 1710000000,
           "msg_type": 2
         }
       ],
       "has_more": true,
-      "next_offset": 99
+      "max_seqno": 10
     }
   },
   "cases": [
