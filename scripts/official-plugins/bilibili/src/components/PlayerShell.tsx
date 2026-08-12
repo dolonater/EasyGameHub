@@ -29,6 +29,8 @@ interface PlayerShellProps {
   startTime: number;
   defaultPlaybackRate: number;
   syncProgress: boolean;
+  autoPlay?: boolean;
+  bufferMode?: "auto" | "small" | "medium" | "large";
   danmakuItems: BiliDanmakuItem[];
   danmakuLoading: boolean;
   danmakuError: string;
@@ -71,6 +73,8 @@ export function PlayerShell({
   startTime,
   defaultPlaybackRate,
   syncProgress,
+  autoPlay = true,
+  bufferMode = "auto",
   danmakuItems,
   danmakuLoading,
   danmakuError,
@@ -179,6 +183,9 @@ export function PlayerShell({
       video.src = playback.directUrl;
       video.addEventListener("loadedmetadata", onLoadedMetadata);
       video.load();
+      if (autoPlay) {
+        video.play().catch(() => {});
+      }
       return () => {
         rememberTime();
         video.removeEventListener("loadedmetadata", onLoadedMetadata);
@@ -190,6 +197,8 @@ export function PlayerShell({
     const player = createDashPlayer(video, playback.manifestUrl, {
       qualities: playback.qualities,
       startTime,
+      autoPlay,
+      bufferMode,
       onStateChange: (next) => setDashState((previous) => ({ ...previous, ...next })),
     });
     playerRef.current = player;
@@ -376,7 +385,7 @@ export function PlayerShell({
                 playerRef.current?.setAutoQuality();
                 setQualityOpen(false);
               }}
-              onManual={(id) => {
+              onManual={(id: string) => {
                 playerRef.current?.setManualQuality(id);
                 setQualityOpen(false);
               }}

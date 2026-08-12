@@ -8,6 +8,7 @@ import { MessagesPage } from "./MessagesPage";
 import { MinePage } from "./MinePage";
 import { NotificationsPage } from "./NotificationsPage";
 import { SeasonPage } from "./SeasonPage";
+import { SettingsPage } from "./SettingsPage";
 import { SpacePage } from "./SpacePage";
 import { WatchPage } from "./WatchPage";
 import { DynDetailPage } from "./DynDetailPage";
@@ -81,7 +82,7 @@ export function MainPage() {
       {view.name === "space" ? <SpacePage key={`space-${view.mid}`} mid={view.mid} /> : null}
       {view.name === "season" ? <SeasonPage key={`season-${view.seasonId}`} seasonId={view.seasonId} /> : null}
       {view.name === "live" ? <LivePage key={`live-${view.roomId}`} roomId={view.roomId} /> : null}
-      {view.name === "settings" ? <PlaceholderPage label="设置" /> : null}
+      {view.name === "settings" ? <SettingsPage /> : null}
       {view.name === "dynDetail" ? <DynDetailPage key={view.dynId} dynId={view.dynId} /> : null}
       {view.name === "article" ? <PlaceholderPage label="专栏" /> : null}
       {view.name === "messages" ? <MessagesPage /> : null}

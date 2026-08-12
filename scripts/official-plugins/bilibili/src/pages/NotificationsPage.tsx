@@ -119,7 +119,7 @@ export function NotificationsPage() {
               {entry.userName}
               {entry.replyType.includes("at") ? <span className="bili-notify-tag">@我</span> : null}
             </strong>
-            <span className="bili-notify-entry-desc">{entry.sourceContent || entry.desc || entry.title}</span>
+            <span className="bili-notify-entry-desc">{entry.desc || entry.title}</span>
             <small>{formatTime(entry.replyTime)}</small>
           </span>
         </button>

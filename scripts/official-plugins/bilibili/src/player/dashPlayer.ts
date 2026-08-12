@@ -21,6 +21,10 @@ export interface DashPlayerHandle {
 interface DashPlayerOptions {
   qualities: BiliQualityOption[];
   startTime: number;
+  /** 详情页自动起播（默认 true） */
+  autoPlay?: boolean;
+  /** 播放缓冲档位：auto/small/medium/large（默认 auto） */
+  bufferMode?: "auto" | "small" | "medium" | "large";
   onStateChange(state: Partial<DashPlayerState>): void;
 }
 
@@ -31,6 +35,21 @@ type DashBitrateInfo = {
   qualityIndex?: number;
   id?: string;
 };
+
+/** 缓冲档位 → dashjs buffer 配置 */
+function bufferSettings(mode: "auto" | "small" | "medium" | "large") {
+  switch (mode) {
+    case "small":
+      return { fastSwitchEnabled: true, bufferTimeAtTopQuality: 12, bufferTimeAtTopQualityLongForm: 18, bufferToKeep: 6 };
+    case "medium":
+      return { fastSwitchEnabled: true, bufferTimeAtTopQuality: 24, bufferTimeAtTopQualityLongForm: 36, bufferToKeep: 12 };
+    case "large":
+      return { fastSwitchEnabled: true, bufferTimeAtTopQuality: 48, bufferTimeAtTopQualityLongForm: 72, bufferToKeep: 24 };
+    case "auto":
+    default:
+      return { fastSwitchEnabled: true };
+  }
+}
 
 export function createDashPlayer(
   video: HTMLVideoElement,
@@ -72,16 +91,20 @@ export function createDashPlayer(
           video: true,
         },
       },
-      buffer: {
-        fastSwitchEnabled: true,
-      },
+      buffer: bufferSettings(options.bufferMode ?? "auto"),
     },
   });
 
   player.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, onStreamInitialized);
   player.on(dashjs.MediaPlayer.events.QUALITY_CHANGE_RENDERED, onQualityRendered);
   player.on(dashjs.MediaPlayer.events.ERROR, onError);
-  player.initialize(video, manifestUrl, false, options.startTime > 0 ? options.startTime : undefined);
+  // initialize 第 3 参数为 AutoPlay（详情页自动起播开关）
+  player.initialize(
+    video,
+    manifestUrl,
+    options.autoPlay !== false,
+    options.startTime > 0 ? options.startTime : undefined,
+  );
 
   return {
     destroy() {

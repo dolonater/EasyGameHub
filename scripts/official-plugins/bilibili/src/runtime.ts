@@ -22,6 +22,12 @@ export interface BilibiliPluginConfig {
   defaultPlaybackRate: number;
   defaultQualityMode: "auto";
   searchHistory: string[];
+  // P7 播放器设置
+  bufferMode: "auto" | "small" | "medium" | "large";
+  defaultFormat: "dash" | "mp4";
+  codecPreference: "avc" | "hevc" | "av1";
+  audioPreference: "standard" | "flac";
+  autoPlay: boolean;
 }
 
 export const defaultConfig: BilibiliPluginConfig = {
@@ -34,6 +40,11 @@ export const defaultConfig: BilibiliPluginConfig = {
   defaultPlaybackRate: 1,
   defaultQualityMode: "auto",
   searchHistory: [],
+  bufferMode: "auto",
+  defaultFormat: "dash",
+  codecPreference: "avc",
+  audioPreference: "standard",
+  autoPlay: true,
 };
 
 const initialState: BilibiliRuntimeState = {
@@ -193,7 +204,19 @@ function normalizeConfig(value: unknown): BilibiliPluginConfig {
     defaultPlaybackRate: clampRate(source.defaultPlaybackRate),
     defaultQualityMode: "auto",
     searchHistory: normalizeSearchHistory(source.searchHistory),
+    bufferMode: pick(["auto", "small", "medium", "large"], source.bufferMode, defaultConfig.bufferMode),
+    defaultFormat: pick(["dash", "mp4"], source.defaultFormat, defaultConfig.defaultFormat),
+    codecPreference: pick(["avc", "hevc", "av1"], source.codecPreference, defaultConfig.codecPreference),
+    audioPreference: pick(["standard", "flac"], source.audioPreference, defaultConfig.audioPreference),
+    autoPlay: source.autoPlay !== false,
   };
+}
+
+/** 从白名单中取值，非法时回退默认 */
+function pick<T extends string>(allowed: readonly T[], value: unknown, fallback: T): T {
+  return typeof value === "string" && (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : fallback;
 }
 
 /** 搜索历史：只保留非空字符串，最多 10 条 */

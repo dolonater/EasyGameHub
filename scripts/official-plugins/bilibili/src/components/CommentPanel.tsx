@@ -191,10 +191,10 @@ export function CommentPanel({ detail, loggedIn, sdk, oid, type }: CommentPanelP
         onToggleTop={() => toggleTop(comment)}
         onDelete={() => deleteComment(comment)}
         onToggleReport={() => setReportOpen((value) => ({ ...value, [comment.rpid]: !value[comment.rpid] }))}
-        onReportReasonChange={(reason) =>
+        onReportReasonChange={(reason: BiliReportReason) =>
           setReportDrafts((value) => ({ ...value, [comment.rpid]: { ...reportDraft, reason } }))
         }
-        onReportContentChange={(content) =>
+        onReportContentChange={(content: string) =>
           setReportDrafts((value) => ({ ...value, [comment.rpid]: { ...reportDraft, content } }))
         }
         onReportSubmit={() => reportComment(comment, reportDraft)}

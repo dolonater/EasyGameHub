@@ -402,6 +402,59 @@ export interface BiliDynamicCreated {
     pageTitle: string;
   }
 
+  export interface BiliMessageItem {
+    msgId: number;
+    senderUid: number;
+    content: string;
+    timestamp: number;
+    msgType: number;
+  }
+
+  export interface BiliMessageSession {
+    talkerId: number;
+    unreadCount: number;
+    lastMsg: BiliMessageItem | null;
+    name: string;
+    face: string;
+  }
+
+  export interface BiliMessageSessionsPage {
+    sessions: BiliMessageSession[];
+    hasMore: boolean;
+    nextOffset?: string | null;
+  }
+
+  export interface BiliMessageHistoryPage {
+    messages: BiliMessageItem[];
+    hasMore: boolean;
+    nextOffset?: number | null;
+  }
+
+  export interface BiliMessageUnread {
+    reply: number;
+    at: number;
+    like: number;
+    privateMsg: number;
+    sysMsg: number;
+  }
+
+  export interface BiliReplyFeedEntry {
+    id: number;
+    userName: string;
+    userFace: string;
+    replyTime: number;
+    title: string;
+    desc: string;
+    uri: string;
+    replyType: string;
+  }
+
+  export interface BiliReplyFeedPage {
+    entries: BiliReplyFeedEntry[];
+    cursorId: number | null;
+    isEnd: boolean;
+  }
+
   export interface BiliToViewItem {
     video: BiliVideoCard;
     addedAt: number;
@@ -543,13 +596,16 @@ export interface BiliDynamicCreated {
         openExternal(bvid: string): Promise<BiliOperationResult>;
       };
       playback: {
-        proxyPort(): Promise<number>;
         createPlayback(args: {
           bvid?: string;
           aid?: number;
           cid: number;
           quality?: number;
           preferProgressive?: boolean;
+          codecPreference?: "avc" | "hevc" | "av1";
+          audioPreference?: "standard" | "flac";
+          seasonId?: number;
+          epId?: number;
         }): Promise<BiliPlaybackSource>;
         saveLocalProgress(args: {
           bvid: string;
@@ -718,8 +774,13 @@ export interface BiliDynamicCreated {
   export const Fragment: symbol;
   export function useEffect(effect: () => void | (() => void), deps?: unknown[]): void;
   export function useState<T>(initial: T | (() => T)): [T, (value: T | ((previous: T) => T)) => void];
-  export function useCallback<T extends (...args: unknown[]) => unknown>(callback: T, deps: unknown[]): T;
+  export function useCallback<F extends (...args: any[]) => any>(callback: F, deps: unknown[]): F;
   export function useRef<T>(initial: T): { current: T };
+  export namespace React {
+    type ReactNode = any;
+    type ChangeEvent<T = any> = { target: T };
+    type FormEvent<T = any> = { target: T };
+  }
 
   const _default: {
     createElement: typeof createElement;
@@ -730,4 +791,13 @@ export interface BiliDynamicCreated {
     useRef: typeof useRef;
   };
   export default _default;
+}
+
+declare namespace JSX {
+  interface IntrinsicElements {
+    [elem: string]: any;
+  }
+  interface LibraryManagedAttributes<C, P> {
+    [name: string]: any;
+  }
 }

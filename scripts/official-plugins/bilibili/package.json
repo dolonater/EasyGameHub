@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.tsx --bundle --format=esm --external:sdk --jsx=transform --outfile=dist/bundle.js",
+    "build": "tsc --noEmit && node scripts/check-sdk-sync.mjs && esbuild src/index.tsx --bundle --format=esm --external:sdk --jsx=transform --outfile=dist/bundle.js",
     "test:danmaku": "node scripts/test-danmaku-layout.mjs",
     "pack": "node scripts/pack.mjs",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""

@@ -523,7 +523,6 @@ pub fn run() {
             commands::plugins::save_plugin_registry,
             commands::plugins::read_plugin_config,
             commands::plugins::write_plugin_config,
-            commands::bilibili::bilibili_ping,
             commands::bilibili::bilibili_login_qr_key,
             commands::bilibili::bilibili_login_qr_check,
             commands::bilibili::bilibili_login_status,

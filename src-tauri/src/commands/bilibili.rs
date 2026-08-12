@@ -39,11 +39,6 @@ use crate::AppState;
 use bpi_rs::BpiError;
 
 #[tauri::command]
-pub fn bilibili_ping() -> Result<BiliOperationResult, String> {
-    Ok(BiliOperationResult::ok("bilibili ready"))
-}
-
-#[tauri::command]
 pub async fn bilibili_login_qr_key() -> Result<BiliQrLoginKey, String> {
     account::login_qr_key().await.map_err(bpi_error)
 }
@@ -210,6 +205,8 @@ pub async fn bilibili_create_playback(
     cid: u64,
     quality: Option<u32>,
     prefer_progressive: Option<bool>,
+    codec_preference: Option<String>,
+    audio_preference: Option<String>,
     season_id: Option<u64>,
     ep_id: Option<u64>,
 ) -> Result<BiliPlaybackSource, String> {
@@ -218,6 +215,10 @@ pub async fn bilibili_create_playback(
         .map_err(proxy_error)?;
     let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
     let prefer_progressive = prefer_progressive.unwrap_or(false);
+    let preferences = playback::PlaybackPreferences {
+        codec: playback::CodecPreference::parse(codec_preference.as_deref()),
+        audio: playback::AudioPreference::parse(audio_preference.as_deref()),
+    };
     let bvid_value = bvid.unwrap_or_default();
     let aid_value = aid.unwrap_or(0);
 
@@ -231,6 +232,7 @@ pub async fn bilibili_create_playback(
             bvid_value,
             proxy_port,
             prefer_progressive,
+            preferences,
         )
         .await
         .map_err(proxy_error)?;
@@ -255,6 +257,7 @@ pub async fn bilibili_create_playback(
             cid,
             proxy_port,
             true,
+            preferences,
         ) {
             Ok((session, source)) => {
                 playback::insert_session(session);
@@ -277,6 +280,7 @@ pub async fn bilibili_create_playback(
                     cid,
                     proxy_port,
                     false,
+                    preferences,
                 )
                 .map_err(|dash_error| {
                     proxy_error(format!(
@@ -299,7 +303,13 @@ pub async fn bilibili_create_playback(
     .map_err(bpi_error)?;
     let data = client.video().play_url(params).await.map_err(bpi_error)?;
     let (session, source) = playback::create_session_from_stream_with_options(
-        &data, bvid_value, aid_value, cid, proxy_port, false,
+        &data,
+        bvid_value,
+        aid_value,
+        cid,
+        proxy_port,
+        false,
+        preferences,
     )
     .map_err(proxy_error)?;
     playback::insert_session(session);

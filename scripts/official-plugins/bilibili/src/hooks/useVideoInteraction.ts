@@ -21,7 +21,6 @@ interface UseVideoInteractionResult {
   followOwner(): void;
   share(): Promise<void>;
   report(): void;
-  refresh(): Promise<void>;
 }
 
 interface InteractionReady {
@@ -213,7 +212,7 @@ export function useVideoInteraction({
     getState().sdk?.ui.notify(errorMessage(err));
   }
 
-  return { state, loading, error, busy, like, coin, favorite, toggleToView, followOwner, share, report, refresh };
+  return { state, loading, error, busy, like, coin, favorite, toggleToView, followOwner, share, report };
 }
 
 function adjustCount(value: number, delta: number) {

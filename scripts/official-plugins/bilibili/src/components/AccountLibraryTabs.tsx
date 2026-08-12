@@ -68,7 +68,7 @@ export function AccountLibraryTabs() {
             variant="ghost"
             size="sm"
             type="button"
-            onClick={() => setActive(tab.id)}
+            onClick={() => setActive(tab.id as LibraryTab)}
           >
             {tab.label}
           </Button>

@@ -54,6 +54,66 @@ pub enum PlaybackTrackKind {
     Audio,
 }
 
+/// 播放偏好（P7）：编码优先序与音质。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PlaybackPreferences {
+    pub codec: CodecPreference,
+    pub audio: AudioPreference,
+}
+
+impl Default for PlaybackPreferences {
+    fn default() -> Self {
+        Self {
+            codec: CodecPreference::Avc,
+            audio: AudioPreference::Standard,
+        }
+    }
+}
+
+/// 视频编码优先序（AVC 为保底，播放失败自动降级 AVC）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CodecPreference {
+    Avc,
+    Hevc,
+    Av1,
+}
+
+impl CodecPreference {
+    pub fn parse(value: Option<&str>) -> Self {
+        match value
+            .map(str::trim)
+            .unwrap_or_default()
+            .to_ascii_lowercase()
+            .as_str()
+        {
+            "hevc" => Self::Hevc,
+            "av1" => Self::Av1,
+            _ => Self::Avc,
+        }
+    }
+}
+
+/// 音质偏好（FLAC 需大会员，失败自动降级标准 AAC）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AudioPreference {
+    Standard,
+    Flac,
+}
+
+impl AudioPreference {
+    pub fn parse(value: Option<&str>) -> Self {
+        match value
+            .map(str::trim)
+            .unwrap_or_default()
+            .to_ascii_lowercase()
+            .as_str()
+        {
+            "flac" => Self::Flac,
+            _ => Self::Standard,
+        }
+    }
+}
+
 static PLAYBACK_SESSIONS: OnceLock<Mutex<HashMap<String, PlaybackSession>>> = OnceLock::new();
 
 pub fn create_session_from_stream(
@@ -63,7 +123,15 @@ pub fn create_session_from_stream(
     cid: u64,
     proxy_port: u16,
 ) -> Result<(PlaybackSession, BiliPlaybackSource), BpiError> {
-    create_session_from_stream_with_options(data, bvid, aid, cid, proxy_port, false)
+    create_session_from_stream_with_options(
+        data,
+        bvid,
+        aid,
+        cid,
+        proxy_port,
+        false,
+        PlaybackPreferences::default(),
+    )
 }
 
 pub fn create_session_from_stream_with_options(
@@ -73,6 +141,7 @@ pub fn create_session_from_stream_with_options(
     cid: u64,
     proxy_port: u16,
     prefer_direct: bool,
+    preferences: PlaybackPreferences,
 ) -> Result<(PlaybackSession, BiliPlaybackSource), BpiError> {
     let now = now_unix();
     let playback_id = new_playback_id();
@@ -84,7 +153,19 @@ pub fn create_session_from_stream_with_options(
     }
 
     if !has_video_track(&tracks) {
-        insert_dash_tracks(data, &mut tracks);
+        insert_dash_tracks(data, &mut tracks, preferences);
+    }
+
+    // 编码降级：偏好编码无可用 track 时自动回退 AVC（会话内重建，不重新请求）
+    if !has_video_track(&tracks) && preferences.codec != CodecPreference::Avc {
+        insert_dash_tracks(
+            data,
+            &mut tracks,
+            PlaybackPreferences {
+                codec: CodecPreference::Avc,
+                audio: preferences.audio,
+            },
+        );
     }
 
     if !has_video_track(&tracks) {
@@ -125,9 +206,18 @@ pub fn create_session_from_bangumi_stream(
     cid: u64,
     proxy_port: u16,
     prefer_direct: bool,
+    preferences: PlaybackPreferences,
 ) -> Result<(PlaybackSession, BiliPlaybackSource), BpiError> {
     let play_url = bangumi_stream_to_play_url(data)?;
-    create_session_from_stream_with_options(&play_url, bvid, aid, cid, proxy_port, prefer_direct)
+    create_session_from_stream_with_options(
+        &play_url,
+        bvid,
+        aid,
+        cid,
+        proxy_port,
+        prefer_direct,
+        preferences,
+    )
 }
 
 fn bangumi_stream_to_play_url(
@@ -348,42 +438,38 @@ fn has_video_track(tracks: &HashMap<String, PlaybackTrack>) -> bool {
         .any(|track| track.kind == PlaybackTrackKind::Video)
 }
 
-fn insert_dash_tracks(data: &PlayUrlResponseData, tracks: &mut HashMap<String, PlaybackTrack>) {
+fn insert_dash_tracks(
+    data: &PlayUrlResponseData,
+    tracks: &mut HashMap<String, PlaybackTrack>,
+    preferences: PlaybackPreferences,
+) {
     if let Some(dash) = &data.dash {
         for (index, stream) in dash.video.iter().enumerate() {
-            if !is_supported_dash_stream(stream, PlaybackTrackKind::Video) {
+            if !is_supported_dash_stream(stream, PlaybackTrackKind::Video, preferences) {
                 continue;
             }
             let track = dash_stream_to_track(stream, PlaybackTrackKind::Video, index);
             tracks.insert(track.track_id.clone(), track);
         }
         for (index, stream) in dash.audio.iter().enumerate() {
-            if !is_supported_dash_stream(stream, PlaybackTrackKind::Audio) {
+            if !is_supported_dash_stream(stream, PlaybackTrackKind::Audio, preferences) {
                 continue;
             }
             let track = dash_stream_to_track(stream, PlaybackTrackKind::Audio, index);
             tracks.insert(track.track_id.clone(), track);
         }
-        if let Some(flac) = &dash.flac {
-            for (index, stream) in flac.audio.iter().enumerate() {
-                if !is_supported_dash_stream(stream, PlaybackTrackKind::Audio) {
-                    continue;
-                }
-                let track = dash_stream_to_track(stream, PlaybackTrackKind::Audio, index + 100);
-                tracks.insert(track.track_id.clone(), track);
-            }
-        }
-        if let Some(dolby) = &dash.dolby {
-            if let Some(audio) = &dolby.audio {
-                for (index, stream) in audio.iter().enumerate() {
-                    if !is_supported_dash_stream(stream, PlaybackTrackKind::Audio) {
+        if preferences.audio == AudioPreference::Flac {
+            if let Some(flac) = &dash.flac {
+                for (index, stream) in flac.audio.iter().enumerate() {
+                    if !is_supported_dash_stream(stream, PlaybackTrackKind::Audio, preferences) {
                         continue;
                     }
-                    let track = dash_stream_to_track(stream, PlaybackTrackKind::Audio, index + 200);
+                    let track = dash_stream_to_track(stream, PlaybackTrackKind::Audio, index + 100);
                     tracks.insert(track.track_id.clone(), track);
                 }
             }
         }
+        // 杜比不提供（设计 §3.5）：恒跳过 dolby 音轨
     }
 }
 
@@ -439,7 +525,11 @@ fn playback_duration_ms(data: &PlayUrlResponseData) -> Option<u64> {
         .filter(|duration| *duration > 0)
 }
 
-fn is_supported_dash_stream(stream: &DashStream, kind: PlaybackTrackKind) -> bool {
+fn is_supported_dash_stream(
+    stream: &DashStream,
+    kind: PlaybackTrackKind,
+    preferences: PlaybackPreferences,
+) -> bool {
     if !is_valid_media_url(&stream.base_url) || stream.mime_type.trim().is_empty() {
         return false;
     }
@@ -448,8 +538,12 @@ fn is_supported_dash_stream(stream: &DashStream, kind: PlaybackTrackKind) -> boo
         return false;
     }
     match kind {
-        PlaybackTrackKind::Video => codecs.starts_with("avc1") || codecs.starts_with("avc3"),
-        PlaybackTrackKind::Audio => codecs.starts_with("mp4a"),
+        PlaybackTrackKind::Video => match preferences.codec {
+            CodecPreference::Avc => codecs.starts_with("avc1") || codecs.starts_with("avc3"),
+            CodecPreference::Hevc => codecs.starts_with("hev1") || codecs.starts_with("hevc1"),
+            CodecPreference::Av1 => codecs.starts_with("av01"),
+        },
+        PlaybackTrackKind::Audio => codecs.starts_with("mp4a") || codecs.starts_with("flac"),
     }
 }
 
@@ -687,8 +781,15 @@ mod tests {
     fn create_session_can_prefer_direct_progressive_track() -> Result<(), BpiError> {
         let data = sample_play_url_data();
 
-        let (session, source) =
-            create_session_from_stream_with_options(&data, "BV1xx411c7mD", 42, 62131, 14201, true)?;
+        let (session, source) = create_session_from_stream_with_options(
+            &data,
+            "BV1xx411c7mD",
+            42,
+            62131,
+            14201,
+            true,
+            PlaybackPreferences::default(),
+        )?;
 
         assert_eq!(session.direct_track_id.as_deref(), Some("progressive-0"));
         assert!(source.direct_url.is_some());
@@ -706,13 +807,117 @@ mod tests {
         let mut data = sample_play_url_data();
         data.durl = None;
 
-        let (session, source) =
-            create_session_from_stream_with_options(&data, "BV1xx411c7mD", 42, 62131, 14201, true)?;
+        let (session, source) = create_session_from_stream_with_options(
+            &data,
+            "BV1xx411c7mD",
+            42,
+            62131,
+            14201,
+            true,
+            PlaybackPreferences::default(),
+        )?;
 
         assert_eq!(session.direct_track_id, None);
         assert_eq!(source.direct_url, None);
         assert!(session.tracks.contains_key("video-64-0"));
         assert!(session.tracks.contains_key("audio-30280-0"));
+        Ok(())
+    }
+
+    #[test]
+    fn create_session_prefers_hevc_track_when_requested() -> Result<(), BpiError> {
+        let mut data = sample_play_url_data();
+        data.dash.as_mut().unwrap().video.push(sample_dash_stream(
+            80,
+            PlaybackTrackKind::Video,
+            "hev1.2.4.L153.B0",
+            "https://example.invalid/hevc.m4s",
+        ));
+        let preferences = PlaybackPreferences {
+            codec: CodecPreference::Hevc,
+            audio: AudioPreference::Standard,
+        };
+        let (session, _) = create_session_from_stream_with_options(
+            &data,
+            "BV1xx411c7mD",
+            42,
+            62131,
+            14201,
+            false,
+            preferences,
+        )?;
+        assert!(session.tracks.values().any(
+            |track| track.kind == PlaybackTrackKind::Video && track.codecs.starts_with("hev1")
+        ));
+        assert!(!session.tracks.values().any(|track| {
+            track.kind == PlaybackTrackKind::Video && track.codecs.starts_with("avc1")
+        }));
+        Ok(())
+    }
+
+    #[test]
+    fn create_session_falls_back_to_avc_when_preferred_codec_missing() -> Result<(), BpiError> {
+        let data = sample_play_url_data();
+        let preferences = PlaybackPreferences {
+            codec: CodecPreference::Av1,
+            audio: AudioPreference::Standard,
+        };
+        let (session, _) = create_session_from_stream_with_options(
+            &data,
+            "BV1xx411c7mD",
+            42,
+            62131,
+            14201,
+            false,
+            preferences,
+        )?;
+        assert!(session.tracks.values().any(
+            |track| track.kind == PlaybackTrackKind::Video && track.codecs.starts_with("avc1")
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn create_session_keeps_flac_track_only_when_preferred() -> Result<(), BpiError> {
+        let mut data = sample_play_url_data();
+        data.dash.as_mut().unwrap().flac = Some(DashFlac {
+            audio: vec![sample_dash_stream(
+                30251,
+                PlaybackTrackKind::Audio,
+                "fLaC",
+                "https://example.invalid/flac.m4s",
+            )],
+        });
+        let (standard, _) = create_session_from_stream_with_options(
+            &data,
+            "BV1xx411c7mD",
+            42,
+            62131,
+            14201,
+            false,
+            PlaybackPreferences::default(),
+        )?;
+        assert!(!standard
+            .tracks
+            .values()
+            .any(|track| track.codecs.starts_with("flac")));
+        let preferences = PlaybackPreferences {
+            codec: CodecPreference::Avc,
+            audio: AudioPreference::Flac,
+        };
+        let (flac, _) = create_session_from_stream_with_options(
+            &data,
+            "BV1xx411c7mD",
+            42,
+            62131,
+            14201,
+            false,
+            preferences,
+        )?;
+        assert!(flac
+            .tracks
+            .values()
+            .any(|track| track.codecs.to_ascii_lowercase().starts_with("flac")));
         Ok(())
     }
 

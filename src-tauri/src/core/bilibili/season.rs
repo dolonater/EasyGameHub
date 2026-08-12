@@ -197,6 +197,7 @@ pub async fn season_ep_playback(
     bvid: String,
     proxy_port: u16,
     prefer_direct: bool,
+    preferences: playback::PlaybackPreferences,
 ) -> Result<
     (
         playback::PlaybackSession,
@@ -209,5 +210,13 @@ pub async fn season_ep_playback(
     params =
         params.with_fnval(Fnval::DASH | Fnval::FOURK | Fnval::EIGHTK | Fnval::HDR | Fnval::AV1);
     let data = client.bangumi().video_stream(params).await?;
-    playback::create_session_from_bangumi_stream(&data, bvid, aid, cid, proxy_port, prefer_direct)
+    playback::create_session_from_bangumi_stream(
+        &data,
+        bvid,
+        aid,
+        cid,
+        proxy_port,
+        prefer_direct,
+        preferences,
+    )
 }

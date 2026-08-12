@@ -1,10 +1,16 @@
 {
+  "audioPreference": "standard",
+  "autoPlay": true,
+  "bufferMode": "auto",
+  "codecPreference": "avc",
   "danmakuDensity": 0.85,
   "danmakuEnabled": true,
   "danmakuFontSize": 22,
   "danmakuOpacity": 0.85,
   "danmakuSpeed": 1,
-  "defaultPlaybackRate": 1,
+  "defaultFormat": "dash",
+  "defaultPlaybackRate": 0.5,
   "defaultQualityMode": "auto",
-  "syncProgress": true
+  "searchHistory": [],
+  "syncProgress": false
 }

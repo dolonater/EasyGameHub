@@ -150,7 +150,7 @@ export function HomePage() {
         searchEmpty={
           <SearchEmptyPanel
             history={searchHistory}
-            onPick={(keyword) => {
+            onPick={(keyword: string) => {
               setQuery(keyword);
               submitSearch(keyword);
             }}
@@ -168,7 +168,7 @@ export function HomePage() {
 
   return (
     <section className="bili-home">
-      <form className="bili-search" onSubmit={(event) => handleSearch(event)}>
+      <form className="bili-search" onSubmit={(event: { preventDefault(): void }) => handleSearch(event)}>
         <SearchBox
           value={query}
           onChange={setQuery}

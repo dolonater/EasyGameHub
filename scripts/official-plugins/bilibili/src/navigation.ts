@@ -52,7 +52,15 @@ export function navigateNav(view: BiliNavView): void {
 }
 
 /** 打开播放页：压入当前视图，播放页内连点相关视频可逐级返回 */
-export function openWatch(view: { name: "watch"; bvid?: string; aid?: number; cid?: number }): void {
+export function openWatch(view: {
+  name: "watch";
+  type?: "video" | "season";
+  bvid?: string;
+  aid?: number;
+  cid?: number;
+  seasonId?: number;
+  epId?: number;
+}): void {
   stack.push(memory);
   switchView(view);
 }
@@ -79,6 +87,12 @@ export function openDynDetail(dynId: string): void {
 export function openLive(roomId: number): void {
   stack.push(memory);
   switchView({ name: "live", roomId });
+}
+
+/** 打开设置视图：压入当前视图，可逐级返回 */
+export function openSettings(): void {
+  stack.push(memory);
+  switchView({ name: "settings" });
 }
 
 /** 打开私信会话列表 */

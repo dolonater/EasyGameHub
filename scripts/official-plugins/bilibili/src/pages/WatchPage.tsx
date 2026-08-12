@@ -54,6 +54,10 @@ export function WatchPage({ target }: WatchPageProps) {
   const [playbackError, setPlaybackError] = useState("");
   const [reloadNonce, setReloadNonce] = useState(0);
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode>("quality");
+  const [codecPreference, setCodecPreference] = useState<"avc" | "hevc" | "av1">("avc");
+  const [audioPreference, setAudioPreference] = useState<"standard" | "flac">("standard");
+  const [autoPlay, setAutoPlay] = useState(true);
+  const [bufferMode, setBufferMode] = useState<"auto" | "small" | "medium" | "large">("auto");
   const [localProgress, setLocalProgress] = useState<BiliLocalProgress | null>(null);
   const [syncProgress, setSyncProgress] = useState(true);
   const [danmakuItems, setDanmakuItems] = useState<BiliDanmakuItem[]>([]);
@@ -95,6 +99,11 @@ export function WatchPage({ target }: WatchPageProps) {
         if (active) {
           setSyncProgress(config.syncProgress);
           setDefaultPlaybackRate(config.defaultPlaybackRate);
+          setPlaybackMode(config.defaultFormat === "mp4" ? "compat" : "quality");
+          setCodecPreference(config.codecPreference);
+          setAudioPreference(config.audioPreference);
+          setAutoPlay(config.autoPlay);
+          setBufferMode(config.bufferMode);
           setDanmakuSettings({
             enabled: config.danmakuEnabled,
             fontSize: config.danmakuFontSize,
@@ -109,6 +118,7 @@ export function WatchPage({ target }: WatchPageProps) {
           setSyncProgress(true);
           setDanmakuSettings(defaultDanmakuSettings);
           setDefaultPlaybackRate(1);
+          setPlaybackMode("quality");
         }
       });
     return () => {
@@ -225,6 +235,8 @@ export function WatchPage({ target }: WatchPageProps) {
         aid: videoDetail.aid,
         cid: activePage.cid,
         preferProgressive: playbackMode === "compat",
+        codecPreference,
+        audioPreference,
         epId: selectedEp?.epId,
       })
       .then((source) => {
@@ -240,7 +252,7 @@ export function WatchPage({ target }: WatchPageProps) {
     return () => {
       active = false;
     };
-  }, [videoDetail?.aid, videoDetail?.bvid, playbackMode, reloadNonce, activePage?.cid, selectedEp?.epId]);
+  }, [videoDetail?.aid, videoDetail?.bvid, playbackMode, codecPreference, audioPreference, reloadNonce, activePage?.cid, selectedEp?.epId]);
 
   useEffect(() => {
     const sdk = getState().sdk;
@@ -380,6 +392,8 @@ export function WatchPage({ target }: WatchPageProps) {
             )}
             defaultPlaybackRate={defaultPlaybackRate}
             syncProgress={syncProgress}
+            autoPlay={autoPlay}
+            bufferMode={bufferMode}
             danmakuItems={danmakuItems}
             danmakuLoading={danmakuLoading}
             danmakuError={danmakuError}
@@ -396,7 +410,7 @@ export function WatchPage({ target }: WatchPageProps) {
             onToView={interaction.toggleToView}
             onReport={interaction.report}
             onPlaybackTime={rememberPlaybackTime}
-            onTimeUpdate={(seconds) => danmakuLoaderRef.current?.updateTime(seconds)}
+            onTimeUpdate={(seconds: number) => danmakuLoaderRef.current?.updateTime(seconds)}
             onReloadPlayback={reloadPlayback}
             onPlaybackFallback={fallbackPlayback}
             playbackMode={playbackMode}
@@ -423,7 +437,7 @@ export function WatchPage({ target }: WatchPageProps) {
             pages={seasonDetail ? seasonDetail.episodes.map(episodeToPage) : videoDetail.pages}
             pagesLabel={isSeason ? "选集" : undefined}
             selectedPageCid={activePage?.cid}
-            onSelectPage={isSeason ? (page) => {
+            onSelectPage={isSeason ? (page: BiliVideoPage) => {
               const episode = seasonDetail?.episodes.find((item) => item.cid === page.cid);
               if (episode) selectEpisode(episode);
             } : selectPage}

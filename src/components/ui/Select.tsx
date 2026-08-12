@@ -39,7 +39,8 @@ export default function Select({
   }, [open]);
 
   return (
-    <div ref={ref} className={`relative z-[100] select-none w-fit ${className}`.trim()}>
+    // 打开时把容器 z-index 提到最高，避免多个下拉垂直排列时被后面容器（同为 z-100）遮挡面板
+    <div ref={ref} className={`relative select-none w-fit ${open ? "z-[200]" : "z-[100]"} ${className}`.trim()}>
       <div
         onClick={() => setOpen(!open)}
         data-open={open ? "true" : "false"}

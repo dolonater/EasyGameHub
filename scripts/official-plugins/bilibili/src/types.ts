@@ -64,8 +64,3 @@ export type {
   BiliLiveStreamUrl,
   BiliLiveSubArea,
 } from "sdk";
-
-export interface BilibiliRuntime {
-  sdk: PluginSdk | null;
-  disposed: boolean;
-}

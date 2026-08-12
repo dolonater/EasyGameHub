@@ -738,13 +738,14 @@ export interface PluginSdk {
       openExternal(bvid: string): Promise<BiliOperationResult>;
     };
     playback: {
-      proxyPort(): Promise<number>;
       createPlayback(args: {
         bvid?: string;
         aid?: number;
         cid: number;
         quality?: number;
         preferProgressive?: boolean;
+        codecPreference?: "avc" | "hevc" | "av1";
+        audioPreference?: "standard" | "flac";
         seasonId?: number;
         epId?: number;
       }): Promise<BiliPlaybackSource>;
@@ -1162,10 +1163,6 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
         },
       },
       playback: {
-        proxyPort() {
-          requirePerm("bilibili", "bilibili.playback.proxyPort");
-          return biliInvoke("bilibili_proxy_port");
-        },
         createPlayback(args) {
           requirePerm("bilibili", "bilibili.playback.createPlayback");
           return biliInvoke("bilibili_create_playback", args);

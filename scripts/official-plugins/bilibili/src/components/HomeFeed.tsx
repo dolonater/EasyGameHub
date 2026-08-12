@@ -11,7 +11,7 @@ interface HomeFeedProps {
   /** 搜索 Tab 但还没有已提交关键词：显示引导空态（可自定义内容） */
   searchGuide: boolean;
   /** 搜索空态的自定义内容（热搜/历史面板）；缺省显示引导文案 */
-  searchEmpty?: React.ReactNode;
+  searchEmpty?: unknown;
   /** 追番/影视/直播占位提示（P2/P6 填充后移除） */
   comingSoon?: boolean;
   onRecommend(): void;

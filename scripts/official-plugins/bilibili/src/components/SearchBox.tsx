@@ -13,7 +13,7 @@ interface SearchBoxProps {
 export function SearchBox({ value, onChange, onSubmit, placeholder, disabled }: SearchBoxProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const keyword = value.trim();
