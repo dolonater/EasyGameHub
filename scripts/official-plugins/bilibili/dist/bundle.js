@@ -31404,8 +31404,29 @@ function createDashPlayer(video, manifestUrl, options) {
   let mode = "auto";
   let selectedQualityId = "";
   let currentQualityId = "";
+  let initialApplied = false;
   const emitState = (next) => {
     options.onStateChange(next);
+  };
+  const applyInitialMode = () => {
+    if (initialApplied || options.initialMode !== "manual") return;
+    initialApplied = true;
+    const targetId = options.initialQualityId || highestQualityId(options.qualities);
+    const qualityIndex = qualityIndexForId(player, options.qualities, targetId);
+    if (qualityIndex < 0) return;
+    mode = "manual";
+    selectedQualityId = targetId;
+    player.updateSettings({
+      streaming: {
+        abr: {
+          autoSwitchBitrate: {
+            video: false
+          }
+        }
+      }
+    });
+    player.setQualityFor("video", qualityIndex, true);
+    emitState({ mode, selectedQualityId, error: "" });
   };
   const readCurrentQuality = () => {
     const index = player.getQualityFor("video");
@@ -31415,6 +31436,7 @@ function createDashPlayer(video, manifestUrl, options) {
   };
   const onStreamInitialized = () => {
     readCurrentQuality();
+    applyInitialMode();
   };
   const onQualityRendered = () => {
     readCurrentQuality();
@@ -31490,6 +31512,10 @@ function createDashPlayer(video, manifestUrl, options) {
       player.setPlaybackRate(rate);
     }
   };
+}
+function highestQualityId(qualities) {
+  const sorted = [...qualities].sort((a2, b) => b.quality - a2.quality);
+  return sorted[0]?.id ?? "";
 }
 function qualityIndexForId(player, qualities, representationId) {
   const bitrates = player.getBitrateInfoListFor("video");
@@ -32431,6 +32457,8 @@ function PlayerShell({
   onPlaybackFallback,
   playbackMode,
   onPlaybackModeChange,
+  qualityMode = "auto",
+  qualityQn = 0,
   onDanmakuSettingsChange,
   onDanmakuSent,
   selfDanmaku,
@@ -32525,6 +32553,8 @@ function PlayerShell({
       startTime,
       autoPlay,
       bufferMode,
+      initialMode: qualityMode === "manual" ? "manual" : void 0,
+      initialQualityId: qualityMode === "manual" ? initialQualityFor(playback.qualities, qualityQn) : void 0,
       onStateChange: (next) => setDashState((previous) => ({ ...previous, ...next }))
     });
     playerRef.current = player;
@@ -32536,7 +32566,7 @@ function PlayerShell({
       video.removeAttribute("src");
       video.load();
     };
-  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, syncVideoState]);
+  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, qualityMode, qualityQn, syncVideoState]);
   useEffect32(() => {
     if (dashState.error && playback && !playback.directUrl) {
       requestPlaybackFallback(false);
@@ -32608,7 +32638,8 @@ function PlayerShell({
   function qualityLabel() {
     if (playbackMode === "compat") return "\u517C\u5BB9";
     if (dashState.mode === "manual" && dashState.selectedQualityId) {
-      return playback?.qualities.find((quality) => quality.id === dashState.selectedQualityId)?.label ?? "\u624B\u52A8";
+      const quality = playback?.qualities.find((item) => item.id === dashState.selectedQualityId);
+      return quality ? qualityText(quality) : "\u624B\u52A8";
     }
     return "\u81EA\u52A8";
   }
@@ -32828,6 +32859,11 @@ function playSafely2(video) {
     if (error instanceof DOMException && error.name === "AbortError") return;
     throw error;
   });
+}
+function initialQualityFor(qualities, qn) {
+  const candidates = qn > 0 ? qualities.filter((quality) => quality.quality <= qn) : qualities;
+  const sorted = [...candidates].sort((a2, b) => b.quality - a2.quality);
+  return sorted[0]?.id ?? "";
 }
 
 // src/components/WatchSidebarTabs.tsx
@@ -33521,6 +33557,8 @@ function WatchPage({ target }) {
       onPlaybackFallback: fallbackPlayback,
       playbackMode,
       onPlaybackModeChange: changePlaybackMode,
+      qualityMode,
+      qualityQn,
       onDanmakuSettingsChange: setDanmakuSettings,
       onDanmakuSent: handleDanmakuSent,
       selfDanmaku: selfDanmakuRef.current,

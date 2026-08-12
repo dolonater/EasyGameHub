@@ -422,6 +422,8 @@ export function WatchPage({ target }: WatchPageProps) {
             onPlaybackFallback={fallbackPlayback}
             playbackMode={playbackMode}
             onPlaybackModeChange={changePlaybackMode}
+            qualityMode={qualityMode}
+            qualityQn={qualityQn}
             onDanmakuSettingsChange={setDanmakuSettings}
             onDanmakuSent={handleDanmakuSent}
             selfDanmaku={selfDanmakuRef.current}

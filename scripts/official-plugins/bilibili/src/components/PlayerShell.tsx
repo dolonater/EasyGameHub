@@ -2,6 +2,7 @@ import React, { Button, useCallback, useEffect, useRef, useState } from "sdk";
 import type {
   BiliDanmakuItem,
   BiliPlaybackSource,
+  BiliQualityOption,
   BiliVideoDetail,
   BiliVideoInteractionState,
   BiliVideoPage,
@@ -15,7 +16,7 @@ import { DanmakuInput } from "./DanmakuInput";
 import { DanmakuOverlay, type DanmakuSettings } from "./DanmakuOverlay";
 import { DanmakuSettingsPopover } from "./DanmakuSettingsPopover";
 import { MenuPopover } from "./MenuPopover";
-import { QualityMenu } from "./QualityMenu";
+import { QualityMenu, qualityText } from "./QualityMenu";
 import { VideoInteractionBar } from "./VideoInteractionBar";
 import { VideoPlayerControls } from "./VideoPlayerControls";
 
@@ -52,6 +53,10 @@ interface PlayerShellProps {
   onPlaybackFallback(wasDirect: boolean): void;
   playbackMode: "quality" | "compat";
   onPlaybackModeChange(mode: "quality" | "compat"): void;
+  /** 默认清晰度模式（设置页）：manual 时开局锁定清晰度 */
+  qualityMode?: "auto" | "manual";
+  /** manual 时的目标 qn（0 = 最高可用） */
+  qualityQn?: number;
   onDanmakuSettingsChange(settings: DanmakuSettings): void;
   onDanmakuSent(item: BiliDanmakuItem): void;
   /** 自己发送的弹幕（id → 发送时间戳秒），5 分钟窗口内可点击操作。 */
@@ -98,6 +103,8 @@ export function PlayerShell({
   onPlaybackFallback,
   playbackMode,
   onPlaybackModeChange,
+  qualityMode = "auto",
+  qualityQn = 0,
   onDanmakuSettingsChange,
   onDanmakuSent,
   selfDanmaku,
@@ -202,6 +209,8 @@ export function PlayerShell({
       startTime,
       autoPlay,
       bufferMode,
+      initialMode: qualityMode === "manual" ? "manual" : undefined,
+      initialQualityId: qualityMode === "manual" ? initialQualityFor(playback.qualities, qualityQn) : undefined,
       onStateChange: (next) => setDashState((previous) => ({ ...previous, ...next })),
     });
     playerRef.current = player;
@@ -214,7 +223,7 @@ export function PlayerShell({
       video.removeAttribute("src");
       video.load();
     };
-  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, syncVideoState]);
+  }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, qualityMode, qualityQn, syncVideoState]);
 
   useEffect(() => {
     if (dashState.error && playback && !playback.directUrl) {
@@ -294,7 +303,8 @@ export function PlayerShell({
   function qualityLabel() {
     if (playbackMode === "compat") return "兼容";
     if (dashState.mode === "manual" && dashState.selectedQualityId) {
-      return playback?.qualities.find((quality) => quality.id === dashState.selectedQualityId)?.label ?? "手动";
+      const quality = playback?.qualities.find((item) => item.id === dashState.selectedQualityId);
+      return quality ? qualityText(quality) : "手动";
     }
     return "自动";
   }
@@ -560,4 +570,13 @@ function playSafely(video: HTMLVideoElement) {
     if (error instanceof DOMException && error.name === "AbortError") return;
     throw error;
   });
+}
+
+
+/** 默认清晰度目标：qn>0 时取 ≤qn 的最高轨；qn=0 时取全部里最高轨（最高可用）。 */
+function initialQualityFor(qualities: BiliQualityOption[], qn: number): string {
+  const candidates =
+    qn > 0 ? qualities.filter((quality) => quality.quality <= qn) : qualities;
+  const sorted = [...candidates].sort((a, b) => b.quality - a.quality);
+  return sorted[0]?.id ?? "";
 }

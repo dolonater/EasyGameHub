@@ -104,7 +104,7 @@ function currentLabel(currentQualityId: string, qualities: BiliQualityOption[]) 
 }
 
 /** 规范化清晰度文本：360P / 480P / 720P / 1080P / 1080P60 / 4K / 8K（参考网页版）。 */
-function qualityText(quality: BiliQualityOption) {
+export function qualityText(quality: BiliQualityOption) {
   const label = quality.label || "";
   const pMatch = label.match(/(\d{3,4})P/);
   if (pMatch) return `${pMatch[1]}P`;

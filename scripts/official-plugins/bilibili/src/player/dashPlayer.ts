@@ -21,6 +21,10 @@ export interface DashPlayerHandle {
 interface DashPlayerOptions {
   qualities: BiliQualityOption[];
   startTime: number;
+  /** 初始清晰度模式（manual 时开局关闭 ABR 并锁定清晰度） */
+  initialMode?: QualityMode;
+  /** manual 初始模式的目标清晰度 id；缺省时选最高可用 */
+  initialQualityId?: string;
   /** 详情页自动起播（默认 true） */
   autoPlay?: boolean;
   /** 播放缓冲档位：auto/small/medium/large（默认 auto） */
@@ -60,9 +64,32 @@ export function createDashPlayer(
   let mode: QualityMode = "auto";
   let selectedQualityId = "";
   let currentQualityId = "";
+  let initialApplied = false;
 
   const emitState = (next: Partial<DashPlayerState>) => {
     options.onStateChange(next);
+  };
+
+  const applyInitialMode = () => {
+    if (initialApplied || options.initialMode !== "manual") return;
+    initialApplied = true;
+    const targetId =
+      options.initialQualityId || highestQualityId(options.qualities);
+    const qualityIndex = qualityIndexForId(player, options.qualities, targetId);
+    if (qualityIndex < 0) return;
+    mode = "manual";
+    selectedQualityId = targetId;
+    player.updateSettings({
+      streaming: {
+        abr: {
+          autoSwitchBitrate: {
+            video: false,
+          },
+        },
+      },
+    });
+    player.setQualityFor("video", qualityIndex, true);
+    emitState({ mode, selectedQualityId, error: "" });
   };
 
   const readCurrentQuality = () => {
@@ -74,6 +101,7 @@ export function createDashPlayer(
 
   const onStreamInitialized = () => {
     readCurrentQuality();
+    applyInitialMode();
   };
 
   const onQualityRendered = () => {
@@ -155,6 +183,12 @@ export function createDashPlayer(
       player.setPlaybackRate(rate);
     },
   };
+}
+
+/** 最高可用清晰度（quality 值最大者） */
+function highestQualityId(qualities: BiliQualityOption[]): string {
+  const sorted = [...qualities].sort((a, b) => b.quality - a.quality);
+  return sorted[0]?.id ?? "";
 }
 
 function qualityIndexForId(

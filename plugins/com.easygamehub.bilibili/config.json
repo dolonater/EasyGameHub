@@ -11,6 +11,7 @@
   "defaultFormat": "dash",
   "defaultPlaybackRate": 1,
   "defaultQualityMode": "auto",
+  "defaultQualityQn": 0,
   "searchHistory": [
     "罗叔"
   ],
