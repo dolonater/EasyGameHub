@@ -1,8 +1,13 @@
-import React, { Button, useEffect, useState } from "sdk";
+import React, { Button, useEffect, useRef, useState } from "sdk";
 import { BiliImage } from "./BiliImage";
+import { MenuPopover } from "./MenuPopover";
 import { usePagedFeed } from "../hooks/usePagedFeed";
 import { errorMessage, getState } from "../runtime";
 import type { BiliLiveArea, BiliLiveRecommendRoom, PluginSdk } from "../types";
+
+/** 分区/子分区平铺数量上限，超出收纳进"更多"下拉（P9 块 3）。 */
+const VISIBLE_AREAS = 8;
+const VISIBLE_SUBS = 8;
 
 interface LiveFeedProps {
   onOpenLive(roomId: number): void;
@@ -17,6 +22,10 @@ export function LiveFeed({ onOpenLive }: LiveFeedProps) {
   const [areas, setAreas] = useState<BiliLiveArea[]>([]);
   const [parentId, setParentId] = useState(0);
   const [subId, setSubId] = useState(0);
+  const [parentMoreOpen, setParentMoreOpen] = useState(false);
+  const [subMoreOpen, setSubMoreOpen] = useState(false);
+  const parentMoreRef = useRef<HTMLButtonElement | null>(null);
+  const subMoreRef = useRef<HTMLButtonElement | null>(null);
   const [rooms, setRooms] = useState<BiliLiveRecommendRoom[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -110,7 +119,7 @@ export function LiveFeed({ onOpenLive }: LiveFeedProps) {
         >
           全部
         </Button>
-        {areas.map((area) => (
+        {areas.slice(0, VISIBLE_AREAS).map((area) => (
           <Button
             key={area.id}
             className={parentId === area.id ? "bili-live-area bili-live-area-active" : "bili-live-area"}
@@ -122,6 +131,39 @@ export function LiveFeed({ onOpenLive }: LiveFeedProps) {
             {area.name}
           </Button>
         ))}
+        {areas.length > VISIBLE_AREAS ? (
+          <>
+            <button
+              ref={parentMoreRef}
+              className="bili-live-area bili-live-area-more"
+              type="button"
+              onClick={() => setParentMoreOpen((value) => !value)}
+            >
+              更多
+            </button>
+            {parentMoreOpen ? (
+              <MenuPopover
+                onClose={() => setParentMoreOpen(false)}
+                triggerRef={parentMoreRef}
+                style={{ position: "absolute", top: "calc(100% - 4px)", right: 0, zIndex: 60 }}
+              >
+                {areas.slice(VISIBLE_AREAS).map((area) => (
+                  <button
+                    className={parentId === area.id ? "bili-menu-item bili-menu-item-active" : "bili-menu-item"}
+                    key={area.id}
+                    type="button"
+                    onClick={() => {
+                      pickParent(area.id);
+                      setParentMoreOpen(false);
+                    }}
+                  >
+                    {area.name}
+                  </button>
+                ))}
+              </MenuPopover>
+            ) : null}
+          </>
+        ) : null}
       </div>
       {activeArea && activeArea.children.length > 0 ? (
         <div className="bili-live-areas bili-live-subareas">
@@ -134,7 +176,7 @@ export function LiveFeed({ onOpenLive }: LiveFeedProps) {
           >
             全部分区
           </Button>
-          {activeArea.children.map((sub) => (
+          {activeArea.children.slice(0, VISIBLE_SUBS).map((sub) => (
             <Button
               key={sub.id}
               className={subId === sub.id ? "bili-live-area bili-live-area-active" : "bili-live-area"}
@@ -146,6 +188,39 @@ export function LiveFeed({ onOpenLive }: LiveFeedProps) {
               {sub.name}
             </Button>
           ))}
+          {activeArea.children.length > VISIBLE_SUBS ? (
+            <>
+              <button
+                ref={subMoreRef}
+                className="bili-live-area bili-live-area-more"
+                type="button"
+                onClick={() => setSubMoreOpen((value) => !value)}
+              >
+                更多
+              </button>
+              {subMoreOpen ? (
+                <MenuPopover
+                  onClose={() => setSubMoreOpen(false)}
+                  triggerRef={subMoreRef}
+                  style={{ position: "absolute", top: "calc(100% - 4px)", right: 0, zIndex: 60 }}
+                >
+                  {activeArea.children.slice(VISIBLE_SUBS).map((sub) => (
+                    <button
+                      className={subId === sub.id ? "bili-menu-item bili-menu-item-active" : "bili-menu-item"}
+                      key={sub.id}
+                      type="button"
+                      onClick={() => {
+                        setSubId(sub.id);
+                        setSubMoreOpen(false);
+                      }}
+                    >
+                      {sub.name}
+                    </button>
+                  ))}
+                </MenuPopover>
+              ) : null}
+            </>
+          ) : null}
         </div>
       ) : null}
 

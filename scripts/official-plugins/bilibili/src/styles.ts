@@ -877,6 +877,8 @@ export const cssText = `
   gap: 3px;
   min-width: 200px;
   max-width: min(300px, calc(100vw - 24px));
+  max-height: min(420px, calc(100vh - 24px));
+  overflow-y: auto;
   border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
   border-radius: 8px;
   background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, #05070c 8%);
@@ -924,7 +926,8 @@ export const cssText = `
   font-size: 13px;
   cursor: pointer;
 }
-.bili-menu-item:hover {
+.bili-menu-item:hover,
+.bili-menu-item-active {
   background: color-mix(in srgb, var(--bili-accent) 18%, transparent);
 }
 .bili-menu-item-active {
@@ -3349,10 +3352,25 @@ button.bili-dynamic-stat {
   gap: 12px;
 }
 .bili-live-areas {
+  position: relative;
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
   padding: 8px 2px;
+}
+.bili-live-area-more {
+  border-radius: 14px;
+  border: 1px dashed color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  background: transparent;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  font: inherit;
+  font-size: 13px;
+  min-height: 32px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+.bili-live-area-more:hover {
+  color: hsl(var(--foreground, 0 0% 98%));
 }
 .bili-live-subareas {
   margin-top: -6px;
@@ -4434,5 +4452,9 @@ button.bili-dynamic-stat {
 }
 .bili-mine-entry-label {
   font-size: 13px;
+}
+.bili-weekly-select {
+  position: relative;
+  display: inline-block;
 }
 `;
