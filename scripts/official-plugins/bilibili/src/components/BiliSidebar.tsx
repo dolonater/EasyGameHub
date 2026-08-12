@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "sdk";
+import React, { Icon, useEffect, useState } from "sdk";
 import { navigateNav, openBangumi, openFavorites, openHistory, openLiveHome, openWatchLater } from "../navigation";
 import type { BiliNavView } from "../navigation";
 import { getState, subscribe } from "../runtime";
@@ -26,21 +26,20 @@ function loadPrefs(): SidebarPrefs {
 interface SidebarItem {
   view: BiliNavView;
   label: string;
-  /** 折叠态图标字符（阶段 2 先用文字缩写，图标后续替换） */
-  glyph: string;
+  /** 宿主图标名（src/lib/icons.ts） */
+  icon: string;
   section: "main" | "library";
 }
 
 export const SIDEBAR_ITEMS: SidebarItem[] = [
-  { view: { name: "home" }, label: "首页", glyph: "首", section: "main" },
-  { view: { name: "dynamic" }, label: "动态", glyph: "动", section: "main" },
-  { view: { name: "liveHome" }, label: "直播", glyph: "播", section: "main" },
-  { view: { name: "favorites" }, label: "收藏", glyph: "藏", section: "library" },
-  { view: { name: "history" }, label: "历史", glyph: "历", section: "library" },
-  { view: { name: "watchLater" }, label: "稍后再看", glyph: "看", section: "library" },
-  { view: { name: "bangumi" }, label: "追番", glyph: "番", section: "library" },
-  { view: { name: "mine" }, label: "我的", glyph: "我", section: "main" },
-  { view: { name: "settings" }, label: "设置", glyph: "设", section: "main" },
+  { view: { name: "home" }, label: "首页", icon: "home", section: "main" },
+  { view: { name: "dynamic" }, label: "动态", icon: "chartLine", section: "main" },
+  { view: { name: "liveHome" }, label: "直播", icon: "playFilled", section: "main" },
+  { view: { name: "favorites" }, label: "收藏", icon: "bookmarkFilled", section: "library" },
+  { view: { name: "history" }, label: "历史", icon: "playtime", section: "library" },
+  { view: { name: "watchLater" }, label: "稍后再看", icon: "playlistFilled", section: "library" },
+  { view: { name: "bangumi" }, label: "追番", icon: "starFilled", section: "library" },
+  { view: { name: "settings" }, label: "设置", icon: "settings", section: "main" },
 ];
 
 /** 导航目标映射（open 系列压栈式跳转，避免破坏返回栈） */
@@ -52,7 +51,6 @@ const OPENERS: Record<string, () => void> = {
   history: openHistory,
   watchLater: openWatchLater,
   bangumi: openBangumi,
-  mine: () => navigateNav({ name: "mine" }),
   settings: () => navigateNav({ name: "settings" }),
 };
 
@@ -92,7 +90,9 @@ export function BiliSidebar({ current }: BiliSidebarProps) {
               type="button"
               onClick={() => OPENERS[item.view.name]()}
             >
-              <span className="bili-sidebar-glyph">{item.glyph}</span>
+              <span className="bili-sidebar-glyph">
+                <Icon name={item.icon as any} size={15} />
+              </span>
               <span className="bili-sidebar-label">{item.label}</span>
               {active ? <span className="bili-sidebar-dot" /> : null}
             </button>

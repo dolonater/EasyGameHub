@@ -1,4 +1,4 @@
-import React, { Button, useEffect, useState } from "sdk";
+import React, { Button, Icon, useEffect, useState } from "sdk";
 import { BiliAppShell } from "../components/BiliAppShell";
 import { ArticlePage } from "./ArticlePage";
 import { BangumiPage } from "./BangumiPage";
@@ -9,7 +9,6 @@ import { FavoritesPage } from "./FavoritesPage";
 import { HistoryPage } from "./HistoryPage";
 import { LiveHomePage } from "./LiveHomePage";
 import { LivePage } from "./LivePage";
-import { MessagesPage } from "./MessagesPage";
 import { MinePage } from "./MinePage";
 import { NotificationsPage } from "./NotificationsPage";
 import { SeasonPage } from "./SeasonPage";
@@ -53,7 +52,7 @@ export function MainPage() {
   const loggedIn = Boolean(loginInfo?.loggedIn);
 
   const title =
-    view.name === "watch" ? "播放" : view.name === "space" ? "UP 主页" : view.name === "season" ? "番剧详情"       : view.name === "live" ? "直播间" : view.name === "liveHome" ? "直播" : view.name === "history" ? "历史记录" : view.name === "watchLater" ? "稍后再看" : view.name === "favorites" ? "收藏夹" : view.name === "bangumi" ? "追番" : view.name === "settings" ? "设置" : view.name === "search" ? "搜索" : view.name === "dynDetail" ? "动态详情" : view.name === "article" ? "专栏" : view.name === "messages" ? "私信" : view.name === "chat" ? "会话" : view.name === "notifications" ? "通知" : "Bilibili";
+    view.name === "watch" ? "播放" : view.name === "space" ? "UP 主页" : view.name === "season" ? "番剧详情"       : view.name === "live" ? "直播间" : view.name === "liveHome" ? "直播" : view.name === "history" ? "历史记录" : view.name === "watchLater" ? "稍后再看" : view.name === "favorites" ? "收藏夹" : view.name === "bangumi" ? "追番" : view.name === "settings" ? "设置" : view.name === "search" ? "搜索" : view.name === "dynDetail" ? "动态详情" : view.name === "article" ? "专栏" : view.name === "chat" ? "会话" : view.name === "notifications" ? "通知" : "Bilibili";
   const subtitle =
     view.name === "watch"
       ? view.bvid || (view.aid ? `av${view.aid}` : "播放")
@@ -68,9 +67,9 @@ export function MainPage() {
       <a className="bili-link-button" href="https://www.bilibili.com" target="_blank" rel="noreferrer">
         打开 B 站
       </a>
-    ) : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "messages" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? (
-      <Button variant="outline" size="sm" type="button" onClick={goBackNav}>
-        返回
+    ) : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? (
+      <Button aria-label="返回" variant="outline" size="sm" type="button" onClick={goBackNav}>
+        <Icon name="skipBackFilled" size={15} />
       </Button>
     ) : undefined;
 
@@ -98,7 +97,6 @@ export function MainPage() {
       {view.name === "search" ? <SearchPage keyword={view.keyword ?? ""} /> : null}
       {view.name === "dynDetail" ? <DynDetailPage key={view.dynId} dynId={view.dynId} /> : null}
       {view.name === "article" ? <ArticlePage key={`article-${view.articleId}`} articleId={view.articleId} /> : null}
-      {view.name === "messages" ? <MessagesPage /> : null}
       {view.name === "chat" ? <ChatPage key={`chat-${view.uid}`} uid={view.uid} /> : null}
       {view.name === "notifications" ? <NotificationsPage /> : null}
     </BiliAppShell>

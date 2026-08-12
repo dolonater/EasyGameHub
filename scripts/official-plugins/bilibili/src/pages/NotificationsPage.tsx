@@ -1,10 +1,13 @@
-import React, { useEffect, useRef, useState } from "sdk";
+import React, { Button, useEffect, useRef, useState } from "sdk";
 import type { BiliReplyFeedEntry } from "../types";
 import { errorMessage, getState } from "../runtime";
-import { openDynDetail, openLive, openWatch } from "../navigation";
+import { openChat, openDynDetail, openLive, openWatch } from "../navigation";
 import { BiliImage } from "../components/BiliImage";
+import { MessageSessionList } from "../components/MessageSessionList";
 
 type NotifyFilter = "all" | "reply" | "at";
+
+type NotifyTab = "notify" | "chat";
 
 const filters: Array<{ id: NotifyFilter; label: string }> = [
   { id: "all", label: "全部" },
@@ -12,8 +15,9 @@ const filters: Array<{ id: NotifyFilter; label: string }> = [
   { id: "at", label: "@我" },
 ];
 
-/** 通知流：reply_feed 分页 + 类型筛选 + 点击跳转对应视频/动态。 */
+/** 通知/私信页（P9 阶段 2 合并）：通知 reply_feed 分页 + 类型筛选，私信会话列表并入。 */
 export function NotificationsPage() {
+  const [tab, setTab] = useState<NotifyTab>("notify");
   const [entries, setEntries] = useState<BiliReplyFeedEntry[]>([]);
   const [filter, setFilter] = useState<NotifyFilter>("all");
   const [cursorId, setCursorId] = useState<number | null>(null);
@@ -98,38 +102,66 @@ export function NotificationsPage() {
 
   return (
     <section className="bili-notifications">
-      <div className="bili-notify-filters">
-        {filters.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`bili-notify-filter ${filter === item.id ? "bili-notify-filter-active" : ""}`}
-            onClick={() => setFilter(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
+      <div className="bili-tabs" role="tablist" aria-label="通知与私信">
+        <Button
+          className={tab === "notify" ? "bili-tab bili-tab-active" : "bili-tab"}
+          variant="ghost"
+          size="sm"
+          role="tab"
+          type="button"
+          onClick={() => setTab("notify")}
+        >
+          通知
+        </Button>
+        <Button
+          className={tab === "chat" ? "bili-tab bili-tab-active" : "bili-tab"}
+          variant="ghost"
+          size="sm"
+          role="tab"
+          type="button"
+          onClick={() => setTab("chat")}
+        >
+          私信
+        </Button>
       </div>
-      {visibleEntries().length === 0 && !loading ? <div className="bili-state">暂无通知</div> : null}
-      {visibleEntries().map((entry) => (
-        <button className="bili-notify-entry" key={entry.id} type="button" onClick={() => openEntry(entry)}>
-          <BiliImage className="bili-dynamic-avatar bili-dynamic-avatar-sm" src={entry.userFace} alt={entry.userName} />
-          <span className="bili-notify-entry-body">
-            <strong>
-              {entry.userName}
-              {entry.replyType.includes("at") ? <span className="bili-notify-tag">@我</span> : null}
-            </strong>
-            <span className="bili-notify-entry-desc">{entry.desc || entry.title}</span>
-            <small>{formatTime(entry.replyTime)}</small>
-          </span>
-        </button>
-      ))}
-      {error ? <div className="bili-state bili-state-error">{error}</div> : null}
-      {!isEnd ? (
-        <button type="button" className="bili-dynamic-load-more" onClick={loadMore} disabled={loading}>
-          {loading ? "正在加载" : "加载更多"}
-        </button>
-      ) : null}
+      {tab === "chat" ? (
+        <MessageSessionList onOpenChat={openChat} />
+      ) : (
+        <>
+          <div className="bili-notify-filters">
+            {filters.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`bili-notify-filter ${filter === item.id ? "bili-notify-filter-active" : ""}`}
+                onClick={() => setFilter(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          {visibleEntries().length === 0 && !loading ? <div className="bili-state">暂无通知</div> : null}
+          {visibleEntries().map((entry) => (
+            <button className="bili-notify-entry" key={entry.id} type="button" onClick={() => openEntry(entry)}>
+              <BiliImage className="bili-dynamic-avatar bili-dynamic-avatar-sm" src={entry.userFace} alt={entry.userName} />
+              <span className="bili-notify-entry-body">
+                <strong>
+                  {entry.userName}
+                  {entry.replyType.includes("at") ? <span className="bili-notify-tag">@我</span> : null}
+                </strong>
+                <span className="bili-notify-entry-desc">{entry.desc || entry.title}</span>
+                <small>{formatTime(entry.replyTime)}</small>
+              </span>
+            </button>
+          ))}
+          {error ? <div className="bili-state bili-state-error">{error}</div> : null}
+          {!isEnd ? (
+            <button type="button" className="bili-dynamic-load-more" onClick={loadMore} disabled={loading}>
+              {loading ? "正在加载" : "加载更多"}
+            </button>
+          ) : null}
+        </>
+      )}
     </section>
   );
 }

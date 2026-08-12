@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "sdk";
 import type { BiliMessageSession } from "../types";
 import { errorMessage, getState } from "../runtime";
-import { openChat } from "../navigation";
-import { BiliImage } from "../components/BiliImage";
+import { BiliImage } from "./BiliImage";
 
-/** 私信会话列表：begin_ts 时间游标分页 + 未读角标，点击进入会话。 */
-export function MessagesPage() {
+/** 私信会话列表（P9 阶段 2 并入通知页）：begin_ts 时间游标分页 + 未读角标，点击进入会话。 */
+export function MessageSessionList({ onOpenChat }: { onOpenChat(uid: number): void }) {
   const [sessions, setSessions] = useState<BiliMessageSession[]>([]);
   const [beginTs, setBeginTs] = useState<number | null>(null);
   const [hasMore, setHasMore] = useState(false);
@@ -68,7 +67,7 @@ export function MessagesPage() {
           className="bili-message-session"
           key={session.talkerId}
           type="button"
-          onClick={() => openChat(session.talkerId)}
+          onClick={() => onOpenChat(session.talkerId)}
         >
           <span className="bili-message-session-avatar">
             {session.face ? (

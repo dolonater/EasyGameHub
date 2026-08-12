@@ -4286,8 +4286,7 @@ button.bili-dynamic-stat {
 .bili-top-search-input::placeholder {
   color: hsl(var(--muted-foreground, 240 5% 64%));
 }
-.bili-notify-button,
-.bili-settings-button {
+.bili-notify-button {
   position: relative;
   display: grid;
   place-items: center;
@@ -4300,14 +4299,15 @@ button.bili-dynamic-stat {
   color: hsl(var(--muted-foreground, 240 5% 64%));
   cursor: pointer;
 }
-.bili-notify-button:hover,
-.bili-settings-button:hover {
+.bili-notify-button:hover {
   color: hsl(var(--foreground, 0 0% 98%));
 }
-.bili-notify-glyph,
-.bili-settings-glyph {
+.bili-notify-glyph {
   font-size: 13px;
   font-weight: 700;
+}
+.bili-notify-glyph svg {
+  display: block;
 }
 .bili-notify-button .bili-nav-badge {
   top: -5px;

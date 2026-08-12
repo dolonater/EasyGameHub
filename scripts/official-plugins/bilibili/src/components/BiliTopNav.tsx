@@ -1,5 +1,5 @@
-import React, { Button, TextField, useEffect, useState } from "sdk";
-import { navigateNav, openNotifications, openSearch, openSettings } from "../navigation";
+import React, { Button, Icon, TextField, useEffect, useState } from "sdk";
+import { navigateNav, openNotifications, openSearch } from "../navigation";
 import { getState, refreshLoginStatus, subscribe } from "../runtime";
 import { BiliImage } from "./BiliImage";
 
@@ -93,13 +93,10 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
           type="button"
           onClick={openNotifications}
         >
-          <span className="bili-notify-glyph">铃</span>
+          <Icon className="bili-notify-glyph" name="bell" size={15} />
           {loggedIn && unread > 0 ? (
             <span className="bili-nav-badge">{unread > 99 ? "99+" : unread}</span>
           ) : null}
-        </Button>
-        <Button aria-label="设置" className="bili-settings-button" variant="ghost" size="sm" type="button" onClick={openSettings}>
-          <span className="bili-settings-glyph">设</span>
         </Button>
         <Button className="bili-profile-button" variant="ghost" size="sm" type="button" onClick={() => navigateNav({ name: "mine" })}>
           {loggedIn && loginInfo?.avatar ? (

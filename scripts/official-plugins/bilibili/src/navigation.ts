@@ -29,7 +29,6 @@ export type BiliNavView =
   | { name: "liveHome" }
   | { name: "dynDetail"; dynId: string }
   | { name: "article"; articleId: number }
-  | { name: "messages" }
   | { name: "chat"; uid: number }
   | { name: "notifications" };
 
@@ -143,13 +142,7 @@ export function openArticle(articleId: number): void {
   switchView({ name: "article", articleId });
 }
 
-/** 打开私信会话列表 */
-export function openMessages(): void {
-  stack.push(memory);
-  switchView({ name: "messages" });
-}
-
-/** 打开与某用户的私信会话 */
+/** 打开与某用户的私信会话（私信列表并入通知页，会话页保留） */
 export function openChat(uid: number): void {
   stack.push(memory);
   switchView({ name: "chat", uid });
