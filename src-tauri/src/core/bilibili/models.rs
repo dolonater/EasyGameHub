@@ -567,6 +567,8 @@ pub struct BiliQualityOption {
 pub struct BiliPlaybackSource {
     pub playback_id: String,
     pub manifest_url: String,
+    /// data: URI 内嵌用的 MPD 全文（绝对 BaseURL，可直接初始化 dashjs）
+    pub manifest: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub direct_url: Option<String>,
     pub qualities: Vec<BiliQualityOption>,

@@ -322,6 +322,8 @@ pub fn source_for_session(session: &PlaybackSession, proxy_port: u16) -> BiliPla
             "http://127.0.0.1:{proxy_port}/bilibili/dash/{}/manifest.mpd",
             session.playback_id
         ),
+        // data: URI 内嵌 MPD（参考 bili-rust：manifest 零往返，起播更快）；manifest_url 保留兜底
+        manifest: build_mpd(session, proxy_port),
         direct_url: session.direct_track_id.as_ref().map(|track_id| {
             format!(
                 "http://127.0.0.1:{proxy_port}/bilibili/media/{}/{track_id}",
@@ -333,7 +335,7 @@ pub fn source_for_session(session: &PlaybackSession, proxy_port: u16) -> BiliPla
     }
 }
 
-pub fn build_mpd(session: &PlaybackSession) -> String {
+pub fn build_mpd(session: &PlaybackSession, proxy_port: u16) -> String {
     // dashjs 对 >1000 的时长做"毫秒猜测"（÷1000），反向利用：写毫秒值，猜测后即真实秒数。
     // 真实 1494 秒 → PT1494000S → dashjs 解析 1494000 → ÷1000 = 1494 ✓
     let duration = format!("PT{}S", session.duration_ms);
@@ -343,8 +345,8 @@ pub fn build_mpd(session: &PlaybackSession) -> String {
   <Period duration="{duration}">
 "#
     );
-    append_adaptation_set(&mut output, session, PlaybackTrackKind::Video);
-    append_adaptation_set(&mut output, session, PlaybackTrackKind::Audio);
+    append_adaptation_set(&mut output, session, PlaybackTrackKind::Video, proxy_port);
+    append_adaptation_set(&mut output, session, PlaybackTrackKind::Audio, proxy_port);
     output.push_str("  </Period>\n</MPD>\n");
     output
 }
@@ -553,7 +555,12 @@ fn is_valid_media_url(raw_url: &str) -> bool {
         .unwrap_or(false)
 }
 
-fn append_adaptation_set(output: &mut String, session: &PlaybackSession, kind: PlaybackTrackKind) {
+fn append_adaptation_set(
+    output: &mut String,
+    session: &PlaybackSession,
+    kind: PlaybackTrackKind,
+    proxy_port: u16,
+) {
     let content_type = match kind {
         PlaybackTrackKind::Video => "video",
         PlaybackTrackKind::Audio => "audio",
@@ -588,7 +595,7 @@ fn append_adaptation_set(output: &mut String, session: &PlaybackSession, kind: P
         }
         output.push_str(">\n");
         output.push_str(&format!(
-            "        <BaseURL>/bilibili/media/{}/{}</BaseURL>\n",
+            "        <BaseURL>http://127.0.0.1:{proxy_port}/bilibili/media/{}/{}</BaseURL>\n",
             xml_escape(&session.playback_id),
             xml_escape(&track.track_id)
         ));
@@ -677,9 +684,10 @@ mod tests {
     fn mpd_uses_local_track_urls_without_remote_urls() {
         let session = sample_session(100, 3600);
 
-        let mpd = build_mpd(&session);
+        let mpd = build_mpd(&session, 23456);
 
         assert!(mpd.contains("MPD"));
+        assert!(mpd.contains("http://127.0.0.1:23456/bilibili/media/"));
         assert!(mpd.contains(r#"mediaPresentationDuration="PT3600000S""#));
         assert!(mpd.contains(r#"<Period duration="PT3600000S">"#));
         assert!(mpd.contains("AdaptationSet"));
@@ -688,7 +696,8 @@ mod tests {
         assert!(mpd.contains("SegmentBase"));
         assert!(mpd.contains("Initialization"));
         assert!(mpd.contains("/bilibili/media/playback-1/video-64-0"));
-        assert!(!mpd.contains("http://"));
+        // data: URI 内嵌场景下 BaseURL 必须是绝对地址（相对路径无法相对 data: URI 解析）
+        assert!(mpd.contains("http://127.0.0.1:23456/bilibili/media/playback-1/video-64-0"));
         assert!(!mpd.contains("https://"));
     }
 
@@ -728,7 +737,7 @@ mod tests {
         let (session, _) = create_session_from_stream(&data, "BV1xx411c7mD", 42, 62131, 14201)?;
 
         assert_eq!(session.duration_ms, 93_000);
-        assert!(build_mpd(&session).contains(r#"mediaPresentationDuration="PT93000S""#));
+        assert!(build_mpd(&session, 14201).contains(r#"mediaPresentationDuration="PT93000S""#));
         Ok(())
     }
 

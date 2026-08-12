@@ -108,7 +108,10 @@ async fn playback_manifest(
         .header(CACHE_CONTROL, "no-store")
         .header(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
         .header("Cross-Origin-Resource-Policy", "cross-origin")
-        .body(Body::from(playback::build_mpd(&session)))
+        .body(Body::from(playback::build_mpd(
+            &session,
+            get_proxy_port().unwrap_or_default(),
+        )))
         .map_err(internal)
 }
 

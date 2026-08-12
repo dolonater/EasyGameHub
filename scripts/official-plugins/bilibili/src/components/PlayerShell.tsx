@@ -204,7 +204,11 @@ export function PlayerShell({
       };
     }
 
-    const player = createDashPlayer(video, playback.manifestUrl, {
+    // data: URI 内嵌 MPD（manifest 零往返，参考 bili-rust）；manifest_url 兜底
+    const manifestUri = playback.manifest
+      ? `data:application/dash+xml;charset=utf-8,${encodeURIComponent(playback.manifest)}`
+      : playback.manifestUrl;
+    const player = createDashPlayer(video, manifestUri, {
       qualities: playback.qualities,
       startTime,
       autoPlay,

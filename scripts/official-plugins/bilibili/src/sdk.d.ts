@@ -466,6 +466,7 @@ export interface BiliDynamicCreated {
   export interface BiliPlaybackSource {
     playbackId: string;
     manifestUrl: string;
+  manifest: string;
     directUrl?: string;
     qualities: BiliQualityOption[];
     expiresAt: number;

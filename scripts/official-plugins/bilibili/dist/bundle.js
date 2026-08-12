@@ -32552,7 +32552,8 @@ function PlayerShell({
         video.load();
       };
     }
-    const player = createDashPlayer(video, playback.manifestUrl, {
+    const manifestUri = playback.manifest ? `data:application/dash+xml;charset=utf-8,${encodeURIComponent(playback.manifest)}` : playback.manifestUrl;
+    const player = createDashPlayer(video, manifestUri, {
       qualities: playback.qualities,
       startTime,
       autoPlay,
