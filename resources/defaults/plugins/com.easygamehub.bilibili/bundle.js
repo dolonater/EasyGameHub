@@ -26386,8 +26386,8 @@ function DynDetailPage({ dynId }) {
       detail: emptyDetail,
       loggedIn: Boolean(getState().loginInfo?.loggedIn),
       sdk: getState().sdk,
-      oid: dynId,
-      type: 17
+      oid: card.commentId || dynId,
+      type: card.commentType || 17
     }
   ), previewIndex !== null && images[previewIndex] ? /* @__PURE__ */ React44.createElement("div", { className: "bili-image-preview-backdrop", onClick: () => setPreviewIndex(null) }, /* @__PURE__ */ React44.createElement("div", { className: "bili-image-preview-wrap" }, /* @__PURE__ */ React44.createElement(BiliImage, { className: "bili-image-preview", src: images[previewIndex], alt: "\u9884\u89C8\u5927\u56FE" }), /* @__PURE__ */ React44.createElement("div", { className: "bili-image-preview-nav" }, /* @__PURE__ */ React44.createElement(
     "button",

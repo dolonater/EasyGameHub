@@ -151,8 +151,8 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
         detail={emptyDetail}
         loggedIn={Boolean(getState().loginInfo?.loggedIn)}
         sdk={getState().sdk}
-        oid={dynId}
-        type={17}
+        oid={card.commentId || dynId}
+        type={card.commentType || 17}
       />
 
       {previewIndex !== null && images[previewIndex] ? (

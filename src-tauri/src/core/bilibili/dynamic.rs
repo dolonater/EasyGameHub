@@ -143,14 +143,17 @@ pub async fn dynamic_forwards(
 // -------------------
 
 fn parse_dynamic_item(item: &bpi_rs::dynamic::all::DynamicItem) -> BiliDynamicCard {
-    parse_card(
+    let mut card = parse_card(
         item.type_field.as_str(),
         &item.basic.comment_id_str,
         item.basic.comment_type,
         &item.basic.rid_str,
         &item.modules,
         item.visible,
-    )
+    );
+    // dyn_id 一律用 id_str（basic.comment_id_str 是评论 id 不是动态 id）
+    card.dyn_id = item.id_str.clone();
+    card
 }
 
 fn parse_detail_item(item: &bpi_rs::dynamic::detail::DynamicDetailItem) -> BiliDynamicCard {
@@ -162,6 +165,7 @@ fn parse_detail_item(item: &bpi_rs::dynamic::detail::DynamicDetailItem) -> BiliD
         &item.modules,
         item.visible,
     );
+    card.dyn_id = item.id_str.clone();
     // 详情接口带转发原文（orig），feed 里转发动态带 major.forward
     if card.forward.is_none() && item.orig.is_some() {
         if let Some(orig) = &item.orig {
@@ -204,8 +208,17 @@ fn parse_card(
         liked: json_bool(stat, &["like", "like_state"]),
         forward_count: json_i64(stat, &["forward", "count"]),
         comment_count: json_i64(stat, &["comment", "count"]),
-        comment_id: json_str(stat, &["comment", "comment_id"]),
-        comment_type: json_i64(stat, &["comment", "comment_type"]),
+        // 评论 id/type 优先取 basic（图片动态 opus 体系必需），回退 module_stat
+        comment_id: if comment_id.is_empty() {
+            json_str(stat, &["comment", "comment_id"])
+        } else {
+            comment_id.to_string()
+        },
+        comment_type: if comment_type != 0 {
+            comment_type
+        } else {
+            json_i64(stat, &["comment", "comment_type"])
+        },
         visible,
         is_top: !json_str(tag, &["text"]).is_empty()
             || json_bool(Some(modules), &["module_tag", "is_top"]),
@@ -219,8 +232,15 @@ fn parse_card(
         "DYNAMIC_TYPE_DRAW" | "DYNAMIC_TYPE_OPUS_DRAW" | "DYNAMIC_TYPE_OPUS" => {
             card.card_type = "image".to_string();
             card.images = parse_draw_images(json_at(dynamic, &["major", "draw", "items"]));
+            // 图片动态为 MAJOR_TYPE_OPUS：major.opus.pics + major.opus.summary.text（真实响应确认）
+            if card.images.is_empty() {
+                card.images = parse_draw_images(json_at(dynamic, &["major", "opus", "pics"]));
+            }
             if card.images.is_empty() {
                 card.images = parse_draw_images(json_at(dynamic, &["opus", "pics"]));
+            }
+            if card.content.is_empty() {
+                card.content = json_str(dynamic, &["major", "opus", "summary", "text"]);
             }
             if card.content.is_empty() {
                 card.content = json_str(dynamic, &["opus", "summary", "text"]);
@@ -301,7 +321,11 @@ fn parse_draw_images(value: &serde_json::Value) -> Vec<String> {
         Some(items) => items
             .iter()
             .filter_map(|item| {
-                let src = item.get("src").and_then(serde_json::Value::as_str);
+                // draw.items 用 src，opus.pics 用 url
+                let src = item
+                    .get("src")
+                    .and_then(serde_json::Value::as_str)
+                    .or_else(|| item.get("url").and_then(serde_json::Value::as_str));
                 src.map(str::to_string)
             })
             .collect(),
@@ -397,7 +421,8 @@ mod tests {
         assert_eq!(video.play, 100);
         assert_eq!(card.like_count, 5);
         assert!(card.liked);
-        assert_eq!(card.comment_id, "c1");
+        // 评论 id/type 优先取 basic（图片动态 opus 体系必需），回退 module_stat
+        assert_eq!(card.comment_id, "d1");
         assert_eq!(card.comment_type, 11);
     }
 
@@ -484,6 +509,49 @@ mod tests {
         assert_eq!(inner.card_type, "video");
         assert_eq!(inner.name, "原UP");
         assert_eq!(inner.video.unwrap().bvid, "BV2");
+    }
+
+    #[test]
+    fn parse_real_opus_draw() {
+        // 真实响应结构（用户 log.txt）：图片动态 = DYNAMIC_TYPE_DRAW + module_dynamic.major.opus
+        let item = serde_json::from_value::<bpi_rs::dynamic::detail::DynamicDetailItem>(json!({
+            "id_str": "1235346999402823705",
+            "basic": {"comment_id_str": "405151925", "comment_type": 11, "rid_str": "405151925", "like_icon": {}},
+            "type": "DYNAMIC_TYPE_DRAW",
+            "visible": true,
+            "modules": {
+                "module_author": {"mid": 2860983, "name": "咖喱FPS", "face": "https://f.jpg", "pub_time": "2026年08月12日 00:17"},
+                "module_dynamic": {
+                    "desc": null,
+                    "major": {
+                        "type": "MAJOR_TYPE_OPUS",
+                        "opus": {
+                            "pics": [
+                                {"url": "http://i0.hdslb.com/bfs/new_dyn/1.webp", "width": 3641, "height": 2048},
+                                {"url": "http://i0.hdslb.com/bfs/new_dyn/2.webp", "width": 3641, "height": 2048}
+                            ],
+                            "summary": {"text": "星际公民超重甲捆绑包，明天上号试试看[吃瓜]"},
+                            "title": null
+                        }
+                    }
+                },
+                "module_stat": {
+                    "comment": {"count": 10},
+                    "forward": {"count": 1},
+                    "like": {"count": 230, "status": false}
+                }
+            }
+        })).expect("detail item should deserialize");
+
+        let card = parse_detail_item(&item);
+        assert_eq!(card.dyn_id, "1235346999402823705");
+        assert_eq!(card.card_type, "image");
+        assert_eq!(card.images.len(), 2);
+        assert!(card.images[0].contains("1.webp"));
+        assert_eq!(card.content, "星际公民超重甲捆绑包，明天上号试试看[吃瓜]");
+        // 图片动态（opus）评论体系：oid=basic.comment_id_str、type=basic.comment_type
+        assert_eq!(card.comment_id, "405151925");
+        assert_eq!(card.comment_type, 11);
     }
 
     #[test]
