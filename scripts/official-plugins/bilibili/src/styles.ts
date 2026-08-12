@@ -3716,4 +3716,414 @@ button.bili-dynamic-stat {
     min-height: 360px;
   }
 }
+
+.bili-article-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+
+/* ---------- P8 专栏动态卡片体 ---------- */
+.bili-dynamic-article {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 45%, transparent);
+}
+.bili-dynamic-article-cover {
+  flex: none;
+  width: 96px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 40%, transparent);
+}
+.bili-dynamic-article-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  aspect-ratio: 16 / 10;
+}
+.bili-dynamic-article-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  align-content: center;
+}
+.bili-dynamic-article-badge {
+  justify-self: start;
+  font-size: 10px;
+  color: hsl(var(--primary, 240 100% 60%));
+  border: 1px solid hsl(var(--primary, 240 100% 60%));
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.bili-dynamic-article-info strong {
+  font-size: 13px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bili-dynamic-article-info small {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-dynamic-article-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+.bili-dyn-article-read {
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px 0;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--primary, 240 100% 60%));
+  background: none;
+  color: hsl(var(--primary, 240 100% 60%));
+  font-size: 13px;
+  cursor: pointer;
+}
+.bili-dyn-article-read:hover {
+  background: color-mix(in srgb, hsl(var(--primary, 240 100% 60%)) 12%, transparent);
+}
+
+/* ---------- P8 专栏阅读页 ---------- */
+.bili-article {
+  display: grid;
+  gap: 14px;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 14px 18px;
+}
+.bili-article-head {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 40%, transparent);
+}
+.bili-article-title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 0;
+}
+.bili-article-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-article-author-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  color: hsl(var(--primary, 240 100% 60%));
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+}
+.bili-article-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.bili-article-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bili-article-stat {
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 50%, transparent);
+  color: inherit;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.bili-article-stat:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.bili-article-stat-active {
+  color: hsl(var(--primary, 240 100% 60%));
+  border-color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-article-coin-message {
+  font-size: 12px;
+  color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-article-body {
+  font-size: 15px;
+  line-height: 1.9;
+  color: hsl(var(--foreground, 0 0% 98%));
+  overflow-wrap: anywhere;
+}
+.bili-article-para {
+  margin: 0 0 14px;
+}
+.bili-article-image {
+  margin: 12px 0;
+}
+.bili-article-image img {
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+.bili-article-html img {
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+  margin: 10px auto;
+}
+.bili-article-html p {
+  margin: 0 0 14px;
+}
+.bili-article-html a {
+  color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-article-html blockquote {
+  border-left: 3px solid hsl(var(--primary, 240 100% 60%));
+  margin: 10px 0;
+  padding: 4px 12px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 40%, transparent);
+  border-radius: 0 6px 6px 0;
+}
+.bili-article-html pre,
+.bili-article-html code {
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  border-radius: 6px;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+}
+.bili-article-html pre {
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+.bili-article-html table {
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+.bili-article-html th,
+.bili-article-html td {
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 45%, transparent);
+  padding: 6px 10px;
+}
+.bili-article-plain {
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+.bili-article-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bili-article-tag {
+  font-size: 12px;
+  color: hsl(var(--primary, 240 100% 60%));
+  border: 1px solid hsl(var(--primary, 240 100% 60%));
+  border-radius: 10px;
+  padding: 2px 10px;
+}
+
+/* ---------- P8 专栏卡片（UP 主页） ---------- */
+.bili-article-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 220ms var(--bili-spring), box-shadow 220ms var(--bili-ease);
+}
+.bili-article-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+}
+.bili-article-card-cover {
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 40%, transparent);
+}
+.bili-article-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bili-article-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bili-article-card-summary {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.6;
+}
+.bili-article-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+
+.bili-video-notes-btn {
+  margin-left: 8px;
+  border: 1px solid hsl(var(--primary, 240 100% 60%));
+  background: none;
+  color: hsl(var(--primary, 240 100% 60%));
+  border-radius: 8px;
+  padding: 1px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  vertical-align: 1px;
+}
+.bili-video-notes-btn:hover {
+  background: color-mix(in srgb, hsl(var(--primary, 240 100% 60%)) 12%, transparent);
+}
+
+/* ---------- P8 笔记弹层 ---------- */
+.bili-note-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+.bili-note-panel {
+  width: min(560px, 92vw);
+  max-height: 82vh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border-radius: 12px;
+  background: hsl(var(--card, 0 0% 100%));
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: bili-popover-in 180ms var(--bili-ease);
+}
+.bili-note-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 40%, transparent);
+}
+.bili-note-head strong {
+  font-size: 14px;
+}
+.bili-note-close {
+  border: none;
+  background: none;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.bili-note-list {
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.bili-note-item {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 50%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 45%, transparent);
+  cursor: pointer;
+  color: inherit;
+}
+.bili-note-item:hover {
+  border-color: hsl(var(--primary, 240 100% 60%));
+}
+.bili-note-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.bili-note-item-summary {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bili-note-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground, 0 0% 50%));
+}
+.bili-note-private-badge {
+  color: #e0a800;
+  border: 1px solid rgba(224, 168, 0, 0.5);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+.bili-note-body {
+  overflow-y: auto;
+  padding: 14px 18px;
+  display: grid;
+  gap: 12px;
+}
+.bili-note-body h2 {
+  font-size: 17px;
+  margin: 0;
+  line-height: 1.5;
+}
+.bili-note-body .bili-article-para {
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 10px;
+}
+.bili-note-body .bili-article-image img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+.bili-note-back {
+  border: none;
+  background: none;
+  color: hsl(var(--primary, 240 100% 60%));
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+}
 `;

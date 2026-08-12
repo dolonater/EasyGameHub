@@ -20,6 +20,9 @@ pub struct DynamicItem {
     #[serde(rename = "type")]
     pub type_field: String,
     pub visible: bool,
+    /// 转发动态的完整原文（feed 接口返回，递归解析）
+    #[serde(default)]
+    pub orig: Option<Box<DynamicItem>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

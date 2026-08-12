@@ -95,6 +95,12 @@ export function openSettings(): void {
   switchView({ name: "settings" });
 }
 
+/** 打开专栏阅读页：压入当前视图，可逐级返回 */
+export function openArticle(articleId: number): void {
+  stack.push(memory);
+  switchView({ name: "article", articleId });
+}
+
 /** 打开私信会话列表 */
 export function openMessages(): void {
   stack.push(memory);

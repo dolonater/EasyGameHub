@@ -5,6 +5,7 @@ use bpi_rs::video::VideoWatchProgressParams;
 use tauri::State;
 
 use crate::core::bilibili::account;
+use crate::core::bilibili::article;
 use crate::core::bilibili::cache;
 use crate::core::bilibili::client;
 use crate::core::bilibili::comment;
@@ -18,16 +19,19 @@ use crate::core::bilibili::live;
 use crate::core::bilibili::live_bridge;
 use crate::core::bilibili::message;
 use crate::core::bilibili::models::{
-    BiliBangumiFollow, BiliComment, BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult,
-    BiliDynamicCard, BiliDynamicCreated, BiliDynamicForwardEntry, BiliDynamicForwardsPage,
-    BiliDynamicPage, BiliFavoriteFolder, BiliFavoriteItem, BiliHistoryItem, BiliHotWord,
-    BiliLiveArea, BiliLiveRecommendPage, BiliLiveRoom, BiliLiveSendDanmakuResult, BiliLiveStream,
-    BiliLocalProgress, BiliLoginInfo, BiliMessageHistoryPage, BiliMessageSessionsPage,
-    BiliMessageUnread, BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource,
-    BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail,
-    BiliToViewItem, BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState,
-    BiliWeeklySeries,
+    BiliArticleAuthor, BiliArticleCard, BiliArticleListPage, BiliArticleSearchItem,
+    BiliArticleSearchPage, BiliArticleStats, BiliArticleView, BiliBangumiFollow, BiliComment,
+    BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult, BiliDynamicCard, BiliDynamicCreated,
+    BiliDynamicForwardEntry, BiliDynamicForwardsPage, BiliDynamicPage, BiliFavoriteFolder,
+    BiliFavoriteItem, BiliHistoryItem, BiliHotWord, BiliLiveArea, BiliLiveRecommendPage,
+    BiliLiveRoom, BiliLiveSendDanmakuResult, BiliLiveStream, BiliLocalProgress, BiliLoginInfo,
+    BiliMessageHistoryPage, BiliMessageSessionsPage, BiliMessageUnread, BiliNoteDetail,
+    BiliNoteItem, BiliNoteListPage, BiliOperationResult, BiliPgcCard, BiliPgcSection,
+    BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage,
+    BiliSeasonDetail, BiliToViewItem, BiliUserSpace, BiliVideoCard, BiliVideoDetail,
+    BiliVideoInteractionState, BiliWeeklySeries,
 };
+use crate::core::bilibili::note;
 use crate::core::bilibili::playback;
 use crate::core::bilibili::proxy;
 use crate::core::bilibili::ranking;
@@ -1441,4 +1445,89 @@ pub async fn bilibili_live_heartbeat(
     let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
     live::heartbeat(&client, room_id).await.map_err(bpi_error)?;
     Ok(BiliOperationResult::ok("live heartbeat"))
+}
+
+// ---------- P8 专栏 / 笔记 ----------
+
+#[tauri::command]
+pub async fn bilibili_article_view(
+    state: State<'_, AppState>,
+    article_id: i64,
+) -> Result<BiliArticleView, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    article::article_view(&client, article_id)
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_article_like(
+    state: State<'_, AppState>,
+    article_id: i64,
+    like: bool,
+) -> Result<BiliOperationResult, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    article::article_like(&client, article_id, like)
+        .await
+        .map_err(bpi_error)?;
+    Ok(BiliOperationResult::ok("article like"))
+}
+
+#[tauri::command]
+pub async fn bilibili_article_coin(
+    state: State<'_, AppState>,
+    article_id: i64,
+    upid: i64,
+) -> Result<BiliOperationResult, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    article::article_coin(&client, article_id, upid)
+        .await
+        .map_err(bpi_error)?;
+    Ok(BiliOperationResult::ok("article coin"))
+}
+
+#[tauri::command]
+pub async fn bilibili_article_list(
+    state: State<'_, AppState>,
+    mid: i64,
+    page: Option<u32>,
+) -> Result<BiliArticleListPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    article::article_list(&client, mid, page.unwrap_or(1))
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_search_articles(
+    state: State<'_, AppState>,
+    keyword: String,
+    page: Option<u32>,
+) -> Result<BiliArticleSearchPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    article::search_articles(&client, &keyword, page.unwrap_or(1))
+        .await
+        .map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_note_list(
+    state: State<'_, AppState>,
+    aid: u64,
+) -> Result<BiliNoteListPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    note::note_list(&client, aid).await.map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_note_detail(
+    state: State<'_, AppState>,
+    cvid: u64,
+    note_id: u64,
+    aid: u64,
+) -> Result<BiliNoteDetail, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    note::note_detail(&client, cvid, note_id, aid)
+        .await
+        .map_err(bpi_error)
 }

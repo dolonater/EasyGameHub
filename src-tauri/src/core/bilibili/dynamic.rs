@@ -150,9 +150,14 @@ fn parse_dynamic_item(item: &bpi_rs::dynamic::all::DynamicItem) -> BiliDynamicCa
         &item.basic.rid_str,
         &item.modules,
         item.visible,
+        item.basic.comment_id_str.parse().unwrap_or(0),
     );
     // dyn_id 一律用 id_str（basic.comment_id_str 是评论 id 不是动态 id）
     card.dyn_id = item.id_str.clone();
+    // feed 接口转发动态带 orig（完整原文）优先于 major.forward 简化结构
+    if let Some(orig) = &item.orig {
+        card.forward = Some(Box::new(parse_dynamic_item(orig)));
+    }
     card
 }
 
@@ -164,13 +169,12 @@ fn parse_detail_item(item: &bpi_rs::dynamic::detail::DynamicDetailItem) -> BiliD
         &item.basic.rid_str,
         &item.modules,
         item.visible,
+        item.basic.comment_id_str.parse().unwrap_or(0),
     );
     card.dyn_id = item.id_str.clone();
-    // 详情接口带转发原文（orig），feed 里转发动态带 major.forward
-    if card.forward.is_none() && item.orig.is_some() {
-        if let Some(orig) = &item.orig {
-            card.forward = Some(Box::new(parse_detail_item(orig)));
-        }
+    // 详情接口带转发原文（orig）优先于 major.forward 简化结构
+    if let Some(orig) = &item.orig {
+        card.forward = Some(Box::new(parse_detail_item(orig)));
     }
     card
 }
@@ -182,6 +186,7 @@ fn parse_card(
     rid_str: &str,
     modules: &serde_json::Value,
     visible: bool,
+    basic_comment_id: i64,
 ) -> BiliDynamicCard {
     let author = modules.get("module_author");
     let dynamic = modules.get("module_dynamic");
@@ -222,6 +227,8 @@ fn parse_card(
         visible,
         is_top: !json_str(tag, &["text"]).is_empty()
             || json_bool(Some(modules), &["module_tag", "is_top"]),
+        article_id: 0,
+        title: String::new(),
     };
 
     match type_field {
@@ -230,20 +237,69 @@ fn parse_card(
             card.video = Some(parse_archive(json_at(dynamic, &["major", "archive"])));
         }
         "DYNAMIC_TYPE_DRAW" | "DYNAMIC_TYPE_OPUS_DRAW" | "DYNAMIC_TYPE_OPUS" => {
-            card.card_type = "image".to_string();
             card.images = parse_draw_images(json_at(dynamic, &["major", "draw", "items"]));
-            // 图片动态为 MAJOR_TYPE_OPUS：major.opus.pics + major.opus.summary.text（真实响应确认）
             if card.images.is_empty() {
                 card.images = parse_draw_images(json_at(dynamic, &["major", "opus", "pics"]));
             }
             if card.images.is_empty() {
                 card.images = parse_draw_images(json_at(dynamic, &["opus", "pics"]));
             }
+            if !card.images.is_empty() {
+                // 图文动态：image 卡片
+                card.card_type = "image".to_string();
+            } else if type_field == "DYNAMIC_TYPE_OPUS" {
+                // 无图 opus = 专栏/文字动态（转发专栏的 orig 即此形态）→ article 卡片，
+                // articleId 由 comment_id_str 兜底（转发原文的 rid 即 cvid）
+                card.card_type = "article".to_string();
+                card.article_id = basic_comment_id;
+                card.title = json_str(dynamic, &["major", "opus", "title"]);
+                let opus_summary = json_str(dynamic, &["major", "opus", "summary", "text"]);
+                if !opus_summary.is_empty() {
+                    card.content = opus_summary;
+                } else {
+                    card.content = json_str(dynamic, &["opus", "summary", "text"]);
+                }
+                if card.content.is_empty() {
+                    card.content = json_str(dynamic, &["desc", "text"]);
+                }
+            } else {
+                card.card_type = "image".to_string();
+            }
             if card.content.is_empty() {
                 card.content = json_str(dynamic, &["major", "opus", "summary", "text"]);
             }
             if card.content.is_empty() {
                 card.content = json_str(dynamic, &["opus", "summary", "text"]);
+            }
+        }
+        // 专栏动态（MAJOR_TYPE_ARTICLE / 关注流 opus 结构）：articleId 即 cvid、title、desc、covers
+        "DYNAMIC_TYPE_ARTICLE" => {
+            card.card_type = "article".to_string();
+            let article = json_at(dynamic, &["major", "article"]);
+            if article.is_null() {
+                // 关注流接口为 opus 结构（major.opus）：title/summary/pics，无 cvid（由 comment_id_str 兜底）
+                card.article_id = basic_comment_id;
+                card.title = json_str(dynamic, &["major", "opus", "title"]);
+                card.images = parse_draw_images(json_at(dynamic, &["major", "opus", "pics"]));
+                let opus_summary = json_str(dynamic, &["major", "opus", "summary", "text"]);
+                if !opus_summary.is_empty() {
+                    card.content = opus_summary;
+                } else {
+                    card.content = json_str(dynamic, &["opus", "summary", "text"]);
+                }
+                if card.content.is_empty() {
+                    card.content = json_str(dynamic, &["desc", "text"]);
+                }
+            } else {
+                card.article_id = json_i64(dynamic, &["major", "article", "id"]);
+                card.title = json_str(dynamic, &["major", "article", "title"]);
+                card.images = json_str_array(json_at(dynamic, &["major", "article", "covers"]));
+                if card.content.is_empty() {
+                    card.content = json_str(dynamic, &["major", "article", "desc"]);
+                }
+                if card.content.is_empty() {
+                    card.content = json_str(dynamic, &["desc", "text"]);
+                }
             }
         }
         "DYNAMIC_TYPE_LIVE_RCMD" | "DYNAMIC_TYPE_LIVE" => {
@@ -273,6 +329,8 @@ fn parse_card(
                 comment_type: 0,
                 visible: true,
                 is_top: false,
+                article_id: 0,
+                title: String::new(),
             };
             let archives = json_at(Some(forward), &["archives"]);
             if !archives.as_array().map(Vec::is_empty).unwrap_or(true) {
@@ -328,6 +386,18 @@ fn parse_draw_images(value: &serde_json::Value) -> Vec<String> {
                     .or_else(|| item.get("url").and_then(serde_json::Value::as_str));
                 src.map(str::to_string)
             })
+            .collect(),
+        None => Vec::new(),
+    }
+}
+
+/// 字符串数组（major.article.covers 等）。
+fn json_str_array(value: &serde_json::Value) -> Vec<String> {
+    match value.as_array() {
+        Some(items) => items
+            .iter()
+            .filter_map(serde_json::Value::as_str)
+            .map(str::to_string)
             .collect(),
         None => Vec::new(),
     }
@@ -411,7 +481,7 @@ mod tests {
                 "like": {"count": 5, "like_state": true}
             }
         });
-        let card = parse_card("DYNAMIC_TYPE_AV", "d1", 11, "0", &modules, true);
+        let card = parse_card("DYNAMIC_TYPE_AV", "d1", 11, "0", &modules, true, 0);
         assert_eq!(card.card_type, "video");
         assert_eq!(card.uid, 2084572);
         assert_eq!(card.name, "示例UP");
@@ -440,6 +510,7 @@ mod tests {
                 }
             }),
             true,
+            0,
         );
         assert_eq!(draw.card_type, "image");
         assert_eq!(draw.images, vec!["a.jpg", "b.jpg"]);
@@ -456,6 +527,7 @@ mod tests {
                 }
             }),
             true,
+            0,
         );
         assert_eq!(word.card_type, "text");
         assert_eq!(word.content, "今天天气不错");
@@ -478,6 +550,7 @@ mod tests {
                 }
             }),
             true,
+            0,
         );
         assert_eq!(live.card_type, "live");
         assert_eq!(live.live.unwrap().room_id, 123);
@@ -502,6 +575,7 @@ mod tests {
                 }
             }),
             true,
+            0,
         );
         assert_eq!(forward.card_type, "forward");
         assert_eq!(forward.content, "转发一下");
@@ -509,6 +583,93 @@ mod tests {
         assert_eq!(inner.card_type, "video");
         assert_eq!(inner.name, "原UP");
         assert_eq!(inner.video.unwrap().bvid, "BV2");
+    }
+
+    #[test]
+    fn parse_article_dynamic_with_opus_major() {
+        // 关注流（feed/all）专栏动态：DYNAMIC_TYPE_ARTICLE + major.opus（无 major.article）
+        let modules = json!({
+            "module_author": author(),
+            "module_dynamic": {
+                "type": "DYNAMIC_TYPE_ARTICLE",
+                "desc": {"text": "分享专栏"},
+                "major": {
+                    "type": "MAJOR_TYPE_OPUS",
+                    "opus": {
+                        "id": 533433825771917183_i64,
+                        "title": "我在B站写高考作文 - 2021",
+                        "summary": {"text": "2021高考季，哔哩哔哩专栏邀你一起"},
+                        "pics": []
+                    }
+                }
+            }
+        });
+        let card = parse_card(
+            "DYNAMIC_TYPE_ARTICLE",
+            "11609866",
+            12,
+            "11609866",
+            &modules,
+            true,
+            11609866,
+        );
+        assert_eq!(card.card_type, "article");
+        assert_eq!(card.article_id, 11609866);
+        assert_eq!(card.title, "我在B站写高考作文 - 2021");
+        assert_eq!(card.content, "2021高考季，哔哩哔哩专栏邀你一起");
+    }
+
+    #[test]
+    fn parse_feed_forward_with_orig_article() {
+        // feed/all 转发动态：orig 完整原文（专栏 opus）优先于 major.forward
+        let item = serde_json::from_value::<bpi_rs::dynamic::all::DynamicItem>(json!({
+            "basic": {"comment_id_str": "fwd1", "comment_type": 12, "rid_str": "fwd1", "like_icon": {}},
+            "id_str": "fwd1",
+            "type": "DYNAMIC_TYPE_FORWARD",
+            "visible": true,
+            "modules": {
+                "module_author": {"mid": 1, "name": "转发者", "face": "f.jpg", "pub_time": "2024-03-10 12:00:00"},
+                "module_dynamic": {
+                    "type": "DYNAMIC_TYPE_FORWARD",
+                    "desc": {"text": "直接在初版的专栏上修改的"},
+                    "major": {
+                        "type": "MAJOR_TYPE_FORWARD",
+                        "forward": {"id": "o1", "desc": {"text": "原动态文案"}, "user": {"uid": 2, "name": "原UP", "face": "f2.jpg"}}
+                    }
+                },
+                "module_stat": {"like": {"count": 1, "like_state": false}, "forward": {"count": 0}, "comment": {"count": 0}}
+            },
+            "orig": {
+                "basic": {"comment_id_str": "11609866", "comment_type": 12, "rid_str": "11609866", "like_icon": {}},
+                "id_str": "o1",
+                "type": "DYNAMIC_TYPE_OPUS",
+                "visible": true,
+                "modules": {
+                    "module_author": {"mid": 2, "name": "原UP", "face": "f2.jpg", "pub_time": "2024-03-10 11:00:00"},
+                    "module_dynamic": {
+                        "type": "DYNAMIC_TYPE_OPUS",
+                        "desc": {"text": "分享专栏"},
+                        "major": {
+                            "type": "MAJOR_TYPE_OPUS",
+                            "opus": {
+                                "id": 533433825771917183_i64,
+                                "title": "我在B站写高考作文 - 2021",
+                                "summary": {"text": "2021高考季，哔哩哔哩专栏邀你一起"},
+                                "pics": []
+                            }
+                        }
+                    },
+                    "module_stat": {"like": {"count": 1672, "like_state": false}, "forward": {"count": 124}, "comment": {"count": 675, "comment_id": "11609866", "comment_type": 12}}
+                }
+            }
+        })).expect("parse item");
+        let card = parse_dynamic_item(&item);
+        assert_eq!(card.card_type, "forward");
+        let inner = card.forward.expect("inner");
+        assert_eq!(inner.card_type, "article");
+        assert_eq!(inner.article_id, 11609866);
+        assert_eq!(inner.title, "我在B站写高考作文 - 2021");
+        assert_eq!(inner.content, "2021高考季，哔哩哔哩专栏邀你一起");
     }
 
     #[test]
@@ -563,6 +724,7 @@ mod tests {
             "0",
             &serde_json::Value::Null,
             true,
+            0,
         );
         assert_eq!(card.card_type, "video");
         assert_eq!(card.uid, 0);

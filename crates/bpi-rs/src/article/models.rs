@@ -32,9 +32,11 @@ pub struct ArticleAuthor {
     pub name: String,
     /// 用户头像
     pub face: String,
-    /// 用户等级
+    /// 用户等级（space_article 响应可能缺失）
+    #[serde(default)]
     pub level: i32,
-    /// 粉丝数
+    /// 粉丝数（space_article 响应可能缺失）
+    #[serde(default)]
     pub fans: i64,
     /// 认证信息
     pub official_verify: AuthorOfficialVerify,

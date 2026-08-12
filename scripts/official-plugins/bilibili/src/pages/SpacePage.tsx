@@ -1,6 +1,7 @@
 import React, { Button, useEffect, useRef, useState } from "sdk";
-import type { BiliDynamicCard, BiliUserSpace, BiliVideoCard } from "../types";
+import type { BiliArticleCard, BiliDynamicCard, BiliUserSpace, BiliVideoCard } from "../types";
 import { errorMessage, getState } from "../runtime";
+import { ArticleCard } from "../components/ArticleCard";
 import { BiliImage } from "../components/BiliImage";
 import { DynamicCard } from "../components/DynamicCard";
 import { VideoCard } from "../components/VideoCard";
@@ -9,7 +10,7 @@ interface SpacePageProps {
   mid: number;
 }
 
-type SpaceTab = "videos" | "dynamics";
+type SpaceTab = "videos" | "dynamics" | "articles";
 
 export function SpacePage({ mid }: SpacePageProps) {
   const [space, setSpace] = useState<BiliUserSpace | null>(null);
@@ -26,6 +27,12 @@ export function SpacePage({ mid }: SpacePageProps) {
   const [dynLoading, setDynLoading] = useState(false);
   const [topBusy, setTopBusy] = useState("");
   const dynSeqRef = useRef(0);
+  // P8 专栏 tab
+  const [articles, setArticles] = useState<BiliArticleCard[]>([]);
+  const [articlePage, setArticlePage] = useState(1);
+  const [articlesLoading, setArticlesLoading] = useState(false);
+  const [articleTotal, setArticleTotal] = useState(0);
+  const articleSeqRef = useRef(0);
 
   const currentUid = Number(getState().loginInfo?.userId ?? 0);
   const isSelf = currentUid > 0 && currentUid === mid;
@@ -102,6 +109,60 @@ export function SpacePage({ mid }: SpacePageProps) {
       dynSeqRef.current += 1;
     };
   }, [tab, mid]);
+
+  // P8 专栏 tab：分页加载
+  useEffect(() => {
+    if (tab !== "articles") return;
+    const seq = articleSeqRef.current + 1;
+    articleSeqRef.current = seq;
+    setArticlesLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.article
+      .list({ mid, page: 1 })
+      .then((data) => {
+        if (articleSeqRef.current !== seq) return;
+        setArticles(data.articles);
+        setArticleTotal(data.total);
+        setArticlePage(1);
+      })
+      .catch((reason: Error) => {
+        if (articleSeqRef.current === seq) setError(errorMessage(reason));
+      })
+      .finally(() => {
+        if (articleSeqRef.current === seq) setArticlesLoading(false);
+      });
+    return () => {
+      articleSeqRef.current += 1;
+    };
+  }, [tab, mid]);
+
+  function loadMoreArticles() {
+    if (articlesLoading) return;
+    const nextPage = articlePage + 1;
+    const seq = articleSeqRef.current + 1;
+    articleSeqRef.current = seq;
+    setArticlesLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.article
+      .list({ mid, page: nextPage })
+      .then((data) => {
+        if (articleSeqRef.current !== seq) return;
+        setArticles((previous) => {
+          const seen = new Set(previous.map((article) => article.id));
+          return [...previous, ...data.articles.filter((article) => !seen.has(article.id))];
+        });
+        setArticlePage(nextPage);
+      })
+      .catch((reason: Error) => {
+        if (articleSeqRef.current === seq) setError(errorMessage(reason));
+      })
+      .finally(() => {
+        if (articleSeqRef.current === seq) setArticlesLoading(false);
+      });
+  }
 
   function loadMoreDynamics() {
     if (dynLoading || !dynHasMore || !dynOffset) return;
@@ -226,6 +287,13 @@ export function SpacePage({ mid }: SpacePageProps) {
         >
           动态
         </button>
+        <button
+          type="button"
+          className={`bili-space-tab ${tab === "articles" ? "bili-space-tab-active" : ""}`}
+          onClick={() => setTab("articles")}
+        >
+          专栏
+        </button>
       </div>
 
       {tab === "videos" ? (
@@ -249,6 +317,20 @@ export function SpacePage({ mid }: SpacePageProps) {
             </>
           ) : null}
         </>
+      ) : tab === "articles" ? (
+        <div className="bili-article-grid">
+          {error ? <div className="bili-state bili-state-error">{error}</div> : null}
+          {articlesLoading && articles.length === 0 ? <div className="bili-state">正在加载专栏</div> : null}
+          {articles.map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
+          {articles.length === 0 && !articlesLoading ? <div className="bili-state">暂无专栏</div> : null}
+          {articles.length > 0 && articles.length < articleTotal ? (
+            <button type="button" className="bili-space-load-more" onClick={loadMoreArticles} disabled={articlesLoading}>
+              {articlesLoading ? "正在加载" : "加载更多"}
+            </button>
+          ) : null}
+        </div>
       ) : (
         <div className="bili-dynamic-page">
           {error ? <div className="bili-state bili-state-error">{error}</div> : null}

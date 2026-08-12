@@ -139,6 +139,90 @@ declare module "sdk" {
     ok: boolean;
     message: string;
   }
+  export interface BiliArticleAuthor {
+    mid: number;
+    name: string;
+    face: string;
+  }
+  export interface BiliArticleStats {
+    view: number;
+    like: number;
+    coin: number;
+    favorite: number;
+    reply: number;
+  }
+  export interface BiliArticleView {
+    id: number;
+    title: string;
+    summary: string;
+    contentType: "json" | "html";
+    content: string;
+    pubTime: number;
+    words: number;
+    author: BiliArticleAuthor;
+    stats: BiliArticleStats;
+    isLiked: boolean;
+    tags: string[];
+  }
+  export interface BiliArticleCard {
+    id: number;
+    title: string;
+    summary: string;
+    bannerUrl: string;
+    imageUrls: string[];
+    pubTime: number;
+    words: number;
+    viewCount: number;
+    likeCount: number;
+  }
+  export interface BiliArticleListPage {
+    articles: BiliArticleCard[];
+    total: number;
+  }
+  export interface BiliArticleSearchItem {
+    id: number;
+    title: string;
+    desc: string;
+    imageUrls: string[];
+    pubTime: number;
+    like: number;
+    reply: number;
+    mid: number;
+    categoryName: string;
+  }
+  export interface BiliArticleSearchPage {
+    items: BiliArticleSearchItem[];
+    hasMore: boolean;
+  }
+  export interface BiliNoteItem {
+    cvid: number;
+    noteId: number;
+    title: string;
+    summary: string;
+    pubTime: string;
+    authorName: string;
+    authorFace: string;
+    likes: number;
+    hasLike: boolean;
+    isPrivate: boolean;
+  }
+  export interface BiliNoteListPage {
+    notes: BiliNoteItem[];
+    hasMore: boolean;
+  }
+  export interface BiliNoteDetail {
+    cvid: number;
+    noteId: number;
+    title: string;
+    summary: string;
+    content: string;
+    pubTime: string;
+    authorName: string;
+    authorFace: string;
+    likes: number;
+    isPrivate: boolean;
+  }
+
   export interface BiliDanmakuSendResult {
     ok: boolean;
     message: string;
@@ -165,6 +249,8 @@ declare module "sdk" {
     commentType: number;
     visible: boolean;
     isTop: boolean;
+    articleId: number;
+    title: string;
   }
 
   export interface BiliDynamicVideo {
@@ -473,6 +559,8 @@ export interface BiliDynamicCreated {
     canDelete: boolean;
     canTop: boolean;
     isTop: boolean;
+    articleId: number;
+    title: string;
   }
 
   export interface BiliCommentPage {
@@ -719,8 +807,17 @@ export interface BiliDynamicCreated {
       unread(): Promise<BiliMessageUnread>;
       replyFeed(args: { startId?: number; startTime?: number }): Promise<BiliReplyFeedPage>;
     };
-      note: Record<string, never>;
-      article: Record<string, never>;
+      note: {
+        list(args: { aid: number }): Promise<BiliNoteListPage>;
+        detail(args: { cvid?: number; noteId?: number; aid?: number }): Promise<BiliNoteDetail>;
+      };
+      article: {
+        view(args: { articleId: number }): Promise<BiliArticleView>;
+        like(args: { articleId: number; like: boolean }): Promise<BiliOperationResult>;
+        coin(args: { articleId: number; upid: number }): Promise<BiliOperationResult>;
+        list(args: { mid: number; page?: number }): Promise<BiliArticleListPage>;
+        search(args: { keyword: string; page?: number }): Promise<BiliArticleSearchPage>;
+      };
     };
   }
 

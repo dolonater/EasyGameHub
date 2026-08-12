@@ -58,6 +58,8 @@ interface PlayerShellProps {
   selfDanmaku?: Map<string, number>;
   /** 自己弹幕撤回成功后回调（上层从列表移除）。 */
   onDanmakuRecalled?(id: string): void;
+  /** 视频笔记入口（P8）：详情面板显示"笔记"按钮 */
+  onOpenNotes?(): void;
   commentsPanel: any;
 }
 
@@ -101,6 +103,7 @@ export function PlayerShell({
   selfDanmaku,
   onDanmakuRecalled,
   commentsPanel,
+  onOpenNotes,
 }: PlayerShellProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -442,6 +445,11 @@ export function PlayerShell({
           <small>
             {detail.owner.name || "未知 UP 主"} · {formatCount(detail.stats.viewCount)} 播放 ·{" "}
             {formatCount(detail.stats.danmakuCount)} 弹幕
+            {onOpenNotes ? (
+              <button type="button" className="bili-video-notes-btn" onClick={onOpenNotes}>
+                笔记
+              </button>
+            ) : null}
           </small>
         </div>
         <p>{detail.description || "暂无简介"}</p>

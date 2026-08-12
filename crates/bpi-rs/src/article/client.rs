@@ -4,6 +4,7 @@ use crate::article::info::ArticleInfoData;
 use crate::article::params::{
     ArticleArticlesInfoParams, ArticleCardsParams, ArticleInfoParams, ArticleViewParams,
 };
+use crate::article::space::{SpaceArticleData, SpaceArticleParams};
 use crate::article::view::ArticleViewData;
 use crate::{BilibiliRequest, BpiClient, BpiResult};
 
@@ -11,6 +12,7 @@ const INFO_ENDPOINT: &str = "https://api.bilibili.com/x/article/viewinfo";
 const VIEW_ENDPOINT: &str = "https://api.bilibili.com/x/article/view";
 const CARDS_ENDPOINT: &str = "https://api.bilibili.com/x/article/cards";
 const ARTICLES_ENDPOINT: &str = "https://api.bilibili.com/x/article/list/web/articles";
+const SPACE_ARTICLE_ENDPOINT: &str = "https://api.bilibili.com/x/space/article";
 
 /// 专栏 API 客户端。
 #[derive(Clone, Copy)]
@@ -80,6 +82,19 @@ impl<'a> ArticleClient<'a> {
             .get(ARTICLES_ENDPOINT)
             .query(&params.query_pairs())
             .send_bpi_payload("article.articles_info")
+            .await
+    }
+
+    /// 获取 UP 主页专栏文章列表（分页）。
+    pub async fn space_article_list(
+        &self,
+        params: SpaceArticleParams,
+    ) -> BpiResult<SpaceArticleData> {
+        self.client
+            .get(SPACE_ARTICLE_ENDPOINT)
+            .with_bilibili_headers()
+            .query(&params.query_pairs())
+            .send_bpi_payload("article.space_article_list")
             .await
     }
 }

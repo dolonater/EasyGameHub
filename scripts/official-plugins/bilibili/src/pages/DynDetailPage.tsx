@@ -3,6 +3,7 @@ import type { BiliDynamicCard, BiliDynamicForwardEntry, BiliVideoDetail } from "
 import { CommentPanel } from "../components/CommentPanel";
 import { DynamicCard } from "../components/DynamicCard";
 import { BiliImage } from "../components/BiliImage";
+import { openArticle } from "../navigation";
 import { errorMessage, getState } from "../runtime";
 
 interface DynDetailPageProps {
@@ -96,6 +97,11 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
     <section className="bili-dyn-detail">
       <div className="bili-dyn-detail-card">
         <DynamicCard card={card} onLike={handleLike} onOpenVideo={() => undefined} hideImages />
+        {card.cardType === "article" && card.articleId ? (
+          <button type="button" className="bili-dyn-article-read" onClick={() => openArticle(card.articleId)}>
+            阅读全文（CV{card.articleId}）
+          </button>
+        ) : null}
         {images.length > 0 ? (
           <div className="bili-dyn-detail-images">
             {images.map((src, index) => (

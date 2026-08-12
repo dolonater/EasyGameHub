@@ -214,6 +214,10 @@ pub struct BiliDynamicCard {
     pub comment_type: i64,
     pub visible: bool,
     pub is_top: bool,
+    /// 专栏动态的 article id（cvid），点击进专栏阅读页
+    pub article_id: i64,
+    /// 专栏动态标题
+    pub title: String,
 }
 
 /// 动态内嵌视频卡片（MAJOR_TYPE_ARCHIVE）。
@@ -756,4 +760,131 @@ impl BiliErrorDto {
             external_url: None,
         }
     }
+}
+
+// ---------- P8 专栏 / 笔记 ----------
+
+/// 专栏作者。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliArticleAuthor {
+    pub mid: i64,
+    pub name: String,
+    pub face: String,
+}
+
+/// 专栏统计。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliArticleStats {
+    pub view: i64,
+    pub like: i64,
+    pub coin: i64,
+    pub favorite: i64,
+    pub reply: i64,
+}
+
+/// 专栏详情。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliArticleView {
+    pub id: i64,
+    pub title: String,
+    pub summary: String,
+    /// type=3 为 JSON 段落；type=0 为 HTML
+    pub content_type: String,
+    pub content: String,
+    pub pub_time: i64,
+    pub words: i64,
+    pub author: BiliArticleAuthor,
+    pub stats: BiliArticleStats,
+    pub is_liked: bool,
+    pub tags: Vec<String>,
+}
+
+/// 专栏卡片（UP 主页列表 / 搜索）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliArticleCard {
+    pub id: i64,
+    pub title: String,
+    pub summary: String,
+    pub banner_url: String,
+    pub image_urls: Vec<String>,
+    pub pub_time: i64,
+    pub words: i64,
+    pub view_count: i64,
+    pub like_count: i64,
+}
+
+/// 专栏列表分页。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliArticleListPage {
+    pub articles: Vec<BiliArticleCard>,
+    pub total: i64,
+}
+
+/// 专栏搜索结果项。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliArticleSearchItem {
+    pub id: i64,
+    pub title: String,
+    pub desc: String,
+    pub image_urls: Vec<String>,
+    pub pub_time: i64,
+    pub like: i64,
+    pub reply: i64,
+    pub mid: i64,
+    pub category_name: String,
+}
+
+/// 专栏搜索分页。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliArticleSearchPage {
+    pub items: Vec<BiliArticleSearchItem>,
+    pub has_more: bool,
+}
+
+/// 视频笔记列表项。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliNoteItem {
+    pub cvid: i64,
+    pub note_id: i64,
+    pub title: String,
+    pub summary: String,
+    pub pub_time: String,
+    pub author_name: String,
+    pub author_face: String,
+    pub likes: i64,
+    pub has_like: bool,
+    /// 本用户私有笔记（仅登录且为自己可见）
+    pub is_private: bool,
+}
+
+/// 视频笔记列表分页。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliNoteListPage {
+    pub notes: Vec<BiliNoteItem>,
+    pub has_more: bool,
+}
+
+/// 笔记详情。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliNoteDetail {
+    pub cvid: i64,
+    pub note_id: i64,
+    pub title: String,
+    pub summary: String,
+    pub content: String,
+    pub pub_time: String,
+    pub author_name: String,
+    pub author_face: String,
+    pub likes: i64,
+    pub is_private: bool,
 }

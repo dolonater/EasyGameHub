@@ -1,5 +1,6 @@
 import React, { Button, useEffect, useState } from "sdk";
 import { BiliAppShell } from "../components/BiliAppShell";
+import { ArticlePage } from "./ArticlePage";
 import { ChatPage } from "./ChatPage";
 import { DynamicPage } from "./DynamicPage";
 import { HomePage } from "./HomePage";
@@ -84,7 +85,7 @@ export function MainPage() {
       {view.name === "live" ? <LivePage key={`live-${view.roomId}`} roomId={view.roomId} /> : null}
       {view.name === "settings" ? <SettingsPage /> : null}
       {view.name === "dynDetail" ? <DynDetailPage key={view.dynId} dynId={view.dynId} /> : null}
-      {view.name === "article" ? <PlaceholderPage label="专栏" /> : null}
+      {view.name === "article" ? <ArticlePage key={`article-${view.articleId}`} articleId={view.articleId} /> : null}
       {view.name === "messages" ? <MessagesPage /> : null}
       {view.name === "chat" ? <ChatPage key={`chat-${view.uid}`} uid={view.uid} /> : null}
       {view.name === "notifications" ? <NotificationsPage /> : null}

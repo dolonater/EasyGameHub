@@ -1,5 +1,6 @@
 import React from "sdk";
-import { openDynDetail, openLive, openWatch } from "../navigation";
+import { openArticle, openDynDetail, openLive, openWatch } from "../navigation";
+import { getState } from "../runtime";
 import type { BiliDynamicCard, BiliDynamicLive, BiliDynamicVideo } from "../types";
 import { BiliImage } from "./BiliImage";
 
@@ -18,7 +19,7 @@ export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCa
 
   function openCard() {
     // 无 dyn_id 的卡片（部分转发原文等）不可跳详情
-    if (!card.dynId && card.cardType !== "video" && card.cardType !== "live") return;
+    if (!card.dynId && card.cardType !== "video" && card.cardType !== "live" && card.cardType !== "article") return;
     if (card.cardType === "video") {
       if (onOpenVideo) {
         onOpenVideo(card);
@@ -30,6 +31,26 @@ export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCa
     // 直播卡片直接进直播间（P6）
     if (card.cardType === "live" && card.live?.roomId) {
       openLive(card.live.roomId);
+      return;
+    }
+    // 专栏动态直接进专栏阅读页（P8）；无 cvid 时先查动态详情拿 cvid
+    if (card.cardType === "article") {
+      if (card.articleId) {
+        openArticle(card.articleId);
+        return;
+      }
+      const sdk = getState().sdk;
+      if (sdk && card.dynId) {
+        sdk.bilibili.dynamic
+          .detail({ dynId: card.dynId })
+          .then((detailCard) => {
+            if (detailCard.articleId) openArticle(detailCard.articleId);
+            else openDynDetail(card.dynId);
+          })
+          .catch(() => openDynDetail(card.dynId));
+        return;
+      }
+      openDynDetail(card.dynId);
       return;
     }
     openDynDetail(card.dynId);
@@ -60,6 +81,7 @@ export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCa
         <ImageBody images={card.images} />
       ) : null}
       {card.cardType === "live" && card.live ? <LiveBody live={card.live} /> : null}
+      {card.cardType === "article" ? <ArticleBody card={card} /> : null}
       {card.cardType === "forward" && card.forward ? <ForwardBody card={card.forward} /> : null}
 
       <footer className="bili-dynamic-stats">
@@ -119,6 +141,26 @@ function ForwardBody({ card }: { card: BiliDynamicCard }) {
       {card.content ? <p className="bili-dynamic-forward-text">{card.content}</p> : null}
       {card.cardType === "video" && card.video ? <VideoBody video={card.video} /> : null}
       {card.cardType === "image" && card.images.length > 0 ? <ImageBody images={card.images} /> : null}
+      {card.cardType === "article" ? <ArticleBody card={card} /> : null}
+    </div>
+  );
+}
+
+/** 专栏动态卡片体（P8）：标题 + 摘要 + 封面 + "阅读全文"徽标，点击进专栏阅读页 */
+function ArticleBody({ card }: { card: BiliDynamicCard }) {
+  return (
+    <div className="bili-dynamic-article">
+      {card.images.length > 0 ? (
+        <div className="bili-dynamic-article-cover">
+          <BiliImage src={card.images[0]} loading="lazy" alt="" />
+        </div>
+      ) : null}
+      <div className="bili-dynamic-article-info">
+        <span className="bili-dynamic-article-badge">专栏</span>
+        <strong title={card.title || card.content}>{card.title || card.content || "专栏文章"}</strong>
+        {card.content && card.title ? <small className="bili-dynamic-article-desc">{card.content}</small> : null}
+        {card.articleId ? <small>CV{card.articleId} · 点击阅读全文</small> : null}
+      </div>
     </div>
   );
 }

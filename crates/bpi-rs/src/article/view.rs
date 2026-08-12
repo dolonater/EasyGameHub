@@ -22,6 +22,7 @@ pub struct ArticleViewData {
     /// 文章头图URL 空则为无
     pub banner_url: String,
     /// 专栏分类信息 首项为主分区, 第二项为子分区
+    #[serde(default)]
     pub categories: Vec<ArticleCategory>,
     /// 专栏分类信息 子分区
     pub category: ArticleCategory,
@@ -46,6 +47,7 @@ pub struct ArticleViewData {
     /// 专栏文章ID
     pub id: i64,
     /// 图片URL
+    #[serde(default)]
     pub image_urls: Vec<String>,
     /// 是否喜欢?
     pub is_like: bool,
@@ -60,6 +62,7 @@ pub struct ArticleViewData {
     /// opus信息 当type字段为3时存在, 包含了更加详细的富文本信息
     pub opus: Option<ArticleOpus>,
     /// 原始图片URL
+    #[serde(default)]
     pub origin_image_urls: Vec<String>,
     /// 原始模板ID?
     pub origin_template_id: i32,
@@ -77,7 +80,8 @@ pub struct ArticleViewData {
     pub stats: ArticleStats,
     /// 专栏开头部分内容 纯文本
     pub summary: String,
-    /// 专栏标签
+    /// 专栏标签（部分真实响应缺失）
+    #[serde(default)]
     pub tags: Vec<ArticleTag>,
     /// 模板ID?
     pub template_id: i32,
@@ -162,6 +166,12 @@ pub struct ArticleOpus {
     /// 以JSON呈现的文本内容
     #[serde(default)]
     pub ops: Vec<OpusOperation>,
+    /// 新版（opus 化）专栏正文：`{"paragraphs": [...]}`（顶层 content 为空时使用）
+    #[serde(default)]
+    pub content: Option<serde_json::Value>,
+    /// opus 的 HTML 版正文
+    #[serde(default)]
+    pub h5_content: Option<String>,
 }
 
 /// Opus操作

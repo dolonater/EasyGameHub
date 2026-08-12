@@ -12,6 +12,7 @@ mod client;
 pub mod info;
 mod models;
 pub mod params;
+pub mod space;
 pub mod view;
 
 pub use client::ArticleClient;
@@ -19,3 +20,4 @@ pub use params::{
     ArticleArticlesInfoParams, ArticleCardsParams, ArticleCoinParams, ArticleFavoriteParams,
     ArticleInfoParams, ArticleLikeParams, ArticleViewParams,
 };
+pub use space::{SpaceArticleData, SpaceArticleItem, SpaceArticleParams};

@@ -56,6 +56,8 @@ bpi-rs = { path = "../crates/bpi-rs", default-features = false, features = [
     "dynamic",
     "message",
     "live",
+    "article",
+    "note",
 ] }
 base64 = "0.22"
 image = "0.25"

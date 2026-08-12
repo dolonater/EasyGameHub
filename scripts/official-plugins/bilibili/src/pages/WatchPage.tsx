@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "sdk";
 import { CommentPanel } from "../components/CommentPanel";
 import { defaultDanmakuSettings, type DanmakuSettings } from "../components/DanmakuOverlay";
+import { NotePanel } from "../components/NotePanel";
 import { PlayerShell } from "../components/PlayerShell";
 import { WatchSidebarTabs } from "../components/WatchSidebarTabs";
 import { DanmakuSegmentLoader } from "../danmaku/segmentLoader";
@@ -50,6 +51,7 @@ export function WatchPage({ target }: WatchPageProps) {
   const [playback, setPlayback] = useState<BiliPlaybackSource | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingPlayback, setLoadingPlayback] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
   const [detailError, setDetailError] = useState("");
   const [playbackError, setPlaybackError] = useState("");
   const [reloadNonce, setReloadNonce] = useState(0);
@@ -419,10 +421,14 @@ export function WatchPage({ target }: WatchPageProps) {
             onDanmakuSent={handleDanmakuSent}
             selfDanmaku={selfDanmakuRef.current}
             onDanmakuRecalled={handleDanmakuRecalled}
+            onOpenNotes={videoDetail.aid > 0 ? () => setNoteOpen(true) : undefined}
             commentsPanel={
               <CommentPanel detail={videoDetail} loggedIn={Boolean(runtimeState.loginInfo?.loggedIn)} sdk={getState().sdk} />
             }
           />
+          {noteOpen && videoDetail.aid > 0 ? (
+            <NotePanel aid={videoDetail.aid} onClose={() => setNoteOpen(false)} />
+          ) : null}
           <WatchSidebarTabs
             aid={videoDetail.aid}
             bvid={videoDetail.bvid}

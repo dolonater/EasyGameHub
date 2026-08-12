@@ -123,7 +123,16 @@ impl LiveWsClient {
         let client = LiveWsClient;
         tokio::spawn(async move {
             client
-                .run(ws, url, room_id, token, uid, heartbeat_interval, tx, shutdown_rx)
+                .run(
+                    ws,
+                    url,
+                    room_id,
+                    token,
+                    uid,
+                    heartbeat_interval,
+                    tx,
+                    shutdown_rx,
+                )
                 .await;
         });
 

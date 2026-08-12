@@ -175,6 +175,99 @@ export interface BiliLiveSendDanmakuResult {
   message: string;
 }
 
+export interface BiliArticleAuthor {
+  mid: number;
+  name: string;
+  face: string;
+}
+
+export interface BiliArticleStats {
+  view: number;
+  like: number;
+  coin: number;
+  favorite: number;
+  reply: number;
+}
+
+export interface BiliArticleView {
+  id: number;
+  title: string;
+  summary: string;
+  contentType: "json" | "html";
+  content: string;
+  pubTime: number;
+  words: number;
+  author: BiliArticleAuthor;
+  stats: BiliArticleStats;
+  isLiked: boolean;
+  tags: string[];
+}
+
+export interface BiliArticleCard {
+  id: number;
+  title: string;
+  summary: string;
+  bannerUrl: string;
+  imageUrls: string[];
+  pubTime: number;
+  words: number;
+  viewCount: number;
+  likeCount: number;
+}
+
+export interface BiliArticleListPage {
+  articles: BiliArticleCard[];
+  total: number;
+}
+
+export interface BiliArticleSearchItem {
+  id: number;
+  title: string;
+  desc: string;
+  imageUrls: string[];
+  pubTime: number;
+  like: number;
+  reply: number;
+  mid: number;
+  categoryName: string;
+}
+
+export interface BiliArticleSearchPage {
+  items: BiliArticleSearchItem[];
+  hasMore: boolean;
+}
+
+export interface BiliNoteItem {
+  cvid: number;
+  noteId: number;
+  title: string;
+  summary: string;
+  pubTime: string;
+  authorName: string;
+  authorFace: string;
+  likes: number;
+  hasLike: boolean;
+  isPrivate: boolean;
+}
+
+export interface BiliNoteListPage {
+  notes: BiliNoteItem[];
+  hasMore: boolean;
+}
+
+export interface BiliNoteDetail {
+  cvid: number;
+  noteId: number;
+  title: string;
+  summary: string;
+  content: string;
+  pubTime: string;
+  authorName: string;
+  authorFace: string;
+  likes: number;
+  isPrivate: boolean;
+}
+
 export interface BiliDanmakuSendResult {
   ok: boolean;
   message: string;
@@ -201,6 +294,8 @@ export interface BiliDynamicCard {
   commentType: number;
   visible: boolean;
   isTop: boolean;
+  articleId: number;
+  title: string;
 }
 
 export interface BiliDynamicVideo {
@@ -622,6 +717,8 @@ export interface BiliComment {
   canDelete: boolean;
   canTop: boolean;
   isTop: boolean;
+  articleId: number;
+  title: string;
 }
 
 export interface BiliCommentPage {
@@ -907,8 +1004,17 @@ export interface PluginSdk {
       unread(): Promise<BiliMessageUnread>;
       replyFeed(args: { startId?: number; startTime?: number }): Promise<BiliReplyFeedPage>;
     };
-    note: Record<string, never>;
-    article: Record<string, never>;
+    note: {
+      list(args: { aid: number }): Promise<BiliNoteListPage>;
+      detail(args: { cvid?: number; noteId?: number; aid?: number }): Promise<BiliNoteDetail>;
+    };
+    article: {
+      view(args: { articleId: number }): Promise<BiliArticleView>;
+      like(args: { articleId: number; like: boolean }): Promise<BiliOperationResult>;
+      coin(args: { articleId: number; upid: number }): Promise<BiliOperationResult>;
+      list(args: { mid: number; page?: number }): Promise<BiliArticleListPage>;
+      search(args: { keyword: string; page?: number }): Promise<BiliArticleSearchPage>;
+    };
   };
 }
 
@@ -1505,8 +1611,38 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
           return biliInvoke("bilibili_message_reply_feed", args);
         },
       },
-      note: {},
-      article: {},
+      note: {
+        list(args) {
+          requirePerm("bilibili", "bilibili.note.list");
+          return biliInvoke("bilibili_note_list", args);
+        },
+        detail(args) {
+          requirePerm("bilibili", "bilibili.note.detail");
+          return biliInvoke("bilibili_note_detail", args);
+        },
+      },
+      article: {
+        view(args) {
+          requirePerm("bilibili", "bilibili.article.view");
+          return biliInvoke("bilibili_article_view", args);
+        },
+        like(args) {
+          requirePerm("bilibili", "bilibili.article.like");
+          return biliInvoke("bilibili_article_like", args);
+        },
+        coin(args) {
+          requirePerm("bilibili", "bilibili.article.coin");
+          return biliInvoke("bilibili_article_coin", args);
+        },
+        list(args) {
+          requirePerm("bilibili", "bilibili.article.list");
+          return biliInvoke("bilibili_article_list", args);
+        },
+        search(args) {
+          requirePerm("bilibili", "bilibili.article.search");
+          return biliInvoke("bilibili_search_articles", args);
+        },
+      },
     },
   };
 }
