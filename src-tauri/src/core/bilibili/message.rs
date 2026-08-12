@@ -26,6 +26,25 @@ pub async fn message_sessions(
         params = params.with_begin_ts(begin_ts);
     }
     let data = client.message().sessions(params).await?;
+    // vc 版会话列表不含用户信息：用 /x/web-interface/cards 批量补充名字/头像（失败静默回退 UID）
+    let uids: Vec<u64> = data.session_list.iter().map(|s| s.talker_id).collect();
+    let mut user_map: std::collections::HashMap<u64, (String, String)> =
+        std::collections::HashMap::new();
+    if !uids.is_empty() {
+        let mid_list = uids
+            .iter()
+            .map(|uid| bpi_rs::ids::Mid::new(*uid))
+            .collect::<Result<Vec<_>, _>>()?;
+        if let Ok(users) = client
+            .user()
+            .cards(bpi_rs::user::UserCardsParams::new(mid_list)?)
+            .await
+        {
+            for user in users {
+                user_map.insert(user.mid.get(), (user.name, user.face));
+            }
+        }
+    }
     // vc 版会话列表无 next_offset：用第一条会话时间戳作游标
     let next_offset = data
         .session_list
@@ -46,6 +65,14 @@ pub async fn message_sessions(
                     timestamp: msg.timestamp,
                     msg_type: msg.msg_type,
                 }),
+                name: user_map
+                    .get(&session.talker_id)
+                    .map(|(name, _)| name.clone())
+                    .unwrap_or_default(),
+                face: user_map
+                    .get(&session.talker_id)
+                    .map(|(_, face)| face.clone())
+                    .unwrap_or_default(),
             })
             .collect(),
         has_more: data.has_more,

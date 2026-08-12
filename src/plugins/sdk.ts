@@ -183,6 +183,8 @@ export interface BiliMessageSession {
   talkerId: number;
   unreadCount: number;
   lastMsg?: BiliMessageItem | null;
+  name: string;
+  face: string;
 }
 
 export interface BiliMessageItem {

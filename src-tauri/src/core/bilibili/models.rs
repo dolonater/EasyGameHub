@@ -295,6 +295,8 @@ pub struct BiliMessageSession {
     pub talker_id: u64,
     pub unread_count: u32,
     pub last_msg: Option<BiliMessageItem>,
+    pub name: String,
+    pub face: String,
 }
 
 /// 私信消息。

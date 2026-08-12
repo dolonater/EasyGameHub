@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "sdk";
 import type { BiliMessageSession } from "../types";
 import { errorMessage, getState } from "../runtime";
 import { openChat } from "../navigation";
+import { BiliImage } from "../components/BiliImage";
 
 /** 私信会话列表：begin_ts 时间游标分页 + 未读角标，点击进入会话。 */
 export function MessagesPage() {
@@ -70,12 +71,16 @@ export function MessagesPage() {
           onClick={() => openChat(session.talkerId)}
         >
           <span className="bili-message-session-avatar">
-            <span className="bili-profile-avatar bili-profile-avatar-empty">
-              {String(session.talkerId).slice(-2)}
-            </span>
+            {session.face ? (
+              <BiliImage className="bili-dynamic-avatar" src={session.face} alt={session.name} />
+            ) : (
+              <span className="bili-profile-avatar bili-profile-avatar-empty">
+                {session.name ? session.name.slice(0, 1) : String(session.talkerId).slice(-2)}
+              </span>
+            )}
           </span>
           <span className="bili-message-session-body">
-            <strong>UID {session.talkerId}</strong>
+            <strong>{session.name || `UID ${session.talkerId}`}</strong>
             <small>{session.lastMsg?.content || "暂无消息"}</small>
           </span>
           {session.unreadCount > 0 ? (

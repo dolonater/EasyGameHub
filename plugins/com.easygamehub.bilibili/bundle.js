@@ -22911,8 +22911,8 @@ function MessagesPage() {
       type: "button",
       onClick: () => openChat(session.talkerId)
     },
-    /* @__PURE__ */ React19.createElement("span", { className: "bili-message-session-avatar" }, /* @__PURE__ */ React19.createElement("span", { className: "bili-profile-avatar bili-profile-avatar-empty" }, String(session.talkerId).slice(-2))),
-    /* @__PURE__ */ React19.createElement("span", { className: "bili-message-session-body" }, /* @__PURE__ */ React19.createElement("strong", null, "UID ", session.talkerId), /* @__PURE__ */ React19.createElement("small", null, session.lastMsg?.content || "\u6682\u65E0\u6D88\u606F")),
+    /* @__PURE__ */ React19.createElement("span", { className: "bili-message-session-avatar" }, session.face ? /* @__PURE__ */ React19.createElement(BiliImage, { className: "bili-dynamic-avatar", src: session.face, alt: session.name }) : /* @__PURE__ */ React19.createElement("span", { className: "bili-profile-avatar bili-profile-avatar-empty" }, session.name ? session.name.slice(0, 1) : String(session.talkerId).slice(-2))),
+    /* @__PURE__ */ React19.createElement("span", { className: "bili-message-session-body" }, /* @__PURE__ */ React19.createElement("strong", null, session.name || `UID ${session.talkerId}`), /* @__PURE__ */ React19.createElement("small", null, session.lastMsg?.content || "\u6682\u65E0\u6D88\u606F")),
     session.unreadCount > 0 ? /* @__PURE__ */ React19.createElement("span", { className: "bili-message-badge" }, session.unreadCount > 99 ? "99+" : session.unreadCount) : null
   )), error ? /* @__PURE__ */ React19.createElement("div", { className: "bili-state bili-state-error" }, error) : null, hasMore ? /* @__PURE__ */ React19.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null);
 }
