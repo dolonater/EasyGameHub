@@ -246,6 +246,30 @@ export function SettingsPage() {
       {loaded && tab === "general" ? (
         <div className="bili-settings-body">
           <div className="bili-settings-group">
+            <div className="bili-settings-group-title">侧边栏</div>
+            <label className="bili-toggle-line">
+              <Toggle
+                on={config.sidebarAutoHide}
+                onChange={(sidebarAutoHide: boolean) => update({ sidebarAutoHide })}
+              />
+              <span>收起后悬停展开</span>
+            </label>
+            <div className="bili-setting-field">
+              <span>侧边栏位置</span>
+              <Select
+                name="sidebarPosition"
+                value={config.sidebarPosition}
+                options={[
+                  { value: "left", label: "左侧" },
+                  { value: "right", label: "右侧" },
+                ]}
+                onChange={(sidebarPosition: string) =>
+                  update({ sidebarPosition: sidebarPosition as BilibiliPluginConfig["sidebarPosition"] })
+                }
+              />
+            </div>
+          </div>
+          <div className="bili-settings-group">
             <div className="bili-settings-group-title">数据</div>
             <div className="bili-action-row">
               <Button variant="outline" size="sm" disabled={saving} type="button" onClick={clearCache}>

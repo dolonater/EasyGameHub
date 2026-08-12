@@ -230,7 +230,7 @@ export const cssText = `
   min-width: 0;
   padding: 8px;
   border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 55%, transparent);
-  border-radius: 10px;
+  border-radius: 12px;
   background: color-mix(in srgb, hsl(var(--muted, 0 0% 40%)) 55%, transparent);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   color: inherit;
@@ -4320,5 +4320,59 @@ button.bili-dynamic-stat {
 .bili-search-page {
   display: grid;
   gap: 14px;
+}
+/* ===== P9 阶段 2：侧边栏位置 + 我的概览 + 账号内容页 ===== */
+.bili-sidebar-right {
+  order: 2;
+}
+.bili-sidebar-right + .bili-shell-content {
+  order: 1;
+}
+.bili-page-library {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bili-live-home {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bili-mine-entries {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.bili-mine-entry {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 96px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 38%, transparent);
+  backdrop-filter: blur(14px);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 160ms var(--bili-ease), transform 160ms var(--bili-ease);
+}
+.bili-mine-entry:hover {
+  background: color-mix(in srgb, var(--bili-accent) 14%, transparent);
+  transform: translateY(-1px);
+}
+.bili-mine-entry-glyph {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 55%, transparent);
+  font-size: 16px;
+  font-weight: 700;
+}
+.bili-mine-entry-label {
+  font-size: 13px;
 }
 `;

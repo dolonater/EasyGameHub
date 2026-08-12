@@ -22,6 +22,11 @@ export type BiliNavView =
   | { name: "live"; roomId: number }
   | { name: "settings" }
   | { name: "search"; keyword?: string }
+  | { name: "history" }
+  | { name: "watchLater" }
+  | { name: "favorites" }
+  | { name: "bangumi" }
+  | { name: "liveHome" }
   | { name: "dynDetail"; dynId: string }
   | { name: "article"; articleId: number }
   | { name: "messages" }
@@ -100,6 +105,36 @@ export function openSettings(): void {
 export function openSearch(keyword?: string): void {
   stack.push(memory);
   switchView({ name: "search", keyword });
+}
+
+/** 打开历史记录页 */
+export function openHistory(): void {
+  stack.push(memory);
+  switchView({ name: "history" });
+}
+
+/** 打开稍后再看页 */
+export function openWatchLater(): void {
+  stack.push(memory);
+  switchView({ name: "watchLater" });
+}
+
+/** 打开收藏夹页 */
+export function openFavorites(): void {
+  stack.push(memory);
+  switchView({ name: "favorites" });
+}
+
+/** 打开追番页 */
+export function openBangumi(): void {
+  stack.push(memory);
+  switchView({ name: "bangumi" });
+}
+
+/** 打开直播首页（推荐直播列表） */
+export function openLiveHome(): void {
+  stack.push(memory);
+  switchView({ name: "liveHome" });
 }
 
 /** 打开专栏阅读页：压入当前视图，可逐级返回 */

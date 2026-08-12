@@ -29,6 +29,9 @@ export interface BilibiliPluginConfig {
   codecPreference: "avc" | "hevc" | "av1";
   audioPreference: "standard" | "flac";
   autoPlay: boolean;
+  // P9 布局：侧边栏偏好（折叠状态留在 localStorage）
+  sidebarAutoHide: boolean;
+  sidebarPosition: "left" | "right";
 }
 
 export const defaultConfig: BilibiliPluginConfig = {
@@ -47,6 +50,8 @@ export const defaultConfig: BilibiliPluginConfig = {
   codecPreference: "avc",
   audioPreference: "standard",
   autoPlay: true,
+  sidebarAutoHide: false,
+  sidebarPosition: "left",
 };
 
 const initialState: BilibiliRuntimeState = {
@@ -212,6 +217,8 @@ function normalizeConfig(value: unknown): BilibiliPluginConfig {
     codecPreference: pick(["avc", "hevc", "av1"], source.codecPreference, defaultConfig.codecPreference),
     audioPreference: pick(["standard", "flac"], source.audioPreference, defaultConfig.audioPreference),
     autoPlay: source.autoPlay !== false,
+    sidebarAutoHide: source.sidebarAutoHide === true,
+    sidebarPosition: pick(["left", "right"], source.sidebarPosition, defaultConfig.sidebarPosition),
   };
 }
 
