@@ -149,6 +149,25 @@ impl<'a> LiveClient<'a> {
             .await
     }
 
+    /// 按分区获取直播房间列表（web second/getList）。
+    pub async fn room_list(
+        &self,
+        params: crate::live::room_list::LiveRoomListParams,
+    ) -> BpiResult<crate::live::room_list::LiveRoomListData> {
+        self.client
+            .get(crate::live::room_list::ROOM_LIST_ENDPOINT)
+            .with_bilibili_headers()
+            .query(&[
+                ("parent_area_id", params.parent_area_id.to_string()),
+                ("area_id", params.area_id.to_string()),
+                ("page", params.page.to_string()),
+                ("page_size", params.page_size.to_string()),
+                ("sort_type", params.sort_type.clone()),
+            ])
+            .send_bpi_payload("live.room_list")
+            .await
+    }
+
     /// 获取 Web 首页直播推荐列表（分页）。
     pub async fn recommend_page(&self, page: i32, page_size: i32) -> BpiResult<RecommendData> {
         let page = page.to_string();

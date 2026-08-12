@@ -8,7 +8,8 @@ use bpi_rs::{BpiClient, BpiError};
 
 use super::models::{
     BiliLiveArea, BiliLiveQuality, BiliLiveRecommendPage, BiliLiveRecommendRoom, BiliLiveRoom,
-    BiliLiveSendDanmakuResult, BiliLiveStream, BiliLiveStreamUrl, BiliLiveSubArea,
+    BiliLiveRoomPage, BiliLiveSendDanmakuResult, BiliLiveStream, BiliLiveStreamUrl,
+    BiliLiveSubArea,
 };
 
 /// 直播推荐每页数量。
@@ -139,6 +140,39 @@ pub async fn recommend(
             })
             .collect(),
         top_room_id: data.top_room_id,
+    })
+}
+
+/// 按分区获取直播房间列表（web second/getList；area_id=0 表示父分区全部）。
+pub async fn room_list(
+    client: &BpiClient,
+    parent_area_id: u32,
+    area_id: u32,
+    page: Option<u32>,
+) -> Result<BiliLiveRoomPage, BpiError> {
+    let params = bpi_rs::live::room_list::LiveRoomListParams::new(parent_area_id, area_id)
+        .page(page.unwrap_or(1))?;
+    let data = client.live().room_list(params).await?;
+    Ok(BiliLiveRoomPage {
+        rooms: data
+            .list
+            .into_iter()
+            .map(|room| BiliLiveRecommendRoom {
+                room_id: room.roomid,
+                uid: room.uid,
+                title: room.title,
+                cover: room.cover,
+                uname: room.uname,
+                face: room.face,
+                online: room.online as i32,
+                area_name: room.area_name,
+                area_parent_name: room.parent_area_name,
+                status: room.live_status == 1,
+                followers: 0,
+            })
+            .collect(),
+        count: data.count,
+        has_more: data.has_more == 1,
     })
 }
 

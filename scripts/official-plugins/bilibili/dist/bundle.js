@@ -28840,28 +28840,70 @@ function usePagedFeed(fetcher, options = {}) {
 
 // src/components/LiveFeed.tsx
 function LiveFeed({ onOpenLive }) {
-  const feed = usePagedFeed(
-    (page, _refresh) => homeCall((sdk) => sdk.bilibili.live.recommend({ page })).then((result) => result.rooms),
-    { key: "live-feed" }
-  );
   const [areas, setAreas] = useState9([]);
   const [parentId, setParentId] = useState9(0);
   const [subId, setSubId] = useState9(0);
+  const [rooms, setRooms] = useState9([]);
+  const [page, setPage] = useState9(1);
+  const [hasMore, setHasMore] = useState9(false);
+  const [loading, setLoading] = useState9(false);
+  const [error, setError] = useState9("");
+  const recommend = usePagedFeed(
+    (pageNum, _refresh) => homeCall((sdk) => sdk.bilibili.live.recommend({ page: pageNum })).then((result) => result.rooms),
+    { key: "live-feed", enabled: parentId === 0 }
+  );
   useEffect9(() => {
     homeCall((sdk) => sdk.bilibili.live.areas()).then((list) => setAreas(list)).catch(() => setAreas([]));
   }, []);
   const activeArea = areas.find((area) => area.id === parentId) ?? null;
-  const activeSub = activeArea?.children.find((sub) => sub.id === subId) ?? null;
-  const rooms = feed.items.filter((room) => {
-    if (!activeArea) return true;
-    if (activeArea.name !== room.areaParentName) return false;
-    if (activeSub && activeSub.name !== room.areaName) return false;
-    return true;
-  });
+  useEffect9(() => {
+    if (parentId === 0) {
+      setRooms([]);
+      setHasMore(false);
+      setPage(1);
+      setError("");
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.live.rooms({ parentAreaId: parentId, areaId: subId, page: 1 }).then((data) => {
+      if (!cancelled) {
+        setRooms(data.rooms);
+        setPage(1);
+        setHasMore(data.hasMore);
+      }
+    }).catch((reason) => {
+      if (!cancelled) setError(errorMessage(reason));
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [parentId, subId]);
+  function loadMore() {
+    if (loading || !hasMore) return;
+    const targetPage = page + 1;
+    setLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.live.rooms({ parentAreaId: parentId, areaId: subId, page: targetPage }).then((data) => {
+      setRooms((previous) => [...previous, ...data.rooms]);
+      setPage(targetPage);
+      setHasMore(data.hasMore);
+    }).catch((reason) => setError(errorMessage(reason))).finally(() => setLoading(false));
+  }
   function pickParent(id) {
     setParentId(id);
     setSubId(0);
   }
+  const isAreaMode = parentId !== 0;
+  const shownRooms = isAreaMode ? rooms : recommend.items;
+  const currentError = isAreaMode ? error : recommend.error;
+  const currentLoading = isAreaMode ? loading : recommend.loading;
   return /* @__PURE__ */ React14.createElement("div", { className: "bili-live-feed" }, /* @__PURE__ */ React14.createElement("div", { className: "bili-live-areas" }, /* @__PURE__ */ React14.createElement(
     Button4,
     {
@@ -28904,7 +28946,7 @@ function LiveFeed({ onOpenLive }) {
       onClick: () => setSubId(sub.id)
     },
     sub.name
-  ))) : null, feed.error ? /* @__PURE__ */ React14.createElement("div", { className: "bili-feed-error" }, feed.error) : null, !feed.loading && rooms.length === 0 && !feed.error ? /* @__PURE__ */ React14.createElement("div", { className: "bili-live-empty" }, "\u8BE5\u5206\u533A\u6682\u65E0\u63A8\u8350\u76F4\u64AD") : null, rooms.length > 0 ? /* @__PURE__ */ React14.createElement(React14.Fragment, null, /* @__PURE__ */ React14.createElement("div", { className: "bili-live-grid" }, rooms.map((room) => /* @__PURE__ */ React14.createElement(LiveCard, { key: room.roomId, room, onOpen: () => onOpenLive(room.roomId) }))), /* @__PURE__ */ React14.createElement("div", { className: "bili-live-more" }, /* @__PURE__ */ React14.createElement(Button4, { size: "sm", variant: "outline", type: "button", onClick: feed.reload, disabled: feed.loading }, feed.loading ? "\u52A0\u8F7D\u4E2D\u2026" : "\u6362\u4E00\u6279"))) : null);
+  ))) : null, currentError ? /* @__PURE__ */ React14.createElement("div", { className: "bili-feed-error" }, currentError) : null, !currentLoading && shownRooms.length === 0 && !currentError ? /* @__PURE__ */ React14.createElement("div", { className: "bili-live-empty" }, isAreaMode ? "\u8BE5\u5206\u533A\u6682\u65E0\u76F4\u64AD" : "\u6682\u65E0\u63A8\u8350\u76F4\u64AD") : null, shownRooms.length > 0 ? /* @__PURE__ */ React14.createElement(React14.Fragment, null, /* @__PURE__ */ React14.createElement("div", { className: "bili-live-grid" }, shownRooms.map((room) => /* @__PURE__ */ React14.createElement(LiveCard, { key: room.roomId, room, onOpen: () => onOpenLive(room.roomId) }))), /* @__PURE__ */ React14.createElement("div", { className: "bili-live-more" }, isAreaMode ? /* @__PURE__ */ React14.createElement(Button4, { size: "sm", variant: "outline", type: "button", onClick: loadMore, disabled: loading || !hasMore }, loading ? "\u52A0\u8F7D\u4E2D\u2026" : hasMore ? "\u52A0\u8F7D\u66F4\u591A" : "\u5DF2\u52A0\u8F7D\u5168\u90E8") : /* @__PURE__ */ React14.createElement(Button4, { size: "sm", variant: "outline", type: "button", onClick: recommend.reload, disabled: recommend.loading }, recommend.loading ? "\u52A0\u8F7D\u4E2D\u2026" : "\u6362\u4E00\u6279"))) : null);
 }
 function LiveCard({ room, onOpen }) {
   return /* @__PURE__ */ React14.createElement("button", { type: "button", className: "bili-live-card", onClick: onOpen }, /* @__PURE__ */ React14.createElement("div", { className: "bili-live-card-cover" }, /* @__PURE__ */ React14.createElement(BiliImage, { className: "bili-live-card-img", src: room.cover, alt: room.title, loading: "lazy" }), /* @__PURE__ */ React14.createElement("span", { className: "bili-live-card-badge" }, "\u76F4\u64AD\u4E2D"), /* @__PURE__ */ React14.createElement("span", { className: "bili-live-card-online" }, formatOnline(room.online), "\u4EBA")), /* @__PURE__ */ React14.createElement("strong", { className: "bili-live-card-title", title: room.title }, room.title || "\u672A\u547D\u540D\u76F4\u64AD"), /* @__PURE__ */ React14.createElement("div", { className: "bili-live-card-owner" }, /* @__PURE__ */ React14.createElement(BiliImage, { className: "bili-live-card-face", src: room.face, alt: room.uname, loading: "lazy" }), /* @__PURE__ */ React14.createElement("span", { className: "bili-live-card-name" }, room.uname), /* @__PURE__ */ React14.createElement("small", { className: "bili-live-card-area" }, room.areaName)));

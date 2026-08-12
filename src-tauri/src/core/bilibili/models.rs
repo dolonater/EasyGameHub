@@ -361,6 +361,15 @@ pub struct BiliLiveRecommendPage {
     pub top_room_id: i64,
 }
 
+/// 分区房间列表分页（second/getList）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BiliLiveRoomPage {
+    pub rooms: Vec<BiliLiveRecommendRoom>,
+    pub count: u64,
+    pub has_more: bool,
+}
+
 /// 直播分区（含子分区）。
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

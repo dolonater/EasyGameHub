@@ -158,6 +158,12 @@ export interface BiliLiveRecommendPage {
   topRoomId: number;
 }
 
+export interface BiliLiveRoomPage {
+  rooms: BiliLiveRecommendRoom[];
+  count: number;
+  hasMore: boolean;
+}
+
 export interface BiliLiveSubArea {
   id: number;
   name: string;
@@ -991,6 +997,7 @@ export interface PluginSdk {
       stream(args: { roomId: number; qn?: number }): Promise<BiliLiveStream>;
       recommend(args: { page?: number }): Promise<BiliLiveRecommendPage>;
       areas(): Promise<BiliLiveArea[]>;
+      rooms(args: { parentAreaId: number; areaId?: number; page?: number }): Promise<BiliLiveRoomPage>;
       sendDanmaku(args: { roomId: number; text: string }): Promise<BiliLiveSendDanmakuResult>;
       heartbeat(args: { roomId: number }): Promise<BiliOperationResult>;
       danmakuWsUrl(args: { roomId: number }): Promise<string>;
@@ -1554,6 +1561,10 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
         areas() {
           requirePerm("bilibili", "bilibili.live.areas");
           return biliInvoke("bilibili_live_areas");
+        },
+        rooms(args) {
+          requirePerm("bilibili", "bilibili.live.rooms");
+          return biliInvoke("bilibili_live_rooms", args);
         },
         sendDanmaku(args) {
           requirePerm("bilibili", "bilibili.live.sendDanmaku");

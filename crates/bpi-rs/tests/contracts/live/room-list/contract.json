@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "name": "live.room_list",
+  "module": "live",
+  "batch": "public-core",
+  "endpoint": "room-list",
+  "risk": "public-read",
+  "status": "promoted",
+  "profiles": [
+    "anonymous",
+    "normal",
+    "vip"
+  ],
+  "request": {
+    "method": "GET",
+    "url": "https://api.live.bilibili.com/xlive/web-interface/v1/second/getList",
+    "query": {
+      "parent_area_id": "1",
+      "area_id": "0",
+      "page": "1",
+      "page_size": "30",
+      "sort_type": "online"
+    },
+    "required_headers": [
+      "user-agent",
+      "referer",
+      "origin"
+    ],
+    "headers": {},
+    "auth": {
+      "requires": []
+    }
+  },
+  "sanitize": {
+    "preset": [],
+    "replace": {},
+    "drop": [],
+    "keep": []
+  },
+  "provenance": {
+    "source": "manual_fixture",
+    "privacy": "synthetic fixture trimmed to two rooms",
+    "tool": "bpi-probe",
+    "tool_version": "0.2.0"
+  },
+  "cases": [
+    {
+      "name": "anonymous",
+      "profile": "anonymous",
+      "description": "分区房间列表（动画父分区）",
+      "response": {
+        "api_code": 0,
+        "message": "success",
+        "rust_model": "LiveRoomListData",
+        "fixture": "success.json"
+      }
+    }
+  ]
+}

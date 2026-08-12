@@ -24,12 +24,12 @@ use crate::core::bilibili::models::{
     BiliCommentPage, BiliDanmakuItem, BiliDanmakuSendResult, BiliDynamicCard, BiliDynamicCreated,
     BiliDynamicForwardEntry, BiliDynamicForwardsPage, BiliDynamicPage, BiliFavoriteFolder,
     BiliFavoriteItem, BiliFavoritePage, BiliHistoryItem, BiliHotWord, BiliLiveArea,
-    BiliLiveRecommendPage, BiliLiveRoom, BiliLiveSendDanmakuResult, BiliLiveStream,
-    BiliLocalProgress, BiliLoginInfo, BiliMessageHistoryPage, BiliMessageSessionsPage,
-    BiliMessageUnread, BiliNoteDetail, BiliNoteItem, BiliNoteListPage, BiliOperationResult,
-    BiliPgcCard, BiliPgcSection, BiliPlaybackSource, BiliPreciousVideos, BiliQrLoginKey,
-    BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail, BiliToViewItem, BiliUserSpace,
-    BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
+    BiliLiveRecommendPage, BiliLiveRoom, BiliLiveRoomPage, BiliLiveSendDanmakuResult,
+    BiliLiveStream, BiliLocalProgress, BiliLoginInfo, BiliMessageHistoryPage,
+    BiliMessageSessionsPage, BiliMessageUnread, BiliNoteDetail, BiliNoteItem, BiliNoteListPage,
+    BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource, BiliPreciousVideos,
+    BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail, BiliToViewItem,
+    BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
 };
 use crate::core::bilibili::note;
 use crate::core::bilibili::playback;
@@ -1423,6 +1423,19 @@ pub async fn bilibili_live_recommend(
 pub async fn bilibili_live_areas(state: State<'_, AppState>) -> Result<Vec<BiliLiveArea>, String> {
     let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
     live::areas(&client).await.map_err(bpi_error)
+}
+
+#[tauri::command]
+pub async fn bilibili_live_rooms(
+    state: State<'_, AppState>,
+    parent_area_id: u32,
+    area_id: u32,
+    page: Option<u32>,
+) -> Result<BiliLiveRoomPage, String> {
+    let client = client::optional_account_client(&state.tool_dir).map_err(bpi_error)?;
+    live::room_list(&client, parent_area_id, area_id, page)
+        .await
+        .map_err(bpi_error)
 }
 
 #[tauri::command]

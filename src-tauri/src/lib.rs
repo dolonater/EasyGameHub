@@ -606,6 +606,7 @@ pub fn run() {
             commands::bilibili::bilibili_live_stream,
             commands::bilibili::bilibili_live_recommend,
             commands::bilibili::bilibili_live_areas,
+            commands::bilibili::bilibili_live_rooms,
             commands::bilibili::bilibili_live_send_danmaku,
             commands::bilibili::bilibili_live_heartbeat,
             commands::bilibili::bilibili_article_view,

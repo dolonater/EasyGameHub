@@ -87,6 +87,11 @@ declare module "sdk" {
     rooms: BiliLiveRecommendRoom[];
     topRoomId: number;
   }
+  export interface BiliLiveRoomPage {
+    rooms: BiliLiveRecommendRoom[];
+    count: number;
+    hasMore: boolean;
+  }
 
   export interface BiliLiveSubArea {
     id: number;
@@ -840,6 +845,7 @@ export interface BiliDynamicCreated {
         stream(args: { roomId: number; qn?: number }): Promise<BiliLiveStream>;
         recommend(args: { page?: number }): Promise<BiliLiveRecommendPage>;
         areas(): Promise<BiliLiveArea[]>;
+        rooms(args: { parentAreaId: number; areaId?: number; page?: number }): Promise<BiliLiveRoomPage>;
         sendDanmaku(args: { roomId: number; text: string }): Promise<BiliLiveSendDanmakuResult>;
         heartbeat(args: { roomId: number }): Promise<BiliOperationResult>;
         danmakuWsUrl(args: { roomId: number }): Promise<string>;

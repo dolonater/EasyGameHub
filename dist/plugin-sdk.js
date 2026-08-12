@@ -1529,6 +1529,9 @@ function tr(t, o) {
         areas() {
           return r("bilibili", "bilibili.live.areas"), l("bilibili_live_areas");
         },
+        rooms(i) {
+          return r("bilibili", "bilibili.live.rooms"), l("bilibili_live_rooms", i);
+        },
         sendDanmaku(i) {
           return r("bilibili", "bilibili.live.sendDanmaku"), l("bilibili_live_send_danmaku", i);
         },

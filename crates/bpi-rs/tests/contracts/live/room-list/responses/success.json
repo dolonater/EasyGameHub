@@ -1,0 +1,45 @@
+{
+  "code": 0,
+  "message": "success",
+  "ttl": 1,
+  "data": {
+    "count": 1234,
+    "list": [
+      {
+        "roomid": 23174284,
+        "uid": 7654321,
+        "title": "动画区示例直播间",
+        "uname": "示例主播",
+        "online": 12345,
+        "cover": "https://i0.hdslb.com/bfs/live/example-cover.jpg",
+        "user_cover": "https://i0.hdslb.com/bfs/live/example-user-cover.jpg",
+        "system_cover": "https://i0.hdslb.com/bfs/live/example-system-cover.jpg",
+        "face": "https://i0.hdslb.com/bfs/face/example-face.jpg",
+        "area_id": 1,
+        "area_name": "动画",
+        "parent_area_id": 1,
+        "parent_area_name": "动画",
+        "live_status": 1,
+        "live_time": 1700000000
+      },
+      {
+        "roomid": 23174285,
+        "uid": 7654322,
+        "title": "动画区第二个直播间",
+        "uname": "示例主播二号",
+        "online": 2345,
+        "cover": "https://i0.hdslb.com/bfs/live/example-cover-2.jpg",
+        "user_cover": "",
+        "system_cover": "",
+        "face": "",
+        "area_id": 2,
+        "area_name": "虚拟主播",
+        "parent_area_id": 1,
+        "parent_area_name": "动画",
+        "live_status": 1,
+        "live_time": 1700000100
+      }
+    ],
+    "has_more": 1
+  }
+}

@@ -1,7 +1,7 @@
 import React, { Button, useEffect, useState } from "sdk";
 import { BiliImage } from "./BiliImage";
 import { usePagedFeed } from "../hooks/usePagedFeed";
-import { getState } from "../runtime";
+import { errorMessage, getState } from "../runtime";
 import type { BiliLiveArea, BiliLiveRecommendRoom, PluginSdk } from "../types";
 
 interface LiveFeedProps {
@@ -9,18 +9,25 @@ interface LiveFeedProps {
 }
 
 /**
- * 直播 feed（P6）：推荐列表（分页）+ 分区筛选。
- * 推荐接口不支持分区参数，分区筛选为前端过滤（按父/子分区名匹配）。
+ * 直播 feed（P9 改造）：
+ * - "全部"：推荐流（分页，换一批）
+ * - 具体分区：second/getList 分区房间（分页累积，加载更多）
  */
 export function LiveFeed({ onOpenLive }: LiveFeedProps) {
-  const feed = usePagedFeed<BiliLiveRecommendRoom>(
-    (page, _refresh) =>
-      homeCall((sdk) => sdk.bilibili.live.recommend({ page })).then((result) => result.rooms),
-    { key: "live-feed" },
-  );
   const [areas, setAreas] = useState<BiliLiveArea[]>([]);
   const [parentId, setParentId] = useState(0);
   const [subId, setSubId] = useState(0);
+  const [rooms, setRooms] = useState<BiliLiveRecommendRoom[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const recommend = usePagedFeed<BiliLiveRecommendRoom>(
+    (pageNum, _refresh) =>
+      homeCall((sdk) => sdk.bilibili.live.recommend({ page: pageNum })).then((result) => result.rooms),
+    { key: "live-feed", enabled: parentId === 0 },
+  );
 
   useEffect(() => {
     homeCall((sdk) => sdk.bilibili.live.areas())
@@ -29,19 +36,67 @@ export function LiveFeed({ onOpenLive }: LiveFeedProps) {
   }, []);
 
   const activeArea = areas.find((area) => area.id === parentId) ?? null;
-  const activeSub = activeArea?.children.find((sub) => sub.id === subId) ?? null;
 
-  const rooms = feed.items.filter((room) => {
-    if (!activeArea) return true;
-    if (activeArea.name !== room.areaParentName) return false;
-    if (activeSub && activeSub.name !== room.areaName) return false;
-    return true;
-  });
+  // 分区模式：切分区/子分区重载第一页
+  useEffect(() => {
+    if (parentId === 0) {
+      setRooms([]);
+      setHasMore(false);
+      setPage(1);
+      setError("");
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.live
+      .rooms({ parentAreaId: parentId, areaId: subId, page: 1 })
+      .then((data) => {
+        if (!cancelled) {
+          setRooms(data.rooms);
+          setPage(1);
+          setHasMore(data.hasMore);
+        }
+      })
+      .catch((reason: Error) => {
+        if (!cancelled) setError(errorMessage(reason));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [parentId, subId]);
+
+  function loadMore() {
+    if (loading || !hasMore) return;
+    const targetPage = page + 1;
+    setLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.live
+      .rooms({ parentAreaId: parentId, areaId: subId, page: targetPage })
+      .then((data) => {
+        setRooms((previous) => [...previous, ...data.rooms]);
+        setPage(targetPage);
+        setHasMore(data.hasMore);
+      })
+      .catch((reason: Error) => setError(errorMessage(reason)))
+      .finally(() => setLoading(false));
+  }
 
   function pickParent(id: number) {
     setParentId(id);
     setSubId(0);
   }
+
+  const isAreaMode = parentId !== 0;
+  const shownRooms = isAreaMode ? rooms : recommend.items;
+  const currentError = isAreaMode ? error : recommend.error;
+  const currentLoading = isAreaMode ? loading : recommend.loading;
 
   return (
     <div className="bili-live-feed">
@@ -94,21 +149,27 @@ export function LiveFeed({ onOpenLive }: LiveFeedProps) {
         </div>
       ) : null}
 
-      {feed.error ? <div className="bili-feed-error">{feed.error}</div> : null}
-      {!feed.loading && rooms.length === 0 && !feed.error ? (
-        <div className="bili-live-empty">该分区暂无推荐直播</div>
+      {currentError ? <div className="bili-feed-error">{currentError}</div> : null}
+      {!currentLoading && shownRooms.length === 0 && !currentError ? (
+        <div className="bili-live-empty">{isAreaMode ? "该分区暂无直播" : "暂无推荐直播"}</div>
       ) : null}
-      {rooms.length > 0 ? (
+      {shownRooms.length > 0 ? (
         <>
           <div className="bili-live-grid">
-            {rooms.map((room) => (
+            {shownRooms.map((room) => (
               <LiveCard key={room.roomId} room={room} onOpen={() => onOpenLive(room.roomId)} />
             ))}
           </div>
           <div className="bili-live-more">
-            <Button size="sm" variant="outline" type="button" onClick={feed.reload} disabled={feed.loading}>
-              {feed.loading ? "加载中…" : "换一批"}
-            </Button>
+            {isAreaMode ? (
+              <Button size="sm" variant="outline" type="button" onClick={loadMore} disabled={loading || !hasMore}>
+                {loading ? "加载中…" : hasMore ? "加载更多" : "已加载全部"}
+              </Button>
+            ) : (
+              <Button size="sm" variant="outline" type="button" onClick={recommend.reload} disabled={recommend.loading}>
+                {recommend.loading ? "加载中…" : "换一批"}
+              </Button>
+            )}
           </div>
         </>
       ) : null}
