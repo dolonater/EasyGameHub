@@ -125,7 +125,8 @@ pub struct MessageSession {
 pub struct MessageLastMsg {
     #[serde(default)]
     pub msg_seqno: u64,
-    #[serde(default)]
+    /// content 为 JSON 字符串，解析出文本
+    #[serde(default, deserialize_with = "deserialize_message_content")]
     pub content: String,
     #[serde(default)]
     pub sender_uid: u64,
@@ -268,6 +269,18 @@ mod tests {
     fn history_params_rejects_bad_size() {
         assert!(MessageHistoryParams::new(123, 1).unwrap().with_size(0).is_err());
         assert!(MessageHistoryParams::new(123, 1).unwrap().with_size(201).is_err());
+    }
+
+    #[test]
+    fn session_last_msg_parses_json_content() {
+        let sessions: MessageSessionsData = serde_json::from_str(
+            r#"{"session_list":[{"talker_id":1,"last_msg":{"content":"{\"content\":\"你好\"}"}}]}"#,
+        )
+        .expect("should parse");
+        assert_eq!(
+            sessions.session_list[0].last_msg.as_ref().map(|m| m.content.as_str()),
+            Some("你好")
+        );
     }
 
     #[test]
