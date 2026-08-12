@@ -95,6 +95,25 @@ impl<'a> BangumiClient<'a> {
             .await
     }
 
+    /// 获取番剧/影视全量列表（season index，支持排序/连载筛选/分页）。
+    pub async fn season_index(
+        &self,
+        params: crate::bangumi::index::PgcIndexParams,
+    ) -> BpiResult<crate::bangumi::index::PgcIndexData> {
+        self.client
+            .get(crate::bangumi::index::PGC_INDEX_ENDPOINT)
+            .with_bilibili_headers()
+            .query(&[
+                ("season_type", params.season_type.to_string()),
+                ("order", params.order.to_string()),
+                ("is_finish", params.is_finish.to_string()),
+                ("page", params.page.to_string()),
+                ("pagesize", params.pagesize.to_string()),
+            ])
+            .send_bpi_payload("pgc.index")
+            .await
+    }
+
     /// 获取 bangumi 或影视时间线。
     pub async fn timeline(
         &self,

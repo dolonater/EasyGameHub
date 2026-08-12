@@ -482,6 +482,15 @@ pub struct BiliReplyFeedPage {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// PGC 全量列表分页（season index）。
+pub struct BiliPgcIndexPage {
+    pub items: Vec<BiliPgcCard>,
+    pub has_more: bool,
+}
+
+/// 追番/影视页分区行（modules 聚合）。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct BiliPgcSection {
     pub title: String,
     pub style: String,

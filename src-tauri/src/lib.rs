@@ -599,6 +599,7 @@ pub fn run() {
             commands::bilibili::bilibili_user_follow,
             commands::bilibili::bilibili_season_detail,
             commands::bilibili::bilibili_season_follow,
+            commands::bilibili::bilibili_pgc_index,
             commands::bilibili::bilibili_pgc_tabs,
             commands::bilibili::bilibili_pgc_rank,
             commands::bilibili::bilibili_bangumi_follow_list,

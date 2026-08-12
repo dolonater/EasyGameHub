@@ -11,6 +11,7 @@ import { LiveHomePage } from "./LiveHomePage";
 import { LivePage } from "./LivePage";
 import { MinePage } from "./MinePage";
 import { NotificationsPage } from "./NotificationsPage";
+import { PgcListPage } from "./PgcListPage";
 import { SeasonPage } from "./SeasonPage";
 import { SearchPage } from "./SearchPage";
 import { SettingsPage } from "./SettingsPage";
@@ -52,7 +53,7 @@ export function MainPage() {
   const loggedIn = Boolean(loginInfo?.loggedIn);
 
   const title =
-    view.name === "watch" ? "播放" : view.name === "space" ? "UP 主页" : view.name === "season" ? "番剧详情"       : view.name === "live" ? "直播间" : view.name === "liveHome" ? "直播" : view.name === "history" ? "历史记录" : view.name === "watchLater" ? "稍后再看" : view.name === "favorites" ? "收藏夹" : view.name === "bangumi" ? "追番" : view.name === "settings" ? "设置" : view.name === "search" ? "搜索" : view.name === "dynDetail" ? "动态详情" : view.name === "article" ? "专栏" : view.name === "chat" ? "会话" : view.name === "notifications" ? "通知" : "Bilibili";
+    view.name === "watch" ? "播放" : view.name === "space" ? "UP 主页" : view.name === "season" ? "番剧详情"       : view.name === "live" ? "直播间" : view.name === "liveHome" ? "直播" : view.name === "history" ? "历史记录" : view.name === "watchLater" ? "稍后再看" : view.name === "favorites" ? "收藏夹" : view.name === "bangumi" ? "追番" : view.name === "pgcList" ? (view.title || "全部") : view.name === "settings" ? "设置" : view.name === "search" ? "搜索" : view.name === "dynDetail" ? "动态详情" : view.name === "article" ? "专栏" : view.name === "chat" ? "会话" : view.name === "notifications" ? "通知" : "Bilibili";
   const subtitle =
     view.name === "watch"
       ? view.bvid || (view.aid ? `av${view.aid}` : "播放")
@@ -63,7 +64,7 @@ export function MainPage() {
         : "EasyGameHub";
 
   const actions =
-    view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? (
+    view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "pgcList" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? (
       <Button aria-label="返回" variant="outline" size="sm" type="button" onClick={goBackNav}>
         <Icon name="skipBackFilled" size={15} />
       </Button>
@@ -83,6 +84,7 @@ export function MainPage() {
       {view.name === "watch" ? <WatchPage key={watchKey(view)} target={view} /> : null}
       {view.name === "space" ? <SpacePage key={`space-${view.mid}`} mid={view.mid} /> : null}
       {view.name === "season" ? <SeasonPage key={`season-${view.seasonId}`} seasonId={view.seasonId} /> : null}
+      {view.name === "pgcList" ? <PgcListPage key={`pgc-${view.seasonType}-${view.title ?? ""}`} seasonType={view.seasonType} /> : null}
       {view.name === "live" ? <LivePage key={`live-${view.roomId}`} roomId={view.roomId} /> : null}
       {view.name === "liveHome" ? <LiveHomePage /> : null}
       {view.name === "history" ? <HistoryPage /> : null}

@@ -19,6 +19,7 @@ export type BiliNavView =
   | { name: "watch"; type?: "video" | "season"; bvid?: string; aid?: number; cid?: number; seasonId?: number; epId?: number }
   | { name: "space"; mid: number }
   | { name: "season"; seasonId: number }
+  | { name: "pgcList"; seasonType: number; title?: string }
   | { name: "live"; roomId: number }
   | { name: "settings" }
   | { name: "search"; keyword?: string }
@@ -74,6 +75,12 @@ export function openWatch(view: {
 export function openSpace(mid: number): void {
   stack.push(memory);
   switchView({ name: "space", mid });
+}
+
+/** 打开 PGC 全量列表（番剧/影视"查看全部"）：压入当前视图，可逐级返回 */
+export function openPgcList(seasonType: number, title?: string): void {
+  stack.push(memory);
+  switchView({ name: "pgcList", seasonType, title });
 }
 
 /** 打开番剧详情：压入当前视图，可逐级返回 */

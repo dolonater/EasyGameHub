@@ -1509,6 +1509,9 @@ function tr(t, o) {
         pgcTabs({ kind: i }) {
           return r("bilibili", "bilibili.season.pgcTabs"), l("bilibili_pgc_tabs", { kind: i });
         },
+        pgcIndex(i) {
+          return r("bilibili", "bilibili.season.pgcIndex"), l("bilibili_pgc_index", i);
+        },
         pgcRank({ seasonType: i }) {
           return r("bilibili", "bilibili.season.pgcRank"), l("bilibili_pgc_rank", { seasonType: i });
         },

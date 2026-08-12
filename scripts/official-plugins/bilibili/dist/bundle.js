@@ -23107,7 +23107,7 @@ var require_dash_all_min = __commonJS({
 });
 
 // src/pages/MainPage.tsx
-import React61, { Button as Button24, Icon as Icon11, useEffect as useEffect42, useState as useState46 } from "sdk";
+import React62, { Button as Button26, Icon as Icon11, useEffect as useEffect43, useState as useState47 } from "sdk";
 
 // src/components/BiliAppShell.tsx
 import React4 from "sdk";
@@ -23138,6 +23138,7 @@ var cssText = `
 }
 .bili-home {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   max-width: 980px;
   margin: 0 auto;
@@ -25137,6 +25138,8 @@ var cssText = `
   display: flex;
   flex-direction: column;
   gap: 10px;
+  /* \u6A2A\u5411 track \u5185\u5BB9\u8D85\u5BBD\u65F6\u4E0D\u88AB\u6491\u5F00\uFF1A\u6807\u9898\u884C\uFF08\u542B"\u67E5\u770B\u5168\u90E8"\uFF09\u4FDD\u6301\u5BB9\u5668\u5BBD\u5EA6\u5185\u53EF\u89C1 */
+  min-width: 0;
 }
 .bili-pgc-section-title {
   font-size: 14px;
@@ -25146,6 +25149,7 @@ var cssText = `
 .bili-pgc-track {
   display: flex;
   gap: 12px;
+  max-width: 100%;
   overflow-x: auto;
   padding-bottom: 6px;
   scrollbar-width: thin;
@@ -27465,6 +27469,45 @@ button.bili-dynamic-stat {
   gap: 14px;
   min-width: 0;
 }
+.bili-pgc-feed {
+  min-width: 0;
+}
+.bili-pgc-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.bili-pgc-list {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bili-pgc-list-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.bili-pgc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px 14px;
+}
+.bili-pgc-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.bili-pgc-section-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .bili-live-home {
   display: grid;
   gap: 14px;
@@ -27537,6 +27580,10 @@ function openWatch(view) {
 function openSpace(mid) {
   stack.push(memory);
   switchView({ name: "space", mid });
+}
+function openPgcList(seasonType, title) {
+  stack.push(memory);
+  switchView({ name: "pgcList", seasonType, title });
 }
 function openSeason(seasonId) {
   stack.push(memory);
@@ -28708,7 +28755,7 @@ function DynamicPage() {
 }
 
 // src/pages/HomePage.tsx
-import React21, { Button as Button6, Icon as Icon3, useState as useState14 } from "sdk";
+import React21, { Button as Button7, Icon as Icon3, useState as useState14 } from "sdk";
 
 // src/components/HomeFeed.tsx
 import React12 from "sdk";
@@ -28989,7 +29036,7 @@ function HotSubTabs({ sub, onSub }) {
 }
 
 // src/components/PgcSectionFeed.tsx
-import React17, { useEffect as useEffect10, useState as useState10 } from "sdk";
+import React17, { Button as Button6, useEffect as useEffect10, useState as useState10 } from "sdk";
 
 // src/components/PgcCard.tsx
 import React16 from "sdk";
@@ -28998,8 +29045,10 @@ function PgcCard({ card }) {
 }
 
 // src/components/PgcSectionFeed.tsx
+var SEASON_TYPE = { bangumi: 1, cinema: 2 };
 function PgcSectionFeed({ kind }) {
   const [sections, setSections] = useState10([]);
+  const [active, setActive] = useState10(0);
   const [loading, setLoading] = useState10(false);
   const [error, setError] = useState10("");
   useEffect10(() => {
@@ -29011,6 +29060,7 @@ function PgcSectionFeed({ kind }) {
     sdk.bilibili.season.pgcTabs({ kind }).then((data) => {
       if (!cancelled) {
         setSections(data);
+        setActive(0);
         setLoading(false);
       }
     }).catch((reason) => {
@@ -29023,9 +29073,31 @@ function PgcSectionFeed({ kind }) {
       cancelled = true;
     };
   }, [kind]);
-  return /* @__PURE__ */ React17.createElement("section", { className: "bili-pgc-feed" }, error ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D") : null, !error && !loading && sections.length === 0 ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u5185\u5BB9") : null, !error && sections.map(
-    (section) => section.items.length > 0 ? /* @__PURE__ */ React17.createElement("div", { className: "bili-pgc-section", key: section.title }, /* @__PURE__ */ React17.createElement("div", { className: "bili-pgc-section-title" }, section.title), /* @__PURE__ */ React17.createElement("div", { className: "bili-pgc-track" }, section.items.map((card) => /* @__PURE__ */ React17.createElement(PgcCard, { key: `${card.seasonId}-${card.seasonType}`, card })))) : null
-  ));
+  const visible = sections.filter((section) => section.items.length > 0);
+  const activeSection = visible.length > 0 ? visible[Math.min(active, visible.length - 1)] : null;
+  return /* @__PURE__ */ React17.createElement("section", { className: "bili-pgc-feed" }, error ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D") : null, !error && !loading && visible.length === 0 ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u5185\u5BB9") : null, !error && activeSection ? /* @__PURE__ */ React17.createElement(React17.Fragment, null, /* @__PURE__ */ React17.createElement("div", { className: "bili-pgc-tabs-row" }, /* @__PURE__ */ React17.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u5206\u533A" }, visible.map((section, index) => /* @__PURE__ */ React17.createElement(
+    Button6,
+    {
+      key: `${section.title}-${index}`,
+      "aria-selected": index === active,
+      className: index === active ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      size: "sm",
+      variant: "ghost",
+      role: "tab",
+      type: "button",
+      onClick: () => setActive(index)
+    },
+    section.title || "\u63A8\u8350"
+  ))), /* @__PURE__ */ React17.createElement(
+    Button6,
+    {
+      size: "sm",
+      variant: "ghost",
+      type: "button",
+      onClick: () => openPgcList(SEASON_TYPE[kind], activeSection.title)
+    },
+    "\u67E5\u770B\u5168\u90E8"
+  )), /* @__PURE__ */ React17.createElement("div", { className: "bili-pgc-grid" }, activeSection.items.map((card) => /* @__PURE__ */ React17.createElement(PgcCard, { key: `${card.seasonId}-${card.seasonType}`, card })))) : null);
 }
 
 // src/components/PreciousPanel.tsx
@@ -29283,7 +29355,7 @@ function HomePage() {
       onCinema: switchToCinema,
       onLive: switchToLive
     }
-  ), /* @__PURE__ */ React21.createElement(Button6, { "aria-label": "\u5237\u65B0", variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, /* @__PURE__ */ React21.createElement(Icon3, { name: "reset", size: 15 }))), mainFeed);
+  ), /* @__PURE__ */ React21.createElement(Button7, { "aria-label": "\u5237\u65B0", variant: "outline", size: "sm", type: "button", onClick: refreshCurrent, disabled: active.loading }, /* @__PURE__ */ React21.createElement(Icon3, { name: "reset", size: 15 }))), mainFeed);
 }
 function homeCall2(call) {
   const sdk = getState().sdk;
@@ -29292,7 +29364,7 @@ function homeCall2(call) {
 }
 
 // src/pages/FavoritesPage.tsx
-import React23, { Button as Button7, useEffect as useEffect16, useState as useState16 } from "sdk";
+import React23, { Button as Button8, useEffect as useEffect16, useState as useState16 } from "sdk";
 
 // src/components/FavoriteManagePanel.tsx
 import React22, { TextField as TextField2, useEffect as useEffect15, useState as useState15 } from "sdk";
@@ -29594,7 +29666,7 @@ function FavoritesPage() {
     }
   }
   return /* @__PURE__ */ React23.createElement("section", { className: "bili-page-library" }, !loggedIn ? /* @__PURE__ */ React23.createElement("div", { className: "bili-state" }, "\u767B\u5F55\u540E\u53EF\u67E5\u770B\u6536\u85CF\u5939") : error ? /* @__PURE__ */ React23.createElement("div", { className: "bili-state bili-state-error" }, error) : loading && folders.length === 0 ? /* @__PURE__ */ React23.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u6536\u85CF\u5939") : folders.length === 0 ? /* @__PURE__ */ React23.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u6536\u85CF\u5939") : /* @__PURE__ */ React23.createElement("div", { className: "bili-favorite-browser" }, /* @__PURE__ */ React23.createElement("div", { className: "bili-folder-list" }, !manageMode ? /* @__PURE__ */ React23.createElement(
-    Button7,
+    Button8,
     {
       className: "bili-fav-manage-entry",
       variant: "ghost",
@@ -29604,7 +29676,7 @@ function FavoritesPage() {
     },
     "\u7BA1\u7406"
   ) : /* @__PURE__ */ React23.createElement(
-    Button7,
+    Button8,
     {
       className: "bili-fav-manage-entry",
       variant: "ghost",
@@ -29614,7 +29686,7 @@ function FavoritesPage() {
     },
     "\u5B8C\u6210"
   ), folders.map((folder) => /* @__PURE__ */ React23.createElement(
-    Button7,
+    Button8,
     {
       className: folder.id === selectedFolderId ? "bili-folder-item bili-folder-item-active" : "bili-folder-item",
       variant: "ghost",
@@ -29964,7 +30036,7 @@ function formatCount4(value) {
 import React30, { Icon as Icon4, useEffect as useEffect22, useState as useState22 } from "sdk";
 
 // src/components/AccountCard.tsx
-import React27, { Button as Button8, useEffect as useEffect19, useState as useState19 } from "sdk";
+import React27, { Button as Button9, useEffect as useEffect19, useState as useState19 } from "sdk";
 function AccountCard({ loginInfo }) {
   const [stats, setStats] = useState19(null);
   useEffect19(() => {
@@ -29986,14 +30058,14 @@ function AccountCard({ loginInfo }) {
       active = false;
     };
   }, [loginInfo?.loggedIn]);
-  return /* @__PURE__ */ React27.createElement("section", { className: "bili-account-card" }, /* @__PURE__ */ React27.createElement("div", { className: "bili-account-card-main" }, /* @__PURE__ */ React27.createElement(BiliImage, { className: "bili-account-card-avatar", src: loginInfo?.avatar || "", alt: loginInfo?.nickname || "\u5934\u50CF" }), /* @__PURE__ */ React27.createElement("span", { className: "bili-account-card-id" }, /* @__PURE__ */ React27.createElement("strong", null, loginInfo?.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React27.createElement("small", null, "UID ", loginInfo?.userId || "-"))), stats ? /* @__PURE__ */ React27.createElement("div", { className: "bili-account-card-stats" }, /* @__PURE__ */ React27.createElement(AccountStat, { label: "\u6536\u85CF\u5939", value: stats.folders }), /* @__PURE__ */ React27.createElement(AccountStat, { label: "\u7A0D\u540E\u518D\u770B", value: stats.toView }), /* @__PURE__ */ React27.createElement(AccountStat, { label: "\u6536\u85CF\u89C6\u9891", value: stats.collected })) : null, /* @__PURE__ */ React27.createElement(Button8, { variant: "outline", size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55"));
+  return /* @__PURE__ */ React27.createElement("section", { className: "bili-account-card" }, /* @__PURE__ */ React27.createElement("div", { className: "bili-account-card-main" }, /* @__PURE__ */ React27.createElement(BiliImage, { className: "bili-account-card-avatar", src: loginInfo?.avatar || "", alt: loginInfo?.nickname || "\u5934\u50CF" }), /* @__PURE__ */ React27.createElement("span", { className: "bili-account-card-id" }, /* @__PURE__ */ React27.createElement("strong", null, loginInfo?.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React27.createElement("small", null, "UID ", loginInfo?.userId || "-"))), stats ? /* @__PURE__ */ React27.createElement("div", { className: "bili-account-card-stats" }, /* @__PURE__ */ React27.createElement(AccountStat, { label: "\u6536\u85CF\u5939", value: stats.folders }), /* @__PURE__ */ React27.createElement(AccountStat, { label: "\u7A0D\u540E\u518D\u770B", value: stats.toView }), /* @__PURE__ */ React27.createElement(AccountStat, { label: "\u6536\u85CF\u89C6\u9891", value: stats.collected })) : null, /* @__PURE__ */ React27.createElement(Button9, { variant: "outline", size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55"));
 }
 function AccountStat({ label, value }) {
   return /* @__PURE__ */ React27.createElement("span", { className: "bili-account-card-stat" }, /* @__PURE__ */ React27.createElement("strong", null, value), /* @__PURE__ */ React27.createElement("small", null, label));
 }
 
 // src/components/DynamicPublishDialog.tsx
-import React28, { Button as Button9, useEffect as useEffect20, useRef as useRef6, useState as useState20 } from "sdk";
+import React28, { Button as Button10, useEffect as useEffect20, useRef as useRef6, useState as useState20 } from "sdk";
 var maxLength = 1e3;
 var cooldownSeconds = 30;
 function DynamicPublishDialog({ open, onClose }) {
@@ -30047,11 +30119,11 @@ function DynamicPublishDialog({ open, onClose }) {
       placeholder: "\u5206\u4EAB\u4F60\u7684\u52A8\u6001\u2026",
       onChange: (event) => setContent(event.currentTarget.value.slice(0, maxLength))
     }
-  ), /* @__PURE__ */ React28.createElement("div", { className: "bili-dynamic-publish-count" }, content.length, "/", maxLength), /* @__PURE__ */ React28.createElement("div", { className: "bili-dialog-actions" }, /* @__PURE__ */ React28.createElement(Button9, { variant: "ghost", size: "sm", type: "button", onClick: onClose }, "\u53D6\u6D88"), /* @__PURE__ */ React28.createElement(Button9, { size: "sm", type: "submit", disabled: !canPublish }, publishing ? "\u53D1\u5E03\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u5E03"))));
+  ), /* @__PURE__ */ React28.createElement("div", { className: "bili-dynamic-publish-count" }, content.length, "/", maxLength), /* @__PURE__ */ React28.createElement("div", { className: "bili-dialog-actions" }, /* @__PURE__ */ React28.createElement(Button10, { variant: "ghost", size: "sm", type: "button", onClick: onClose }, "\u53D6\u6D88"), /* @__PURE__ */ React28.createElement(Button10, { size: "sm", type: "submit", disabled: !canPublish }, publishing ? "\u53D1\u5E03\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u5E03"))));
 }
 
 // src/components/LoginPanel.tsx
-import React29, { Button as Button10, useEffect as useEffect21, useState as useState21 } from "sdk";
+import React29, { Button as Button11, useEffect as useEffect21, useState as useState21 } from "sdk";
 function LoginPanel() {
   const [state2, setState2] = useState21(getState);
   useEffect21(() => {
@@ -30062,7 +30134,7 @@ function LoginPanel() {
   const account = state2.loginInfo;
   const loggedIn = Boolean(account?.loggedIn);
   return /* @__PURE__ */ React29.createElement("section", { className: "bili-login-panel" }, /* @__PURE__ */ React29.createElement("div", { className: "bili-login-heading" }, /* @__PURE__ */ React29.createElement("span", null, /* @__PURE__ */ React29.createElement("strong", null, "\u8D26\u53F7"), /* @__PURE__ */ React29.createElement("small", null, loggedIn ? "\u5DF2\u767B\u5F55" : account?.loginExpired ? "\u767B\u5F55\u8FC7\u671F" : "\u672A\u767B\u5F55")), /* @__PURE__ */ React29.createElement(
-    Button10,
+    Button11,
     {
       variant: "outline",
       size: "sm",
@@ -30071,7 +30143,7 @@ function LoginPanel() {
       disabled: state2.loginPolling
     },
     "\u5237\u65B0"
-  )), loggedIn && account ? /* @__PURE__ */ React29.createElement("div", { className: "bili-account" }, /* @__PURE__ */ React29.createElement(BiliImage, { src: account.avatar, className: "bili-avatar" }), /* @__PURE__ */ React29.createElement("span", { className: "bili-account-main" }, /* @__PURE__ */ React29.createElement("strong", null, account.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React29.createElement("small", null, "UID ", account.userId || "-")), /* @__PURE__ */ React29.createElement(Button10, { size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55")) : /* @__PURE__ */ React29.createElement("div", { className: "bili-login-flow" }, state2.loginQr ? /* @__PURE__ */ React29.createElement("img", { className: "bili-qr", src: state2.loginQr.qrImage, alt: "Bilibili \u767B\u5F55\u4E8C\u7EF4\u7801" }) : /* @__PURE__ */ React29.createElement("div", { className: "bili-qr-placeholder" }, "\u4E8C\u7EF4\u7801"), /* @__PURE__ */ React29.createElement("div", { className: "bili-login-actions" }, state2.loginPolling ? /* @__PURE__ */ React29.createElement(Button10, { size: "sm", type: "button", onClick: () => stopQrLogin() }, "\u53D6\u6D88\u767B\u5F55") : /* @__PURE__ */ React29.createElement(Button10, { size: "sm", type: "button", onClick: () => void startQrLogin() }, "\u751F\u6210\u4E8C\u7EF4\u7801"))), state2.loginError ? /* @__PURE__ */ React29.createElement("p", { className: "bili-status" }, state2.loginError) : null);
+  )), loggedIn && account ? /* @__PURE__ */ React29.createElement("div", { className: "bili-account" }, /* @__PURE__ */ React29.createElement(BiliImage, { src: account.avatar, className: "bili-avatar" }), /* @__PURE__ */ React29.createElement("span", { className: "bili-account-main" }, /* @__PURE__ */ React29.createElement("strong", null, account.nickname || "Bilibili \u7528\u6237"), /* @__PURE__ */ React29.createElement("small", null, "UID ", account.userId || "-")), /* @__PURE__ */ React29.createElement(Button11, { size: "sm", type: "button", onClick: () => void logout() }, "\u9000\u51FA\u767B\u5F55")) : /* @__PURE__ */ React29.createElement("div", { className: "bili-login-flow" }, state2.loginQr ? /* @__PURE__ */ React29.createElement("img", { className: "bili-qr", src: state2.loginQr.qrImage, alt: "Bilibili \u767B\u5F55\u4E8C\u7EF4\u7801" }) : /* @__PURE__ */ React29.createElement("div", { className: "bili-qr-placeholder" }, "\u4E8C\u7EF4\u7801"), /* @__PURE__ */ React29.createElement("div", { className: "bili-login-actions" }, state2.loginPolling ? /* @__PURE__ */ React29.createElement(Button11, { size: "sm", type: "button", onClick: () => stopQrLogin() }, "\u53D6\u6D88\u767B\u5F55") : /* @__PURE__ */ React29.createElement(Button11, { size: "sm", type: "button", onClick: () => void startQrLogin() }, "\u751F\u6210\u4E8C\u7EF4\u7801"))), state2.loginError ? /* @__PURE__ */ React29.createElement("p", { className: "bili-status" }, state2.loginError) : null);
 }
 
 // src/pages/MinePage.tsx
@@ -30091,7 +30163,7 @@ function MineEntry({ icon, label, onClick }) {
 }
 
 // src/pages/NotificationsPage.tsx
-import React32, { Button as Button12, useEffect as useEffect24, useRef as useRef8, useState as useState24 } from "sdk";
+import React32, { Button as Button13, useEffect as useEffect24, useRef as useRef8, useState as useState24 } from "sdk";
 
 // src/components/MessageSessionList.tsx
 import React31, { useEffect as useEffect23, useRef as useRef7, useState as useState23 } from "sdk";
@@ -30228,7 +30300,7 @@ function NotificationsPage() {
   if (loading && entries.length === 0) return /* @__PURE__ */ React32.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u901A\u77E5");
   if (error && entries.length === 0) return /* @__PURE__ */ React32.createElement("div", { className: "bili-state bili-state-error" }, error);
   return /* @__PURE__ */ React32.createElement("section", { className: "bili-notifications" }, /* @__PURE__ */ React32.createElement("div", { className: "bili-tabs", role: "tablist", "aria-label": "\u901A\u77E5\u4E0E\u79C1\u4FE1" }, /* @__PURE__ */ React32.createElement(
-    Button12,
+    Button13,
     {
       className: tab === "notify" ? "bili-tab bili-tab-active" : "bili-tab",
       variant: "ghost",
@@ -30239,7 +30311,7 @@ function NotificationsPage() {
     },
     "\u901A\u77E5"
   ), /* @__PURE__ */ React32.createElement(
-    Button12,
+    Button13,
     {
       className: tab === "chat" ? "bili-tab bili-tab-active" : "bili-tab",
       variant: "ghost",
@@ -30270,14 +30342,110 @@ function formatTime2(timestamp) {
   return `${date.getMonth() + 1}/${date.getDate()} ${time}`;
 }
 
-// src/pages/SeasonPage.tsx
-import React33, { Button as Button13, useEffect as useEffect25, useState as useState25 } from "sdk";
-function SeasonPage({ seasonId }) {
-  const [detail, setDetail] = useState25(null);
+// src/pages/PgcListPage.tsx
+import React33, { Button as Button14, useEffect as useEffect25, useState as useState25 } from "sdk";
+function PgcListPage({ seasonType }) {
+  const [order, setOrder] = useState25(0);
+  const [finish, setFinish] = useState25(-1);
+  const [items, setItems] = useState25([]);
+  const [page, setPage] = useState25(1);
+  const [hasMore, setHasMore] = useState25(false);
   const [loading, setLoading] = useState25(false);
   const [error, setError] = useState25("");
-  const [followBusy, setFollowBusy] = useState25(false);
   useEffect25(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.season.pgcIndex({ seasonType, order, isFinish: finish, page: 1 }).then((data) => {
+      if (!cancelled) {
+        setItems(data.items);
+        setPage(1);
+        setHasMore(data.hasMore);
+      }
+    }).catch((reason) => {
+      if (!cancelled) setError(errorMessage(reason));
+    }).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [seasonType, order, finish]);
+  function loadMore() {
+    if (loading || !hasMore) return;
+    const targetPage = page + 1;
+    setLoading(true);
+    const sdk = getState().sdk;
+    if (!sdk) return;
+    sdk.bilibili.season.pgcIndex({ seasonType, order, isFinish: finish, page: targetPage }).then((data) => {
+      setItems((previous) => [...previous, ...data.items]);
+      setPage(targetPage);
+      setHasMore(data.hasMore);
+    }).catch((reason) => setError(errorMessage(reason))).finally(() => setLoading(false));
+  }
+  return /* @__PURE__ */ React33.createElement("section", { className: "bili-pgc-list" }, /* @__PURE__ */ React33.createElement("div", { className: "bili-pgc-list-filters" }, /* @__PURE__ */ React33.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u6392\u5E8F" }, /* @__PURE__ */ React33.createElement(
+    Button14,
+    {
+      className: order === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      size: "sm",
+      variant: "ghost",
+      type: "button",
+      onClick: () => setOrder(0)
+    },
+    "\u6700\u70ED"
+  ), /* @__PURE__ */ React33.createElement(
+    Button14,
+    {
+      className: order === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      size: "sm",
+      variant: "ghost",
+      type: "button",
+      onClick: () => setOrder(1)
+    },
+    "\u6700\u65B0"
+  )), /* @__PURE__ */ React33.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u8FDE\u8F7D\u72B6\u6001" }, /* @__PURE__ */ React33.createElement(
+    Button14,
+    {
+      className: finish === -1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      size: "sm",
+      variant: "ghost",
+      type: "button",
+      onClick: () => setFinish(-1)
+    },
+    "\u5168\u90E8"
+  ), /* @__PURE__ */ React33.createElement(
+    Button14,
+    {
+      className: finish === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      size: "sm",
+      variant: "ghost",
+      type: "button",
+      onClick: () => setFinish(0)
+    },
+    "\u8FDE\u8F7D\u4E2D"
+  ), /* @__PURE__ */ React33.createElement(
+    Button14,
+    {
+      className: finish === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      size: "sm",
+      variant: "ghost",
+      type: "button",
+      onClick: () => setFinish(1)
+    },
+    "\u5DF2\u5B8C\u7ED3"
+  ))), error ? /* @__PURE__ */ React33.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading && items.length === 0 ? /* @__PURE__ */ React33.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D") : null, !error && !loading && items.length === 0 ? /* @__PURE__ */ React33.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u5185\u5BB9") : null, items.length > 0 ? /* @__PURE__ */ React33.createElement(React33.Fragment, null, /* @__PURE__ */ React33.createElement("div", { className: "bili-pgc-grid" }, items.map((card) => /* @__PURE__ */ React33.createElement(PgcCard, { key: `${card.seasonId}-${card.seasonType}`, card }))), hasMore ? /* @__PURE__ */ React33.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMore, disabled: loading }, loading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null) : null);
+}
+
+// src/pages/SeasonPage.tsx
+import React34, { Button as Button15, useEffect as useEffect26, useState as useState26 } from "sdk";
+function SeasonPage({ seasonId }) {
+  const [detail, setDetail] = useState26(null);
+  const [loading, setLoading] = useState26(false);
+  const [error, setError] = useState26("");
+  const [followBusy, setFollowBusy] = useState26(false);
+  useEffect26(() => {
     let cancelled = false;
     setLoading(true);
     setError("");
@@ -30311,10 +30479,10 @@ function SeasonPage({ seasonId }) {
       setFollowBusy(false);
     });
   }
-  if (loading) return /* @__PURE__ */ React33.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u756A\u5267\u8BE6\u60C5");
-  if (error) return /* @__PURE__ */ React33.createElement("div", { className: "bili-state bili-state-error" }, error);
-  if (!detail) return /* @__PURE__ */ React33.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u756A\u5267\u4FE1\u606F");
-  return /* @__PURE__ */ React33.createElement("section", { className: "bili-season-page" }, /* @__PURE__ */ React33.createElement("div", { className: "bili-season-header" }, /* @__PURE__ */ React33.createElement(BiliImage, { className: "bili-season-cover", src: detail.cover, alt: detail.title }), /* @__PURE__ */ React33.createElement("div", { className: "bili-season-info" }, /* @__PURE__ */ React33.createElement("div", { className: "bili-season-title" }, detail.title), /* @__PURE__ */ React33.createElement("div", { className: "bili-season-meta" }, detail.score != null ? /* @__PURE__ */ React33.createElement("span", null, "\u8BC4\u5206 ", detail.score.score.toFixed(1), "\uFF08", detail.score.count, " \u4EBA\uFF09") : null, detail.newEp ? /* @__PURE__ */ React33.createElement("span", null, "\u6700\u65B0\uFF1A", detail.newEp) : null, /* @__PURE__ */ React33.createElement("span", null, "\u5171 ", detail.total, " \u96C6")), detail.evaluate ? /* @__PURE__ */ React33.createElement("div", { className: "bili-season-evaluate" }, detail.evaluate) : null, /* @__PURE__ */ React33.createElement("div", null, /* @__PURE__ */ React33.createElement(Button13, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, detail.isFollowed ? "\u5DF2\u8FFD\u756A" : "\u8FFD\u756A")))), /* @__PURE__ */ React33.createElement("div", { className: "bili-season-section-title" }, "\u9009\u96C6"), /* @__PURE__ */ React33.createElement("div", { className: "bili-season-episodes" }, detail.episodes.map((episode) => /* @__PURE__ */ React33.createElement(
+  if (loading) return /* @__PURE__ */ React34.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u756A\u5267\u8BE6\u60C5");
+  if (error) return /* @__PURE__ */ React34.createElement("div", { className: "bili-state bili-state-error" }, error);
+  if (!detail) return /* @__PURE__ */ React34.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u756A\u5267\u4FE1\u606F");
+  return /* @__PURE__ */ React34.createElement("section", { className: "bili-season-page" }, /* @__PURE__ */ React34.createElement("div", { className: "bili-season-header" }, /* @__PURE__ */ React34.createElement(BiliImage, { className: "bili-season-cover", src: detail.cover, alt: detail.title }), /* @__PURE__ */ React34.createElement("div", { className: "bili-season-info" }, /* @__PURE__ */ React34.createElement("div", { className: "bili-season-title" }, detail.title), /* @__PURE__ */ React34.createElement("div", { className: "bili-season-meta" }, detail.score != null ? /* @__PURE__ */ React34.createElement("span", null, "\u8BC4\u5206 ", detail.score.score.toFixed(1), "\uFF08", detail.score.count, " \u4EBA\uFF09") : null, detail.newEp ? /* @__PURE__ */ React34.createElement("span", null, "\u6700\u65B0\uFF1A", detail.newEp) : null, /* @__PURE__ */ React34.createElement("span", null, "\u5171 ", detail.total, " \u96C6")), detail.evaluate ? /* @__PURE__ */ React34.createElement("div", { className: "bili-season-evaluate" }, detail.evaluate) : null, /* @__PURE__ */ React34.createElement("div", null, /* @__PURE__ */ React34.createElement(Button15, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, detail.isFollowed ? "\u5DF2\u8FFD\u756A" : "\u8FFD\u756A")))), /* @__PURE__ */ React34.createElement("div", { className: "bili-season-section-title" }, "\u9009\u96C6"), /* @__PURE__ */ React34.createElement("div", { className: "bili-season-episodes" }, detail.episodes.map((episode) => /* @__PURE__ */ React34.createElement(
     "button",
     {
       key: episode.epId,
@@ -30330,8 +30498,8 @@ function SeasonPage({ seasonId }) {
         epId: episode.epId
       })
     },
-    /* @__PURE__ */ React33.createElement("span", { className: "bili-season-episode-title" }, episode.longTitle || episode.title || `ep${episode.epId}`),
-    /* @__PURE__ */ React33.createElement("span", { className: "bili-season-episode-duration" }, formatDuration2(episode.duration / 1e3))
+    /* @__PURE__ */ React34.createElement("span", { className: "bili-season-episode-title" }, episode.longTitle || episode.title || `ep${episode.epId}`),
+    /* @__PURE__ */ React34.createElement("span", { className: "bili-season-episode-duration" }, formatDuration2(episode.duration / 1e3))
   ))));
 }
 function formatDuration2(seconds) {
@@ -30347,15 +30515,15 @@ function pad2(value) {
 }
 
 // src/pages/SearchPage.tsx
-import React36, { Button as Button14, useEffect as useEffect28, useState as useState28 } from "sdk";
+import React37, { Button as Button16, useEffect as useEffect29, useState as useState29 } from "sdk";
 
 // src/components/SearchBox.tsx
-import React34, { TextField as TextField3, useEffect as useEffect26, useRef as useRef9, useState as useState26 } from "sdk";
+import React35, { TextField as TextField3, useEffect as useEffect27, useRef as useRef9, useState as useState27 } from "sdk";
 function SearchBox({ value, onChange, onSubmit, placeholder, disabled }) {
-  const [suggestions, setSuggestions] = useState26([]);
-  const [open, setOpen] = useState26(false);
+  const [suggestions, setSuggestions] = useState27([]);
+  const [open, setOpen] = useState27(false);
   const containerRef = useRef9(null);
-  useEffect26(() => {
+  useEffect27(() => {
     const keyword = value.trim();
     if (!keyword) {
       setSuggestions([]);
@@ -30383,7 +30551,7 @@ function SearchBox({ value, onChange, onSubmit, placeholder, disabled }) {
       window.clearTimeout(timer);
     };
   }, [value]);
-  useEffect26(() => {
+  useEffect27(() => {
     function onDocumentClick(event) {
       const el = containerRef.current;
       if (el && event.target instanceof Node && !el.contains(event.target)) {
@@ -30398,7 +30566,7 @@ function SearchBox({ value, onChange, onSubmit, placeholder, disabled }) {
     setOpen(false);
     onSubmit();
   }
-  return /* @__PURE__ */ React34.createElement("div", { className: "bili-search-box", ref: containerRef }, /* @__PURE__ */ React34.createElement(
+  return /* @__PURE__ */ React35.createElement("div", { className: "bili-search-box", ref: containerRef }, /* @__PURE__ */ React35.createElement(
     TextField3,
     {
       value,
@@ -30409,15 +30577,15 @@ function SearchBox({ value, onChange, onSubmit, placeholder, disabled }) {
         if (suggestions.length > 0) setOpen(true);
       }
     }
-  ), open ? /* @__PURE__ */ React34.createElement("ul", { className: "bili-suggest-dropdown", role: "listbox" }, suggestions.map((item, index) => /* @__PURE__ */ React34.createElement("li", { key: `${item}-${index}` }, /* @__PURE__ */ React34.createElement("button", { type: "button", className: "bili-suggest-item", onClick: () => pickSuggestion(item) }, item)))) : null);
+  ), open ? /* @__PURE__ */ React35.createElement("ul", { className: "bili-suggest-dropdown", role: "listbox" }, suggestions.map((item, index) => /* @__PURE__ */ React35.createElement("li", { key: `${item}-${index}` }, /* @__PURE__ */ React35.createElement("button", { type: "button", className: "bili-suggest-item", onClick: () => pickSuggestion(item) }, item)))) : null);
 }
 
 // src/components/SearchEmptyPanel.tsx
-import React35, { useEffect as useEffect27, useState as useState27 } from "sdk";
+import React36, { useEffect as useEffect28, useState as useState28 } from "sdk";
 function SearchEmptyPanel({ history, onPick, onClearHistory }) {
-  const [hotwords, setHotwords] = useState27([]);
-  const [loading, setLoading] = useState27(false);
-  useEffect27(() => {
+  const [hotwords, setHotwords] = useState28([]);
+  const [loading, setLoading] = useState28(false);
+  useEffect28(() => {
     let cancelled = false;
     setLoading(true);
     const sdk = getState().sdk;
@@ -30434,16 +30602,16 @@ function SearchEmptyPanel({ history, onPick, onClearHistory }) {
       cancelled = true;
     };
   }, []);
-  return /* @__PURE__ */ React35.createElement("div", { className: "bili-search-empty" }, history.length > 0 ? /* @__PURE__ */ React35.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React35.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React35.createElement("span", null, "\u641C\u7D22\u5386\u53F2"), /* @__PURE__ */ React35.createElement("button", { type: "button", className: "bili-search-clear", onClick: onClearHistory }, "\u6E05\u7A7A")), /* @__PURE__ */ React35.createElement("div", { className: "bili-search-words" }, history.map((item) => /* @__PURE__ */ React35.createElement("button", { key: item, type: "button", className: "bili-search-word", onClick: () => onPick(item) }, item)))) : null, /* @__PURE__ */ React35.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React35.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React35.createElement("span", null, "\u70ED\u641C\u699C")), loading ? /* @__PURE__ */ React35.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u70ED\u641C") : hotwords.length > 0 ? /* @__PURE__ */ React35.createElement("ol", { className: "bili-hotword-list" }, hotwords.slice(0, 20).map((item, index) => /* @__PURE__ */ React35.createElement("li", { key: item.keyword }, /* @__PURE__ */ React35.createElement("button", { type: "button", className: "bili-hotword-item", onClick: () => onPick(item.showName || item.keyword) }, /* @__PURE__ */ React35.createElement("span", { className: index < 3 ? "bili-hotword-rank bili-hotword-rank-top" : "bili-hotword-rank" }, index + 1), item.showName || item.keyword)))) : /* @__PURE__ */ React35.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u70ED\u641C")));
+  return /* @__PURE__ */ React36.createElement("div", { className: "bili-search-empty" }, history.length > 0 ? /* @__PURE__ */ React36.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React36.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React36.createElement("span", null, "\u641C\u7D22\u5386\u53F2"), /* @__PURE__ */ React36.createElement("button", { type: "button", className: "bili-search-clear", onClick: onClearHistory }, "\u6E05\u7A7A")), /* @__PURE__ */ React36.createElement("div", { className: "bili-search-words" }, history.map((item) => /* @__PURE__ */ React36.createElement("button", { key: item, type: "button", className: "bili-search-word", onClick: () => onPick(item) }, item)))) : null, /* @__PURE__ */ React36.createElement("section", { className: "bili-search-empty-section" }, /* @__PURE__ */ React36.createElement("div", { className: "bili-search-empty-head" }, /* @__PURE__ */ React36.createElement("span", null, "\u70ED\u641C\u699C")), loading ? /* @__PURE__ */ React36.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u70ED\u641C") : hotwords.length > 0 ? /* @__PURE__ */ React36.createElement("ol", { className: "bili-hotword-list" }, hotwords.slice(0, 20).map((item, index) => /* @__PURE__ */ React36.createElement("li", { key: item.keyword }, /* @__PURE__ */ React36.createElement("button", { type: "button", className: "bili-hotword-item", onClick: () => onPick(item.showName || item.keyword) }, /* @__PURE__ */ React36.createElement("span", { className: index < 3 ? "bili-hotword-rank bili-hotword-rank-top" : "bili-hotword-rank" }, index + 1), item.showName || item.keyword)))) : /* @__PURE__ */ React36.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u70ED\u641C")));
 }
 
 // src/pages/SearchPage.tsx
 function SearchPage({ keyword }) {
-  const [query, setQuery] = useState28(keyword);
-  const [submitted, setSubmitted] = useState28(keyword);
-  const [config, setConfig] = useState28(getState().config);
-  useEffect28(() => subscribe(() => setConfig(getState().config)), []);
-  useEffect28(() => {
+  const [query, setQuery] = useState29(keyword);
+  const [submitted, setSubmitted] = useState29(keyword);
+  const [config, setConfig] = useState29(getState().config);
+  useEffect29(() => subscribe(() => setConfig(getState().config)), []);
+  useEffect29(() => {
     if (keyword !== submitted) {
       setQuery(keyword);
       setSubmitted(keyword);
@@ -30469,14 +30637,14 @@ function SearchPage({ keyword }) {
     submitSearch(query);
   }
   const searchGuide = submitted.length === 0;
-  return /* @__PURE__ */ React36.createElement("section", { className: "bili-search-page" }, /* @__PURE__ */ React36.createElement("form", { className: "bili-search", onSubmit: (event) => handleSearch(event) }, /* @__PURE__ */ React36.createElement(SearchBox, { value: query, onChange: setQuery, onSubmit: () => submitSearch(query), placeholder: "\u641C\u7D22\u89C6\u9891" }), /* @__PURE__ */ React36.createElement(Button14, { type: "submit", disabled: search.loading, size: "sm" }, "\u641C\u7D22")), /* @__PURE__ */ React36.createElement(
+  return /* @__PURE__ */ React37.createElement("section", { className: "bili-search-page" }, /* @__PURE__ */ React37.createElement("form", { className: "bili-search", onSubmit: (event) => handleSearch(event) }, /* @__PURE__ */ React37.createElement(SearchBox, { value: query, onChange: setQuery, onSubmit: () => submitSearch(query), placeholder: "\u641C\u7D22\u89C6\u9891" }), /* @__PURE__ */ React37.createElement(Button16, { type: "submit", disabled: search.loading, size: "sm" }, "\u641C\u7D22")), /* @__PURE__ */ React37.createElement(
     HomeFeed,
     {
       error: search.error,
       loading: search.loading,
       videos: search.items,
       searchGuide,
-      searchEmpty: /* @__PURE__ */ React36.createElement(
+      searchEmpty: /* @__PURE__ */ React37.createElement(
         SearchEmptyPanel,
         {
           history: searchHistory,
@@ -30500,7 +30668,7 @@ function homeCall3(call) {
 }
 
 // src/pages/SettingsPage.tsx
-import React37, { Button as Button15, Select, Slider, Toggle, useEffect as useEffect29, useState as useState29 } from "sdk";
+import React38, { Button as Button17, Select, Slider, Toggle, useEffect as useEffect30, useState as useState30 } from "sdk";
 var TABS2 = [
   { key: "player", label: "\u64AD\u653E\u5668" },
   { key: "danmaku", label: "\u5F39\u5E55" },
@@ -30526,12 +30694,12 @@ var AUDIO_OPTIONS = [
   { value: "flac", label: "\u65E0\u635F FLAC" }
 ];
 function SettingsPage() {
-  const [tab, setTab] = useState29("player");
-  const [config, setConfig] = useState29(defaultConfig);
-  const [loaded, setLoaded] = useState29(false);
-  const [saving, setSaving] = useState29(false);
-  const [message, setMessage] = useState29("");
-  useEffect29(() => {
+  const [tab, setTab] = useState30("player");
+  const [config, setConfig] = useState30(defaultConfig);
+  const [loaded, setLoaded] = useState30(false);
+  const [saving, setSaving] = useState30(false);
+  const [message, setMessage] = useState30("");
+  useEffect30(() => {
     let active = true;
     loadConfig().then((next) => {
       if (!active) return;
@@ -30554,7 +30722,7 @@ function SettingsPage() {
     setMessage("");
     void saveConfig(merged).then(() => setMessage("\u8BBE\u7F6E\u5DF2\u4FDD\u5B58")).catch((error) => setMessage(errorMessage(error))).finally(() => setSaving(false));
   }
-  return /* @__PURE__ */ React37.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React37.createElement("style", null, cssText), /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-tabs", role: "tablist", "aria-label": "\u63D2\u4EF6\u8BBE\u7F6E" }, TABS2.map((item) => /* @__PURE__ */ React37.createElement(
+  return /* @__PURE__ */ React38.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React38.createElement("style", null, cssText), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-tabs", role: "tablist", "aria-label": "\u63D2\u4EF6\u8BBE\u7F6E" }, TABS2.map((item) => /* @__PURE__ */ React38.createElement(
     "button",
     {
       key: item.key,
@@ -30565,7 +30733,7 @@ function SettingsPage() {
       onClick: () => setTab(item.key)
     },
     item.label
-  ))), !loaded ? /* @__PURE__ */ React37.createElement("div", { className: "bili-state bili-state-compact" }, "\u6B63\u5728\u52A0\u8F7D\u8BBE\u7F6E\u2026") : null, loaded && tab === "player" ? /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group-title" }, "\u64AD\u653E"), /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u64AD\u653E\u7F13\u51B2"), /* @__PURE__ */ React37.createElement(
+  ))), !loaded ? /* @__PURE__ */ React38.createElement("div", { className: "bili-state bili-state-compact" }, "\u6B63\u5728\u52A0\u8F7D\u8BBE\u7F6E\u2026") : null, loaded && tab === "player" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u64AD\u653E"), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u64AD\u653E\u7F13\u51B2"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "bufferMode",
@@ -30573,7 +30741,7 @@ function SettingsPage() {
       options: BUFFER_OPTIONS,
       onChange: (bufferMode) => update({ bufferMode })
     }
-  )), /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u9ED8\u8BA4\u89C6\u9891\u683C\u5F0F"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u89C6\u9891\u683C\u5F0F"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "defaultFormat",
@@ -30581,7 +30749,7 @@ function SettingsPage() {
       options: FORMAT_OPTIONS,
       onChange: (defaultFormat) => update({ defaultFormat })
     }
-  )), /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u9ED8\u8BA4\u7F16\u7801\u4F18\u5148\u5E8F"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u7F16\u7801\u4F18\u5148\u5E8F"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "codecPreference",
@@ -30589,7 +30757,7 @@ function SettingsPage() {
       options: CODEC_OPTIONS,
       onChange: (codecPreference) => update({ codecPreference })
     }
-  )), /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u9ED8\u8BA4\u97F3\u8D28"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u97F3\u8D28"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "audioPreference",
@@ -30597,7 +30765,7 @@ function SettingsPage() {
       options: AUDIO_OPTIONS,
       onChange: (audioPreference) => update({ audioPreference })
     }
-  )), /* @__PURE__ */ React37.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React37.createElement(Toggle, { on: config.autoPlay, onChange: (autoPlay) => update({ autoPlay }) }), /* @__PURE__ */ React37.createElement("span", null, "\u8BE6\u60C5\u9875\u81EA\u52A8\u8D77\u64AD")), /* @__PURE__ */ React37.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React37.createElement(Toggle, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) }), /* @__PURE__ */ React37.createElement("span", null, "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9"))), /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group-title" }, "\u500D\u901F\u4E0E\u6E05\u6670\u5EA6"), /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u9ED8\u8BA4\u500D\u901F"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(Toggle, { on: config.autoPlay, onChange: (autoPlay) => update({ autoPlay }) }), /* @__PURE__ */ React38.createElement("span", null, "\u8BE6\u60C5\u9875\u81EA\u52A8\u8D77\u64AD")), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(Toggle, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) }), /* @__PURE__ */ React38.createElement("span", null, "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9"))), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u500D\u901F\u4E0E\u6E05\u6670\u5EA6"), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u500D\u901F"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "defaultPlaybackRate",
@@ -30605,7 +30773,7 @@ function SettingsPage() {
       options: [0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => ({ value: String(rate), label: `${rate}x` })),
       onChange: (value) => update({ defaultPlaybackRate: Number(value) })
     }
-  )), /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "defaultQualityMode",
@@ -30616,7 +30784,7 @@ function SettingsPage() {
       ],
       onChange: (defaultQualityMode) => update({ defaultQualityMode })
     }
-  )), config.defaultQualityMode === "manual" ? /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6"), /* @__PURE__ */ React37.createElement(
+  )), config.defaultQualityMode === "manual" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "defaultQualityQn",
@@ -30630,7 +30798,7 @@ function SettingsPage() {
       ],
       onChange: (defaultQualityQn) => update({ defaultQualityQn: Number(defaultQualityQn) })
     }
-  )) : null)) : null, loaded && tab === "danmaku" ? /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group-title" }, "\u5F39\u5E55"), /* @__PURE__ */ React37.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React37.createElement(Toggle, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React37.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React37.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React37.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React37.createElement(
+  )) : null)) : null, loaded && tab === "danmaku" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u5F39\u5E55"), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(Toggle, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React38.createElement(
     Slider,
     {
       max: 32,
@@ -30639,7 +30807,7 @@ function SettingsPage() {
       value: config.danmakuFontSize,
       onChange: (danmakuFontSize) => update({ danmakuFontSize })
     }
-  )), /* @__PURE__ */ React37.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React37.createElement("span", null, "\u5F39\u5E55\u900F\u660E\u5EA6 ", Math.round(config.danmakuOpacity * 100), "%"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u900F\u660E\u5EA6 ", Math.round(config.danmakuOpacity * 100), "%"), /* @__PURE__ */ React38.createElement(
     Slider,
     {
       max: 1,
@@ -30648,7 +30816,7 @@ function SettingsPage() {
       value: config.danmakuOpacity,
       onChange: (danmakuOpacity) => update({ danmakuOpacity })
     }
-  )), /* @__PURE__ */ React37.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React37.createElement("span", null, "\u5F39\u5E55\u5BC6\u5EA6 ", Math.round(config.danmakuDensity * 100), "%"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u5BC6\u5EA6 ", Math.round(config.danmakuDensity * 100), "%"), /* @__PURE__ */ React38.createElement(
     Slider,
     {
       max: 1,
@@ -30657,7 +30825,7 @@ function SettingsPage() {
       value: config.danmakuDensity,
       onChange: (danmakuDensity) => update({ danmakuDensity })
     }
-  )), /* @__PURE__ */ React37.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React37.createElement("span", null, "\u5F39\u5E55\u901F\u5EA6 ", config.danmakuSpeed.toFixed(1), "x"), /* @__PURE__ */ React37.createElement(
+  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u901F\u5EA6 ", config.danmakuSpeed.toFixed(1), "x"), /* @__PURE__ */ React38.createElement(
     Slider,
     {
       max: 1.8,
@@ -30666,13 +30834,13 @@ function SettingsPage() {
       value: config.danmakuSpeed,
       onChange: (danmakuSpeed) => update({ danmakuSpeed })
     }
-  )))) : null, loaded && tab === "general" ? /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group-title" }, "\u4FA7\u8FB9\u680F"), /* @__PURE__ */ React37.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React37.createElement(
+  )))) : null, loaded && tab === "general" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u4FA7\u8FB9\u680F"), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(
     Toggle,
     {
       on: config.sidebarAutoHide,
       onChange: (sidebarAutoHide) => update({ sidebarAutoHide })
     }
-  ), /* @__PURE__ */ React37.createElement("span", null, "\u6536\u8D77\u540E\u60AC\u505C\u5C55\u5F00")), /* @__PURE__ */ React37.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React37.createElement("span", null, "\u4FA7\u8FB9\u680F\u4F4D\u7F6E"), /* @__PURE__ */ React37.createElement(
+  ), /* @__PURE__ */ React38.createElement("span", null, "\u6536\u8D77\u540E\u60AC\u505C\u5C55\u5F00")), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u4FA7\u8FB9\u680F\u4F4D\u7F6E"), /* @__PURE__ */ React38.createElement(
     Select,
     {
       name: "sidebarPosition",
@@ -30683,7 +30851,7 @@ function SettingsPage() {
       ],
       onChange: (sidebarPosition) => update({ sidebarPosition })
     }
-  ))), /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React37.createElement("div", { className: "bili-settings-group-title" }, "\u6570\u636E"), /* @__PURE__ */ React37.createElement("div", { className: "bili-action-row" }, /* @__PURE__ */ React37.createElement(Button15, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406\u7F13\u5B58"), /* @__PURE__ */ React37.createElement(Button15, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u622A\u56FE\u76EE\u5F55")))) : null, message ? /* @__PURE__ */ React37.createElement("div", { className: "bili-state bili-state-compact" }, message) : null);
+  ))), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u6570\u636E"), /* @__PURE__ */ React38.createElement("div", { className: "bili-action-row" }, /* @__PURE__ */ React38.createElement(Button17, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406\u7F13\u5B58"), /* @__PURE__ */ React38.createElement(Button17, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u622A\u56FE\u76EE\u5F55")))) : null, message ? /* @__PURE__ */ React38.createElement("div", { className: "bili-state bili-state-compact" }, message) : null);
   function clearCache() {
     const sdk = getState().sdk;
     if (!sdk) return;
@@ -30701,12 +30869,12 @@ function SettingsPage() {
 }
 
 // src/pages/SpacePage.tsx
-import React39, { Button as Button16, useEffect as useEffect30, useRef as useRef10, useState as useState30 } from "sdk";
+import React40, { Button as Button18, useEffect as useEffect31, useRef as useRef10, useState as useState31 } from "sdk";
 
 // src/components/ArticleCard.tsx
-import React38 from "sdk";
+import React39 from "sdk";
 function ArticleCard({ article }) {
-  return /* @__PURE__ */ React38.createElement("button", { type: "button", className: "bili-article-card", onClick: () => openArticle(article.id) }, article.bannerUrl || article.imageUrls?.[0] ? /* @__PURE__ */ React38.createElement("div", { className: "bili-article-card-cover" }, /* @__PURE__ */ React38.createElement(BiliImage, { src: article.bannerUrl || article.imageUrls?.[0], alt: article.title, loading: "lazy" })) : null, /* @__PURE__ */ React38.createElement("strong", { className: "bili-article-card-title" }, article.title), article.summary ? /* @__PURE__ */ React38.createElement("span", { className: "bili-article-card-summary" }, article.summary) : null, /* @__PURE__ */ React38.createElement("div", { className: "bili-article-card-meta" }, /* @__PURE__ */ React38.createElement("span", null, formatPubTime2(article.pubTime)), article.viewCount > 0 ? /* @__PURE__ */ React38.createElement("span", null, formatCount5(article.viewCount), " \u9605\u8BFB") : null, article.likeCount > 0 ? /* @__PURE__ */ React38.createElement("span", null, formatCount5(article.likeCount), " \u70B9\u8D5E") : null));
+  return /* @__PURE__ */ React39.createElement("button", { type: "button", className: "bili-article-card", onClick: () => openArticle(article.id) }, article.bannerUrl || article.imageUrls?.[0] ? /* @__PURE__ */ React39.createElement("div", { className: "bili-article-card-cover" }, /* @__PURE__ */ React39.createElement(BiliImage, { src: article.bannerUrl || article.imageUrls?.[0], alt: article.title, loading: "lazy" })) : null, /* @__PURE__ */ React39.createElement("strong", { className: "bili-article-card-title" }, article.title), article.summary ? /* @__PURE__ */ React39.createElement("span", { className: "bili-article-card-summary" }, article.summary) : null, /* @__PURE__ */ React39.createElement("div", { className: "bili-article-card-meta" }, /* @__PURE__ */ React39.createElement("span", null, formatPubTime2(article.pubTime)), article.viewCount > 0 ? /* @__PURE__ */ React39.createElement("span", null, formatCount5(article.viewCount), " \u9605\u8BFB") : null, article.likeCount > 0 ? /* @__PURE__ */ React39.createElement("span", null, formatCount5(article.likeCount), " \u70B9\u8D5E") : null));
 }
 function formatCount5(value) {
   if (value >= 1e4) return `${(value / 1e4).toFixed(1)} \u4E07`;
@@ -30721,28 +30889,28 @@ function formatPubTime2(value) {
 
 // src/pages/SpacePage.tsx
 function SpacePage({ mid }) {
-  const [space, setSpace] = useState30(null);
-  const [videos, setVideos] = useState30([]);
-  const [page, setPage] = useState30(1);
-  const [loading, setLoading] = useState30(false);
-  const [videosLoading, setVideosLoading] = useState30(false);
-  const [error, setError] = useState30("");
-  const [followBusy, setFollowBusy] = useState30(false);
-  const [tab, setTab] = useState30("videos");
-  const [dynamics, setDynamics] = useState30([]);
-  const [dynOffset, setDynOffset] = useState30("");
-  const [dynHasMore, setDynHasMore] = useState30(false);
-  const [dynLoading, setDynLoading] = useState30(false);
-  const [topBusy, setTopBusy] = useState30("");
+  const [space, setSpace] = useState31(null);
+  const [videos, setVideos] = useState31([]);
+  const [page, setPage] = useState31(1);
+  const [loading, setLoading] = useState31(false);
+  const [videosLoading, setVideosLoading] = useState31(false);
+  const [error, setError] = useState31("");
+  const [followBusy, setFollowBusy] = useState31(false);
+  const [tab, setTab] = useState31("videos");
+  const [dynamics, setDynamics] = useState31([]);
+  const [dynOffset, setDynOffset] = useState31("");
+  const [dynHasMore, setDynHasMore] = useState31(false);
+  const [dynLoading, setDynLoading] = useState31(false);
+  const [topBusy, setTopBusy] = useState31("");
   const dynSeqRef = useRef10(0);
-  const [articles, setArticles] = useState30([]);
-  const [articlePage, setArticlePage] = useState30(1);
-  const [articlesLoading, setArticlesLoading] = useState30(false);
-  const [articleTotal, setArticleTotal] = useState30(0);
+  const [articles, setArticles] = useState31([]);
+  const [articlePage, setArticlePage] = useState31(1);
+  const [articlesLoading, setArticlesLoading] = useState31(false);
+  const [articleTotal, setArticleTotal] = useState31(0);
   const articleSeqRef = useRef10(0);
   const currentUid = Number(getState().loginInfo?.userId ?? 0);
   const isSelf = currentUid > 0 && currentUid === mid;
-  useEffect30(() => {
+  useEffect31(() => {
     let cancelled = false;
     setLoading(true);
     setError("");
@@ -30763,7 +30931,7 @@ function SpacePage({ mid }) {
       cancelled = true;
     };
   }, [mid]);
-  useEffect30(() => {
+  useEffect31(() => {
     let cancelled = false;
     setVideosLoading(true);
     const sdk = getState().sdk;
@@ -30780,7 +30948,7 @@ function SpacePage({ mid }) {
       cancelled = true;
     };
   }, [mid, page]);
-  useEffect30(() => {
+  useEffect31(() => {
     if (tab !== "dynamics") return;
     const seq = dynSeqRef.current + 1;
     dynSeqRef.current = seq;
@@ -30802,7 +30970,7 @@ function SpacePage({ mid }) {
       dynSeqRef.current += 1;
     };
   }, [tab, mid]);
-  useEffect30(() => {
+  useEffect31(() => {
     if (tab !== "articles") return;
     const seq = articleSeqRef.current + 1;
     articleSeqRef.current = seq;
@@ -30903,10 +31071,10 @@ function SpacePage({ mid }) {
       setFollowBusy(false);
     });
   }
-  if (loading) return /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D UP \u4E3B\u9875");
-  if (error && !space) return /* @__PURE__ */ React39.createElement("div", { className: "bili-state bili-state-error" }, error);
-  if (!space) return /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6682\u65E0 UP \u4FE1\u606F");
-  return /* @__PURE__ */ React39.createElement("section", { className: "bili-space" }, /* @__PURE__ */ React39.createElement("div", { className: "bili-space-card" }, /* @__PURE__ */ React39.createElement(BiliImage, { className: "bili-space-avatar", src: space.face, alt: space.name }), /* @__PURE__ */ React39.createElement("div", { className: "bili-space-info" }, /* @__PURE__ */ React39.createElement("div", { className: "bili-space-name" }, space.name, /* @__PURE__ */ React39.createElement("span", { className: "bili-space-level" }, "Lv.", space.level), space.liveRoom && space.liveRoom.liveStatus === 1 ? /* @__PURE__ */ React39.createElement("span", { className: "bili-space-live" }, "\u76F4\u64AD\u4E2D") : null), /* @__PURE__ */ React39.createElement("div", { className: "bili-space-sign" }, space.sign || "\u8FD9\u4E2A\u4EBA\u5F88\u61D2\uFF0C\u4EC0\u4E48\u90FD\u6CA1\u5199"), /* @__PURE__ */ React39.createElement("div", { className: "bili-space-stats" }, /* @__PURE__ */ React39.createElement("span", null, "\u89C6\u9891 ", space.archiveCount), /* @__PURE__ */ React39.createElement("span", null, "\u64AD\u653E ", formatCount6(space.view)), /* @__PURE__ */ React39.createElement("span", null, "\u7C89\u4E1D ", formatCount6(space.fans)), /* @__PURE__ */ React39.createElement("span", null, "\u83B7\u8D5E ", formatCount6(space.likes)))), /* @__PURE__ */ React39.createElement(Button16, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, space.isFollowed ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8")), /* @__PURE__ */ React39.createElement("div", { className: "bili-space-tabs" }, /* @__PURE__ */ React39.createElement(
+  if (loading) return /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D UP \u4E3B\u9875");
+  if (error && !space) return /* @__PURE__ */ React40.createElement("div", { className: "bili-state bili-state-error" }, error);
+  if (!space) return /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6682\u65E0 UP \u4FE1\u606F");
+  return /* @__PURE__ */ React40.createElement("section", { className: "bili-space" }, /* @__PURE__ */ React40.createElement("div", { className: "bili-space-card" }, /* @__PURE__ */ React40.createElement(BiliImage, { className: "bili-space-avatar", src: space.face, alt: space.name }), /* @__PURE__ */ React40.createElement("div", { className: "bili-space-info" }, /* @__PURE__ */ React40.createElement("div", { className: "bili-space-name" }, space.name, /* @__PURE__ */ React40.createElement("span", { className: "bili-space-level" }, "Lv.", space.level), space.liveRoom && space.liveRoom.liveStatus === 1 ? /* @__PURE__ */ React40.createElement("span", { className: "bili-space-live" }, "\u76F4\u64AD\u4E2D") : null), /* @__PURE__ */ React40.createElement("div", { className: "bili-space-sign" }, space.sign || "\u8FD9\u4E2A\u4EBA\u5F88\u61D2\uFF0C\u4EC0\u4E48\u90FD\u6CA1\u5199"), /* @__PURE__ */ React40.createElement("div", { className: "bili-space-stats" }, /* @__PURE__ */ React40.createElement("span", null, "\u89C6\u9891 ", space.archiveCount), /* @__PURE__ */ React40.createElement("span", null, "\u64AD\u653E ", formatCount6(space.view)), /* @__PURE__ */ React40.createElement("span", null, "\u7C89\u4E1D ", formatCount6(space.fans)), /* @__PURE__ */ React40.createElement("span", null, "\u83B7\u8D5E ", formatCount6(space.likes)))), /* @__PURE__ */ React40.createElement(Button18, { variant: "outline", size: "sm", type: "button", onClick: toggleFollow, disabled: followBusy }, space.isFollowed ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8")), /* @__PURE__ */ React40.createElement("div", { className: "bili-space-tabs" }, /* @__PURE__ */ React40.createElement(
     "button",
     {
       type: "button",
@@ -30914,7 +31082,7 @@ function SpacePage({ mid }) {
       onClick: () => setTab("videos")
     },
     "\u6295\u7A3F"
-  ), /* @__PURE__ */ React39.createElement(
+  ), /* @__PURE__ */ React40.createElement(
     "button",
     {
       type: "button",
@@ -30922,7 +31090,7 @@ function SpacePage({ mid }) {
       onClick: () => setTab("dynamics")
     },
     "\u52A8\u6001"
-  ), /* @__PURE__ */ React39.createElement(
+  ), /* @__PURE__ */ React40.createElement(
     "button",
     {
       type: "button",
@@ -30930,7 +31098,7 @@ function SpacePage({ mid }) {
       onClick: () => setTab("articles")
     },
     "\u4E13\u680F"
-  )), tab === "videos" ? /* @__PURE__ */ React39.createElement(React39.Fragment, null, /* @__PURE__ */ React39.createElement("div", { className: "bili-space-section-title" }, "\u6295\u7A3F\u89C6\u9891"), videos.length === 0 && videosLoading ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891") : null, videos.length > 0 ? /* @__PURE__ */ React39.createElement(React39.Fragment, null, /* @__PURE__ */ React39.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React39.createElement(VideoCard, { key: `${video.bvid}-${video.aid}`, video }))), videosLoading ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u66F4\u591A") : /* @__PURE__ */ React39.createElement("button", { type: "button", className: "bili-space-load-more", onClick: () => setPage((previous) => previous + 1) }, "\u52A0\u8F7D\u66F4\u591A")) : null) : tab === "articles" ? /* @__PURE__ */ React39.createElement("div", { className: "bili-article-grid" }, error ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state bili-state-error" }, error) : null, articlesLoading && articles.length === 0 ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u4E13\u680F") : null, articles.map((article) => /* @__PURE__ */ React39.createElement(ArticleCard, { key: article.id, article })), articles.length === 0 && !articlesLoading ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u4E13\u680F") : null, articles.length > 0 && articles.length < articleTotal ? /* @__PURE__ */ React39.createElement("button", { type: "button", className: "bili-space-load-more", onClick: loadMoreArticles, disabled: articlesLoading }, articlesLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null) : /* @__PURE__ */ React39.createElement("div", { className: "bili-dynamic-page" }, error ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state bili-state-error" }, error) : null, dynLoading && dynamics.length === 0 ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001") : null, dynamics.map((card) => /* @__PURE__ */ React39.createElement("div", { className: "bili-dynamic-card-wrap", key: card.dynId }, /* @__PURE__ */ React39.createElement(DynamicCard, { card, onLike: handleLike }), isSelf ? /* @__PURE__ */ React39.createElement(
+  )), tab === "videos" ? /* @__PURE__ */ React40.createElement(React40.Fragment, null, /* @__PURE__ */ React40.createElement("div", { className: "bili-space-section-title" }, "\u6295\u7A3F\u89C6\u9891"), videos.length === 0 && videosLoading ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u89C6\u9891") : null, videos.length > 0 ? /* @__PURE__ */ React40.createElement(React40.Fragment, null, /* @__PURE__ */ React40.createElement("div", { className: "bili-video-grid" }, videos.map((video) => /* @__PURE__ */ React40.createElement(VideoCard, { key: `${video.bvid}-${video.aid}`, video }))), videosLoading ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u66F4\u591A") : /* @__PURE__ */ React40.createElement("button", { type: "button", className: "bili-space-load-more", onClick: () => setPage((previous) => previous + 1) }, "\u52A0\u8F7D\u66F4\u591A")) : null) : tab === "articles" ? /* @__PURE__ */ React40.createElement("div", { className: "bili-article-grid" }, error ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state bili-state-error" }, error) : null, articlesLoading && articles.length === 0 ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u4E13\u680F") : null, articles.map((article) => /* @__PURE__ */ React40.createElement(ArticleCard, { key: article.id, article })), articles.length === 0 && !articlesLoading ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u4E13\u680F") : null, articles.length > 0 && articles.length < articleTotal ? /* @__PURE__ */ React40.createElement("button", { type: "button", className: "bili-space-load-more", onClick: loadMoreArticles, disabled: articlesLoading }, articlesLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null) : /* @__PURE__ */ React40.createElement("div", { className: "bili-dynamic-page" }, error ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state bili-state-error" }, error) : null, dynLoading && dynamics.length === 0 ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001") : null, dynamics.map((card) => /* @__PURE__ */ React40.createElement("div", { className: "bili-dynamic-card-wrap", key: card.dynId }, /* @__PURE__ */ React40.createElement(DynamicCard, { card, onLike: handleLike }), isSelf ? /* @__PURE__ */ React40.createElement(
     "button",
     {
       type: "button",
@@ -30939,7 +31107,7 @@ function SpacePage({ mid }) {
       onClick: () => toggleTop(card)
     },
     card.isTop ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876"
-  ) : null)), dynamics.length === 0 && !dynLoading ? /* @__PURE__ */ React39.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u52A8\u6001") : null, dynHasMore ? /* @__PURE__ */ React39.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMoreDynamics, disabled: dynLoading }, dynLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null));
+  ) : null)), dynamics.length === 0 && !dynLoading ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u52A8\u6001") : null, dynHasMore ? /* @__PURE__ */ React40.createElement("button", { type: "button", className: "bili-dynamic-load-more", onClick: loadMoreDynamics, disabled: dynLoading }, dynLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A") : null));
 }
 function formatCount6(value) {
   if (value >= 1e8) return `${(value / 1e8).toFixed(1)} \u4EBF`;
@@ -30948,15 +31116,15 @@ function formatCount6(value) {
 }
 
 // src/pages/WatchLaterPage.tsx
-import React40, { useEffect as useEffect31, useState as useState31 } from "sdk";
+import React41, { useEffect as useEffect32, useState as useState32 } from "sdk";
 function WatchLaterPage() {
-  const [state2, setState2] = useState31(getState);
-  const [items, setItems] = useState31([]);
-  const [loading, setLoading] = useState31(false);
-  const [error, setError] = useState31("");
+  const [state2, setState2] = useState32(getState);
+  const [items, setItems] = useState32([]);
+  const [loading, setLoading] = useState32(false);
+  const [error, setError] = useState32("");
   const loggedIn = Boolean(state2.loginInfo?.loggedIn);
-  useEffect31(() => subscribe(() => setState2(getState())), []);
-  useEffect31(() => {
+  useEffect32(() => subscribe(() => setState2(getState())), []);
+  useEffect32(() => {
     if (!loggedIn) {
       setItems([]);
       return;
@@ -30977,17 +31145,17 @@ function WatchLaterPage() {
       cancelled = true;
     };
   }, [loggedIn]);
-  return /* @__PURE__ */ React40.createElement("section", { className: "bili-page-library" }, !loggedIn ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u767B\u5F55\u540E\u53EF\u67E5\u770B\u7A0D\u540E\u518D\u770B") : error ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state bili-state-error" }, error) : loading ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u7A0D\u540E\u518D\u770B") : items.length === 0 ? /* @__PURE__ */ React40.createElement("div", { className: "bili-state" }, "\u7A0D\u540E\u518D\u770B\u5217\u8868\u4E3A\u7A7A") : /* @__PURE__ */ React40.createElement("div", { className: "bili-video-grid" }, items.map((item) => /* @__PURE__ */ React40.createElement(VideoCard, { key: `${item.video.bvid}-${item.addedAt}`, video: item.video }))));
+  return /* @__PURE__ */ React41.createElement("section", { className: "bili-page-library" }, !loggedIn ? /* @__PURE__ */ React41.createElement("div", { className: "bili-state" }, "\u767B\u5F55\u540E\u53EF\u67E5\u770B\u7A0D\u540E\u518D\u770B") : error ? /* @__PURE__ */ React41.createElement("div", { className: "bili-state bili-state-error" }, error) : loading ? /* @__PURE__ */ React41.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u7A0D\u540E\u518D\u770B") : items.length === 0 ? /* @__PURE__ */ React41.createElement("div", { className: "bili-state" }, "\u7A0D\u540E\u518D\u770B\u5217\u8868\u4E3A\u7A7A") : /* @__PURE__ */ React41.createElement("div", { className: "bili-video-grid" }, items.map((item) => /* @__PURE__ */ React41.createElement(VideoCard, { key: `${item.video.bvid}-${item.addedAt}`, video: item.video }))));
 }
 
 // src/pages/WatchPage.tsx
-import React59, { useEffect as useEffect40, useRef as useRef15, useState as useState44 } from "sdk";
+import React60, { useEffect as useEffect41, useRef as useRef15, useState as useState45 } from "sdk";
 
 // src/components/CommentPanel.tsx
-import React42, { useCallback as useCallback2, useEffect as useEffect32, useState as useState32 } from "sdk";
+import React43, { useCallback as useCallback2, useEffect as useEffect33, useState as useState33 } from "sdk";
 
 // src/components/CommentItem.tsx
-import React41 from "sdk";
+import React42 from "sdk";
 var reportReasons = [
   { value: "ad", label: "\u5E7F\u544A" },
   { value: "spam", label: "\u5237\u5C4F" },
@@ -31022,7 +31190,7 @@ function CommentItem({
   onReportSubmit
 }) {
   const displayName = comment.member.name || `\u7528\u6237 ${comment.member.mid}`;
-  return /* @__PURE__ */ React41.createElement("article", { className: `bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}` }, /* @__PURE__ */ React41.createElement("div", { className: "bili-comment-main" }, /* @__PURE__ */ React41.createElement("div", { className: "bili-comment-user" }, /* @__PURE__ */ React41.createElement(BiliImage, { className: "bili-comment-avatar", fallbackSrc: fallbackAvatar, src: comment.member.avatar }), /* @__PURE__ */ React41.createElement("div", { className: "bili-comment-user-info" }, /* @__PURE__ */ React41.createElement("span", null, displayName), /* @__PURE__ */ React41.createElement("p", null, comment.ctime ? formatTime3(comment.ctime) : "\u521A\u521A", pinned || comment.isTop ? " \xB7 \u7F6E\u9876" : ""))), /* @__PURE__ */ React41.createElement("p", { className: "bili-comment-content" }, comment.content.message), comment.content.pictures.length > 0 ? /* @__PURE__ */ React41.createElement("div", { className: "bili-comment-pictures" }, comment.content.pictures.map((url) => /* @__PURE__ */ React41.createElement(BiliImage, { key: url, src: url, loading: "lazy" }))) : null, /* @__PURE__ */ React41.createElement("div", { className: "bili-comment-actions" }, /* @__PURE__ */ React41.createElement(
+  return /* @__PURE__ */ React42.createElement("article", { className: `bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}` }, /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-main" }, /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-user" }, /* @__PURE__ */ React42.createElement(BiliImage, { className: "bili-comment-avatar", fallbackSrc: fallbackAvatar, src: comment.member.avatar }), /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-user-info" }, /* @__PURE__ */ React42.createElement("span", null, displayName), /* @__PURE__ */ React42.createElement("p", null, comment.ctime ? formatTime3(comment.ctime) : "\u521A\u521A", pinned || comment.isTop ? " \xB7 \u7F6E\u9876" : ""))), /* @__PURE__ */ React42.createElement("p", { className: "bili-comment-content" }, comment.content.message), comment.content.pictures.length > 0 ? /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-pictures" }, comment.content.pictures.map((url) => /* @__PURE__ */ React42.createElement(BiliImage, { key: url, src: url, loading: "lazy" }))) : null, /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-actions" }, /* @__PURE__ */ React42.createElement(
     "button",
     {
       className: `bili-thumb ${comment.liked ? "bili-thumb-active" : ""}`,
@@ -31031,9 +31199,9 @@ function CommentItem({
       type: "button",
       onClick: onLike
     },
-    /* @__PURE__ */ React41.createElement(ThumbIcon, null),
-    /* @__PURE__ */ React41.createElement("span", null, comment.likeCount > 0 ? formatCount7(comment.likeCount) : "")
-  ), /* @__PURE__ */ React41.createElement(
+    /* @__PURE__ */ React42.createElement(ThumbIcon, null),
+    /* @__PURE__ */ React42.createElement("span", null, comment.likeCount > 0 ? formatCount7(comment.likeCount) : "")
+  ), /* @__PURE__ */ React42.createElement(
     "button",
     {
       className: `bili-thumb ${comment.disliked ? "bili-thumb-active" : ""}`,
@@ -31042,15 +31210,15 @@ function CommentItem({
       type: "button",
       onClick: onDislike
     },
-    /* @__PURE__ */ React41.createElement(ThumbIcon, { down: true })
-  ), /* @__PURE__ */ React41.createElement("button", { disabled: !loggedIn, type: "button", onClick: onToggleReply }, replyOpen ? "\u6536\u8D77\u56DE\u590D\u6846" : "\u56DE\u590D"), comment.repliesCount > 0 ? /* @__PURE__ */ React41.createElement("button", { type: "button", onClick: onToggleReplies }, replyOpen ? "\u6536\u8D77\u56DE\u590D" : `\u5C55\u5F00 ${formatCount7(comment.repliesCount)} \u6761\u56DE\u590D`) : null, comment.canTop ? /* @__PURE__ */ React41.createElement("button", { disabled: busy, type: "button", onClick: onToggleTop }, comment.isTop || pinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876") : null, comment.canDelete ? /* @__PURE__ */ React41.createElement("button", { disabled: busy, type: "button", onClick: onDelete }, "\u5220\u9664") : null, /* @__PURE__ */ React41.createElement("button", { type: "button", onClick: onToggleReport }, "\u4E3E\u62A5")), repliesSlot, reportOpen ? /* @__PURE__ */ React41.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React41.createElement(
+    /* @__PURE__ */ React42.createElement(ThumbIcon, { down: true })
+  ), /* @__PURE__ */ React42.createElement("button", { disabled: !loggedIn, type: "button", onClick: onToggleReply }, replyOpen ? "\u6536\u8D77\u56DE\u590D\u6846" : "\u56DE\u590D"), comment.repliesCount > 0 ? /* @__PURE__ */ React42.createElement("button", { type: "button", onClick: onToggleReplies }, replyOpen ? "\u6536\u8D77\u56DE\u590D" : `\u5C55\u5F00 ${formatCount7(comment.repliesCount)} \u6761\u56DE\u590D`) : null, comment.canTop ? /* @__PURE__ */ React42.createElement("button", { disabled: busy, type: "button", onClick: onToggleTop }, comment.isTop || pinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876") : null, comment.canDelete ? /* @__PURE__ */ React42.createElement("button", { disabled: busy, type: "button", onClick: onDelete }, "\u5220\u9664") : null, /* @__PURE__ */ React42.createElement("button", { type: "button", onClick: onToggleReport }, "\u4E3E\u62A5")), repliesSlot, reportOpen ? /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React42.createElement(
     "select",
     {
       value: reportDraft.reason,
       onChange: (event) => onReportReasonChange(event.currentTarget.value)
     },
-    reportReasons.map((reason) => /* @__PURE__ */ React41.createElement("option", { key: reason.value, value: reason.value }, reason.label))
-  ), /* @__PURE__ */ React41.createElement("input", { placeholder: "\u8865\u5145\u8BF4\u660E", value: reportDraft.content, onChange: (event) => onReportContentChange(event.currentTarget.value) }), /* @__PURE__ */ React41.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busy, type: "button", onClick: onReportSubmit }, "\u786E\u8BA4\u4E3E\u62A5")) : null));
+    reportReasons.map((reason) => /* @__PURE__ */ React42.createElement("option", { key: reason.value, value: reason.value }, reason.label))
+  ), /* @__PURE__ */ React42.createElement("input", { placeholder: "\u8865\u5145\u8BF4\u660E", value: reportDraft.content, onChange: (event) => onReportContentChange(event.currentTarget.value) }), /* @__PURE__ */ React42.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busy, type: "button", onClick: onReportSubmit }, "\u786E\u8BA4\u4E3E\u62A5")) : null));
 }
 function formatCount7(value) {
   if (value >= 1e8) return `${trim2(value / 1e8)}\u4EBF`;
@@ -31076,14 +31244,14 @@ function formatTime3(timestamp) {
   return `${y}-${m}-${d}`;
 }
 function ThumbIcon({ down = false }) {
-  return /* @__PURE__ */ React41.createElement("svg", { className: "bili-thumb-icon", viewBox: "0 0 27 27", fill: "currentColor", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true" }, down ? /* @__PURE__ */ React41.createElement(
+  return /* @__PURE__ */ React42.createElement("svg", { className: "bili-thumb-icon", viewBox: "0 0 27 27", fill: "currentColor", xmlns: "http://www.w3.org/2000/svg", "aria-hidden": "true" }, down ? /* @__PURE__ */ React42.createElement(
     "path",
     {
       fillRule: "evenodd",
       clipRule: "evenodd",
       d: "M26.7229 0.5L21.5229 0.5L21.5229 16.0992L26.7229 16.0992L26.7229 0.5ZM0.815853 11.7382L3.07376 3.24339C3.44687 1.63037 4.88372 0.500027 6.53861 0.500027L18.9229 0.500028L18.9229 16.0722L16.6885 24.1271C16.4789 25.492 15.304 26.5 13.9218 26.5C12.3759 26.5 11.1228 25.2473 11.1228 23.7016L11.1228 16.1002L4.28068 16.1002C1.99391 16.0991 0.300502 13.9664 0.815853 11.7382Z"
     }
-  ) : /* @__PURE__ */ React41.createElement(
+  ) : /* @__PURE__ */ React42.createElement(
     "path",
     {
       fillRule: "evenodd",
@@ -31102,22 +31270,22 @@ var sortOptions = [
 function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
   const commentOid = oid ?? detail.aid;
   const commentType = type ?? 1;
-  const [sort, setSort] = useState32("replies");
-  const [comments, setComments] = useState32([]);
-  const [topComments, setTopComments] = useState32([]);
-  const [page, setPage] = useState32(1);
-  const [total, setTotal] = useState32(0);
-  const [hasMore, setHasMore] = useState32(false);
-  const [loading, setLoading] = useState32(false);
-  const [busyRpid, setBusyRpid] = useState32(null);
-  const [error, setError] = useState32("");
-  const [mainMessage, setMainMessage] = useState32("");
-  const [replyOpen, setReplyOpen] = useState32({});
-  const [replyDrafts, setReplyDrafts] = useState32({});
-  const [replyTargets, setReplyTargets] = useState32({});
-  const [replyStates, setReplyStates] = useState32({});
-  const [reportOpen, setReportOpen] = useState32({});
-  const [reportDrafts, setReportDrafts] = useState32({});
+  const [sort, setSort] = useState33("replies");
+  const [comments, setComments] = useState33([]);
+  const [topComments, setTopComments] = useState33([]);
+  const [page, setPage] = useState33(1);
+  const [total, setTotal] = useState33(0);
+  const [hasMore, setHasMore] = useState33(false);
+  const [loading, setLoading] = useState33(false);
+  const [busyRpid, setBusyRpid] = useState33(null);
+  const [error, setError] = useState33("");
+  const [mainMessage, setMainMessage] = useState33("");
+  const [replyOpen, setReplyOpen] = useState33({});
+  const [replyDrafts, setReplyDrafts] = useState33({});
+  const [replyTargets, setReplyTargets] = useState33({});
+  const [replyStates, setReplyStates] = useState33({});
+  const [reportOpen, setReportOpen] = useState33({});
+  const [reportDrafts, setReportDrafts] = useState33({});
   const loadPage = useCallback2(
     async (nextPage, append) => {
       if (!sdk) return;
@@ -31138,7 +31306,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
     },
     [commentOid, sdk, sort]
   );
-  useEffect32(() => {
+  useEffect33(() => {
     setComments([]);
     setTopComments([]);
     setPage(1);
@@ -31146,7 +31314,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
     setReplyStates({});
     void loadPage(1, false);
   }, [loadPage]);
-  return /* @__PURE__ */ React42.createElement("section", { className: "bili-comments" }, /* @__PURE__ */ React42.createElement("div", { className: "bili-comments-header" }, /* @__PURE__ */ React42.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React42.createElement("strong", null, "\u8BC4\u8BBA"), /* @__PURE__ */ React42.createElement("small", null, loading && comments.length === 0 ? "\u52A0\u8F7D\u4E2D" : `${formatCount8(total || detail.stats.replyCount)} \u6761`)), /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u8BC4\u8BBA\u6392\u5E8F" }, sortOptions.map((option) => /* @__PURE__ */ React42.createElement(
+  return /* @__PURE__ */ React43.createElement("section", { className: "bili-comments" }, /* @__PURE__ */ React43.createElement("div", { className: "bili-comments-header" }, /* @__PURE__ */ React43.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React43.createElement("strong", null, "\u8BC4\u8BBA"), /* @__PURE__ */ React43.createElement("small", null, loading && comments.length === 0 ? "\u52A0\u8F7D\u4E2D" : `${formatCount8(total || detail.stats.replyCount)} \u6761`)), /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u8BC4\u8BBA\u6392\u5E8F" }, sortOptions.map((option) => /* @__PURE__ */ React43.createElement(
     "button",
     {
       className: sort === option.value ? "bili-chip bili-chip-active" : "bili-chip",
@@ -31155,7 +31323,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
       onClick: () => setSort(option.value)
     },
     option.label
-  )))), /* @__PURE__ */ React42.createElement("form", { className: "bili-comment-editor", onSubmit: submitMainComment }, /* @__PURE__ */ React42.createElement(
+  )))), /* @__PURE__ */ React43.createElement("form", { className: "bili-comment-editor", onSubmit: submitMainComment }, /* @__PURE__ */ React43.createElement(
     "textarea",
     {
       disabled: !loggedIn || !sdk || busyRpid === 0,
@@ -31163,13 +31331,13 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
       value: mainMessage,
       onChange: (event) => setMainMessage(event.currentTarget.value)
     }
-  ), /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-editor-actions" }, /* @__PURE__ */ React42.createElement("span", null, mainMessage.trim().length, "/1000"), /* @__PURE__ */ React42.createElement("button", { className: "bili-button", disabled: !loggedIn || !sdk || busyRpid === 0 || !mainMessage.trim(), type: "submit" }, "\u53D1\u5E03"))), error ? /* @__PURE__ */ React42.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, topComments.length > 0 ? /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-top-list" }, topComments.map((comment) => renderComment(comment, true))) : null, !loading && comments.length === 0 && !error ? /* @__PURE__ */ React42.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u8BC4\u8BBA") : null, /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-list" }, comments.map((comment) => renderComment(comment, false))), /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-footer" }, hasMore ? /* @__PURE__ */ React42.createElement("button", { className: "bili-button bili-button-ghost", disabled: loading, type: "button", onClick: () => loadPage(page + 1, true) }, loading ? "\u52A0\u8F7D\u4E2D" : "\u52A0\u8F7D\u66F4\u591A") : comments.length > 0 ? /* @__PURE__ */ React42.createElement("span", null, "\u5DF2\u52A0\u8F7D\u5168\u90E8\u8BC4\u8BBA") : null));
+  ), /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-editor-actions" }, /* @__PURE__ */ React43.createElement("span", null, mainMessage.trim().length, "/1000"), /* @__PURE__ */ React43.createElement("button", { className: "bili-button", disabled: !loggedIn || !sdk || busyRpid === 0 || !mainMessage.trim(), type: "submit" }, "\u53D1\u5E03"))), error ? /* @__PURE__ */ React43.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, topComments.length > 0 ? /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-top-list" }, topComments.map((comment) => renderComment(comment, true))) : null, !loading && comments.length === 0 && !error ? /* @__PURE__ */ React43.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u8BC4\u8BBA") : null, /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-list" }, comments.map((comment) => renderComment(comment, false))), /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-footer" }, hasMore ? /* @__PURE__ */ React43.createElement("button", { className: "bili-button bili-button-ghost", disabled: loading, type: "button", onClick: () => loadPage(page + 1, true) }, loading ? "\u52A0\u8F7D\u4E2D" : "\u52A0\u8F7D\u66F4\u591A") : comments.length > 0 ? /* @__PURE__ */ React43.createElement("span", null, "\u5DF2\u52A0\u8F7D\u5168\u90E8\u8BC4\u8BBA") : null));
   function renderComment(comment, pinned) {
     const replyState = replyStates[comment.rpid];
     const reportDraft = reportDrafts[comment.rpid] ?? { reason: "ad", content: "" };
     const replyOpenThis = Boolean(replyOpen[comment.rpid]);
     const draft = replyDrafts[comment.rpid] ?? "";
-    return /* @__PURE__ */ React42.createElement(
+    return /* @__PURE__ */ React43.createElement(
       CommentItem,
       {
         key: `${pinned ? "top" : "comment"}-${comment.rpid}`,
@@ -31181,7 +31349,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
         replyOpen: replyOpenThis,
         reportOpen: Boolean(reportOpen[comment.rpid]),
         reportDraft,
-        repliesSlot: replyOpenThis ? /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-replies" }, replyState?.error ? /* @__PURE__ */ React42.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, replyState.error) : null, (replyState?.items ?? comment.replies).map((reply) => renderReply(reply, comment.rpid)), replyState?.hasMore ? /* @__PURE__ */ React42.createElement(
+        repliesSlot: replyOpenThis ? /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-replies" }, replyState?.error ? /* @__PURE__ */ React43.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, replyState.error) : null, (replyState?.items ?? comment.replies).map((reply) => renderReply(reply, comment.rpid)), replyState?.hasMore ? /* @__PURE__ */ React43.createElement(
           "button",
           {
             className: "bili-button bili-button-ghost",
@@ -31190,7 +31358,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
             onClick: () => loadReplies(comment.rpid, (replyState.page || 1) + 1, true)
           },
           replyState.loading ? "\u52A0\u8F7D\u4E2D" : "\u66F4\u591A\u56DE\u590D"
-        ) : null, /* @__PURE__ */ React42.createElement("form", { className: "bili-comment-reply-editor", onSubmit: (event) => submitReply(event, comment) }, /* @__PURE__ */ React42.createElement(
+        ) : null, /* @__PURE__ */ React43.createElement("form", { className: "bili-comment-reply-editor", onSubmit: (event) => submitReply(event, comment) }, /* @__PURE__ */ React43.createElement(
           "input",
           {
             disabled: !loggedIn || busyRpid === comment.rpid,
@@ -31198,7 +31366,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
             value: draft,
             onChange: (event) => setReplyDrafts((value) => ({ ...value, [comment.rpid]: event.currentTarget.value }))
           }
-        ), /* @__PURE__ */ React42.createElement("button", { className: "bili-button", disabled: !loggedIn || !draft.trim() || busyRpid === comment.rpid, type: "submit" }, "\u53D1\u9001"))) : null,
+        ), /* @__PURE__ */ React43.createElement("button", { className: "bili-button", disabled: !loggedIn || !draft.trim() || busyRpid === comment.rpid, type: "submit" }, "\u53D1\u9001"))) : null,
         onLike: () => toggleLike(comment),
         onDislike: () => toggleDislike(comment),
         onToggleReply: () => setReplyOpen((value) => ({ ...value, [comment.rpid]: !value[comment.rpid] })),
@@ -31214,7 +31382,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
   }
   function renderReply(reply, root) {
     const reportDraft = reportDrafts[reply.rpid] ?? { reason: "ad", content: "" };
-    return /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-reply-wrap", key: `reply-${reply.rpid}` }, /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-reply" }, /* @__PURE__ */ React42.createElement("strong", null, reply.member.name || `\u7528\u6237 ${reply.member.mid}`), /* @__PURE__ */ React42.createElement("span", null, reply.content.message), /* @__PURE__ */ React42.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleLike(reply) }, reply.liked ? "\u5DF2\u8D5E" : "\u8D5E", " ", reply.likeCount > 0 ? formatCount8(reply.likeCount) : ""), /* @__PURE__ */ React42.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleDislike(reply) }, reply.disliked ? "\u5DF2\u70B9\u8E29" : "\u70B9\u8E29"), /* @__PURE__ */ React42.createElement(
+    return /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-reply-wrap", key: `reply-${reply.rpid}` }, /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-reply" }, /* @__PURE__ */ React43.createElement("strong", null, reply.member.name || `\u7528\u6237 ${reply.member.mid}`), /* @__PURE__ */ React43.createElement("span", null, reply.content.message), /* @__PURE__ */ React43.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleLike(reply) }, reply.liked ? "\u5DF2\u8D5E" : "\u8D5E", " ", reply.likeCount > 0 ? formatCount8(reply.likeCount) : ""), /* @__PURE__ */ React43.createElement("button", { disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => toggleDislike(reply) }, reply.disliked ? "\u5DF2\u70B9\u8E29" : "\u70B9\u8E29"), /* @__PURE__ */ React43.createElement(
       "button",
       {
         disabled: !loggedIn,
@@ -31226,7 +31394,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
         }
       },
       "\u56DE\u590D"
-    ), reply.canDelete ? /* @__PURE__ */ React42.createElement("button", { disabled: busyRpid === reply.rpid, type: "button", onClick: () => deleteComment(reply) }, "\u5220\u9664") : null, /* @__PURE__ */ React42.createElement("button", { type: "button", onClick: () => setReportOpen((value) => ({ ...value, [reply.rpid]: !value[reply.rpid] })) }, "\u4E3E\u62A5")), reportOpen[reply.rpid] ? /* @__PURE__ */ React42.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React42.createElement(
+    ), reply.canDelete ? /* @__PURE__ */ React43.createElement("button", { disabled: busyRpid === reply.rpid, type: "button", onClick: () => deleteComment(reply) }, "\u5220\u9664") : null, /* @__PURE__ */ React43.createElement("button", { type: "button", onClick: () => setReportOpen((value) => ({ ...value, [reply.rpid]: !value[reply.rpid] })) }, "\u4E3E\u62A5")), reportOpen[reply.rpid] ? /* @__PURE__ */ React43.createElement("div", { className: "bili-comment-report" }, /* @__PURE__ */ React43.createElement(
       "select",
       {
         value: reportDraft.reason,
@@ -31235,8 +31403,8 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
           [reply.rpid]: { ...reportDraft, reason: event.currentTarget.value }
         }))
       },
-      reportReasons.map((reason) => /* @__PURE__ */ React42.createElement("option", { key: reason.value, value: reason.value }, reason.label))
-    ), /* @__PURE__ */ React42.createElement(
+      reportReasons.map((reason) => /* @__PURE__ */ React43.createElement("option", { key: reason.value, value: reason.value }, reason.label))
+    ), /* @__PURE__ */ React43.createElement(
       "input",
       {
         placeholder: "\u8865\u5145\u8BF4\u660E",
@@ -31246,7 +31414,7 @@ function CommentPanel({ detail, loggedIn, sdk, oid, type }) {
           [reply.rpid]: { ...reportDraft, content: event.currentTarget.value }
         }))
       }
-    ), /* @__PURE__ */ React42.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => reportComment(reply, reportDraft) }, "\u786E\u8BA4\u4E3E\u62A5")) : null);
+    ), /* @__PURE__ */ React43.createElement("button", { className: "bili-button bili-button-ghost", disabled: !loggedIn || busyRpid === reply.rpid, type: "button", onClick: () => reportComment(reply, reportDraft) }, "\u786E\u8BA4\u4E3E\u62A5")) : null);
   }
   async function submitMainComment(event) {
     event.preventDefault();
@@ -31473,7 +31641,7 @@ function trim3(value) {
 }
 
 // src/components/DanmakuOverlay.tsx
-import React43, { useEffect as useEffect33, useRef as useRef11, useState as useState33 } from "sdk";
+import React44, { useEffect as useEffect34, useRef as useRef11, useState as useState34 } from "sdk";
 
 // src/danmaku/layout.ts
 function estimateTrackCount(height, fontSize) {
@@ -31616,10 +31784,10 @@ function DanmakuOverlay({
   const activeTracksRef = useRef11([]);
   const activeFixedRef = useRef11({ top: [], bottom: [] });
   const renderCounterRef = useRef11(0);
-  const [visibleItems, setVisibleItems] = useState33([]);
-  const [menu, setMenu] = useState33(null);
-  const [reportOpen, setReportOpen] = useState33(false);
-  useEffect33(() => {
+  const [visibleItems, setVisibleItems] = useState34([]);
+  const [menu, setMenu] = useState34(null);
+  const [reportOpen, setReportOpen] = useState34(false);
+  useEffect34(() => {
     if (!menu) return;
     const close = () => {
       setMenu(null);
@@ -31628,7 +31796,7 @@ function DanmakuOverlay({
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [menu]);
-  useEffect33(() => {
+  useEffect34(() => {
     const incoming = [...items].filter((item) => item.text.trim()).sort((left, right) => left.time - right.time || left.id.localeCompare(right.id));
     const old = sortedRef.current;
     const byId = /* @__PURE__ */ new Map();
@@ -31658,7 +31826,7 @@ function DanmakuOverlay({
     }
     sortedRef.current = merged;
   }, [items]);
-  useEffect33(() => {
+  useEffect34(() => {
     if (!settings.enabled) {
       activeTracksRef.current = [];
       setVisibleItems([]);
@@ -31752,7 +31920,7 @@ function DanmakuOverlay({
     };
   }, [settings.density, settings.enabled, settings.fontSize, settings.opacity, settings.speed, videoRef]);
   if (!settings.enabled) return null;
-  return /* @__PURE__ */ React43.createElement("div", { className: "bili-danmaku-layer", ref: layerRef }, visibleItems.map((item) => /* @__PURE__ */ React43.createElement(
+  return /* @__PURE__ */ React44.createElement("div", { className: "bili-danmaku-layer", ref: layerRef }, visibleItems.map((item) => /* @__PURE__ */ React44.createElement(
     "span",
     {
       className: `bili-danmaku-item ${item.mode === 2 ? "bili-danmaku-fixed bili-danmaku-fixed-top" : item.mode === 3 ? "bili-danmaku-fixed bili-danmaku-fixed-bottom" : ""} ${isSelfItem(item) ? "bili-danmaku-self" : ""}`,
@@ -31761,14 +31929,14 @@ function DanmakuOverlay({
       onMouseDown: (event) => handleDanmakuDown(item, event)
     },
     item.text
-  )), menu ? /* @__PURE__ */ React43.createElement(
+  )), menu ? /* @__PURE__ */ React44.createElement(
     "div",
     {
       className: "bili-danmaku-menu",
       style: { left: menu.x, top: menu.y },
       onMouseDown: (event) => event.stopPropagation()
     },
-    reportOpen ? /* @__PURE__ */ React43.createElement(React43.Fragment, null, /* @__PURE__ */ React43.createElement("div", { className: "bili-danmaku-menu-title" }, "\u4E3E\u62A5\u5F39\u5E55"), danmakuReportReasons.map((reason) => /* @__PURE__ */ React43.createElement(
+    reportOpen ? /* @__PURE__ */ React44.createElement(React44.Fragment, null, /* @__PURE__ */ React44.createElement("div", { className: "bili-danmaku-menu-title" }, "\u4E3E\u62A5\u5F39\u5E55"), danmakuReportReasons.map((reason) => /* @__PURE__ */ React44.createElement(
       "button",
       {
         className: "bili-danmaku-menu-item",
@@ -31777,7 +31945,7 @@ function DanmakuOverlay({
         onClick: () => reportDanmaku(reason.id)
       },
       reason.label
-    )), /* @__PURE__ */ React43.createElement(
+    )), /* @__PURE__ */ React44.createElement(
       "button",
       {
         className: "bili-danmaku-menu-item",
@@ -31785,7 +31953,7 @@ function DanmakuOverlay({
         onClick: () => setReportOpen(false)
       },
       "\u8FD4\u56DE"
-    )) : /* @__PURE__ */ React43.createElement(React43.Fragment, null, /* @__PURE__ */ React43.createElement("div", { className: "bili-danmaku-menu-title" }, menu.self ? "\u6211\u7684\u5F39\u5E55" : "\u5F39\u5E55\u64CD\u4F5C"), /* @__PURE__ */ React43.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: thumbupDanmaku }, "\u70B9\u8D5E"), /* @__PURE__ */ React43.createElement(
+    )) : /* @__PURE__ */ React44.createElement(React44.Fragment, null, /* @__PURE__ */ React44.createElement("div", { className: "bili-danmaku-menu-title" }, menu.self ? "\u6211\u7684\u5F39\u5E55" : "\u5F39\u5E55\u64CD\u4F5C"), /* @__PURE__ */ React44.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: thumbupDanmaku }, "\u70B9\u8D5E"), /* @__PURE__ */ React44.createElement(
       "button",
       {
         className: "bili-danmaku-menu-item",
@@ -31793,7 +31961,7 @@ function DanmakuOverlay({
         onClick: () => setReportOpen(true)
       },
       "\u4E3E\u62A5"
-    ), menu.self ? /* @__PURE__ */ React43.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: recallDanmaku }, "\u64A4\u56DE") : null)
+    ), menu.self ? /* @__PURE__ */ React44.createElement("button", { className: "bili-danmaku-menu-item", type: "button", onClick: recallDanmaku }, "\u64A4\u56DE") : null)
   ) : null);
   function handleDanmakuDown(item, event) {
     if (!sdk || !cid) return;
@@ -31860,15 +32028,15 @@ function lowerBoundByTime(items, time) {
 }
 
 // src/components/NotePanel.tsx
-import React44, { useEffect as useEffect34, useState as useState34 } from "sdk";
+import React45, { useEffect as useEffect35, useState as useState35 } from "sdk";
 function NotePanel({ aid, onClose }) {
-  const [notes, setNotes] = useState34([]);
-  const [loading, setLoading] = useState34(true);
-  const [error, setError] = useState34("");
-  const [detail, setDetail] = useState34(null);
-  const [detailLoading, setDetailLoading] = useState34(false);
-  const [detailError, setDetailError] = useState34("");
-  useEffect34(() => {
+  const [notes, setNotes] = useState35([]);
+  const [loading, setLoading] = useState35(true);
+  const [error, setError] = useState35("");
+  const [detail, setDetail] = useState35(null);
+  const [detailLoading, setDetailLoading] = useState35(false);
+  const [detailError, setDetailError] = useState35("");
+  useEffect35(() => {
     let active = true;
     setLoading(true);
     setError("");
@@ -31896,11 +32064,11 @@ function NotePanel({ aid, onClose }) {
       aid
     }).then((data) => setDetail(data)).catch((err) => setDetailError(errorMessage(err))).finally(() => setDetailLoading(false));
   }
-  return /* @__PURE__ */ React44.createElement("div", { className: "bili-note-backdrop", onClick: onClose }, /* @__PURE__ */ React44.createElement("div", { className: "bili-note-panel", onClick: (event) => event.stopPropagation() }, /* @__PURE__ */ React44.createElement("div", { className: "bili-note-head" }, detail ? /* @__PURE__ */ React44.createElement("button", { type: "button", className: "bili-note-back", onClick: () => setDetail(null) }, "\u2190 \u8FD4\u56DE\u5217\u8868") : /* @__PURE__ */ React44.createElement("strong", null, "\u89C6\u9891\u7B14\u8BB0"), /* @__PURE__ */ React44.createElement("button", { type: "button", className: "bili-note-close", onClick: onClose, "aria-label": "\u5173\u95ED" }, "\xD7")), !detail ? /* @__PURE__ */ React44.createElement("div", { className: "bili-note-list" }, error ? /* @__PURE__ */ React44.createElement("div", { className: "bili-state bili-state-error" }, error) : null, loading ? /* @__PURE__ */ React44.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u7B14\u8BB0\u2026") : null, notes.map((note) => /* @__PURE__ */ React44.createElement("button", { key: note.cvid || `private-${note.noteId}`, type: "button", className: "bili-note-item", onClick: () => openNote(note) }, /* @__PURE__ */ React44.createElement("span", { className: "bili-note-item-title" }, note.title || "\u672A\u547D\u540D\u7B14\u8BB0", note.isPrivate ? /* @__PURE__ */ React44.createElement("span", { className: "bili-note-private-badge" }, "\u79C1\u6709") : null), note.summary ? /* @__PURE__ */ React44.createElement("span", { className: "bili-note-item-summary" }, note.summary) : null, /* @__PURE__ */ React44.createElement("span", { className: "bili-note-item-meta" }, note.authorFace ? /* @__PURE__ */ React44.createElement(BiliImage, { className: "bili-article-avatar", src: note.authorFace, alt: note.authorName }) : null, /* @__PURE__ */ React44.createElement("span", null, note.authorName), note.likes > 0 ? /* @__PURE__ */ React44.createElement("span", null, note.likes, " \u8D5E") : null))), !loading && notes.length === 0 && !error ? /* @__PURE__ */ React44.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u7B14\u8BB0") : null) : /* @__PURE__ */ React44.createElement("div", { className: "bili-note-body" }, detailError ? /* @__PURE__ */ React44.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, detailLoading ? /* @__PURE__ */ React44.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u7B14\u8BB0\u5185\u5BB9\u2026") : null, detail ? /* @__PURE__ */ React44.createElement(React44.Fragment, null, /* @__PURE__ */ React44.createElement("h2", null, detail.title || "\u672A\u547D\u540D\u7B14\u8BB0"), /* @__PURE__ */ React44.createElement(JsonBody, { content: detail.content })) : null)));
+  return /* @__PURE__ */ React45.createElement("div", { className: "bili-note-backdrop", onClick: onClose }, /* @__PURE__ */ React45.createElement("div", { className: "bili-note-panel", onClick: (event) => event.stopPropagation() }, /* @__PURE__ */ React45.createElement("div", { className: "bili-note-head" }, detail ? /* @__PURE__ */ React45.createElement("button", { type: "button", className: "bili-note-back", onClick: () => setDetail(null) }, "\u2190 \u8FD4\u56DE\u5217\u8868") : /* @__PURE__ */ React45.createElement("strong", null, "\u89C6\u9891\u7B14\u8BB0"), /* @__PURE__ */ React45.createElement("button", { type: "button", className: "bili-note-close", onClick: onClose, "aria-label": "\u5173\u95ED" }, "\xD7")), !detail ? /* @__PURE__ */ React45.createElement("div", { className: "bili-note-list" }, error ? /* @__PURE__ */ React45.createElement("div", { className: "bili-state bili-state-error" }, error) : null, loading ? /* @__PURE__ */ React45.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u7B14\u8BB0\u2026") : null, notes.map((note) => /* @__PURE__ */ React45.createElement("button", { key: note.cvid || `private-${note.noteId}`, type: "button", className: "bili-note-item", onClick: () => openNote(note) }, /* @__PURE__ */ React45.createElement("span", { className: "bili-note-item-title" }, note.title || "\u672A\u547D\u540D\u7B14\u8BB0", note.isPrivate ? /* @__PURE__ */ React45.createElement("span", { className: "bili-note-private-badge" }, "\u79C1\u6709") : null), note.summary ? /* @__PURE__ */ React45.createElement("span", { className: "bili-note-item-summary" }, note.summary) : null, /* @__PURE__ */ React45.createElement("span", { className: "bili-note-item-meta" }, note.authorFace ? /* @__PURE__ */ React45.createElement(BiliImage, { className: "bili-article-avatar", src: note.authorFace, alt: note.authorName }) : null, /* @__PURE__ */ React45.createElement("span", null, note.authorName), note.likes > 0 ? /* @__PURE__ */ React45.createElement("span", null, note.likes, " \u8D5E") : null))), !loading && notes.length === 0 && !error ? /* @__PURE__ */ React45.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u7B14\u8BB0") : null) : /* @__PURE__ */ React45.createElement("div", { className: "bili-note-body" }, detailError ? /* @__PURE__ */ React45.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, detailLoading ? /* @__PURE__ */ React45.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u7B14\u8BB0\u5185\u5BB9\u2026") : null, detail ? /* @__PURE__ */ React45.createElement(React45.Fragment, null, /* @__PURE__ */ React45.createElement("h2", null, detail.title || "\u672A\u547D\u540D\u7B14\u8BB0"), /* @__PURE__ */ React45.createElement(JsonBody, { content: detail.content })) : null)));
 }
 
 // src/components/PlayerShell.tsx
-import React55, { Button as Button22, useCallback as useCallback3, useEffect as useEffect37, useRef as useRef14, useState as useState40 } from "sdk";
+import React56, { Button as Button24, useCallback as useCallback3, useEffect as useEffect38, useRef as useRef14, useState as useState41 } from "sdk";
 
 // src/player/dashPlayer.ts
 var import_dashjs = __toESM(require_dash_all_min(), 1);
@@ -32227,7 +32395,7 @@ function currentSecond(video) {
 }
 
 // src/components/DanmakuInput.tsx
-import React45, { Button as Button17, TextField as TextField4, useEffect as useEffect35, useState as useState35 } from "sdk";
+import React46, { Button as Button19, TextField as TextField4, useEffect as useEffect36, useState as useState36 } from "sdk";
 var maxDanmakuLength = 100;
 var cooldownSeconds2 = 4;
 function DanmakuInput({
@@ -32239,17 +32407,17 @@ function DanmakuInput({
   videoRef,
   onSent
 }) {
-  const [message, setMessage] = useState35("");
-  const [sending, setSending] = useState35(false);
-  const [cooldown, setCooldown] = useState35(0);
-  useEffect35(() => {
+  const [message, setMessage] = useState36("");
+  const [sending, setSending] = useState36(false);
+  const [cooldown, setCooldown] = useState36(0);
+  useEffect36(() => {
     if (cooldown <= 0) return;
     const timer = setTimeout(() => setCooldown((value) => Math.max(0, value - 1)), 1e3);
     return () => clearTimeout(timer);
   }, [cooldown]);
   const text = message.trim();
   const canSend = Boolean(sdk && selectedPage && text && !disabled && !sending && cooldown <= 0);
-  return /* @__PURE__ */ React45.createElement("form", { className: "bili-danmaku-input", onSubmit: submit }, /* @__PURE__ */ React45.createElement(
+  return /* @__PURE__ */ React46.createElement("form", { className: "bili-danmaku-input", onSubmit: submit }, /* @__PURE__ */ React46.createElement(
     TextField4,
     {
       disabled: disabled || sending,
@@ -32259,7 +32427,7 @@ function DanmakuInput({
       value: message,
       onChange: (event) => setMessage(event.currentTarget.value.slice(0, maxDanmakuLength))
     }
-  ), /* @__PURE__ */ React45.createElement("span", { className: "bili-danmaku-count" }, message.length, "/", maxDanmakuLength), /* @__PURE__ */ React45.createElement(Button17, { disabled: !canSend, size: "sm", type: "submit" }, sending ? "\u53D1\u9001\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u9001"));
+  ), /* @__PURE__ */ React46.createElement("span", { className: "bili-danmaku-count" }, message.length, "/", maxDanmakuLength), /* @__PURE__ */ React46.createElement(Button19, { disabled: !canSend, size: "sm", type: "submit" }, sending ? "\u53D1\u9001\u4E2D" : cooldown > 0 ? `${cooldown}s` : "\u53D1\u9001"));
   function submit(event) {
     event.preventDefault();
     if (!sdk || !selectedPage || !canSend) return;
@@ -32300,13 +32468,13 @@ function DanmakuInput({
 }
 
 // src/components/DanmakuSettingsPopover.tsx
-import React47, { Slider as Slider2, Toggle as Toggle2 } from "sdk";
+import React48, { Slider as Slider2, Toggle as Toggle2 } from "sdk";
 
 // src/components/MenuPopover.tsx
-import React46, { useEffect as useEffect36, useRef as useRef12 } from "sdk";
+import React47, { useEffect as useEffect37, useRef as useRef12 } from "sdk";
 function MenuPopover({ onClose, style, className = "", triggerRef, children }) {
   const ref = useRef12(null);
-  useEffect36(() => {
+  useEffect37(() => {
     const onDown = (e) => {
       const target = e.target;
       const node = ref.current;
@@ -32324,7 +32492,7 @@ function MenuPopover({ onClose, style, className = "", triggerRef, children }) {
       document.removeEventListener("keydown", onKey);
     };
   }, [onClose, triggerRef]);
-  return /* @__PURE__ */ React46.createElement("div", { className: `bili-menu-popover ${className}`, ref, style }, children);
+  return /* @__PURE__ */ React47.createElement("div", { className: `bili-menu-popover ${className}`, ref, style }, children);
 }
 
 // src/components/DanmakuSettingsPopover.tsx
@@ -32338,7 +32506,7 @@ function DanmakuSettingsPopover({
   style,
   triggerRef
 }) {
-  return /* @__PURE__ */ React47.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React47.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React47.createElement("strong", null, "\u5F39\u5E55"), /* @__PURE__ */ React47.createElement("small", null, loading ? "\u52A0\u8F7D\u4E2D" : `${count} \u6761`)), error ? /* @__PURE__ */ React47.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, /* @__PURE__ */ React47.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React47.createElement(Toggle2, { on: settings.enabled, onChange: (enabled) => onChange({ ...settings, enabled }) }), /* @__PURE__ */ React47.createElement("span", null, "\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React47.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React47.createElement("span", null, "\u5B57\u53F7 ", settings.fontSize, "px"), /* @__PURE__ */ React47.createElement(
+  return /* @__PURE__ */ React48.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React48.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React48.createElement("strong", null, "\u5F39\u5E55"), /* @__PURE__ */ React48.createElement("small", null, loading ? "\u52A0\u8F7D\u4E2D" : `${count} \u6761`)), error ? /* @__PURE__ */ React48.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, error) : null, /* @__PURE__ */ React48.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React48.createElement(Toggle2, { on: settings.enabled, onChange: (enabled) => onChange({ ...settings, enabled }) }), /* @__PURE__ */ React48.createElement("span", null, "\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React48.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React48.createElement("span", null, "\u5B57\u53F7 ", settings.fontSize, "px"), /* @__PURE__ */ React48.createElement(
     Slider2,
     {
       max: 32,
@@ -32347,7 +32515,7 @@ function DanmakuSettingsPopover({
       value: settings.fontSize,
       onChange: (fontSize) => onChange({ ...settings, fontSize })
     }
-  )), /* @__PURE__ */ React47.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React47.createElement("span", null, "\u900F\u660E\u5EA6 ", Math.round(settings.opacity * 100), "%"), /* @__PURE__ */ React47.createElement(
+  )), /* @__PURE__ */ React48.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React48.createElement("span", null, "\u900F\u660E\u5EA6 ", Math.round(settings.opacity * 100), "%"), /* @__PURE__ */ React48.createElement(
     Slider2,
     {
       max: 1,
@@ -32356,7 +32524,7 @@ function DanmakuSettingsPopover({
       value: settings.opacity,
       onChange: (opacity) => onChange({ ...settings, opacity })
     }
-  )), /* @__PURE__ */ React47.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React47.createElement("span", null, "\u5BC6\u5EA6 ", Math.round(settings.density * 100), "%"), /* @__PURE__ */ React47.createElement(
+  )), /* @__PURE__ */ React48.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React48.createElement("span", null, "\u5BC6\u5EA6 ", Math.round(settings.density * 100), "%"), /* @__PURE__ */ React48.createElement(
     Slider2,
     {
       max: 1,
@@ -32365,7 +32533,7 @@ function DanmakuSettingsPopover({
       value: settings.density,
       onChange: (density) => onChange({ ...settings, density })
     }
-  )), /* @__PURE__ */ React47.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React47.createElement("span", null, "\u901F\u5EA6 ", settings.speed.toFixed(1), "x"), /* @__PURE__ */ React47.createElement(
+  )), /* @__PURE__ */ React48.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React48.createElement("span", null, "\u901F\u5EA6 ", settings.speed.toFixed(1), "x"), /* @__PURE__ */ React48.createElement(
     Slider2,
     {
       max: 1.8,
@@ -32378,7 +32546,7 @@ function DanmakuSettingsPopover({
 }
 
 // src/components/QualityMenu.tsx
-import React48, { Button as Button18, Icon as Icon5 } from "sdk";
+import React49, { Button as Button20, Icon as Icon5 } from "sdk";
 function QualityMenu({
   qualities,
   mode,
@@ -32390,8 +32558,8 @@ function QualityMenu({
   onManual,
   onPlaybackModeChange
 }) {
-  return /* @__PURE__ */ React48.createElement("div", { className: "bili-quality-menu" }, /* @__PURE__ */ React48.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React48.createElement("strong", null, "\u6E05\u6670\u5EA6"), /* @__PURE__ */ React48.createElement("small", null, playbackMode === "quality" ? mode === "auto" ? "\u81EA\u52A8" : "\u624B\u52A8" : "\u517C\u5BB9")), /* @__PURE__ */ React48.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u64AD\u653E\u6A21\u5F0F" }, /* @__PURE__ */ React48.createElement(
-    Button18,
+  return /* @__PURE__ */ React49.createElement("div", { className: "bili-quality-menu" }, /* @__PURE__ */ React49.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React49.createElement("strong", null, "\u6E05\u6670\u5EA6"), /* @__PURE__ */ React49.createElement("small", null, playbackMode === "quality" ? mode === "auto" ? "\u81EA\u52A8" : "\u624B\u52A8" : "\u517C\u5BB9")), /* @__PURE__ */ React49.createElement("div", { className: "bili-comment-sort", role: "tablist", "aria-label": "\u64AD\u653E\u6A21\u5F0F" }, /* @__PURE__ */ React49.createElement(
+    Button20,
     {
       "aria-selected": playbackMode === "quality",
       className: playbackMode === "quality" ? "bili-chip bili-chip-active" : "bili-chip",
@@ -32402,8 +32570,8 @@ function QualityMenu({
       onClick: () => onPlaybackModeChange("quality")
     },
     "\u9AD8\u6E05"
-  ), /* @__PURE__ */ React48.createElement(
-    Button18,
+  ), /* @__PURE__ */ React49.createElement(
+    Button20,
     {
       "aria-selected": playbackMode === "compat",
       className: playbackMode === "compat" ? "bili-chip bili-chip-active" : "bili-chip",
@@ -32414,7 +32582,7 @@ function QualityMenu({
       onClick: () => onPlaybackModeChange("compat")
     },
     "\u517C\u5BB9"
-  )), qualities.length === 0 ? /* @__PURE__ */ React48.createElement("div", { className: "bili-state bili-state-compact" }, "\u6682\u65E0\u6E05\u6670\u5EA6\u4FE1\u606F") : /* @__PURE__ */ React48.createElement("div", { className: "bili-quality-list" }, /* @__PURE__ */ React48.createElement(
+  )), qualities.length === 0 ? /* @__PURE__ */ React49.createElement("div", { className: "bili-state bili-state-compact" }, "\u6682\u65E0\u6E05\u6670\u5EA6\u4FE1\u606F") : /* @__PURE__ */ React49.createElement("div", { className: "bili-quality-list" }, /* @__PURE__ */ React49.createElement(
     "button",
     {
       className: `bili-quality-option bili-quality-auto ${mode === "auto" ? "bili-quality-option-active" : ""}`,
@@ -32422,11 +32590,11 @@ function QualityMenu({
       type: "button",
       onClick: onAuto
     },
-    /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React48.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, "\u81EA\u52A8")),
-    /* @__PURE__ */ React48.createElement("small", null, currentLabel(currentQualityId, qualities))
+    /* @__PURE__ */ React49.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React49.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React49.createElement("strong", null, "\u81EA\u52A8")),
+    /* @__PURE__ */ React49.createElement("small", null, currentLabel(currentQualityId, qualities))
   ), qualities.map((quality) => {
     const active = mode === "manual" && selectedQualityId === quality.id;
-    return /* @__PURE__ */ React48.createElement(
+    return /* @__PURE__ */ React49.createElement(
       "button",
       {
         className: `bili-quality-option ${active ? "bili-quality-option-active" : ""}`,
@@ -32435,8 +32603,8 @@ function QualityMenu({
         type: "button",
         onClick: () => onManual(quality.id)
       },
-      /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React48.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, qualityText(quality))),
-      /* @__PURE__ */ React48.createElement("small", null, quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video")
+      /* @__PURE__ */ React49.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React49.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React49.createElement("strong", null, qualityText(quality))),
+      /* @__PURE__ */ React49.createElement("small", null, quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video")
     );
   })));
 }
@@ -32484,14 +32652,14 @@ function codeLabel(quality) {
 }
 
 // src/components/VideoInteractionBar.tsx
-import React52, { Button as Button21, Icon as Icon8, useRef as useRef13, useState as useState38 } from "sdk";
+import React53, { Button as Button23, Icon as Icon8, useRef as useRef13, useState as useState39 } from "sdk";
 
 // src/components/CoinPanel.tsx
-import React49, { Button as Button19, Toggle as Toggle3, useState as useState36 } from "sdk";
+import React50, { Button as Button21, Toggle as Toggle3, useState as useState37 } from "sdk";
 function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
-  const [multiply, setMultiply] = useState36(1);
-  const [alsoLike, setAlsoLike] = useState36(true);
-  return /* @__PURE__ */ React49.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React49.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React49.createElement("strong", null, "\u6295\u5E01\u652F\u6301"), /* @__PURE__ */ React49.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), /* @__PURE__ */ React49.createElement("div", { className: "bili-segment-row" }, /* @__PURE__ */ React49.createElement(
+  const [multiply, setMultiply] = useState37(1);
+  const [alsoLike, setAlsoLike] = useState37(true);
+  return /* @__PURE__ */ React50.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React50.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React50.createElement("strong", null, "\u6295\u5E01\u652F\u6301"), /* @__PURE__ */ React50.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), /* @__PURE__ */ React50.createElement("div", { className: "bili-segment-row" }, /* @__PURE__ */ React50.createElement(
     "button",
     {
       className: multiply === 1 ? "bili-segment bili-segment-active" : "bili-segment",
@@ -32500,7 +32668,7 @@ function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
       onClick: () => setMultiply(1)
     },
     "1 \u4E2A"
-  ), /* @__PURE__ */ React49.createElement(
+  ), /* @__PURE__ */ React50.createElement(
     "button",
     {
       className: multiply === 2 ? "bili-segment bili-segment-active" : "bili-segment",
@@ -32509,14 +32677,14 @@ function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
       onClick: () => setMultiply(2)
     },
     "2 \u4E2A"
-  )), /* @__PURE__ */ React49.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React49.createElement(Toggle3, { on: alsoLike, onChange: (value) => setAlsoLike(value) }), /* @__PURE__ */ React49.createElement("span", null, "\u540C\u65F6\u70B9\u8D5E")), /* @__PURE__ */ React49.createElement(Button19, { disabled: busy, size: "sm", type: "button", onClick: () => onSubmit(multiply, alsoLike) }, busy ? "\u63D0\u4EA4\u4E2D" : "\u786E\u8BA4\u6295\u5E01"));
+  )), /* @__PURE__ */ React50.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React50.createElement(Toggle3, { on: alsoLike, onChange: (value) => setAlsoLike(value) }), /* @__PURE__ */ React50.createElement("span", null, "\u540C\u65F6\u70B9\u8D5E")), /* @__PURE__ */ React50.createElement(Button21, { disabled: busy, size: "sm", type: "button", onClick: () => onSubmit(multiply, alsoLike) }, busy ? "\u63D0\u4EA4\u4E2D" : "\u786E\u8BA4\u6295\u5E01"));
 }
 
 // src/components/FavoritePanel.tsx
-import React50, { Button as Button20, Icon as Icon6, useState as useState37 } from "sdk";
+import React51, { Button as Button22, Icon as Icon6, useState as useState38 } from "sdk";
 function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) {
   const ownedFolders = folders.filter((folder) => folder.owned);
-  const [selected, setSelected] = useState37(
+  const [selected, setSelected] = useState38(
     () => Object.fromEntries(ownedFolders.map((folder) => [folder.id, folder.favState > 0]))
   );
   const hasOwnedFolders = ownedFolders.length > 0;
@@ -32531,7 +32699,7 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
     }
     onSubmit(addMediaIds, delMediaIds);
   }
-  return /* @__PURE__ */ React50.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React50.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React50.createElement("strong", null, "\u6536\u85CF\u5230"), /* @__PURE__ */ React50.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), !hasOwnedFolders ? /* @__PURE__ */ React50.createElement("span", { className: "bili-menu-empty" }, "\u6682\u65E0\u53EF\u5199\u5165\u7684\u6536\u85CF\u5939") : /* @__PURE__ */ React50.createElement("div", { className: "bili-folder-scroll" }, ownedFolders.map((folder) => /* @__PURE__ */ React50.createElement(
+  return /* @__PURE__ */ React51.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React51.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React51.createElement("strong", null, "\u6536\u85CF\u5230"), /* @__PURE__ */ React51.createElement("button", { className: "bili-menu-close", type: "button", onClick: onClose }, "\u5173\u95ED")), !hasOwnedFolders ? /* @__PURE__ */ React51.createElement("span", { className: "bili-menu-empty" }, "\u6682\u65E0\u53EF\u5199\u5165\u7684\u6536\u85CF\u5939") : /* @__PURE__ */ React51.createElement("div", { className: "bili-folder-scroll" }, ownedFolders.map((folder) => /* @__PURE__ */ React51.createElement(
     "button",
     {
       className: `bili-menu-item ${selected[folder.id] ? "bili-menu-item-active" : ""}`,
@@ -32540,14 +32708,14 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
       type: "button",
       onClick: () => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))
     },
-    selected[folder.id] ? /* @__PURE__ */ React50.createElement(Icon6, { name: "check", size: 14 }) : null,
-    /* @__PURE__ */ React50.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
-    /* @__PURE__ */ React50.createElement("small", null, selected[folder.id] ? "\u5DF2\u9009\u62E9" : `${folder.mediaCount} \u4E2A`)
-  ))), /* @__PURE__ */ React50.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React50.createElement(Button20, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
+    selected[folder.id] ? /* @__PURE__ */ React51.createElement(Icon6, { name: "check", size: 14 }) : null,
+    /* @__PURE__ */ React51.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
+    /* @__PURE__ */ React51.createElement("small", null, selected[folder.id] ? "\u5DF2\u9009\u62E9" : `${folder.mediaCount} \u4E2A`)
+  ))), /* @__PURE__ */ React51.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React51.createElement(Button22, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
 }
 
 // src/components/WatchMoreMenu.tsx
-import React51, { Icon as Icon7 } from "sdk";
+import React52, { Icon as Icon7 } from "sdk";
 function WatchMoreMenu({
   onExternalOpen,
   onCopyLink,
@@ -32556,7 +32724,7 @@ function WatchMoreMenu({
   style,
   triggerRef
 }) {
-  return /* @__PURE__ */ React51.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React51.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React51.createElement("strong", null, "\u66F4\u591A")), /* @__PURE__ */ React51.createElement(
+  return /* @__PURE__ */ React52.createElement(MenuPopover, { onClose, style, triggerRef }, /* @__PURE__ */ React52.createElement("div", { className: "bili-menu-heading" }, /* @__PURE__ */ React52.createElement("strong", null, "\u66F4\u591A")), /* @__PURE__ */ React52.createElement(
     "button",
     {
       className: "bili-menu-item",
@@ -32566,9 +32734,9 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon7, { name: "externalLink", size: 16 }),
-    /* @__PURE__ */ React51.createElement("span", null, "\u5916\u90E8\u6253\u5F00")
-  ), /* @__PURE__ */ React51.createElement(
+    /* @__PURE__ */ React52.createElement(Icon7, { name: "externalLink", size: 16 }),
+    /* @__PURE__ */ React52.createElement("span", null, "\u5916\u90E8\u6253\u5F00")
+  ), /* @__PURE__ */ React52.createElement(
     "button",
     {
       className: "bili-menu-item",
@@ -32578,9 +32746,9 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon7, { name: "copy", size: 16 }),
-    /* @__PURE__ */ React51.createElement("span", null, "\u590D\u5236\u94FE\u63A5")
-  ), /* @__PURE__ */ React51.createElement(
+    /* @__PURE__ */ React52.createElement(Icon7, { name: "copy", size: 16 }),
+    /* @__PURE__ */ React52.createElement("span", null, "\u590D\u5236\u94FE\u63A5")
+  ), /* @__PURE__ */ React52.createElement(
     "button",
     {
       className: "bili-menu-item",
@@ -32590,8 +32758,8 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon7, { name: "screenshots", size: 16 }),
-    /* @__PURE__ */ React51.createElement("span", null, "\u622A\u56FE\u76EE\u5F55")
+    /* @__PURE__ */ React52.createElement(Icon7, { name: "screenshots", size: 16 }),
+    /* @__PURE__ */ React52.createElement("span", null, "\u622A\u56FE\u76EE\u5F55")
   ));
 }
 
@@ -32615,12 +32783,12 @@ function VideoInteractionBar({
   const coinAnchorRef = useRef13(null);
   const favoriteAnchorRef = useRef13(null);
   const moreAnchorRef = useRef13(null);
-  const [coinOpen, setCoinOpen] = useState38(false);
-  const [favoriteOpen, setFavoriteOpen] = useState38(false);
-  const [moreOpen, setMoreOpen] = useState38(false);
-  const [coinPos, setCoinPos] = useState38({ left: 0, top: 0 });
-  const [favoritePos, setFavoritePos] = useState38({ left: 0, top: 0 });
-  const [morePos, setMorePos] = useState38({ right: 0, top: 0 });
+  const [coinOpen, setCoinOpen] = useState39(false);
+  const [favoriteOpen, setFavoriteOpen] = useState39(false);
+  const [moreOpen, setMoreOpen] = useState39(false);
+  const [coinPos, setCoinPos] = useState39({ left: 0, top: 0 });
+  const [favoritePos, setFavoritePos] = useState39({ left: 0, top: 0 });
+  const [morePos, setMorePos] = useState39({ right: 0, top: 0 });
   const disabled = loading || !state2;
   const writeDisabled = disabled || !loggedIn || Boolean(busy);
   function toggleCoin() {
@@ -32644,7 +32812,7 @@ function VideoInteractionBar({
     if (align === "right") return { right: wr.right - er.right, top };
     return { left: er.left - wr.left, top };
   }
-  return /* @__PURE__ */ React52.createElement("div", { className: "bili-interaction-wrap", ref: wrapRef }, /* @__PURE__ */ React52.createElement("div", { className: "bili-interaction-bar", "aria-label": "\u89C6\u9891\u4E92\u52A8" }, /* @__PURE__ */ React52.createElement(
+  return /* @__PURE__ */ React53.createElement("div", { className: "bili-interaction-wrap", ref: wrapRef }, /* @__PURE__ */ React53.createElement("div", { className: "bili-interaction-bar", "aria-label": "\u89C6\u9891\u4E92\u52A8" }, /* @__PURE__ */ React53.createElement(
     ActionButton,
     {
       active: Boolean(state2?.liked),
@@ -32654,7 +32822,7 @@ function VideoInteractionBar({
       value: formatCount9(state2?.stats.likeCount),
       onClick: onLike
     }
-  ), /* @__PURE__ */ React52.createElement("span", { className: "bili-popover-anchor", ref: coinAnchorRef }, /* @__PURE__ */ React52.createElement(
+  ), /* @__PURE__ */ React53.createElement("span", { className: "bili-popover-anchor", ref: coinAnchorRef }, /* @__PURE__ */ React53.createElement(
     ActionButton,
     {
       active: Boolean(state2?.coinCount),
@@ -32663,7 +32831,7 @@ function VideoInteractionBar({
       value: state2?.coinCount ? `\u5DF2\u6295 ${state2.coinCount}` : formatCount9(state2?.stats.coinCount),
       onMouseDown: toggleCoin
     }
-  )), /* @__PURE__ */ React52.createElement("span", { className: "bili-popover-anchor", ref: favoriteAnchorRef }, /* @__PURE__ */ React52.createElement(
+  )), /* @__PURE__ */ React53.createElement("span", { className: "bili-popover-anchor", ref: favoriteAnchorRef }, /* @__PURE__ */ React53.createElement(
     ActionButton,
     {
       active: Boolean(state2?.favorited),
@@ -32673,7 +32841,7 @@ function VideoInteractionBar({
       value: formatCount9(state2?.stats.favoriteCount),
       onMouseDown: toggleFavorite
     }
-  )), /* @__PURE__ */ React52.createElement(
+  )), /* @__PURE__ */ React53.createElement(
     ActionButton,
     {
       disabled: disabled || Boolean(busy),
@@ -32681,7 +32849,7 @@ function VideoInteractionBar({
       value: formatCount9(state2?.stats.shareCount),
       onClick: onShare
     }
-  ), /* @__PURE__ */ React52.createElement(
+  ), /* @__PURE__ */ React53.createElement(
     ActionButton,
     {
       active: Boolean(state2?.toView),
@@ -32691,7 +32859,7 @@ function VideoInteractionBar({
       value: state2?.toView ? "\u5DF2\u52A0\u5165" : "",
       onClick: onToView
     }
-  ), /* @__PURE__ */ React52.createElement(ActionButton, { disabled: disabled || Boolean(busy), icon: "warning", label: "\u4E3E\u62A5", value: "", onClick: onReport }), /* @__PURE__ */ React52.createElement("span", { className: "bili-popover-anchor", ref: moreAnchorRef }, /* @__PURE__ */ React52.createElement(ActionButton, { disabled, label: "\u66F4\u591A", value: "", onMouseDown: toggleMore }))), coinOpen ? /* @__PURE__ */ React52.createElement(
+  ), /* @__PURE__ */ React53.createElement(ActionButton, { disabled: disabled || Boolean(busy), icon: "warning", label: "\u4E3E\u62A5", value: "", onClick: onReport }), /* @__PURE__ */ React53.createElement("span", { className: "bili-popover-anchor", ref: moreAnchorRef }, /* @__PURE__ */ React53.createElement(ActionButton, { disabled, label: "\u66F4\u591A", value: "", onMouseDown: toggleMore }))), coinOpen ? /* @__PURE__ */ React53.createElement(
     CoinPanel,
     {
       busy: busy === "coin",
@@ -32700,7 +32868,7 @@ function VideoInteractionBar({
       style: { left: coinPos.left ?? 0, top: coinPos.top },
       triggerRef: coinAnchorRef
     }
-  ) : null, favoriteOpen && state2 ? /* @__PURE__ */ React52.createElement(
+  ) : null, favoriteOpen && state2 ? /* @__PURE__ */ React53.createElement(
     FavoritePanel,
     {
       busy: busy === "favorite",
@@ -32710,7 +32878,7 @@ function VideoInteractionBar({
       style: { left: favoritePos.left ?? 0, top: favoritePos.top },
       triggerRef: favoriteAnchorRef
     }
-  ) : null, moreOpen ? /* @__PURE__ */ React52.createElement(
+  ) : null, moreOpen ? /* @__PURE__ */ React53.createElement(
     WatchMoreMenu,
     {
       onClose: () => setMoreOpen(false),
@@ -32723,8 +32891,8 @@ function VideoInteractionBar({
   ) : null);
 }
 function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDown }) {
-  return /* @__PURE__ */ React52.createElement(
-    Button21,
+  return /* @__PURE__ */ React53.createElement(
+    Button23,
     {
       className: active ? "bili-interaction-button bili-interaction-button-active" : "bili-interaction-button",
       disabled,
@@ -32734,9 +32902,9 @@ function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDo
       onClick,
       onMouseDown
     },
-    icon ? /* @__PURE__ */ React52.createElement(Icon8, { name: icon, size: 15 }) : null,
-    /* @__PURE__ */ React52.createElement("span", null, label),
-    value ? /* @__PURE__ */ React52.createElement("small", null, value) : null
+    icon ? /* @__PURE__ */ React53.createElement(Icon8, { name: icon, size: 15 }) : null,
+    /* @__PURE__ */ React53.createElement("span", null, label),
+    value ? /* @__PURE__ */ React53.createElement("small", null, value) : null
   );
 }
 function formatCount9(value) {
@@ -32750,10 +32918,10 @@ function trim4(value) {
 }
 
 // src/components/VideoPlayerControls.tsx
-import React54, { Icon as Icon10 } from "sdk";
+import React55, { Icon as Icon10 } from "sdk";
 
 // src/components/ScreenshotButton.tsx
-import React53, { Icon as Icon9, useState as useState39 } from "sdk";
+import React54, { Icon as Icon9, useState as useState40 } from "sdk";
 
 // src/player/frameCapture.ts
 function captureVideoFrame(video) {
@@ -32780,8 +32948,8 @@ function screenshotFileName(bvid, cid, seconds) {
 
 // src/components/ScreenshotButton.tsx
 function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
-  const [saving, setSaving] = useState39(false);
-  return /* @__PURE__ */ React53.createElement(
+  const [saving, setSaving] = useState40(false);
+  return /* @__PURE__ */ React54.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -32790,8 +32958,8 @@ function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
       type: "button",
       onClick: saveScreenshot
     },
-    /* @__PURE__ */ React53.createElement(Icon9, { name: "screenshots", size: 16 }),
-    saving ? /* @__PURE__ */ React53.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
+    /* @__PURE__ */ React54.createElement(Icon9, { name: "screenshots", size: 16 }),
+    saving ? /* @__PURE__ */ React54.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
   );
   async function saveScreenshot() {
     if (!sdk || !selectedPage || !videoRef.current) return;
@@ -32840,7 +33008,7 @@ function VideoPlayerControls({
 }) {
   const progress = duration2 > 0 ? Math.min(100, Math.max(0, currentTime / duration2 * 100)) : 0;
   const seekStyle = { "--progress": `${progress}%` };
-  return /* @__PURE__ */ React54.createElement("div", { className: `bili-player-controls ${visible ? "" : "bili-player-controls-hidden"}` }, /* @__PURE__ */ React54.createElement("div", { className: "bili-player-playbar" }, /* @__PURE__ */ React54.createElement(
+  return /* @__PURE__ */ React55.createElement("div", { className: `bili-player-controls ${visible ? "" : "bili-player-controls-hidden"}` }, /* @__PURE__ */ React55.createElement("div", { className: "bili-player-playbar" }, /* @__PURE__ */ React55.createElement(
     "input",
     {
       "aria-label": "\u64AD\u653E\u8FDB\u5EA6",
@@ -32854,7 +33022,7 @@ function VideoPlayerControls({
       value: Math.min(currentTime, Math.max(1, duration2)),
       onChange: (event) => onSeek(Number(event.currentTarget.value))
     }
-  ), /* @__PURE__ */ React54.createElement("span", { className: "bili-player-time" }, formatDuration3(currentTime)), /* @__PURE__ */ React54.createElement("span", { className: "bili-player-time" }, formatDuration3(duration2))), /* @__PURE__ */ React54.createElement("div", { className: "bili-player-controls-row" }, /* @__PURE__ */ React54.createElement(
+  ), /* @__PURE__ */ React55.createElement("span", { className: "bili-player-time" }, formatDuration3(currentTime)), /* @__PURE__ */ React55.createElement("span", { className: "bili-player-time" }, formatDuration3(duration2))), /* @__PURE__ */ React55.createElement("div", { className: "bili-player-controls-row" }, /* @__PURE__ */ React55.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -32863,8 +33031,8 @@ function VideoPlayerControls({
       type: "button",
       onClick: onTogglePlay
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
-  ), /* @__PURE__ */ React54.createElement(
+    /* @__PURE__ */ React55.createElement(Icon10, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
+  ), /* @__PURE__ */ React55.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -32873,8 +33041,8 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleMute
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
-  ), /* @__PURE__ */ React54.createElement(
+    /* @__PURE__ */ React55.createElement(Icon10, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
+  ), /* @__PURE__ */ React55.createElement(
     "input",
     {
       "aria-label": "\u97F3\u91CF",
@@ -32887,7 +33055,7 @@ function VideoPlayerControls({
       value: muted ? 0 : volume,
       onChange: (event) => onChangeVolume(Number(event.currentTarget.value))
     }
-  ), /* @__PURE__ */ React54.createElement("span", { className: "bili-player-rate-wrap" }, /* @__PURE__ */ React54.createElement(
+  ), /* @__PURE__ */ React55.createElement("span", { className: "bili-player-rate-wrap" }, /* @__PURE__ */ React55.createElement(
     "select",
     {
       "aria-label": "\u500D\u901F",
@@ -32896,8 +33064,8 @@ function VideoPlayerControls({
       value: rate,
       onChange: (event) => onChangeRate(Number(event.currentTarget.value))
     },
-    rates.map((value) => /* @__PURE__ */ React54.createElement("option", { key: value, value }, value, "x"))
-  )), /* @__PURE__ */ React54.createElement(
+    rates.map((value) => /* @__PURE__ */ React55.createElement("option", { key: value, value }, value, "x"))
+  )), /* @__PURE__ */ React55.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -32907,9 +33075,9 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleQuality
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: "settings", size: 16 }),
-    /* @__PURE__ */ React54.createElement("small", null, qualityLabel)
-  ), /* @__PURE__ */ React54.createElement(
+    /* @__PURE__ */ React55.createElement(Icon10, { name: "settings", size: 16 }),
+    /* @__PURE__ */ React55.createElement("small", null, qualityLabel)
+  ), /* @__PURE__ */ React55.createElement(
     "button",
     {
       className: "bili-ctrl-btn bili-ctrl-btn-label",
@@ -32918,9 +33086,9 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleDanmaku
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: "playlistFilled", size: 16 }),
-    /* @__PURE__ */ React54.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
-  ), /* @__PURE__ */ React54.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React54.createElement(
+    /* @__PURE__ */ React55.createElement(Icon10, { name: "playlistFilled", size: 16 }),
+    /* @__PURE__ */ React55.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
+  ), /* @__PURE__ */ React55.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React55.createElement(
     "button",
     {
       className: "bili-ctrl-btn",
@@ -32929,7 +33097,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleFullscreen
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: "fullscreen", size: 18 })
+    /* @__PURE__ */ React55.createElement(Icon10, { name: "fullscreen", size: 18 })
   )));
 }
 function formatDuration3(seconds) {
@@ -32996,25 +33164,25 @@ function PlayerShell({
   const reporterRef = useRef14(null);
   const sourceStartedAtRef = useRef14(0);
   const fallbackRequestedRef = useRef14(false);
-  const [dashState, setDashState] = useState40({
+  const [dashState, setDashState] = useState41({
     mode: "auto",
     selectedQualityId: "",
     currentQualityId: "",
     error: ""
   });
-  const [mediaError, setMediaError] = useState40("");
-  const [isPlaying, setIsPlaying] = useState40(false);
-  const [currentTime, setCurrentTime] = useState40(0);
-  const [duration2, setDuration] = useState40(0);
+  const [mediaError, setMediaError] = useState41("");
+  const [isPlaying, setIsPlaying] = useState41(false);
+  const [currentTime, setCurrentTime] = useState41(0);
+  const [duration2, setDuration] = useState41(0);
   const selectedPageRef = useRef14(selectedPage);
   selectedPageRef.current = selectedPage;
-  const [volume, setVolume] = useState40(1);
-  const [muted, setMuted] = useState40(false);
-  const [rate, setRate] = useState40(defaultPlaybackRate);
-  const [fullscreen, setFullscreen] = useState40(false);
-  const [qualityOpen, setQualityOpen] = useState40(false);
-  const [danmakuOpen, setDanmakuOpen] = useState40(false);
-  const [hovering, setHovering] = useState40(false);
+  const [volume, setVolume] = useState41(1);
+  const [muted, setMuted] = useState41(false);
+  const [rate, setRate] = useState41(defaultPlaybackRate);
+  const [fullscreen, setFullscreen] = useState41(false);
+  const [qualityOpen, setQualityOpen] = useState41(false);
+  const [danmakuOpen, setDanmakuOpen] = useState41(false);
+  const [hovering, setHovering] = useState41(false);
   const onTimeUpdateRef = useRef14(onTimeUpdate);
   onTimeUpdateRef.current = onTimeUpdate;
   const rememberTime = useCallback3(() => {
@@ -33042,7 +33210,7 @@ function PlayerShell({
   const toggleDanmakuEnabled = useCallback3(() => {
     onDanmakuSettingsChange({ ...danmakuSettings, enabled: !danmakuSettings.enabled });
   }, [danmakuSettings, onDanmakuSettingsChange]);
-  useEffect37(() => {
+  useEffect38(() => {
     const video = videoRef.current;
     if (!video || !playback?.manifestUrl && !playback?.directUrl) return;
     setDashState({ mode: "auto", selectedQualityId: "", currentQualityId: "", error: "" });
@@ -33090,12 +33258,12 @@ function PlayerShell({
       video.load();
     };
   }, [playback?.directUrl, playback?.manifestUrl, playback?.playbackId, qualityMode, qualityQn, syncVideoState]);
-  useEffect37(() => {
+  useEffect38(() => {
     if (dashState.error && playback && !playback.directUrl) {
       requestPlaybackFallback(false);
     }
   }, [dashState.error, playback?.directUrl, playback?.playbackId]);
-  useEffect37(() => {
+  useEffect38(() => {
     const video = videoRef.current;
     if (!sdk || !video || !selectedPage || !playback) return;
     const reporter = createProgressReporter({
@@ -33112,7 +33280,7 @@ function PlayerShell({
       if (reporterRef.current === reporter) reporterRef.current = null;
     };
   }, [detail.aid, detail.bvid, playback?.playbackId, selectedPage?.cid, syncProgress]);
-  useEffect37(() => {
+  useEffect38(() => {
     const video = videoRef.current;
     if (!video) return;
     video.volume = volume;
@@ -33143,7 +33311,7 @@ function PlayerShell({
       rememberTime();
     };
   }, [playback?.directUrl, rememberTime, syncVideoState]);
-  useEffect37(() => {
+  useEffect38(() => {
     const video = videoRef.current;
     const shell = shellRef.current;
     if (!video || !shell) return;
@@ -33172,7 +33340,7 @@ function PlayerShell({
   function toggleDanmaku() {
     setDanmakuOpen((value) => !value);
   }
-  return /* @__PURE__ */ React55.createElement("div", { className: "bili-watch-main" }, /* @__PURE__ */ React55.createElement(
+  return /* @__PURE__ */ React56.createElement("div", { className: "bili-watch-main" }, /* @__PURE__ */ React56.createElement(
     "div",
     {
       className: `bili-player-shell ${fullscreen ? "bili-player-shell-fullscreen" : ""}`,
@@ -33180,8 +33348,8 @@ function PlayerShell({
       onMouseEnter: () => setHovering(true),
       onMouseLeave: () => setHovering(false)
     },
-    /* @__PURE__ */ React55.createElement("video", { className: "bili-video-element", playsInline: true, ref: videoRef }),
-    /* @__PURE__ */ React55.createElement(
+    /* @__PURE__ */ React56.createElement("video", { className: "bili-video-element", playsInline: true, ref: videoRef }),
+    /* @__PURE__ */ React56.createElement(
       DanmakuOverlay,
       {
         items: danmakuItems,
@@ -33193,8 +33361,8 @@ function PlayerShell({
         onRecalled: onDanmakuRecalled
       }
     ),
-    loadingPlayback || !playback || playbackError ? /* @__PURE__ */ React55.createElement("div", { className: "bili-player-overlay" }, /* @__PURE__ */ React55.createElement("strong", null, playbackError ? "\u64AD\u653E\u5931\u8D25" : loadingPlayback ? "\u6B63\u5728\u521B\u5EFA\u64AD\u653E\u4F1A\u8BDD" : "\u7B49\u5F85\u64AD\u653E\u6E90"), playbackError ? /* @__PURE__ */ React55.createElement("span", null, playbackError) : null, playbackError ? /* @__PURE__ */ React55.createElement("div", { className: "bili-player-overlay-actions" }, /* @__PURE__ */ React55.createElement(Button22, { size: "sm", type: "button", onClick: onReloadPlayback }, "\u91CD\u8F7D"), /* @__PURE__ */ React55.createElement(Button22, { variant: "outline", size: "sm", type: "button", onClick: openExternal }, "\u5916\u90E8\u6253\u5F00")) : null) : null,
-    /* @__PURE__ */ React55.createElement(
+    loadingPlayback || !playback || playbackError ? /* @__PURE__ */ React56.createElement("div", { className: "bili-player-overlay" }, /* @__PURE__ */ React56.createElement("strong", null, playbackError ? "\u64AD\u653E\u5931\u8D25" : loadingPlayback ? "\u6B63\u5728\u521B\u5EFA\u64AD\u653E\u4F1A\u8BDD" : "\u7B49\u5F85\u64AD\u653E\u6E90"), playbackError ? /* @__PURE__ */ React56.createElement("span", null, playbackError) : null, playbackError ? /* @__PURE__ */ React56.createElement("div", { className: "bili-player-overlay-actions" }, /* @__PURE__ */ React56.createElement(Button24, { size: "sm", type: "button", onClick: onReloadPlayback }, "\u91CD\u8F7D"), /* @__PURE__ */ React56.createElement(Button24, { variant: "outline", size: "sm", type: "button", onClick: openExternal }, "\u5916\u90E8\u6253\u5F00")) : null) : null,
+    /* @__PURE__ */ React56.createElement(
       VideoPlayerControls,
       {
         canControl,
@@ -33224,14 +33392,14 @@ function PlayerShell({
         volume
       }
     ),
-    qualityOpen ? /* @__PURE__ */ React55.createElement(
+    qualityOpen ? /* @__PURE__ */ React56.createElement(
       MenuPopover,
       {
         onClose: () => setQualityOpen(false),
         style: { position: "absolute", right: 12, bottom: 80, zIndex: 50 },
         triggerRef: qualityTriggerRef
       },
-      /* @__PURE__ */ React55.createElement(
+      /* @__PURE__ */ React56.createElement(
         QualityMenu,
         {
           currentQualityId: dashState.currentQualityId,
@@ -33252,7 +33420,7 @@ function PlayerShell({
         }
       )
     ) : null,
-    danmakuOpen ? /* @__PURE__ */ React55.createElement(
+    danmakuOpen ? /* @__PURE__ */ React56.createElement(
       DanmakuSettingsPopover,
       {
         settings: danmakuSettings,
@@ -33265,7 +33433,7 @@ function PlayerShell({
         triggerRef: danmakuTriggerRef
       }
     ) : null
-  ), /* @__PURE__ */ React55.createElement(
+  ), /* @__PURE__ */ React56.createElement(
     DanmakuInput,
     {
       detail,
@@ -33276,7 +33444,7 @@ function PlayerShell({
       videoRef,
       onSent: onDanmakuSent
     }
-  ), /* @__PURE__ */ React55.createElement(
+  ), /* @__PURE__ */ React56.createElement(
     VideoInteractionBar,
     {
       busy: interactionBusy,
@@ -33293,7 +33461,7 @@ function PlayerShell({
       onCopyLink: onShare,
       onOpenScreenshotFolder: openScreenshotFolder
     }
-  ), interactionError ? /* @__PURE__ */ React55.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, interactionError) : null, /* @__PURE__ */ React55.createElement("section", { className: "bili-video-detail-panel" }, /* @__PURE__ */ React55.createElement("div", { className: "bili-video-heading" }, /* @__PURE__ */ React55.createElement("strong", null, detail.title || "Untitled"), /* @__PURE__ */ React55.createElement("small", null, detail.owner.name || "\u672A\u77E5 UP \u4E3B", " \xB7 ", formatCount10(detail.stats.viewCount), " \u64AD\u653E \xB7", " ", formatCount10(detail.stats.danmakuCount), " \u5F39\u5E55", onOpenNotes ? /* @__PURE__ */ React55.createElement("button", { type: "button", className: "bili-video-notes-btn", onClick: onOpenNotes }, "\u7B14\u8BB0") : null)), /* @__PURE__ */ React55.createElement("p", null, detail.description || "\u6682\u65E0\u7B80\u4ECB")), commentsPanel);
+  ), interactionError ? /* @__PURE__ */ React56.createElement("div", { className: "bili-state bili-state-error bili-state-compact" }, interactionError) : null, /* @__PURE__ */ React56.createElement("section", { className: "bili-video-detail-panel" }, /* @__PURE__ */ React56.createElement("div", { className: "bili-video-heading" }, /* @__PURE__ */ React56.createElement("strong", null, detail.title || "Untitled"), /* @__PURE__ */ React56.createElement("small", null, detail.owner.name || "\u672A\u77E5 UP \u4E3B", " \xB7 ", formatCount10(detail.stats.viewCount), " \u64AD\u653E \xB7", " ", formatCount10(detail.stats.danmakuCount), " \u5F39\u5E55", onOpenNotes ? /* @__PURE__ */ React56.createElement("button", { type: "button", className: "bili-video-notes-btn", onClick: onOpenNotes }, "\u7B14\u8BB0") : null)), /* @__PURE__ */ React56.createElement("p", null, detail.description || "\u6682\u65E0\u7B80\u4ECB")), commentsPanel);
   function togglePlay() {
     const video = videoRef.current;
     if (!video) return;
@@ -33390,15 +33558,15 @@ function initialQualityFor(qualities, qn) {
 }
 
 // src/components/WatchSidebarTabs.tsx
-import React58, { useState as useState42 } from "sdk";
+import React59, { useState as useState43 } from "sdk";
 
 // src/components/RelatedPanel.tsx
-import React56, { useEffect as useEffect38, useState as useState41 } from "sdk";
+import React57, { useEffect as useEffect39, useState as useState42 } from "sdk";
 function RelatedPanel({ bvid, aid }) {
-  const [items, setItems] = useState41([]);
-  const [loading, setLoading] = useState41(false);
-  const [error, setError] = useState41("");
-  useEffect38(() => {
+  const [items, setItems] = useState42([]);
+  const [loading, setLoading] = useState42(false);
+  const [error, setError] = useState42("");
+  useEffect39(() => {
     let active = true;
     const sdk = getState().sdk;
     if (!sdk || !bvid && !aid) return;
@@ -33416,16 +33584,16 @@ function RelatedPanel({ bvid, aid }) {
     };
   }, [aid, bvid]);
   if (error || !loading && items.length === 0) {
-    return /* @__PURE__ */ React56.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React56.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React56.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React56.createElement("small", null, "\u6682\u65E0")), /* @__PURE__ */ React56.createElement("span", { className: "bili-feed-context" }, "\u6682\u65E0\u53EF\u63A8\u8350\u89C6\u9891"));
+    return /* @__PURE__ */ React57.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React57.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React57.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React57.createElement("small", null, "\u6682\u65E0")), /* @__PURE__ */ React57.createElement("span", { className: "bili-feed-context" }, "\u6682\u65E0\u53EF\u63A8\u8350\u89C6\u9891"));
   }
-  return /* @__PURE__ */ React56.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React56.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React56.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React56.createElement("small", null, items.length, " \u6761")), /* @__PURE__ */ React56.createElement("div", { className: "bili-related-list" }, items.map((video) => /* @__PURE__ */ React56.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))));
+  return /* @__PURE__ */ React57.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React57.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React57.createElement("strong", null, "\u76F8\u5173\u63A8\u8350"), /* @__PURE__ */ React57.createElement("small", null, items.length, " \u6761")), /* @__PURE__ */ React57.createElement("div", { className: "bili-related-list" }, items.map((video) => /* @__PURE__ */ React57.createElement(VideoCard, { key: `${video.bvid}-${video.cid || video.aid}`, video }))));
 }
 
 // src/components/VideoOwnerRow.tsx
-import React57, { Button as Button23 } from "sdk";
+import React58, { Button as Button25 } from "sdk";
 function VideoOwnerRow({ busy, loggedIn, state: state2, onFollow, onOpenSpace }) {
   const owner = state2?.owner;
-  return /* @__PURE__ */ React57.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React57.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React57.createElement(BiliImage, { className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React57.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React57.createElement("span", null, /* @__PURE__ */ React57.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React57.createElement("small", null, owner ? `${formatCount11(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React57.createElement(Button23, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
+  return /* @__PURE__ */ React58.createElement("div", { className: "bili-owner-row" }, /* @__PURE__ */ React58.createElement("button", { className: "bili-owner-main", disabled: !owner, type: "button", onClick: onOpenSpace }, owner?.avatar ? /* @__PURE__ */ React58.createElement(BiliImage, { className: "bili-owner-avatar", src: owner.avatar }) : /* @__PURE__ */ React58.createElement("span", { className: "bili-owner-avatar" }), /* @__PURE__ */ React58.createElement("span", null, /* @__PURE__ */ React58.createElement("strong", null, owner?.name || "\u672A\u77E5 UP \u4E3B"), /* @__PURE__ */ React58.createElement("small", null, owner ? `${formatCount11(owner.followerCount)} \u7C89\u4E1D` : "\u4E92\u52A8\u72B6\u6001\u52A0\u8F7D\u4E2D"))), /* @__PURE__ */ React58.createElement(Button25, { disabled: !loggedIn || !owner || busy, size: "sm", type: "button", onClick: onFollow }, owner?.following ? "\u5DF2\u5173\u6CE8" : "\u5173\u6CE8"));
 }
 function formatCount11(value) {
   if (value >= 1e8) return `${trim6(value / 1e8)}\u4EBF`;
@@ -33451,8 +33619,8 @@ function WatchSidebarTabs({
   pagesLabel,
   hideOwner
 }) {
-  const [open, setOpen] = useState42(false);
-  return /* @__PURE__ */ React58.createElement("aside", { className: `bili-watch-side ${open ? "bili-watch-side-open" : ""}` }, /* @__PURE__ */ React58.createElement("button", { className: "bili-watch-side-toggle", type: "button", onClick: () => setOpen((value) => !value) }, /* @__PURE__ */ React58.createElement("span", null, hideOwner ? `${pagesLabel ?? "\u9009\u96C6"} \xB7 \u76F8\u5173\u63A8\u8350` : `UP \xB7 ${pagesLabel ?? "\u5206P"} \xB7 \u76F8\u5173\u63A8\u8350`), /* @__PURE__ */ React58.createElement("small", null, open ? "\u6536\u8D77" : "\u5C55\u5F00")), /* @__PURE__ */ React58.createElement("div", { className: "bili-watch-side-content" }, !hideOwner ? /* @__PURE__ */ React58.createElement(
+  const [open, setOpen] = useState43(false);
+  return /* @__PURE__ */ React59.createElement("aside", { className: `bili-watch-side ${open ? "bili-watch-side-open" : ""}` }, /* @__PURE__ */ React59.createElement("button", { className: "bili-watch-side-toggle", type: "button", onClick: () => setOpen((value) => !value) }, /* @__PURE__ */ React59.createElement("span", null, hideOwner ? `${pagesLabel ?? "\u9009\u96C6"} \xB7 \u76F8\u5173\u63A8\u8350` : `UP \xB7 ${pagesLabel ?? "\u5206P"} \xB7 \u76F8\u5173\u63A8\u8350`), /* @__PURE__ */ React59.createElement("small", null, open ? "\u6536\u8D77" : "\u5C55\u5F00")), /* @__PURE__ */ React59.createElement("div", { className: "bili-watch-side-content" }, !hideOwner ? /* @__PURE__ */ React59.createElement(
     VideoOwnerRow,
     {
       busy: followBusy,
@@ -33461,7 +33629,7 @@ function WatchSidebarTabs({
       onFollow: onFollowOwner,
       onOpenSpace
     }
-  ) : null, /* @__PURE__ */ React58.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React58.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React58.createElement("strong", null, pagesLabel ?? "\u5206 P"), /* @__PURE__ */ React58.createElement("small", null, pages.length, " \u4E2A")), /* @__PURE__ */ React58.createElement("div", { className: "bili-page-list" }, pages.map((page) => /* @__PURE__ */ React58.createElement(
+  ) : null, /* @__PURE__ */ React59.createElement("section", { className: "bili-sidebar-section" }, /* @__PURE__ */ React59.createElement("div", { className: "bili-section-title" }, /* @__PURE__ */ React59.createElement("strong", null, pagesLabel ?? "\u5206 P"), /* @__PURE__ */ React59.createElement("small", null, pages.length, " \u4E2A")), /* @__PURE__ */ React59.createElement("div", { className: "bili-page-list" }, pages.map((page) => /* @__PURE__ */ React59.createElement(
     "button",
     {
       className: `bili-page-item ${selectedPageCid === page.cid ? "bili-page-item-active" : ""}`,
@@ -33469,9 +33637,9 @@ function WatchSidebarTabs({
       type: "button",
       onClick: () => onSelectPage(page)
     },
-    /* @__PURE__ */ React58.createElement("span", null, page.page, ". ", page.title || `CID ${page.cid}`),
-    /* @__PURE__ */ React58.createElement("small", null, formatDuration4(page.duration))
-  )))), /* @__PURE__ */ React58.createElement(RelatedPanel, { bvid, aid })));
+    /* @__PURE__ */ React59.createElement("span", null, page.page, ". ", page.title || `CID ${page.cid}`),
+    /* @__PURE__ */ React59.createElement("small", null, formatDuration4(page.duration))
+  )))), /* @__PURE__ */ React59.createElement(RelatedPanel, { bvid, aid })));
   function openOwnerSpace() {
     const mid = interactionState?.owner.mid;
     if (!mid) return;
@@ -33587,18 +33755,18 @@ function errorMessageOf(error) {
 }
 
 // src/hooks/useVideoInteraction.ts
-import { useEffect as useEffect39, useState as useState43 } from "sdk";
+import { useEffect as useEffect40, useState as useState44 } from "sdk";
 function useVideoInteraction({
   aid,
   bvid,
   ownerMid,
   loggedIn
 }) {
-  const [state2, setState2] = useState43(null);
-  const [loading, setLoading] = useState43(false);
-  const [error, setError] = useState43("");
-  const [busy, setBusy] = useState43("");
-  useEffect39(() => {
+  const [state2, setState2] = useState44(null);
+  const [loading, setLoading] = useState44(false);
+  const [error, setError] = useState44("");
+  const [busy, setBusy] = useState44("");
+  useEffect40(() => {
     let active = true;
     const sdk = getState().sdk;
     if (!sdk || !aid && !bvid) return;
@@ -33752,7 +33920,7 @@ async function copyText(value) {
 
 // src/pages/WatchPage.tsx
 function WatchPage({ target }) {
-  const [query] = useState44(() => ({
+  const [query] = useState45(() => ({
     bvid: target.bvid,
     aid: target.aid,
     cid: target.cid,
@@ -33761,35 +33929,35 @@ function WatchPage({ target }) {
     epId: target.epId
   }));
   const isSeason = query.type === "season" || query.seasonId != null;
-  const [detail, setDetail] = useState44(null);
-  const [seasonDetail, setSeasonDetail] = useState44(null);
-  const [selectedPage, setSelectedPage] = useState44(null);
-  const [selectedEp, setSelectedEp] = useState44(null);
-  const [seasonFollowBusy, setSeasonFollowBusy] = useState44(false);
-  const [playback, setPlayback] = useState44(null);
-  const [loadingDetail, setLoadingDetail] = useState44(false);
-  const [loadingPlayback, setLoadingPlayback] = useState44(false);
-  const [noteOpen, setNoteOpen] = useState44(false);
-  const [detailError, setDetailError] = useState44("");
-  const [playbackError, setPlaybackError] = useState44("");
-  const [reloadNonce, setReloadNonce] = useState44(0);
-  const [playbackMode, setPlaybackMode] = useState44("quality");
-  const [codecPreference, setCodecPreference] = useState44("avc");
-  const [audioPreference, setAudioPreference] = useState44("standard");
-  const [autoPlay, setAutoPlay] = useState44(true);
-  const [bufferMode, setBufferMode] = useState44("auto");
-  const [localProgress, setLocalProgress] = useState44(null);
-  const [syncProgress, setSyncProgress] = useState44(true);
-  const [danmakuItems, setDanmakuItems] = useState44([]);
-  const [danmakuLoading, setDanmakuLoading] = useState44(false);
-  const [danmakuError, setDanmakuError] = useState44("");
-  const [danmakuSettings, setDanmakuSettings] = useState44(defaultDanmakuSettings);
+  const [detail, setDetail] = useState45(null);
+  const [seasonDetail, setSeasonDetail] = useState45(null);
+  const [selectedPage, setSelectedPage] = useState45(null);
+  const [selectedEp, setSelectedEp] = useState45(null);
+  const [seasonFollowBusy, setSeasonFollowBusy] = useState45(false);
+  const [playback, setPlayback] = useState45(null);
+  const [loadingDetail, setLoadingDetail] = useState45(false);
+  const [loadingPlayback, setLoadingPlayback] = useState45(false);
+  const [noteOpen, setNoteOpen] = useState45(false);
+  const [detailError, setDetailError] = useState45("");
+  const [playbackError, setPlaybackError] = useState45("");
+  const [reloadNonce, setReloadNonce] = useState45(0);
+  const [playbackMode, setPlaybackMode] = useState45("quality");
+  const [codecPreference, setCodecPreference] = useState45("avc");
+  const [audioPreference, setAudioPreference] = useState45("standard");
+  const [autoPlay, setAutoPlay] = useState45(true);
+  const [bufferMode, setBufferMode] = useState45("auto");
+  const [localProgress, setLocalProgress] = useState45(null);
+  const [syncProgress, setSyncProgress] = useState45(true);
+  const [danmakuItems, setDanmakuItems] = useState45([]);
+  const [danmakuLoading, setDanmakuLoading] = useState45(false);
+  const [danmakuError, setDanmakuError] = useState45("");
+  const [danmakuSettings, setDanmakuSettings] = useState45(defaultDanmakuSettings);
   const danmakuLoaderRef = useRef15(null);
   const selfDanmakuRef = useRef15(/* @__PURE__ */ new Map());
-  const [defaultPlaybackRate, setDefaultPlaybackRate] = useState44(1);
-  const [qualityMode, setQualityMode] = useState44("auto");
-  const [qualityQn, setQualityQn] = useState44(0);
-  const [runtimeState, setRuntimeState] = useState44(getState);
+  const [defaultPlaybackRate, setDefaultPlaybackRate] = useState45(1);
+  const [qualityMode, setQualityMode] = useState45("auto");
+  const [qualityQn, setQualityQn] = useState45(0);
+  const [runtimeState, setRuntimeState] = useState45(getState);
   const progressRef = useRef15({});
   const touchedProgressRef = useRef15({});
   const fallbackAttemptsRef = useRef15({});
@@ -33801,12 +33969,12 @@ function WatchPage({ target }) {
     ownerMid: videoDetail?.owner.mid,
     loggedIn: Boolean(runtimeState.loginInfo?.loggedIn)
   });
-  useEffect40(() => {
+  useEffect41(() => {
     const unsubscribe = subscribe(() => setRuntimeState(getState()));
     void refreshLoginStatus();
     return unsubscribe;
   }, []);
-  useEffect40(() => {
+  useEffect41(() => {
     let active = true;
     loadConfig().then((config) => {
       if (active) {
@@ -33839,7 +34007,7 @@ function WatchPage({ target }) {
       active = false;
     };
   }, []);
-  useEffect40(() => {
+  useEffect41(() => {
     const sdk = getState().sdk;
     if (!sdk) return;
     if (isSeason) {
@@ -33920,7 +34088,7 @@ function WatchPage({ target }) {
       active = false;
     };
   }, [isSeason, query.aid, query.bvid, query.cid, query.epId, query.seasonId]);
-  useEffect40(() => {
+  useEffect41(() => {
     const sdk = getState().sdk;
     if (!sdk || !videoDetail || !activePage) return;
     let active = true;
@@ -33947,7 +34115,7 @@ function WatchPage({ target }) {
       active = false;
     };
   }, [videoDetail?.aid, videoDetail?.bvid, playbackMode, codecPreference, audioPreference, reloadNonce, activePage?.cid, selectedEp?.epId]);
-  useEffect40(() => {
+  useEffect41(() => {
     const sdk = getState().sdk;
     if (!sdk || !videoDetail || !activePage) return;
     const loader = new DanmakuSegmentLoader({
@@ -34030,7 +34198,7 @@ function WatchPage({ target }) {
     }
     setPlaybackMode(mode);
   }
-  return /* @__PURE__ */ React59.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React59.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React59.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u8BE6\u60C5") : null, !detailError && !loadingDetail && videoDetail ? /* @__PURE__ */ React59.createElement(React59.Fragment, null, isSeason && seasonDetail ? /* @__PURE__ */ React59.createElement("div", { className: "bili-season-followbar" }, /* @__PURE__ */ React59.createElement("span", { className: "bili-season-followbar-score" }, seasonDetail.score != null ? `\u8BC4\u5206 ${seasonDetail.score.score.toFixed(1)}` : ""), /* @__PURE__ */ React59.createElement("span", { className: "bili-season-followbar-new" }, seasonDetail.newEp ? `\u6700\u65B0\uFF1A${seasonDetail.newEp}` : ""), /* @__PURE__ */ React59.createElement(
+  return /* @__PURE__ */ React60.createElement("section", { className: "bili-watch" }, detailError ? /* @__PURE__ */ React60.createElement("div", { className: "bili-state bili-state-error" }, detailError) : null, !detailError && loadingDetail ? /* @__PURE__ */ React60.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u8BE6\u60C5") : null, !detailError && !loadingDetail && videoDetail ? /* @__PURE__ */ React60.createElement(React60.Fragment, null, isSeason && seasonDetail ? /* @__PURE__ */ React60.createElement("div", { className: "bili-season-followbar" }, /* @__PURE__ */ React60.createElement("span", { className: "bili-season-followbar-score" }, seasonDetail.score != null ? `\u8BC4\u5206 ${seasonDetail.score.score.toFixed(1)}` : ""), /* @__PURE__ */ React60.createElement("span", { className: "bili-season-followbar-new" }, seasonDetail.newEp ? `\u6700\u65B0\uFF1A${seasonDetail.newEp}` : ""), /* @__PURE__ */ React60.createElement(
     "button",
     {
       type: "button",
@@ -34039,7 +34207,7 @@ function WatchPage({ target }) {
       disabled: !runtimeState.loginInfo?.loggedIn || seasonFollowBusy
     },
     seasonDetail.isFollowed ? "\u5DF2\u8FFD\u756A" : "\u8FFD\u756A"
-  )) : null, /* @__PURE__ */ React59.createElement("section", { className: "bili-watch-grid" }, /* @__PURE__ */ React59.createElement(
+  )) : null, /* @__PURE__ */ React60.createElement("section", { className: "bili-watch-grid" }, /* @__PURE__ */ React60.createElement(
     PlayerShell,
     {
       detail: videoDetail,
@@ -34087,9 +34255,9 @@ function WatchPage({ target }) {
       selfDanmaku: selfDanmakuRef.current,
       onDanmakuRecalled: handleDanmakuRecalled,
       onOpenNotes: videoDetail.aid > 0 ? () => setNoteOpen(true) : void 0,
-      commentsPanel: /* @__PURE__ */ React59.createElement(CommentPanel, { detail: videoDetail, loggedIn: Boolean(runtimeState.loginInfo?.loggedIn), sdk: getState().sdk })
+      commentsPanel: /* @__PURE__ */ React60.createElement(CommentPanel, { detail: videoDetail, loggedIn: Boolean(runtimeState.loginInfo?.loggedIn), sdk: getState().sdk })
     }
-  ), noteOpen && videoDetail.aid > 0 ? /* @__PURE__ */ React59.createElement(NotePanel, { aid: videoDetail.aid, onClose: () => setNoteOpen(false) }) : null, /* @__PURE__ */ React59.createElement(
+  ), noteOpen && videoDetail.aid > 0 ? /* @__PURE__ */ React60.createElement(NotePanel, { aid: videoDetail.aid, onClose: () => setNoteOpen(false) }) : null, /* @__PURE__ */ React60.createElement(
     WatchSidebarTabs,
     {
       aid: videoDetail.aid,
@@ -34170,18 +34338,18 @@ function seasonToVideoDetail(season, episode) {
 }
 
 // src/pages/DynDetailPage.tsx
-import React60, { useEffect as useEffect41, useRef as useRef16, useState as useState45 } from "sdk";
+import React61, { useEffect as useEffect42, useRef as useRef16, useState as useState46 } from "sdk";
 function DynDetailPage({ dynId }) {
-  const [card, setCard] = useState45(null);
-  const [loading, setLoading] = useState45(true);
-  const [error, setError] = useState45("");
-  const [forwards, setForwards] = useState45([]);
-  const [forwardsOffset, setForwardsOffset] = useState45("");
-  const [forwardsLoading, setForwardsLoading] = useState45(false);
-  const [forwardsHasMore, setForwardsHasMore] = useState45(false);
-  const [previewIndex, setPreviewIndex] = useState45(null);
+  const [card, setCard] = useState46(null);
+  const [loading, setLoading] = useState46(true);
+  const [error, setError] = useState46("");
+  const [forwards, setForwards] = useState46([]);
+  const [forwardsOffset, setForwardsOffset] = useState46("");
+  const [forwardsLoading, setForwardsLoading] = useState46(false);
+  const [forwardsHasMore, setForwardsHasMore] = useState46(false);
+  const [previewIndex, setPreviewIndex] = useState46(null);
   const requestSeqRef = useRef16(0);
-  useEffect41(() => {
+  useEffect42(() => {
     const seq = requestSeqRef.current + 1;
     requestSeqRef.current = seq;
     setLoading(true);
@@ -34230,11 +34398,11 @@ function DynDetailPage({ dynId }) {
       sdk.ui.notify(errorMessage(reason));
     });
   }
-  if (loading) return /* @__PURE__ */ React60.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001");
-  if (error && !card) return /* @__PURE__ */ React60.createElement("div", { className: "bili-state bili-state-error" }, error);
-  if (!card) return /* @__PURE__ */ React60.createElement("div", { className: "bili-state" }, "\u52A8\u6001\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664");
+  if (loading) return /* @__PURE__ */ React61.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001");
+  if (error && !card) return /* @__PURE__ */ React61.createElement("div", { className: "bili-state bili-state-error" }, error);
+  if (!card) return /* @__PURE__ */ React61.createElement("div", { className: "bili-state" }, "\u52A8\u6001\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664");
   const images = card.images;
-  return /* @__PURE__ */ React60.createElement("section", { className: "bili-dyn-detail" }, /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-card" }, /* @__PURE__ */ React60.createElement(DynamicCard, { card, onLike: handleLike, onOpenVideo: () => void 0, hideImages: true }), card.cardType === "article" && card.articleId ? /* @__PURE__ */ React60.createElement("button", { type: "button", className: "bili-dyn-article-read", onClick: () => openArticle(card.articleId) }, "\u9605\u8BFB\u5168\u6587\uFF08CV", card.articleId, "\uFF09") : null, images.length > 0 ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-images" }, images.map((src, index) => /* @__PURE__ */ React60.createElement(
+  return /* @__PURE__ */ React61.createElement("section", { className: "bili-dyn-detail" }, /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-detail-card" }, /* @__PURE__ */ React61.createElement(DynamicCard, { card, onLike: handleLike, onOpenVideo: () => void 0, hideImages: true }), card.cardType === "article" && card.articleId ? /* @__PURE__ */ React61.createElement("button", { type: "button", className: "bili-dyn-article-read", onClick: () => openArticle(card.articleId) }, "\u9605\u8BFB\u5168\u6587\uFF08CV", card.articleId, "\uFF09") : null, images.length > 0 ? /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-detail-images" }, images.map((src, index) => /* @__PURE__ */ React61.createElement(
     "button",
     {
       className: "bili-dyn-detail-image-wrap",
@@ -34242,8 +34410,8 @@ function DynDetailPage({ dynId }) {
       type: "button",
       onClick: () => setPreviewIndex(index)
     },
-    /* @__PURE__ */ React60.createElement(BiliImage, { className: "bili-dyn-detail-image", src, loading: "lazy" })
-  ))) : null, card.forward ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-forward" }, /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u7684\u52A8\u6001"), /* @__PURE__ */ React60.createElement(DynamicCard, { card: card.forward, onLike: () => Promise.resolve(), onOpenVideo: () => void 0 })) : null), forwardsHasMore || forwards.length > 0 ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u5217\u8868") : null, forwards.length > 0 ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forwards" }, forwards.map((entry) => /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forward-entry", key: entry.dynId }, /* @__PURE__ */ React60.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.face, alt: entry.name }), /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forward-entry-body" }, /* @__PURE__ */ React60.createElement("strong", null, entry.name), /* @__PURE__ */ React60.createElement("small", null, entry.pubTime), /* @__PURE__ */ React60.createElement("p", null, entry.content))))) : null, forwardsHasMore ? /* @__PURE__ */ React60.createElement(
+    /* @__PURE__ */ React61.createElement(BiliImage, { className: "bili-dyn-detail-image", src, loading: "lazy" })
+  ))) : null, card.forward ? /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-detail-forward" }, /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u7684\u52A8\u6001"), /* @__PURE__ */ React61.createElement(DynamicCard, { card: card.forward, onLike: () => Promise.resolve(), onOpenVideo: () => void 0 })) : null), forwardsHasMore || forwards.length > 0 ? /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u5217\u8868") : null, forwards.length > 0 ? /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-forwards" }, forwards.map((entry) => /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-forward-entry", key: entry.dynId }, /* @__PURE__ */ React61.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.face, alt: entry.name }), /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-forward-entry-body" }, /* @__PURE__ */ React61.createElement("strong", null, entry.name), /* @__PURE__ */ React61.createElement("small", null, entry.pubTime), /* @__PURE__ */ React61.createElement("p", null, entry.content))))) : null, forwardsHasMore ? /* @__PURE__ */ React61.createElement(
     "button",
     {
       type: "button",
@@ -34252,7 +34420,7 @@ function DynDetailPage({ dynId }) {
       disabled: forwardsLoading
     },
     forwardsLoading ? "\u6B63\u5728\u52A0\u8F7D" : "\u52A0\u8F7D\u66F4\u591A\u8F6C\u53D1"
-  ) : null, /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8BC4\u8BBA"), /* @__PURE__ */ React60.createElement(
+  ) : null, /* @__PURE__ */ React61.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8BC4\u8BBA"), /* @__PURE__ */ React61.createElement(
     CommentPanel,
     {
       detail: emptyDetail,
@@ -34261,7 +34429,7 @@ function DynDetailPage({ dynId }) {
       oid: card.commentId || dynId,
       type: card.commentType || 17
     }
-  ), previewIndex !== null && images[previewIndex] ? /* @__PURE__ */ React60.createElement("div", { className: "bili-image-preview-backdrop", onClick: () => setPreviewIndex(null) }, /* @__PURE__ */ React60.createElement("div", { className: "bili-image-preview-wrap" }, /* @__PURE__ */ React60.createElement(BiliImage, { className: "bili-image-preview", src: images[previewIndex], alt: "\u9884\u89C8\u5927\u56FE" }), /* @__PURE__ */ React60.createElement("div", { className: "bili-image-preview-nav" }, /* @__PURE__ */ React60.createElement(
+  ), previewIndex !== null && images[previewIndex] ? /* @__PURE__ */ React61.createElement("div", { className: "bili-image-preview-backdrop", onClick: () => setPreviewIndex(null) }, /* @__PURE__ */ React61.createElement("div", { className: "bili-image-preview-wrap" }, /* @__PURE__ */ React61.createElement(BiliImage, { className: "bili-image-preview", src: images[previewIndex], alt: "\u9884\u89C8\u5927\u56FE" }), /* @__PURE__ */ React61.createElement("div", { className: "bili-image-preview-nav" }, /* @__PURE__ */ React61.createElement(
     "button",
     {
       className: "bili-image-preview-nav-btn",
@@ -34273,7 +34441,7 @@ function DynDetailPage({ dynId }) {
       }
     },
     "\u4E0A\u4E00\u5F20"
-  ), /* @__PURE__ */ React60.createElement("span", null, previewIndex + 1, "/", images.length), /* @__PURE__ */ React60.createElement(
+  ), /* @__PURE__ */ React61.createElement("span", null, previewIndex + 1, "/", images.length), /* @__PURE__ */ React61.createElement(
     "button",
     {
       className: "bili-image-preview-nav-btn",
@@ -34303,15 +34471,15 @@ var emptyDetail = {
 
 // src/pages/MainPage.tsx
 function MainPage() {
-  const [view, setView] = useState46(getNavView);
-  const [runtimeState, setRuntimeState] = useState46(getState);
-  useEffect42(() => subscribeNav(setView), []);
-  useEffect42(() => subscribe(() => setRuntimeState(getState())), []);
-  useEffect42(() => {
+  const [view, setView] = useState47(getNavView);
+  const [runtimeState, setRuntimeState] = useState47(getState);
+  useEffect43(() => subscribeNav(setView), []);
+  useEffect43(() => subscribe(() => setRuntimeState(getState())), []);
+  useEffect43(() => {
     clearViewScroll();
     return clearViewScroll;
   }, []);
-  useEffect42(() => {
+  useEffect43(() => {
     const frame = requestAnimationFrame(() => {
       const el = document.querySelector(".app-page-surface");
       if (el) el.scrollTop = getViewScroll(view.name);
@@ -34320,10 +34488,10 @@ function MainPage() {
   }, [view.name]);
   const loginInfo = runtimeState.loginInfo;
   const loggedIn = Boolean(loginInfo?.loggedIn);
-  const title = view.name === "watch" ? "\u64AD\u653E" : view.name === "space" ? "UP \u4E3B\u9875" : view.name === "season" ? "\u756A\u5267\u8BE6\u60C5" : view.name === "live" ? "\u76F4\u64AD\u95F4" : view.name === "liveHome" ? "\u76F4\u64AD" : view.name === "history" ? "\u5386\u53F2\u8BB0\u5F55" : view.name === "watchLater" ? "\u7A0D\u540E\u518D\u770B" : view.name === "favorites" ? "\u6536\u85CF\u5939" : view.name === "bangumi" ? "\u8FFD\u756A" : view.name === "settings" ? "\u8BBE\u7F6E" : view.name === "search" ? "\u641C\u7D22" : view.name === "dynDetail" ? "\u52A8\u6001\u8BE6\u60C5" : view.name === "article" ? "\u4E13\u680F" : view.name === "chat" ? "\u4F1A\u8BDD" : view.name === "notifications" ? "\u901A\u77E5" : "Bilibili";
+  const title = view.name === "watch" ? "\u64AD\u653E" : view.name === "space" ? "UP \u4E3B\u9875" : view.name === "season" ? "\u756A\u5267\u8BE6\u60C5" : view.name === "live" ? "\u76F4\u64AD\u95F4" : view.name === "liveHome" ? "\u76F4\u64AD" : view.name === "history" ? "\u5386\u53F2\u8BB0\u5F55" : view.name === "watchLater" ? "\u7A0D\u540E\u518D\u770B" : view.name === "favorites" ? "\u6536\u85CF\u5939" : view.name === "bangumi" ? "\u8FFD\u756A" : view.name === "pgcList" ? view.title || "\u5168\u90E8" : view.name === "settings" ? "\u8BBE\u7F6E" : view.name === "search" ? "\u641C\u7D22" : view.name === "dynDetail" ? "\u52A8\u6001\u8BE6\u60C5" : view.name === "article" ? "\u4E13\u680F" : view.name === "chat" ? "\u4F1A\u8BDD" : view.name === "notifications" ? "\u901A\u77E5" : "Bilibili";
   const subtitle = view.name === "watch" ? view.bvid || (view.aid ? `av${view.aid}` : "\u64AD\u653E") : view.name === "mine" ? loggedIn && loginInfo?.nickname ? loginInfo.nickname : "\u8D26\u53F7\u4E2D\u5FC3" : "EasyGameHub";
-  const actions = view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React61.createElement(Button24, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React61.createElement(Icon11, { name: "skipBackFilled", size: 15 })) : void 0;
-  return /* @__PURE__ */ React61.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React61.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(HomePage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "dynamic" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(DynamicPage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React61.createElement(WatchPage, { key: watchKey(view), target: view }) : null, view.name === "space" ? /* @__PURE__ */ React61.createElement(SpacePage, { key: `space-${view.mid}`, mid: view.mid }) : null, view.name === "season" ? /* @__PURE__ */ React61.createElement(SeasonPage, { key: `season-${view.seasonId}`, seasonId: view.seasonId }) : null, view.name === "live" ? /* @__PURE__ */ React61.createElement(LivePage, { key: `live-${view.roomId}`, roomId: view.roomId }) : null, view.name === "liveHome" ? /* @__PURE__ */ React61.createElement(LiveHomePage, null) : null, view.name === "history" ? /* @__PURE__ */ React61.createElement(HistoryPage, null) : null, view.name === "watchLater" ? /* @__PURE__ */ React61.createElement(WatchLaterPage, null) : null, view.name === "favorites" ? /* @__PURE__ */ React61.createElement(FavoritesPage, null) : null, view.name === "bangumi" ? /* @__PURE__ */ React61.createElement(BangumiPage, null) : null, view.name === "settings" ? /* @__PURE__ */ React61.createElement(SettingsPage, null) : null, view.name === "search" ? /* @__PURE__ */ React61.createElement(SearchPage, { keyword: view.keyword ?? "" }) : null, view.name === "dynDetail" ? /* @__PURE__ */ React61.createElement(DynDetailPage, { key: view.dynId, dynId: view.dynId }) : null, view.name === "article" ? /* @__PURE__ */ React61.createElement(ArticlePage, { key: `article-${view.articleId}`, articleId: view.articleId }) : null, view.name === "chat" ? /* @__PURE__ */ React61.createElement(ChatPage, { key: `chat-${view.uid}`, uid: view.uid }) : null, view.name === "notifications" ? /* @__PURE__ */ React61.createElement(NotificationsPage, null) : null);
+  const actions = view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "pgcList" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React62.createElement(Button26, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React62.createElement(Icon11, { name: "skipBackFilled", size: 15 })) : void 0;
+  return /* @__PURE__ */ React62.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React62.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React62.createElement(HomePage, null)), /* @__PURE__ */ React62.createElement("div", { className: view.name === "dynamic" ? "" : "bili-hidden" }, /* @__PURE__ */ React62.createElement(DynamicPage, null)), /* @__PURE__ */ React62.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React62.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React62.createElement(WatchPage, { key: watchKey(view), target: view }) : null, view.name === "space" ? /* @__PURE__ */ React62.createElement(SpacePage, { key: `space-${view.mid}`, mid: view.mid }) : null, view.name === "season" ? /* @__PURE__ */ React62.createElement(SeasonPage, { key: `season-${view.seasonId}`, seasonId: view.seasonId }) : null, view.name === "pgcList" ? /* @__PURE__ */ React62.createElement(PgcListPage, { key: `pgc-${view.seasonType}-${view.title ?? ""}`, seasonType: view.seasonType }) : null, view.name === "live" ? /* @__PURE__ */ React62.createElement(LivePage, { key: `live-${view.roomId}`, roomId: view.roomId }) : null, view.name === "liveHome" ? /* @__PURE__ */ React62.createElement(LiveHomePage, null) : null, view.name === "history" ? /* @__PURE__ */ React62.createElement(HistoryPage, null) : null, view.name === "watchLater" ? /* @__PURE__ */ React62.createElement(WatchLaterPage, null) : null, view.name === "favorites" ? /* @__PURE__ */ React62.createElement(FavoritesPage, null) : null, view.name === "bangumi" ? /* @__PURE__ */ React62.createElement(BangumiPage, null) : null, view.name === "settings" ? /* @__PURE__ */ React62.createElement(SettingsPage, null) : null, view.name === "search" ? /* @__PURE__ */ React62.createElement(SearchPage, { keyword: view.keyword ?? "" }) : null, view.name === "dynDetail" ? /* @__PURE__ */ React62.createElement(DynDetailPage, { key: view.dynId, dynId: view.dynId }) : null, view.name === "article" ? /* @__PURE__ */ React62.createElement(ArticlePage, { key: `article-${view.articleId}`, articleId: view.articleId }) : null, view.name === "chat" ? /* @__PURE__ */ React62.createElement(ChatPage, { key: `chat-${view.uid}`, uid: view.uid }) : null, view.name === "notifications" ? /* @__PURE__ */ React62.createElement(NotificationsPage, null) : null);
 }
 function watchKey(view) {
   if (view.name !== "watch") return "";

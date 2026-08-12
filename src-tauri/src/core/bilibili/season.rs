@@ -7,8 +7,8 @@ use bpi_rs::models::Fnval;
 
 use super::client;
 use super::models::{
-    BiliBangumiFollow, BiliPgcCard, BiliPgcSection, BiliSeasonDetail, BiliSeasonEpisode,
-    BiliSeasonScore,
+    BiliBangumiFollow, BiliPgcCard, BiliPgcIndexPage, BiliPgcSection, BiliSeasonDetail,
+    BiliSeasonEpisode, BiliSeasonScore,
 };
 use super::playback;
 
@@ -31,6 +31,39 @@ pub async fn pgc_tabs(
             items: module.items.iter().map(pgc_item_to_card).collect(),
         })
         .collect())
+}
+
+/// PGC 全量列表（season index：排序/连载筛选/分页）。
+pub async fn pgc_index(
+    tool_dir: &std::path::Path,
+    season_type: u32,
+    order: u32,
+    is_finish: i32,
+    page: Option<u32>,
+) -> Result<BiliPgcIndexPage, bpi_rs::BpiError> {
+    let params = bpi_rs::bangumi::index::PgcIndexParams::new(season_type)?
+        .order(order)
+        .is_finish(is_finish)
+        .page(page.unwrap_or(1))?;
+    let data = client::optional_account_client(tool_dir)?
+        .bangumi()
+        .season_index(params)
+        .await?;
+    Ok(BiliPgcIndexPage {
+        items: data
+            .list
+            .into_iter()
+            .map(|item| BiliPgcCard {
+                season_id: item.season_id,
+                season_type: item.season_type,
+                title: item.title,
+                cover: item.cover,
+                index_show: item.index_show,
+                score: item.score.and_then(|score| score.score.parse().ok()),
+            })
+            .collect(),
+        has_more: data.has_next,
+    })
 }
 
 /// PGC 排行榜（番剧 1/电影 2/纪录片 3/国创 4/电视剧 5/综艺 7 分榜）。

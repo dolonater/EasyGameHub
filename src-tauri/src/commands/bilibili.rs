@@ -27,9 +27,10 @@ use crate::core::bilibili::models::{
     BiliLiveRecommendPage, BiliLiveRoom, BiliLiveRoomPage, BiliLiveSendDanmakuResult,
     BiliLiveStream, BiliLocalProgress, BiliLoginInfo, BiliMessageHistoryPage,
     BiliMessageSessionsPage, BiliMessageUnread, BiliNoteDetail, BiliNoteItem, BiliNoteListPage,
-    BiliOperationResult, BiliPgcCard, BiliPgcSection, BiliPlaybackSource, BiliPreciousVideos,
-    BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail, BiliToViewItem,
-    BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState, BiliWeeklySeries,
+    BiliOperationResult, BiliPgcCard, BiliPgcIndexPage, BiliPgcSection, BiliPlaybackSource,
+    BiliPreciousVideos, BiliQrLoginKey, BiliQrLoginStatus, BiliReplyFeedPage, BiliSeasonDetail,
+    BiliToViewItem, BiliUserSpace, BiliVideoCard, BiliVideoDetail, BiliVideoInteractionState,
+    BiliWeeklySeries,
 };
 use crate::core::bilibili::note;
 use crate::core::bilibili::playback;
@@ -1222,6 +1223,19 @@ pub async fn bilibili_season_follow(
 }
 
 /// 追番/影视页聚合数据（kind: "bangumi" | "cinema"）。
+#[tauri::command]
+pub async fn bilibili_pgc_index(
+    state: State<'_, AppState>,
+    season_type: u32,
+    order: u32,
+    is_finish: i32,
+    page: Option<u32>,
+) -> Result<BiliPgcIndexPage, String> {
+    season::pgc_index(&state.tool_dir, season_type, order, is_finish, page)
+        .await
+        .map_err(bpi_error)
+}
+
 #[tauri::command]
 pub async fn bilibili_pgc_tabs(
     state: State<'_, AppState>,

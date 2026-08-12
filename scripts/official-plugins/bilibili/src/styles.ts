@@ -23,6 +23,7 @@ export const cssText = `
 }
 .bili-home {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   max-width: 980px;
   margin: 0 auto;
@@ -2022,6 +2023,8 @@ export const cssText = `
   display: flex;
   flex-direction: column;
   gap: 10px;
+  /* 横向 track 内容超宽时不被撑开：标题行（含"查看全部"）保持容器宽度内可见 */
+  min-width: 0;
 }
 .bili-pgc-section-title {
   font-size: 14px;
@@ -2031,6 +2034,7 @@ export const cssText = `
 .bili-pgc-track {
   display: flex;
   gap: 12px;
+  max-width: 100%;
   overflow-x: auto;
   padding-bottom: 6px;
   scrollbar-width: thin;
@@ -4349,6 +4353,45 @@ button.bili-dynamic-stat {
   display: grid;
   gap: 14px;
   min-width: 0;
+}
+.bili-pgc-feed {
+  min-width: 0;
+}
+.bili-pgc-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.bili-pgc-list {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bili-pgc-list-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.bili-pgc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px 14px;
+}
+.bili-pgc-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.bili-pgc-section-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .bili-live-home {
   display: grid;

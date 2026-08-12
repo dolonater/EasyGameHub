@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "name": "pgc.index",
+  "module": "pgc",
+  "batch": "public-core",
+  "endpoint": "index",
+  "risk": "public-read",
+  "status": "promoted",
+  "profiles": [
+    "anonymous",
+    "normal",
+    "vip"
+  ],
+  "request": {
+    "method": "GET",
+    "url": "https://api.bilibili.com/pgc/season/index/result",
+    "query": {
+      "season_type": "1",
+      "order": "0",
+      "is_finish": "-1",
+      "page": "1",
+      "pagesize": "30"
+    },
+    "required_headers": [
+      "user-agent",
+      "referer",
+      "origin"
+    ],
+    "headers": {},
+    "auth": {
+      "requires": []
+    }
+  },
+  "sanitize": {
+    "preset": [],
+    "replace": {},
+    "drop": [],
+    "keep": []
+  },
+  "provenance": {
+    "source": "manual_fixture",
+    "privacy": "synthetic fixture trimmed to one season",
+    "tool": "bpi-probe",
+    "tool_version": "0.2.0"
+  },
+  "cases": [
+    {
+      "name": "anonymous",
+      "profile": "anonymous",
+      "description": "番剧列表（最热排序）",
+      "response": {
+        "api_code": 0,
+        "message": "success",
+        "rust_model": "PgcIndexData",
+        "fixture": "success.json"
+      }
+    }
+  ]
+}

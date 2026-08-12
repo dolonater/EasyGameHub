@@ -543,6 +543,11 @@ export interface BiliPgcSection {
   items: BiliPgcCard[];
 }
 
+export interface BiliPgcIndexPage {
+  items: BiliPgcCard[];
+  hasMore: boolean;
+}
+
 export interface BiliBangumiFollow {
   seasonId: number;
   mediaId: number;
@@ -989,6 +994,7 @@ export interface PluginSdk {
       detail(args: { seasonId: number }): Promise<BiliSeasonDetail>;
       follow(args: { seasonId: number; follow: boolean }): Promise<BiliOperationResult>;
       pgcTabs(args: { kind: "bangumi" | "cinema" }): Promise<BiliPgcSection[]>;
+      pgcIndex(args: { seasonType: number; order?: number; isFinish?: number; page?: number }): Promise<BiliPgcIndexPage>;
       pgcRank(args: { seasonType: number }): Promise<BiliPgcCard[]>;
       followList(args: { page?: number; cinema?: boolean }): Promise<BiliBangumiFollow[]>;
     };
@@ -1535,6 +1541,10 @@ export function createPluginSdk(pluginId: string, permissions: string[]): Plugin
         pgcTabs({ kind }) {
           requirePerm("bilibili", "bilibili.season.pgcTabs");
           return biliInvoke("bilibili_pgc_tabs", { kind });
+        },
+        pgcIndex(args) {
+          requirePerm("bilibili", "bilibili.season.pgcIndex");
+          return biliInvoke("bilibili_pgc_index", args);
         },
         pgcRank({ seasonType }) {
           requirePerm("bilibili", "bilibili.season.pgcRank");
