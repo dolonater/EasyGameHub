@@ -6,12 +6,10 @@ import { HotSubTabs, type HotSubMode } from "../components/HotSubTabs";
 import { PgcSectionFeed } from "../components/PgcSectionFeed";
 import { PreciousPanel } from "../components/PreciousPanel";
 import { RankingPanel } from "../components/RankingPanel";
-import { SearchBox } from "../components/SearchBox";
-import { SearchEmptyPanel } from "../components/SearchEmptyPanel";
 import { WeeklyPanel } from "../components/WeeklyPanel";
 import { usePagedFeed } from "../hooks/usePagedFeed";
 import { openLive } from "../navigation";
-import { getState, saveConfig, subscribe, withSearchHistory } from "../runtime";
+import { getState } from "../runtime";
 import type { PluginSdk } from "../types";
 
 /**
@@ -22,17 +20,9 @@ import type { PluginSdk } from "../types";
 const RECOMMEND_SEED = Math.floor(Math.random() * 30) + 1;
 
 export function HomePage() {
-  const [query, setQuery] = useState("");
   const [mode, setMode] = useState<HomeMode>("recommend");
   const [popularSub, setPopularSub] = useState<HotSubMode>("all");
   const [popularActive, setPopularActive] = useState(false);
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [config, setConfig] = useState(getState().config);
-
-  // 订阅 runtime config（搜索历史变化时刷新）
-  useEffect(() => subscribe(() => setConfig(getState().config)), []);
-
-  const searchHistory = config.searchHistory;
 
   // 推荐：mount 即加载第一页；fresh_idx = 种子 + 页（种子随机 → 重启后起点不同）
   const recommend = usePagedFeed(
@@ -44,37 +34,7 @@ export function HomePage() {
     (page, refresh) => homeCall((sdk) => sdk.bilibili.home.popularVideos(page, refresh)),
     { key: "popular", enabled: popularActive },
   );
-  // 搜索：key 用已提交关键词（非实时输入框），避免敲键即搜索
-  const search = usePagedFeed(
-    (page, refresh) => homeCall((sdk) => sdk.bilibili.home.searchVideos(searchKeyword, page, refresh)),
-    { key: searchKeyword, enabled: searchKeyword.length > 0 },
-  );
-
-  const active = mode === "popular" ? popular : mode === "search" ? search : recommend;
-
-  function submitSearch(rawKeywords: string) {
-    const keywords = rawKeywords.trim();
-    if (!keywords) {
-      setMode("recommend");
-      return;
-    }
-    // 同一关键词重提交：key 未变不会触发 effect，显式重载第一页
-    if (keywords === searchKeyword) {
-      search.reset();
-    }
-    setSearchKeyword(keywords);
-    setMode("search");
-    saveConfig({ searchHistory: withSearchHistory(searchHistory, keywords) }).catch(() => {});
-  }
-
-  function handleSearch(event?: { preventDefault(): void }) {
-    event?.preventDefault();
-    submitSearch(query);
-  }
-
-  function clearSearchHistory() {
-    saveConfig({ searchHistory: [] }).catch(() => {});
-  }
+  const active = mode === "popular" ? popular : recommend;
 
   function switchToRecommend() {
     setMode("recommend");
@@ -83,10 +43,6 @@ export function HomePage() {
   function switchToPopular() {
     setPopularActive(true);
     setMode("popular");
-  }
-
-  function switchToSearch() {
-    setMode("search");
   }
 
   // 追番/影视/直播占位：P2/P6 填充真实内容
@@ -103,12 +59,9 @@ export function HomePage() {
   }
 
   function refreshCurrent() {
-    if (mode === "search") search.reload();
-    else if (mode === "popular" && popularSub === "all") popular.reload();
+    if (mode === "popular" && popularSub === "all") popular.reload();
     else if (mode === "recommend") recommend.reload();
   }
-
-  const searchGuide = mode === "search" && searchKeyword.length === 0;
 
   const mainFeed =
     mode === "popular" ? (
@@ -120,10 +73,9 @@ export function HomePage() {
             loading={active.loading}
             mode={mode}
             videos={active.items}
-            searchGuide={searchGuide}
+            searchGuide={false}
             onPopular={switchToPopular}
             onRecommend={switchToRecommend}
-            onSearch={switchToSearch}
             onBangumi={switchToBangumi}
             onCinema={switchToCinema}
             onLive={switchToLive}
@@ -146,20 +98,9 @@ export function HomePage() {
         loading={active.loading}
         mode={mode}
         videos={active.items}
-        searchGuide={searchGuide}
-        searchEmpty={
-          <SearchEmptyPanel
-            history={searchHistory}
-            onPick={(keyword: string) => {
-              setQuery(keyword);
-              submitSearch(keyword);
-            }}
-            onClearHistory={clearSearchHistory}
-          />
-        }
+        searchGuide={false}
         onPopular={switchToPopular}
         onRecommend={switchToRecommend}
-        onSearch={switchToSearch}
         onBangumi={switchToBangumi}
         onCinema={switchToCinema}
         onLive={switchToLive}
@@ -168,21 +109,11 @@ export function HomePage() {
 
   return (
     <section className="bili-home">
-      <form className="bili-search" onSubmit={(event: { preventDefault(): void }) => handleSearch(event)}>
-        <SearchBox
-          value={query}
-          onChange={setQuery}
-          onSubmit={() => submitSearch(query)}
-          placeholder="搜索视频"
-        />
-        <Button type="submit" disabled={active.loading} size="sm">
-          搜索
-        </Button>
+      <div className="bili-home-toolbar">
         <Button variant="outline" size="sm" type="button" onClick={refreshCurrent} disabled={active.loading}>
           刷新
         </Button>
-      </form>
-
+      </div>
       {mainFeed}
     </section>
   );

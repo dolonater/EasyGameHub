@@ -1,13 +1,12 @@
 import React, { Button } from "sdk";
 
-export type HomeMode = "recommend" | "popular" | "search" | "bangumi" | "cinema" | "live";
+export type HomeMode = "recommend" | "popular" | "bangumi" | "cinema" | "live";
 
 interface HomeFeedTabsProps {
   mode: HomeMode;
   loading: boolean;
   onRecommend(): void;
   onPopular(): void;
-  onSearch(): void;
   onBangumi(): void;
   onCinema(): void;
   onLive(): void;
@@ -16,17 +15,15 @@ interface HomeFeedTabsProps {
 const TABS: Array<{ key: HomeMode; label: string; available: boolean }> = [
   { key: "recommend", label: "推荐", available: true },
   { key: "popular", label: "热门", available: true },
-  { key: "search", label: "搜索", available: true },
   { key: "bangumi", label: "追番", available: true },
   { key: "cinema", label: "影视", available: true },
   { key: "live", label: "直播", available: true },
 ];
 
-export function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onSearch, onBangumi, onCinema, onLive }: HomeFeedTabsProps) {
+export function HomeFeedTabs({ mode, loading, onRecommend, onPopular, onBangumi, onCinema, onLive }: HomeFeedTabsProps) {
   const handlers: Record<string, () => void> = {
     recommend: onRecommend,
     popular: onPopular,
-    search: onSearch,
     bangumi: onBangumi,
     cinema: onCinema,
     live: onLive,

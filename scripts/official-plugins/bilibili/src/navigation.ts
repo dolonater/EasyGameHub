@@ -21,6 +21,7 @@ export type BiliNavView =
   | { name: "season"; seasonId: number }
   | { name: "live"; roomId: number }
   | { name: "settings" }
+  | { name: "search"; keyword?: string }
   | { name: "dynDetail"; dynId: string }
   | { name: "article"; articleId: number }
   | { name: "messages" }
@@ -95,6 +96,12 @@ export function openSettings(): void {
   switchView({ name: "settings" });
 }
 
+/** 打开搜索视图（顶栏搜索框提交；带关键词时直接搜索） */
+export function openSearch(keyword?: string): void {
+  stack.push(memory);
+  switchView({ name: "search", keyword });
+}
+
 /** 打开专栏阅读页：压入当前视图，可逐级返回 */
 export function openArticle(articleId: number): void {
   stack.push(memory);
@@ -134,6 +141,7 @@ export function clearViewScroll(): void {
   delete scrollByView.home;
   delete scrollByView.dynamic;
   delete scrollByView.mine;
+  delete scrollByView.search;
 }
 
 function switchView(view: BiliNavView): void {

@@ -1,5 +1,5 @@
-import React, { Button, useEffect, useState } from "sdk";
-import { navigateNav } from "../navigation";
+import React, { Button, TextField, useEffect, useState } from "sdk";
+import { navigateNav, openNotifications, openSearch, openSettings } from "../navigation";
 import { getState, refreshLoginStatus, subscribe } from "../runtime";
 import { BiliImage } from "./BiliImage";
 
@@ -15,6 +15,7 @@ interface BiliTopNavProps {
 export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHub", actions }: BiliTopNavProps) {
   const [runtimeState, setRuntimeState] = useState(getState);
   const [unread, setUnread] = useState(0);
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     const unsubscribe = subscribe(() => setRuntimeState(getState()));
@@ -46,6 +47,12 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
   const loginInfo = runtimeState.loginInfo;
   const loggedIn = Boolean(loginInfo?.loggedIn);
 
+  function submitSearch() {
+    const keywords = searchValue.trim();
+    setSearchValue("");
+    openSearch(keywords || undefined);
+  }
+
   return (
     <header className="bili-top-nav">
       <button className="bili-brand" type="button" onClick={() => navigateNav({ name: "home" })}>
@@ -56,42 +63,44 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
         </span>
       </button>
 
-      <nav className="bili-nav-tabs" aria-label="Bilibili 插件导航">
-        <Button
-          aria-current={current === "home" ? "page" : undefined}
-          className={current === "home" ? "bili-nav-tab bili-nav-tab-active" : "bili-nav-tab"}
-          variant="ghost"
-          size="sm"
-          type="button"
-          onClick={() => navigateNav({ name: "home" })}
-        >
-          首页
+      <form
+        className="bili-top-search"
+        role="search"
+        onSubmit={(event: { preventDefault(): void }) => {
+          event.preventDefault();
+          submitSearch();
+        }}
+      >
+        <TextField
+          aria-label="搜索视频"
+          className="bili-top-search-input"
+          placeholder="搜索视频、UP 主、番剧"
+          value={searchValue}
+          onChange={(event: any) => setSearchValue(event.currentTarget.value)}
+        />
+        <Button size="sm" type="submit">
+          搜索
         </Button>
-        <Button
-          aria-current={current === "dynamic" ? "page" : undefined}
-          className={current === "dynamic" ? "bili-nav-tab bili-nav-tab-active" : "bili-nav-tab"}
-          variant="ghost"
-          size="sm"
-          type="button"
-          onClick={() => navigateNav({ name: "dynamic" })}
-        >
-          动态
-        </Button>
-        <Button
-          aria-current={current === "mine" ? "page" : undefined}
-          className={current === "mine" ? "bili-nav-tab bili-nav-tab-active" : "bili-nav-tab"}
-          variant="ghost"
-          size="sm"
-          type="button"
-          onClick={() => navigateNav({ name: "mine" })}
-        >
-          我的
-        </Button>
-        {loggedIn && unread > 0 ? <span className="bili-nav-badge">{unread > 99 ? "99+" : unread}</span> : null}
-      </nav>
+      </form>
 
       <div className="bili-top-actions">
         {actions}
+        <Button
+          aria-label="通知"
+          className="bili-notify-button"
+          variant="ghost"
+          size="sm"
+          type="button"
+          onClick={openNotifications}
+        >
+          <span className="bili-notify-glyph">铃</span>
+          {loggedIn && unread > 0 ? (
+            <span className="bili-nav-badge">{unread > 99 ? "99+" : unread}</span>
+          ) : null}
+        </Button>
+        <Button aria-label="设置" className="bili-settings-button" variant="ghost" size="sm" type="button" onClick={openSettings}>
+          <span className="bili-settings-glyph">设</span>
+        </Button>
         <Button className="bili-profile-button" variant="ghost" size="sm" type="button" onClick={() => navigateNav({ name: "mine" })}>
           {loggedIn && loginInfo?.avatar ? (
             <BiliImage className="bili-profile-avatar" src={loginInfo.avatar} alt={loginInfo.nickname} />

@@ -16,7 +16,6 @@ interface HomeFeedProps {
   comingSoon?: boolean;
   onRecommend(): void;
   onPopular(): void;
-  onSearch(): void;
   onBangumi(): void;
   onCinema(): void;
   onLive(): void;
@@ -32,7 +31,6 @@ export function HomeFeed({
   comingSoon,
   onRecommend,
   onPopular,
-  onSearch,
   onBangumi,
   onCinema,
   onLive,
@@ -45,7 +43,6 @@ export function HomeFeed({
           loading={loading}
           onRecommend={onRecommend}
           onPopular={onPopular}
-          onSearch={onSearch}
           onBangumi={onBangumi}
           onCinema={onCinema}
           onLive={onLive}
@@ -59,7 +56,6 @@ export function HomeFeed({
         searchEmpty ?? <div className="bili-state">输入关键词开始搜索</div>
       ) : (
         <>
-          {mode === "search" ? <div className="bili-feed-context">搜索结果</div> : null}
           {error ? <div className="bili-state bili-state-error">{error}</div> : null}
           {!error && loading ? <div className="bili-state">正在加载视频</div> : null}
           {!error && !loading && videos.length === 0 ? <div className="bili-state">暂无视频</div> : null}

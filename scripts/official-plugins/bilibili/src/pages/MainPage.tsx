@@ -9,6 +9,7 @@ import { MessagesPage } from "./MessagesPage";
 import { MinePage } from "./MinePage";
 import { NotificationsPage } from "./NotificationsPage";
 import { SeasonPage } from "./SeasonPage";
+import { SearchPage } from "./SearchPage";
 import { SettingsPage } from "./SettingsPage";
 import { SpacePage } from "./SpacePage";
 import { WatchPage } from "./WatchPage";
@@ -47,7 +48,7 @@ export function MainPage() {
   const loggedIn = Boolean(loginInfo?.loggedIn);
 
   const title =
-    view.name === "watch" ? "播放" : view.name === "space" ? "UP 主页" : view.name === "season" ? "番剧详情" : view.name === "live" ? "直播间" : view.name === "settings" ? "设置" : view.name === "dynDetail" ? "动态详情" : view.name === "article" ? "专栏" : view.name === "messages" ? "私信" : view.name === "chat" ? "会话" : view.name === "notifications" ? "通知" : "Bilibili";
+    view.name === "watch" ? "播放" : view.name === "space" ? "UP 主页" : view.name === "season" ? "番剧详情"       : view.name === "live" ? "直播间" : view.name === "settings" ? "设置" : view.name === "search" ? "搜索" : view.name === "dynDetail" ? "动态详情" : view.name === "article" ? "专栏" : view.name === "messages" ? "私信" : view.name === "chat" ? "会话" : view.name === "notifications" ? "通知" : "Bilibili";
   const subtitle =
     view.name === "watch"
       ? view.bvid || (view.aid ? `av${view.aid}` : "播放")
@@ -62,7 +63,7 @@ export function MainPage() {
       <a className="bili-link-button" href="https://www.bilibili.com" target="_blank" rel="noreferrer">
         打开 B 站
       </a>
-    ) : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "dynDetail" || view.name === "article" || view.name === "messages" || view.name === "chat" || view.name === "notifications" ? (
+    ) : view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "dynDetail" || view.name === "article" || view.name === "messages" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? (
       <Button variant="outline" size="sm" type="button" onClick={goBackNav}>
         返回
       </Button>
@@ -84,6 +85,7 @@ export function MainPage() {
       {view.name === "season" ? <SeasonPage key={`season-${view.seasonId}`} seasonId={view.seasonId} /> : null}
       {view.name === "live" ? <LivePage key={`live-${view.roomId}`} roomId={view.roomId} /> : null}
       {view.name === "settings" ? <SettingsPage /> : null}
+      {view.name === "search" ? <SearchPage keyword={view.keyword ?? ""} /> : null}
       {view.name === "dynDetail" ? <DynDetailPage key={view.dynId} dynId={view.dynId} /> : null}
       {view.name === "article" ? <ArticlePage key={`article-${view.articleId}`} articleId={view.articleId} /> : null}
       {view.name === "messages" ? <MessagesPage /> : null}
