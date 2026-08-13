@@ -25,6 +25,7 @@ import refresh from "../../assets/regular/arrows-clockwise.svg?raw";
 import warningCircle from "../../assets/regular/warning-circle.svg?raw";
 import chevronDown from "../../assets/regular/caret-down.svg?raw";
 import angleUp from "../../assets/regular/caret-up.svg?raw";
+import caretLeft from "../../assets/regular/caret-left.svg?raw";
 import caretRight from "../../assets/regular/caret-right.svg?raw";
 import image from "../../assets/regular/image.svg?raw";
 import imageBroken from "../../assets/regular/image-broken.svg?raw";
@@ -129,6 +130,7 @@ export const ICONS = {
   chevronDown,
   download: packageDownload,
   angleUp,
+  caretLeft,
   caretRight,
   image,
   imageBroken,
