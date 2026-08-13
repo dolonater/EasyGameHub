@@ -6,7 +6,7 @@ import images from "../../assets/fill/images-fill.svg?raw";
 import database from "../../assets/fill/database-fill.svg?raw";
 import plus from "../../assets/regular/plus.svg?raw";
 import steamLogoFill from "../../assets/fill/steam-logo-fill.svg?raw";
-import steamLogo from "../../assets/logo/steam-64px.svg?raw";
+import steamLogo from "../../assets/logo/steam-1.svg?raw";
 import lockKeyOpen from "../../assets/fill/lock-key-open-fill.svg?raw";
 import users from "../../assets/fill/users-fill.svg?raw";
 import cards from "../../assets/fill/cards-fill.svg?raw";
