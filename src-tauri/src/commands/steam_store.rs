@@ -6,7 +6,9 @@ use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 
-use steam_sdk::client::store::{BrowseItem, BrowseParams, BrowseSort, FeaturedItem, Platforms};
+use steam_sdk::client::store::{
+    AppDetail, BrowseItem, BrowseParams, BrowseSort, FeaturedItem, Platforms,
+};
 
 const CACHE_TTL: Duration = Duration::from_secs(600);
 const DEFAULT_COUNT: u32 = 15;
@@ -126,6 +128,21 @@ fn browse_item_from_featured(item: &FeaturedItem) -> BrowseItemDto {
     }
 }
 
+fn browse_item_from_detail(detail: &AppDetail) -> BrowseItemDto {
+    BrowseItemDto {
+        app_id: detail.app_id,
+        name: detail.name.clone().unwrap_or_default(),
+        tiny_image: detail.header_image.clone(),
+        final_price: detail.price.as_ref().map(|p| p.final_price),
+        initial_price: detail.price.as_ref().map(|p| p.initial_price),
+        discount_percent: detail.price.as_ref().map(|p| p.discount_percent),
+        currency: detail.price.as_ref().map(|p| p.currency.clone()),
+        release_date: detail.release_date.clone(),
+        platforms: detail.platforms.as_ref().map(platforms_dto),
+        metacritic_score: detail.metacritic.as_ref().map(|m| m.score as u32),
+    }
+}
+
 fn parse_sort(sort: Option<&str>) -> BrowseSort {
     match sort {
         Some("Price_ASC") => BrowseSort::PriceAsc,
@@ -141,6 +158,10 @@ fn parse_sort(sort: Option<&str>) -> BrowseSort {
 
 /// Browse the store with filters (genre, sort, discounts, region) and
 /// pagination. Pinned to `l=schinese`; `cc` defaults to `cn`.
+///
+/// Uses the store search page JSON endpoint (`/search/results/`) because
+/// `/api/storesearch` ignores category/sort/discount filters; the returned
+/// app ids are resolved to full details via batched `appdetails`.
 #[tauri::command]
 pub async fn browse_steam_games(
     term: Option<String>,
@@ -177,15 +198,19 @@ pub async fn browse_steam_games(
         category,
         sort,
         specials,
-        cc,
+        cc: cc.clone(),
         start,
         count,
     };
-    let result = steam_sdk::client::store::browse_games(&shared_client(), &params)
+    let client = shared_client();
+    let (total, app_ids) = steam_sdk::client::store::search_results_page(&client, &params)
         .map_err(|e| e.to_string())?;
+    let details =
+        steam_sdk::client::store::get_app_details_in_region(&client, &app_ids, "schinese", &cc)
+            .map_err(|e| e.to_string())?;
     let dto = BrowseResultDto {
-        total: result.total,
-        items: result.items.iter().map(browse_item_dto).collect(),
+        total,
+        items: details.iter().map(browse_item_from_detail).collect(),
     };
     browse_cache().lock().unwrap().insert(
         key,

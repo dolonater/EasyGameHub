@@ -88,6 +88,7 @@ export default function Select({
           {options.map((opt) => (
             <button
               key={opt.value}
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={() => { onChange(opt.value); setOpen(false); }}
               className={[
                 `${glassMenuItemClass} text-left rounded px-3 py-[5px] text-xs transition-colors duration-300`,

@@ -570,44 +570,24 @@ pub struct BrowseItem {
     pub metacritic_score: Option<u32>,
 }
 
-impl BrowseItem {
-    fn from_search_item(item: StoreSearchItem) -> Self {
-        BrowseItem {
-            app_id: item.id,
-            name: item.name.unwrap_or_default(),
-            tiny_image: item.tiny_image,
-            final_price: item.price.as_ref().and_then(|p| p.final_price),
-            initial_price: item.price.as_ref().and_then(|p| p.initial_price),
-            discount_percent: item.price.as_ref().and_then(|p| p.discount_percent),
-            currency: item.price.as_ref().and_then(|p| p.currency.clone()),
-            release_date: item.release_date,
-            platforms: item.platforms,
-            metacritic_score: item.metacritic_score,
-        }
-    }
-}
-
-/// A page of browse results.
-#[derive(Debug, Clone)]
-pub struct BrowseResult {
-    /// Total matching titles across all pages.
-    pub total: u32,
-    pub items: Vec<BrowseItem>,
-}
-
-/// Build the `/api/storesearch` URL for a browse query (pure, testable).
+/// Build the `/search/results/` URL for a browse query (pure, testable).
+/// This is the store search page's JSON endpoint — unlike `/api/storesearch`
+/// (a term-only suggestion API), it honours tag / sort / discount filters and
+/// pagination. Genres are passed as `tags` (genre tag ids like 19 = Action);
+/// `category1` is the content-type filter (998 = Games) and is pinned to keep
+/// DLC / demos / software out of the results.
 fn build_browse_url(params: &BrowseParams) -> String {
-    let mut query = format!(
-        "l=schinese&cc={}&start={}&count={}",
-        params.cc, params.start, params.count
-    );
-    if let Some(term) = &params.term {
-        if !term.is_empty() {
-            query.push_str(&format!("&term={}", percent_encode(term)));
-        }
-    }
+    let mut query = String::new();
+    let term = params.term.as_deref().unwrap_or("");
+    query.push_str(&format!("query={}", percent_encode(term)));
+    query.push_str("&l=schinese");
+    query.push_str(&format!("&cc={}", params.cc));
+    query.push_str(&format!("&start={}", params.start));
+    query.push_str(&format!("&count={}", params.count));
+    query.push_str("&category1=998");
+    query.push_str("&infinite=1");
     if let Some(category) = params.category {
-        query.push_str(&format!("&category1={}", category));
+        query.push_str(&format!("&tags={}", category));
     }
     if params.sort != BrowseSort::Relevance {
         query.push_str(&format!("&sort_by={}", params.sort.as_param()));
@@ -615,13 +595,39 @@ fn build_browse_url(params: &BrowseParams) -> String {
     if params.specials {
         query.push_str("&specials=1");
     }
-    format!("{}/api/storesearch/?{}", STORE_BASE, query)
+    format!("{}/search/results/?{}", STORE_BASE, query)
 }
 
-/// Browse the store with filters (genre, sort, discounts, region) and
-/// pagination. Same endpoint as [`search_games`], pinned to `l=schinese`;
-/// the country code follows `params.cc` (defaults to `cn`).
-pub fn browse_games(client: &SteamHttpClient, params: &BrowseParams) -> Result<BrowseResult> {
+#[derive(Debug, Clone, Deserialize)]
+struct SearchResultsResponse {
+    #[serde(default)]
+    total_count: u32,
+    results_html: Option<String>,
+}
+
+/// Extract app ids from the search page HTML (`data-ds-appid="..."`).
+fn extract_app_ids(html: &str) -> Vec<u32> {
+    const MARKER: &str = "data-ds-appid=\"";
+    let mut ids = Vec::new();
+    let mut rest = html;
+    while let Some(pos) = rest.find(MARKER) {
+        rest = &rest[pos + MARKER.len()..];
+        let end = rest.find('"').unwrap_or(rest.len());
+        if let Ok(id) = rest[..end].parse::<u32>() {
+            ids.push(id);
+        }
+    }
+    ids
+}
+
+/// Fetch one page of store search results with full filters (genre, sort,
+/// discounts, region, pagination). Returns the total match count and the
+/// page's app ids; item details are resolved by the caller via batched
+/// `appdetails` (the search page HTML only carries partial display info).
+pub fn search_results_page(
+    client: &SteamHttpClient,
+    params: &BrowseParams,
+) -> Result<(u32, Vec<u32>)> {
     let url = build_browse_url(params);
     let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
     if response.status() != 200 {
@@ -630,16 +636,9 @@ pub fn browse_games(client: &SteamHttpClient, params: &BrowseParams) -> Result<B
             message: format!("HTTP {}", response.status()),
         });
     }
-    let body: StoreSearchResponse = response.into_json()?;
-    Ok(BrowseResult {
-        total: body.total,
-        items: body
-            .items
-            .into_iter()
-            .filter(|item| item.r#type == "app")
-            .map(BrowseItem::from_search_item)
-            .collect(),
-    })
+    let body: SearchResultsResponse = response.into_json()?;
+    let html = body.results_html.unwrap_or_default();
+    Ok((body.total_count, extract_app_ids(&html)))
 }
 
 // ── Storefront rails (featured + categories) ────────────────
@@ -1041,9 +1040,11 @@ mod tests {
 
     #[test]
     fn test_browse_url_construction() {
-        let base = "https://store.steampowered.com/api/storesearch/?";
         let url = build_browse_url(&BrowseParams::default());
-        assert_eq!(url, format!("{}l=schinese&cc=cn&start=0&count=15", base));
+        assert_eq!(
+            url,
+            "https://store.steampowered.com/search/results/?query=&l=schinese&cc=cn&start=0&count=15&category1=998&infinite=1"
+        );
 
         let mut params = BrowseParams::default();
         params.term = Some("艾尔登法环".into());
@@ -1054,88 +1055,49 @@ mod tests {
         params.start = 30;
         params.count = 10;
         let url = build_browse_url(&params);
-        assert!(url.contains("term=%E8%89%BE%E5%B0%94%E7%99%BB%E6%B3%95%E7%8E%AF"));
-        assert!(url.contains("category1=19"));
+        assert!(url.contains("query=%E8%89%BE%E5%B0%94%E7%99%BB%E6%B3%95%E7%8E%AF"));
+        // Genre goes through `tags`; category1 is pinned to Games (998).
+        assert!(url.contains("tags=19"));
+        assert!(!url.contains("category1=19"));
+        assert!(url.contains("category1=998"));
         assert!(url.contains("sort_by=Price_ASC"));
         assert!(url.contains("specials=1"));
         assert!(url.contains("cc=us"));
         assert!(url.contains("start=30"));
         assert!(url.contains("count=10"));
         assert!(url.contains("l=schinese"));
+        assert!(url.contains("infinite=1"));
 
         let mut params = BrowseParams::default();
         params.term = Some("".into());
-        assert!(!build_browse_url(&params).contains("term="));
+        // Empty query is still sent (`query=`) — it means "browse everything".
+        assert!(build_browse_url(&params).contains("query=&"));
     }
 
     #[test]
-    fn test_browse_deserialize() {
+    fn test_search_results_deserialize() {
         let json = r#"{
-            "success": 1,
-            "total": 42,
-            "items": [
-                {
-                    "type": "app",
-                    "name": "Elden Ring",
-                    "id": 1245620,
-                    "tiny_image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/capsule_231x87.jpg",
-                    "price": {
-                        "currency": "CNY",
-                        "final": 14900,
-                        "initial": 29800,
-                        "discount_percent": 50
-                    },
-                    "release_date": "25 Feb, 2022",
-                    "platforms": { "windows": true, "mac": false, "linux": false },
-                    "metacritic_score": 96
-                },
-                {
-                    "type": "app",
-                    "name": "Minimal Hit",
-                    "id": 999999,
-                    "price": null
-                },
-                {
-                    "type": "sub",
-                    "name": "Elden Ring Bundle",
-                    "id": 55555,
-                    "price": null
-                }
-            ]
+            "success": true,
+            "total_count": 42,
+            "results_html": "<div id=\"search_result_container\"><div class=\"search_result_row ds_collapse_flag \" data-ds-appid=\"1245620\" data-ds-itemkey=\"app_1245620\"><a href=\"https://store.steampowered.com/app/1245620/Elden_Ring/\">…</a></div><div class=\"search_result_row \" data-ds-appid=\"730\">…</div><div class=\"search_result_row\" data-ds-appid=\"999999\">…</div></div>"
         }"#;
-        let body: StoreSearchResponse = serde_json::from_str(json).unwrap();
-        let result = BrowseResult {
-            total: body.total,
-            items: body
-                .items
-                .into_iter()
-                .filter(|item| item.r#type == "app")
-                .map(BrowseItem::from_search_item)
-                .collect(),
-        };
-        assert_eq!(result.total, 42);
-        assert_eq!(result.items.len(), 2);
+        let body: SearchResultsResponse = serde_json::from_str(json).unwrap();
+        let ids = extract_app_ids(body.results_html.as_deref().unwrap_or(""));
+        assert_eq!(body.total_count, 42);
+        assert_eq!(ids, vec![1245620, 730, 999999]);
+    }
 
-        let full = &result.items[0];
-        assert_eq!(full.app_id, 1245620);
-        assert_eq!(full.name, "Elden Ring");
-        assert_eq!(full.final_price, Some(14900));
-        assert_eq!(full.initial_price, Some(29800));
-        assert_eq!(full.discount_percent, Some(50));
-        assert_eq!(full.currency.as_deref(), Some("CNY"));
-        assert_eq!(full.release_date.as_deref(), Some("25 Feb, 2022"));
-        assert_eq!(full.metacritic_score, Some(96));
-        let platforms = full.platforms.as_ref().unwrap();
-        assert!(platforms.windows);
-        assert!(!platforms.mac);
-
-        // Missing optional fields degrade to None / empty, not parse errors.
-        let minimal = &result.items[1];
-        assert_eq!(minimal.app_id, 999999);
-        assert_eq!(minimal.name, "Minimal Hit");
-        assert_eq!(minimal.final_price, None);
-        assert_eq!(minimal.release_date, None);
-        assert_eq!(minimal.platforms, None);
+    #[test]
+    fn test_search_results_empty() {
+        let json = r#"{
+            "success": true,
+            "total_count": 0,
+            "results_html": "<div id=\"search_result_container\"></div>"
+        }"#;
+        let body: SearchResultsResponse = serde_json::from_str(json).unwrap();
+        assert_eq!(body.total_count, 0);
+        assert!(extract_app_ids(body.results_html.as_deref().unwrap_or("")).is_empty());
+        assert!(extract_app_ids("").is_empty());
     }
 
     #[test]

@@ -15,20 +15,25 @@ import { browseSteamGames, capsuleImageUrl, getStoreHome, headerImageUrl } from 
 import { formatPrice } from "../../lib/steamCommunity";
 import type { BrowseItemDto, FeaturedRailDto, StoreHomeDto } from "../../lib/steamCommunity";
 
-/** Fixed genre list (`category1` ids), labels via i18n. */
+/**
+ * Fixed genre list. Ids are Steam's official `tags` tag ids (from the
+ * storefront's popular-tags table: Action=19, Adventure=21, Indie=492,
+ * RPG=122, Strategy=9, Casual=597, Simulation=599, Sports=701, Racing=699,
+ * MMO=128, Horror=1667, Free to Play=113). NOT the appdetails genre ids.
+ */
 const GENRES: { id: number; i18n: string }[] = [
   { id: 19, i18n: "steam.storeGenreAction" },
   { id: 21, i18n: "steam.storeGenreAdventure" },
-  { id: 23, i18n: "steam.storeGenreIndie" },
-  { id: 24, i18n: "steam.storeGenreRpg" },
-  { id: 25, i18n: "steam.storeGenreStrategy" },
-  { id: 28, i18n: "steam.storeGenreCasual" },
-  { id: 29, i18n: "steam.storeGenreSimulation" },
-  { id: 30, i18n: "steam.storeGenreSports" },
-  { id: 31, i18n: "steam.storeGenreRacing" },
-  { id: 32, i18n: "steam.storeGenreMmo" },
-  { id: 38, i18n: "steam.storeGenreHorror" },
-  { id: 998, i18n: "steam.storeGenreFreeToPlay" },
+  { id: 492, i18n: "steam.storeGenreIndie" },
+  { id: 122, i18n: "steam.storeGenreRpg" },
+  { id: 9, i18n: "steam.storeGenreStrategy" },
+  { id: 597, i18n: "steam.storeGenreCasual" },
+  { id: 599, i18n: "steam.storeGenreSimulation" },
+  { id: 701, i18n: "steam.storeGenreSports" },
+  { id: 699, i18n: "steam.storeGenreRacing" },
+  { id: 128, i18n: "steam.storeGenreMmo" },
+  { id: 1667, i18n: "steam.storeGenreHorror" },
+  { id: 113, i18n: "steam.storeGenreFreeToPlay" },
 ];
 
 /** Sort options (`sort_by` whitelist). */
@@ -300,12 +305,18 @@ export default function Store() {
   const [gridError, setGridError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  /** True once any non-default filter is active → browse grid view. */
-  const browsing =
+  /** Explicit "browse all games" view (no filters), toggled from the home rails. */
+  const [browseMode, setBrowseMode] = useState(false);
+
+  /** True once any non-default filter is active. */
+  const filtersActive =
     debouncedTerm.trim() !== "" ||
     category !== "" ||
     sort !== "relevance" ||
     specials;
+
+  /** Browse grid view: any active filter, or the explicit browse-all state. */
+  const browsing = filtersActive || browseMode;
 
   // Debounced search term (350 ms, matching GameSearchBox).
   useEffect(() => {
@@ -398,45 +409,54 @@ export default function Store() {
         <h1 className="text-xl font-bold">{t("steam.storePageTitle")}</h1>
       </GlassCard>
 
+      {/* ── Toolbar (always visible; any non-default filter switches to the grid view) ── */}
+      <GlassCard className="p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <TextField
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            placeholder={t("steam.storeSearchPlaceholder")}
+            className="min-w-[200px] flex-1"
+          />
+          <Select
+            name="store-category"
+            value={category}
+            onChange={setCategory}
+            options={[
+              { value: "", label: t("steam.storeCategoryAll") },
+              ...GENRES.map((g) => ({ value: String(g.id), label: t(g.i18n) })),
+            ]}
+          />
+          <Select
+            name="store-sort"
+            value={sort}
+            onChange={setSort}
+            options={SORTS.map((s) => ({ value: s.value, label: t(s.i18n) }))}
+          />
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Toggle on={specials} onChange={setSpecials} id="store-specials" />
+            {t("steam.storeSpecialsOnly")}
+          </label>
+          <Select
+            name="store-region"
+            value={region}
+            onChange={setRegion}
+            options={REGIONS.map((r) => ({ value: r.value, label: t(r.i18n) }))}
+          />
+          {browsing && !filtersActive && (
+            <button
+              type="button"
+              onClick={() => setBrowseMode(false)}
+              className="app-surface app-glass-button px-3 py-1 text-xs border rounded-lg hover:bg-secondary flex-shrink-0"
+            >
+              {t("steam.storeBackHome")}
+            </button>
+          )}
+        </div>
+      </GlassCard>
+
       {browsing ? (
         <>
-          {/* ── Toolbar ── */}
-          <GlassCard className="p-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <TextField
-                value={term}
-                onChange={(e) => setTerm(e.target.value)}
-                placeholder={t("steam.storeSearchPlaceholder")}
-                className="min-w-[200px] flex-1"
-              />
-              <Select
-                name="store-category"
-                value={category}
-                onChange={setCategory}
-                options={[
-                  { value: "", label: t("steam.storeCategoryAll") },
-                  ...GENRES.map((g) => ({ value: String(g.id), label: t(g.i18n) })),
-                ]}
-              />
-              <Select
-                name="store-sort"
-                value={sort}
-                onChange={setSort}
-                options={SORTS.map((s) => ({ value: s.value, label: t(s.i18n) }))}
-              />
-              <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Toggle on={specials} onChange={setSpecials} id="store-specials" />
-                {t("steam.storeSpecialsOnly")}
-              </label>
-              <Select
-                name="store-region"
-                value={region}
-                onChange={setRegion}
-                options={REGIONS.map((r) => ({ value: r.value, label: t(r.i18n) }))}
-              />
-            </div>
-          </GlassCard>
-
           {/* ── Grid ── */}
           {gridLoading ? (
             <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
@@ -520,9 +540,18 @@ export default function Store() {
         <div className={`space-y-6 ${anim ? "animate-fade-slide-up" : ""}`}>
           {featured.length > 0 && (
             <section>
-              <h2 className="mb-2 text-base font-semibold">
-                {t("steam.storeRailFeatured")}
-              </h2>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h2 className="text-base font-semibold">
+                  {t("steam.storeRailFeatured")}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setBrowseMode(true)}
+                  className="app-surface app-glass-button px-3 py-1 text-xs border rounded-lg hover:bg-secondary flex-shrink-0"
+                >
+                  {t("steam.storeBrowseAll")}
+                </button>
+              </div>
               <div className="flex gap-3 overflow-x-auto app-scrollbar pb-2 -mb-2">
                 {featured.map((item) => (
                   <div key={item.appId} className="flex-none w-96">

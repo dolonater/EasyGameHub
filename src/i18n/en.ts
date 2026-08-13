@@ -435,6 +435,8 @@ const en: Record<string, any> = {
     storeLabel: "Store",
     storePageTitle: "Steam Store",
     storeSearchPlaceholder: "Search games…",
+    storeBrowseAll: "Browse All Games",
+    storeBackHome: "Back to Home",
     storeRailFeatured: "Featured",
     storeRailSpecials: "Special Offers",
     storeRailTopSellers: "Top Sellers",

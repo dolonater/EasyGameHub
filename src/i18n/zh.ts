@@ -421,6 +421,8 @@ const zh = {
     storeLabel: "商城",
     storePageTitle: "Steam 商城",
     storeSearchPlaceholder: "搜索游戏…",
+    storeBrowseAll: "浏览全部游戏",
+    storeBackHome: "返回首页",
     storeRailFeatured: "精选推荐",
     storeRailSpecials: "促销",
     storeRailTopSellers: "热销商品",

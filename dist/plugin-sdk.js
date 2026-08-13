@@ -101,11 +101,11 @@ var I = {};
 var N0;
 function z1() {
   return N0 || (N0 = 1, process.env.NODE_ENV !== "production" && function() {
-    var t = c0, o = Symbol.for("react.element"), n = Symbol.for("react.portal"), r = Symbol.for("react.fragment"), l = Symbol.for("react.strict_mode"), i = Symbol.for("react.profiler"), s = Symbol.for("react.provider"), g = Symbol.for("react.context"), m = Symbol.for("react.forward_ref"), L = Symbol.for("react.suspense"), A = Symbol.for("react.suspense_list"), y = Symbol.for("react.memo"), H = Symbol.for("react.lazy"), h = Symbol.for("react.offscreen"), S = Symbol.iterator, E = "@@iterator";
+    var t = c0, o = Symbol.for("react.element"), n = Symbol.for("react.portal"), r = Symbol.for("react.fragment"), l = Symbol.for("react.strict_mode"), i = Symbol.for("react.profiler"), s = Symbol.for("react.provider"), g = Symbol.for("react.context"), m = Symbol.for("react.forward_ref"), L = Symbol.for("react.suspense"), A = Symbol.for("react.suspense_list"), y = Symbol.for("react.memo"), H = Symbol.for("react.lazy"), h = Symbol.for("react.offscreen"), E = Symbol.iterator, R = "@@iterator";
     function M(e) {
       if (e === null || typeof e != "object")
         return null;
-      var a = S && e[S] || e[E];
+      var a = E && e[E] || e[R];
       return typeof a == "function" ? a : null;
     }
     var O = t.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
@@ -145,7 +145,7 @@ function z1() {
     function d0(e) {
       return e.displayName || "Context";
     }
-    function R(e) {
+    function S(e) {
       if (e == null)
         return null;
       if (typeof e.tag == "number" && Z("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), typeof e == "function")
@@ -178,11 +178,11 @@ function z1() {
             return o1(e, e.render, "ForwardRef");
           case y:
             var u = e.displayName || null;
-            return u !== null ? u : R(e.type) || "Memo";
+            return u !== null ? u : S(e.type) || "Memo";
           case H: {
             var p = e, w = p._payload, d = p._init;
             try {
-              return R(d(w));
+              return S(d(w));
             } catch {
               return null;
             }
@@ -539,7 +539,7 @@ function z1() {
     function E0() {
       {
         if (l0.current) {
-          var e = R(l0.current.type);
+          var e = S(l0.current.type);
           if (e)
             return `
 
@@ -574,7 +574,7 @@ Check the top-level render call using <` + c + ">.");
           return;
         R0[c] = !0;
         var u = "";
-        e && e._owner && e._owner !== l0.current && (u = " It was passed a child from " + R(e._owner.type) + "."), j(e), Z('Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.', c, u), j(null);
+        e && e._owner && e._owner !== l0.current && (u = " It was passed a child from " + S(e._owner.type) + "."), j(e), Z('Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.', c, u), j(null);
       }
     }
     function B0(e, a) {
@@ -611,11 +611,11 @@ Check the top-level render call using <` + c + ">.");
         else
           return;
         if (c) {
-          var u = R(a);
+          var u = S(a);
           v1(c, e.props, "prop", u, e);
         } else if (a.PropTypes !== void 0 && !t0) {
           t0 = !0;
-          var p = R(a);
+          var p = S(a);
           Z("Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?", p || "Unknown");
         }
         typeof a.getDefaultProps == "function" && !a.getDefaultProps.isReactClassApproved && Z("getDefaultProps is only used on classic React.createClass definitions. Use a static property named `defaultProps` instead.");
@@ -643,7 +643,7 @@ Check the top-level render call using <` + c + ">.");
           var V = Z1();
           V ? v += V : v += E0();
           var _;
-          e === null ? _ = "null" : r0(e) ? _ = "array" : e !== void 0 && e.$$typeof === o ? (_ = "<" + (R(e.type) || "Unknown") + " />", v = " Did you accidentally export a JSX literal instead of a component?") : _ = typeof e, Z("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", _, v);
+          e === null ? _ = "null" : r0(e) ? _ = "array" : e !== void 0 && e.$$typeof === o ? (_ = "<" + (S(e.type) || "Unknown") + " />", v = " Did you accidentally export a JSX literal instead of a component?") : _ = typeof e, Z("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", _, v);
         }
         var x = y1(e, a, c, p, w);
         if (x == null)
@@ -662,7 +662,7 @@ Check the top-level render call using <` + c + ">.");
               B0(k, e);
         }
         if (D.call(a, "key")) {
-          var P = R(e), C = Object.keys(a).filter(function(S1) {
+          var P = S(e), C = Object.keys(a).filter(function(S1) {
             return S1 !== "key";
           }), o0 = C.length > 0 ? "{key: someKey, " + C.join(": ..., ") + ": ...}" : "{key: someKey}";
           if (!P0[P + o0]) {
@@ -908,7 +908,7 @@ function l8({
   }, [o]);
   if (!L) return null;
   t && (y.current = { title: n, children: r, actions: l });
-  const h = y.current ?? { title: n, children: r, actions: l }, S = s === "lg" ? "w-[min(92vw,680px)] max-h-[85vh]" : "w-[300px]", E = /* @__PURE__ */ f.jsx(
+  const h = y.current ?? { title: n, children: r, actions: l }, E = s === "lg" ? "w-[min(92vw,680px)] max-h-[85vh]" : "w-[300px]", R = /* @__PURE__ */ f.jsx(
     "div",
     {
       className: `fixed inset-0 z-50 flex items-center justify-center soft-backdrop ${g ? "animate-fade-out" : "animate-fade-in"}`,
@@ -918,7 +918,7 @@ function l8({
       children: /* @__PURE__ */ f.jsxs(
         Ge,
         {
-          className: `relative ${S} rounded-[20px] shadow-[20px_20px_30px_rgba(0,0,0,0.068)] flex flex-col items-center gap-5 p-[30px] ${g ? "animate-fade-out" : "animate-scale-in"} ${i}`,
+          className: `relative ${E} rounded-[20px] shadow-[20px_20px_30px_rgba(0,0,0,0.068)] flex flex-col items-center gap-5 p-[30px] ${g ? "animate-fade-out" : "animate-scale-in"} ${i}`,
           onClick: (M) => M.stopPropagation(),
           children: [
             /* @__PURE__ */ f.jsx(
@@ -939,7 +939,7 @@ function l8({
       )
     }
   );
-  return z0(E, document.body);
+  return z0(R, document.body);
 }
 function t8({
   options: t,
@@ -953,17 +953,17 @@ function t8({
   return b0(() => {
     if (!i) return;
     const h = () => {
-      const E = g.current;
-      if (!E) return;
-      const M = E.getBoundingClientRect();
+      const R = g.current;
+      if (!R) return;
+      const M = R.getBoundingClientRect();
       L({ left: M.left, top: M.bottom + 4, width: M.width });
     };
     h();
-    const S = (E) => {
-      g.current && !g.current.contains(E.target) && s(!1);
+    const E = (R) => {
+      g.current && !g.current.contains(R.target) && s(!1);
     };
-    return window.addEventListener("resize", h), window.addEventListener("scroll", h, !0), document.addEventListener("mousedown", S), () => {
-      window.removeEventListener("resize", h), window.removeEventListener("scroll", h, !0), document.removeEventListener("mousedown", S);
+    return window.addEventListener("resize", h), window.addEventListener("scroll", h, !0), document.addEventListener("mousedown", E), () => {
+      window.removeEventListener("resize", h), window.removeEventListener("scroll", h, !0), document.removeEventListener("mousedown", E);
     };
   }, [i]), // 打开时把容器 z-index 提到最高，避免多个下拉垂直排列时被后面容器（同为 z-100）遮挡面板
   /* @__PURE__ */ f.jsxs("div", { ref: g, className: `relative select-none w-fit ${i ? "z-[200]" : "z-[100]"} ${l}`.trim(), children: [
@@ -1001,6 +1001,7 @@ function t8({
           children: t.map((h) => /* @__PURE__ */ f.jsx(
             "button",
             {
+              onMouseDown: (E) => E.stopPropagation(),
               onClick: () => {
                 n(h.value), s(!1);
               },
