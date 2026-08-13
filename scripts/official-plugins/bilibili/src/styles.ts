@@ -4470,4 +4470,145 @@ button.bili-dynamic-stat {
   position: relative;
   display: inline-block;
 }
+
+
+/* ===== P9 设置页优化：左 tab + 分组玻璃卡片 + 图标描述行 + toast ===== */
+.bili-settings-layout {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  min-width: 0;
+}
+.bili-settings-tabs {
+  display: grid;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: 168px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 38%, transparent);
+  backdrop-filter: blur(14px);
+}
+.bili-settings-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms var(--bili-ease), color 160ms var(--bili-ease);
+}
+.bili-settings-tab:hover {
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 60%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-settings-tab-active,
+.bili-settings-tab-active:hover {
+  background: color-mix(in srgb, var(--bili-accent) 16%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-settings-tab-active svg {
+  color: var(--bili-accent);
+}
+.bili-settings-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.bili-settings-body {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bili-settings-group {
+  display: grid;
+  gap: 2px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 38%, transparent);
+  backdrop-filter: blur(14px);
+}
+.bili-settings-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 2px 10px;
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-setting-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+.bili-setting-row:hover {
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 42%, transparent);
+}
+.bili-setting-row-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bili-accent) 14%, transparent);
+  color: var(--bili-accent);
+}
+.bili-setting-row-text {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.bili-setting-row-text strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-setting-row-text small {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-setting-row-control {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+.bili-settings-toast {
+  position: fixed;
+  top: 84px;
+  right: 24px;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, #05070c 8%);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
+  color: hsl(var(--foreground, 0 0% 98%));
+  animation: bili-popover-in 180ms var(--bili-spring);
+}
+.bili-settings-toast-success svg {
+  color: #3fb950;
+}
+.bili-settings-toast-error svg {
+  color: #f85149;
+}
+
 `;

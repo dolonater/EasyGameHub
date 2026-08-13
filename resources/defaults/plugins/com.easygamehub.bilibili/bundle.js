@@ -23107,7 +23107,7 @@ var require_dash_all_min = __commonJS({
 });
 
 // src/pages/MainPage.tsx
-import React61, { Button as Button25, Icon as Icon11, useEffect as useEffect42, useState as useState48 } from "sdk";
+import React61, { Button as Button25, Icon as Icon12, useEffect as useEffect42, useState as useState48 } from "sdk";
 
 // src/components/BiliAppShell.tsx
 import React4 from "sdk";
@@ -27585,6 +27585,147 @@ button.bili-dynamic-stat {
   position: relative;
   display: inline-block;
 }
+
+
+/* ===== P9 \u8BBE\u7F6E\u9875\u4F18\u5316\uFF1A\u5DE6 tab + \u5206\u7EC4\u73BB\u7483\u5361\u7247 + \u56FE\u6807\u63CF\u8FF0\u884C + toast ===== */
+.bili-settings-layout {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  min-width: 0;
+}
+.bili-settings-tabs {
+  display: grid;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: 168px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 38%, transparent);
+  backdrop-filter: blur(14px);
+}
+.bili-settings-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms var(--bili-ease), color 160ms var(--bili-ease);
+}
+.bili-settings-tab:hover {
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 60%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-settings-tab-active,
+.bili-settings-tab-active:hover {
+  background: color-mix(in srgb, var(--bili-accent) 16%, transparent);
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-settings-tab-active svg {
+  color: var(--bili-accent);
+}
+.bili-settings-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.bili-settings-body {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.bili-settings-group {
+  display: grid;
+  gap: 2px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 36%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 38%, transparent);
+  backdrop-filter: blur(14px);
+}
+.bili-settings-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 2px 10px;
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-setting-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+.bili-setting-row:hover {
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 42%, transparent);
+}
+.bili-setting-row-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bili-accent) 14%, transparent);
+  color: var(--bili-accent);
+}
+.bili-setting-row-text {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.bili-setting-row-text strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--foreground, 0 0% 98%));
+}
+.bili-setting-row-text small {
+  font-size: 12px;
+  color: hsl(var(--muted-foreground, 240 5% 64%));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bili-setting-row-control {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+.bili-settings-toast {
+  position: fixed;
+  top: 84px;
+  right: 24px;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, hsl(var(--border, 0 0% 100%)) 44%, transparent);
+  background: color-mix(in srgb, hsl(var(--card, 0 0% 100%)) 92%, #05070c 8%);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
+  color: hsl(var(--foreground, 0 0% 98%));
+  animation: bili-popover-in 180ms var(--bili-spring);
+}
+.bili-settings-toast-success svg {
+  color: #3fb950;
+}
+.bili-settings-toast-error svg {
+  color: #f85149;
+}
+
 `;
 
 // src/components/BiliSidebar.tsx
@@ -30873,11 +31014,11 @@ function homeCall3(call) {
 }
 
 // src/pages/SettingsPage.tsx
-import React38, { Button as Button16, Select, Slider, Toggle, useEffect as useEffect30, useState as useState30 } from "sdk";
+import React38, { Button as Button16, Icon as Icon5, Select, Slider, Toggle, useEffect as useEffect30, useState as useState30 } from "sdk";
 var TABS2 = [
-  { key: "player", label: "\u64AD\u653E\u5668" },
-  { key: "danmaku", label: "\u5F39\u5E55" },
-  { key: "general", label: "\u901A\u7528" }
+  { key: "player", label: "\u64AD\u653E\u5668", icon: "playFilled" },
+  { key: "danmaku", label: "\u5F39\u5E55", icon: "playlistFilled" },
+  { key: "general", label: "\u901A\u7528", icon: "settings" }
 ];
 var BUFFER_OPTIONS = [
   { value: "auto", label: "\u81EA\u52A8" },
@@ -30903,7 +31044,7 @@ function SettingsPage() {
   const [config, setConfig] = useState30(defaultConfig);
   const [loaded, setLoaded] = useState30(false);
   const [saving, setSaving] = useState30(false);
-  const [message, setMessage] = useState30("");
+  const [toast, setToast] = useState30(null);
   useEffect30(() => {
     let active = true;
     loadConfig().then((next) => {
@@ -30913,7 +31054,7 @@ function SettingsPage() {
     }).catch((error) => {
       if (active) {
         setLoaded(true);
-        setMessage(errorMessage(error));
+        showToast("error", errorMessage(error));
       }
     });
     return () => {
@@ -30924,10 +31065,17 @@ function SettingsPage() {
     const merged = { ...config, ...next };
     setConfig(merged);
     setSaving(true);
-    setMessage("");
-    void saveConfig(merged).then(() => setMessage("\u8BBE\u7F6E\u5DF2\u4FDD\u5B58")).catch((error) => setMessage(errorMessage(error))).finally(() => setSaving(false));
+    void saveConfig(merged).then(() => showToast("success", "\u8BBE\u7F6E\u5DF2\u4FDD\u5B58")).catch((error) => showToast("error", errorMessage(error))).finally(() => setSaving(false));
   }
-  return /* @__PURE__ */ React38.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React38.createElement("style", null, cssText), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-tabs", role: "tablist", "aria-label": "\u63D2\u4EF6\u8BBE\u7F6E" }, TABS2.map((item) => /* @__PURE__ */ React38.createElement(
+  function showToast(kind, text) {
+    setToast({ kind, text });
+  }
+  useEffect30(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 2200);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+  return /* @__PURE__ */ React38.createElement("section", { className: "bili-settings" }, /* @__PURE__ */ React38.createElement("style", null, cssText), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-layout" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-tabs", role: "tablist", "aria-label": "\u63D2\u4EF6\u8BBE\u7F6E" }, TABS2.map((item) => /* @__PURE__ */ React38.createElement(
     "button",
     {
       key: item.key,
@@ -30937,140 +31085,302 @@ function SettingsPage() {
       className: tab === item.key ? "bili-settings-tab bili-settings-tab-active" : "bili-settings-tab",
       onClick: () => setTab(item.key)
     },
-    item.label
-  ))), !loaded ? /* @__PURE__ */ React38.createElement("div", { className: "bili-state bili-state-compact" }, "\u6B63\u5728\u52A0\u8F7D\u8BBE\u7F6E\u2026") : null, loaded && tab === "player" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u64AD\u653E"), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u64AD\u653E\u7F13\u51B2"), /* @__PURE__ */ React38.createElement(
-    Select,
+    /* @__PURE__ */ React38.createElement(Icon5, { name: item.icon, size: 15 }),
+    /* @__PURE__ */ React38.createElement("span", null, item.label)
+  ))), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-content" }, !loaded ? /* @__PURE__ */ React38.createElement("div", { className: "bili-state bili-state-compact" }, "\u6B63\u5728\u52A0\u8F7D\u8BBE\u7F6E\u2026") : null, loaded && tab === "player" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u64AD\u653E"), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "bufferMode",
-      value: config.bufferMode,
-      options: BUFFER_OPTIONS,
-      onChange: (bufferMode) => update({ bufferMode })
+      icon: "playtime",
+      label: "\u64AD\u653E\u7F13\u51B2",
+      description: "\u7F13\u51B2\u6863\u4F4D\uFF0C\u8D8A\u5927\u8D8A\u6D41\u7545\u4F46\u8D77\u64AD\u7A0D\u6162",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "bufferMode",
+          value: config.bufferMode,
+          options: BUFFER_OPTIONS,
+          onChange: (bufferMode) => update({ bufferMode })
+        }
+      )
     }
-  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u89C6\u9891\u683C\u5F0F"), /* @__PURE__ */ React38.createElement(
-    Select,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "defaultFormat",
-      value: config.defaultFormat,
-      options: FORMAT_OPTIONS,
-      onChange: (defaultFormat) => update({ defaultFormat })
+      icon: "drive",
+      label: "\u9ED8\u8BA4\u89C6\u9891\u683C\u5F0F",
+      description: "DASH \u4F18\u5148\uFF1B\u517C\u5BB9\u6A21\u5F0F\u4E0B\u4F7F\u7528 MP4 \u76F4\u94FE",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "defaultFormat",
+          value: config.defaultFormat,
+          options: FORMAT_OPTIONS,
+          onChange: (defaultFormat) => update({ defaultFormat })
+        }
+      )
     }
-  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u7F16\u7801\u4F18\u5148\u5E8F"), /* @__PURE__ */ React38.createElement(
-    Select,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "codecPreference",
-      value: config.codecPreference,
-      options: CODEC_OPTIONS,
-      onChange: (codecPreference) => update({ codecPreference })
+      icon: "chartLine",
+      label: "\u9ED8\u8BA4\u7F16\u7801\u4F18\u5148\u5E8F",
+      description: "\u4F18\u5148\u4F7F\u7528\u7684\u89C6\u9891\u7F16\u7801\uFF0C\u5931\u8D25\u81EA\u52A8\u964D\u7EA7 AVC",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "codecPreference",
+          value: config.codecPreference,
+          options: CODEC_OPTIONS,
+          onChange: (codecPreference) => update({ codecPreference })
+        }
+      )
     }
-  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u97F3\u8D28"), /* @__PURE__ */ React38.createElement(
-    Select,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "audioPreference",
-      value: config.audioPreference,
-      options: AUDIO_OPTIONS,
-      onChange: (audioPreference) => update({ audioPreference })
+      icon: "speaker",
+      label: "\u9ED8\u8BA4\u97F3\u8D28",
+      description: "FLAC \u9700\u8981\u5927\u4F1A\u5458\uFF0C\u4E0D\u652F\u6301\u65F6\u81EA\u52A8\u964D\u7EA7 AAC",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "audioPreference",
+          value: config.audioPreference,
+          options: AUDIO_OPTIONS,
+          onChange: (audioPreference) => update({ audioPreference })
+        }
+      )
     }
-  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(Toggle, { on: config.autoPlay, onChange: (autoPlay) => update({ autoPlay }) }), /* @__PURE__ */ React38.createElement("span", null, "\u8BE6\u60C5\u9875\u81EA\u52A8\u8D77\u64AD")), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(Toggle, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) }), /* @__PURE__ */ React38.createElement("span", null, "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9"))), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u500D\u901F\u4E0E\u6E05\u6670\u5EA6"), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u500D\u901F"), /* @__PURE__ */ React38.createElement(
-    Select,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "defaultPlaybackRate",
-      value: String(config.defaultPlaybackRate),
-      options: [0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => ({ value: String(rate), label: `${rate}x` })),
-      onChange: (value) => update({ defaultPlaybackRate: Number(value) })
+      icon: "playFilled",
+      label: "\u8BE6\u60C5\u9875\u81EA\u52A8\u8D77\u64AD",
+      description: "\u8FDB\u5165\u89C6\u9891\u8BE6\u60C5\u9875\u540E\u81EA\u52A8\u5F00\u59CB\u64AD\u653E",
+      control: /* @__PURE__ */ React38.createElement(Toggle, { on: config.autoPlay, onChange: (autoPlay) => update({ autoPlay }) })
     }
-  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F"), /* @__PURE__ */ React38.createElement(
-    Select,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "defaultQualityMode",
-      value: config.defaultQualityMode,
-      options: [
-        { value: "auto", label: "\u81EA\u52A8" },
-        { value: "manual", label: "\u624B\u52A8" }
-      ],
-      onChange: (defaultQualityMode) => update({ defaultQualityMode })
+      icon: "cloudUpload",
+      label: "\u540C\u6B65\u89C2\u770B\u8FDB\u5EA6\u5230 B \u7AD9",
+      description: "\u5C06\u672C\u5730\u64AD\u653E\u8FDB\u5EA6\u5199\u56DE B \u7AD9\u8D26\u53F7",
+      control: /* @__PURE__ */ React38.createElement(Toggle, { on: config.syncProgress, onChange: (syncProgress) => update({ syncProgress }) })
     }
-  )), config.defaultQualityMode === "manual" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u6E05\u6670\u5EA6"), /* @__PURE__ */ React38.createElement(
-    Select,
+  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u500D\u901F\u4E0E\u6E05\u6670\u5EA6"), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "defaultQualityQn",
-      value: String(config.defaultQualityQn),
-      options: [
-        { value: "0", label: "\u6700\u9AD8\u53EF\u7528" },
-        { value: "80", label: "1080P" },
-        { value: "64", label: "720P" },
-        { value: "32", label: "480P" },
-        { value: "16", label: "360P" }
-      ],
-      onChange: (defaultQualityQn) => update({ defaultQualityQn: Number(defaultQualityQn) })
+      icon: "repeat",
+      label: "\u9ED8\u8BA4\u500D\u901F",
+      description: "\u6253\u5F00\u89C6\u9891\u65F6\u4F7F\u7528\u7684\u64AD\u653E\u901F\u5EA6",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "defaultPlaybackRate",
+          value: String(config.defaultPlaybackRate),
+          options: [0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => ({
+            value: String(rate),
+            label: `${rate}x`
+          })),
+          onChange: (value) => update({ defaultPlaybackRate: Number(value) })
+        }
+      )
     }
-  )) : null)) : null, loaded && tab === "danmaku" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u5F39\u5E55"), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(Toggle, { on: config.danmakuEnabled, onChange: (danmakuEnabled) => update({ danmakuEnabled }) }), /* @__PURE__ */ React38.createElement("span", null, "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55")), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u5B57\u53F7 ", config.danmakuFontSize, "px"), /* @__PURE__ */ React38.createElement(
-    Slider,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      max: 32,
-      min: 16,
-      step: 1,
-      value: config.danmakuFontSize,
-      onChange: (danmakuFontSize) => update({ danmakuFontSize })
+      icon: "eye",
+      label: "\u9ED8\u8BA4\u6E05\u6670\u5EA6\u6A21\u5F0F",
+      description: "\u81EA\u52A8\u8DDF\u968F\u7F51\u901F\u5207\u6362\uFF1B\u624B\u52A8\u56FA\u5B9A\u76EE\u6807\u6E05\u6670\u5EA6",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "defaultQualityMode",
+          value: config.defaultQualityMode,
+          options: [
+            { value: "auto", label: "\u81EA\u52A8" },
+            { value: "manual", label: "\u624B\u52A8" }
+          ],
+          onChange: (defaultQualityMode) => update({
+            defaultQualityMode
+          })
+        }
+      )
     }
-  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u900F\u660E\u5EA6 ", Math.round(config.danmakuOpacity * 100), "%"), /* @__PURE__ */ React38.createElement(
-    Slider,
+  ), config.defaultQualityMode === "manual" ? /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      max: 1,
-      min: 0.2,
-      step: 0.05,
-      value: config.danmakuOpacity,
-      onChange: (danmakuOpacity) => update({ danmakuOpacity })
+      icon: "fullscreen",
+      label: "\u9ED8\u8BA4\u6E05\u6670\u5EA6",
+      description: "\u624B\u52A8\u6A21\u5F0F\u4E0B\u7684\u76EE\u6807\u6E05\u6670\u5EA6\u4E0A\u9650",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "defaultQualityQn",
+          value: String(config.defaultQualityQn),
+          options: [
+            { value: "0", label: "\u6700\u9AD8\u53EF\u7528" },
+            { value: "80", label: "1080P" },
+            { value: "64", label: "720P" },
+            { value: "32", label: "480P" },
+            { value: "16", label: "360P" }
+          ],
+          onChange: (defaultQualityQn) => update({ defaultQualityQn: Number(defaultQualityQn) })
+        }
+      )
     }
-  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u5BC6\u5EA6 ", Math.round(config.danmakuDensity * 100), "%"), /* @__PURE__ */ React38.createElement(
-    Slider,
+  ) : null)) : null, loaded && tab === "danmaku" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u5F39\u5E55"), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      max: 1,
-      min: 0.25,
-      step: 0.05,
-      value: config.danmakuDensity,
-      onChange: (danmakuDensity) => update({ danmakuDensity })
+      icon: "playlistFilled",
+      label: "\u9ED8\u8BA4\u663E\u793A\u5F39\u5E55",
+      description: "\u6253\u5F00\u89C6\u9891\u65F6\u662F\u5426\u81EA\u52A8\u52A0\u8F7D\u5F39\u5E55",
+      control: /* @__PURE__ */ React38.createElement(
+        Toggle,
+        {
+          on: config.danmakuEnabled,
+          onChange: (danmakuEnabled) => update({ danmakuEnabled })
+        }
+      )
     }
-  )), /* @__PURE__ */ React38.createElement("label", { className: "bili-slider-line" }, /* @__PURE__ */ React38.createElement("span", null, "\u5F39\u5E55\u901F\u5EA6 ", config.danmakuSpeed.toFixed(1), "x"), /* @__PURE__ */ React38.createElement(
-    Slider,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      max: 1.8,
-      min: 0.6,
-      step: 0.1,
-      value: config.danmakuSpeed,
-      onChange: (danmakuSpeed) => update({ danmakuSpeed })
+      icon: "edit",
+      label: "\u5F39\u5E55\u5B57\u53F7",
+      description: `\u5F53\u524D ${config.danmakuFontSize}px`,
+      control: /* @__PURE__ */ React38.createElement(
+        Slider,
+        {
+          max: 32,
+          min: 16,
+          step: 1,
+          value: config.danmakuFontSize,
+          onChange: (danmakuFontSize) => update({ danmakuFontSize })
+        }
+      )
     }
-  )))) : null, loaded && tab === "general" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u4FA7\u8FB9\u680F"), /* @__PURE__ */ React38.createElement("label", { className: "bili-toggle-line" }, /* @__PURE__ */ React38.createElement(
-    Toggle,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      on: config.sidebarAutoHide,
-      onChange: (sidebarAutoHide) => update({ sidebarAutoHide })
+      icon: "themeAlt",
+      label: "\u5F39\u5E55\u900F\u660E\u5EA6",
+      description: `\u5F53\u524D ${Math.round(config.danmakuOpacity * 100)}%`,
+      control: /* @__PURE__ */ React38.createElement(
+        Slider,
+        {
+          max: 1,
+          min: 0.2,
+          step: 0.05,
+          value: config.danmakuOpacity,
+          onChange: (danmakuOpacity) => update({ danmakuOpacity })
+        }
+      )
     }
-  ), /* @__PURE__ */ React38.createElement("span", null, "\u6536\u8D77\u540E\u60AC\u505C\u5C55\u5F00")), /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-field" }, /* @__PURE__ */ React38.createElement("span", null, "\u4FA7\u8FB9\u680F\u4F4D\u7F6E"), /* @__PURE__ */ React38.createElement(
-    Select,
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
     {
-      name: "sidebarPosition",
-      value: config.sidebarPosition,
-      options: [
-        { value: "left", label: "\u5DE6\u4FA7" },
-        { value: "right", label: "\u53F3\u4FA7" }
-      ],
-      onChange: (sidebarPosition) => update({ sidebarPosition })
+      icon: "grid",
+      label: "\u5F39\u5E55\u5BC6\u5EA6",
+      description: `\u5F53\u524D ${Math.round(config.danmakuDensity * 100)}%`,
+      control: /* @__PURE__ */ React38.createElement(
+        Slider,
+        {
+          max: 1,
+          min: 0.25,
+          step: 0.05,
+          value: config.danmakuDensity,
+          onChange: (danmakuDensity) => update({ danmakuDensity })
+        }
+      )
     }
-  ))), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u6570\u636E"), /* @__PURE__ */ React38.createElement("div", { className: "bili-action-row" }, /* @__PURE__ */ React38.createElement(Button16, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406\u7F13\u5B58"), /* @__PURE__ */ React38.createElement(Button16, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u622A\u56FE\u76EE\u5F55")))) : null, message ? /* @__PURE__ */ React38.createElement("div", { className: "bili-state bili-state-compact" }, message) : null);
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
+    {
+      icon: "skipForwardFilled",
+      label: "\u5F39\u5E55\u901F\u5EA6",
+      description: `\u5F53\u524D ${config.danmakuSpeed.toFixed(1)}x`,
+      control: /* @__PURE__ */ React38.createElement(
+        Slider,
+        {
+          max: 1.8,
+          min: 0.6,
+          step: 0.1,
+          value: config.danmakuSpeed,
+          onChange: (danmakuSpeed) => update({ danmakuSpeed })
+        }
+      )
+    }
+  ))) : null, loaded && tab === "general" ? /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-body" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u4FA7\u8FB9\u680F"), /* @__PURE__ */ React38.createElement(
+    SettingRow,
+    {
+      icon: "pin",
+      label: "\u6536\u8D77\u540E\u60AC\u505C\u5C55\u5F00",
+      description: "\u4FA7\u8FB9\u680F\u6536\u8D77\u4E3A\u7A84\u6761\uFF0C\u9F20\u6807\u60AC\u505C\u65F6\u81EA\u52A8\u5C55\u5F00",
+      control: /* @__PURE__ */ React38.createElement(
+        Toggle,
+        {
+          on: config.sidebarAutoHide,
+          onChange: (sidebarAutoHide) => update({ sidebarAutoHide })
+        }
+      )
+    }
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
+    {
+      icon: "arrowLeft",
+      label: "\u4FA7\u8FB9\u680F\u4F4D\u7F6E",
+      description: "\u5BFC\u822A\u680F\u663E\u793A\u5728\u7A97\u53E3\u5DE6\u4FA7\u6216\u53F3\u4FA7",
+      control: /* @__PURE__ */ React38.createElement(
+        Select,
+        {
+          name: "sidebarPosition",
+          value: config.sidebarPosition,
+          options: [
+            { value: "left", label: "\u5DE6\u4FA7" },
+            { value: "right", label: "\u53F3\u4FA7" }
+          ],
+          onChange: (sidebarPosition) => update({ sidebarPosition })
+        }
+      )
+    }
+  )), /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group" }, /* @__PURE__ */ React38.createElement("div", { className: "bili-settings-group-title" }, "\u6570\u636E"), /* @__PURE__ */ React38.createElement(
+    SettingRow,
+    {
+      icon: "trash",
+      label: "\u6E05\u7406\u7F13\u5B58",
+      description: "\u6E05\u9664\u5C01\u9762\u4E0E\u6570\u636E\u7F13\u5B58\uFF0C\u91CA\u653E\u78C1\u76D8\u7A7A\u95F4",
+      control: /* @__PURE__ */ React38.createElement(Button16, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: clearCache }, "\u6E05\u7406")
+    }
+  ), /* @__PURE__ */ React38.createElement(
+    SettingRow,
+    {
+      icon: "screenshots",
+      label: "\u622A\u56FE\u76EE\u5F55",
+      description: "\u6253\u5F00\u622A\u56FE\u4FDD\u5B58\u4F4D\u7F6E",
+      control: /* @__PURE__ */ React38.createElement(Button16, { variant: "outline", size: "sm", disabled: saving, type: "button", onClick: openScreenshotFolder }, "\u6253\u5F00")
+    }
+  ))) : null)), toast ? /* @__PURE__ */ React38.createElement("div", { className: `bili-settings-toast bili-settings-toast-${toast.kind}`, role: "status" }, /* @__PURE__ */ React38.createElement(Icon5, { name: toast.kind === "success" ? "success" : "error", size: 15 }), /* @__PURE__ */ React38.createElement("span", null, toast.text)) : null);
   function clearCache() {
     const sdk = getState().sdk;
     if (!sdk) return;
     setSaving(true);
-    setMessage("");
-    void sdk.bilibili.cache.clearCache().then((count) => setMessage(`\u5DF2\u6E05\u7406 ${count} \u4E2A\u7F13\u5B58\u6587\u4EF6`)).catch((error) => setMessage(errorMessage(error))).finally(() => setSaving(false));
+    void sdk.bilibili.cache.clearCache().then((count) => showToast("success", `\u5DF2\u6E05\u7406 ${count} \u4E2A\u7F13\u5B58\u6587\u4EF6`)).catch((error) => showToast("error", errorMessage(error))).finally(() => setSaving(false));
   }
   function openScreenshotFolder() {
     const sdk = getState().sdk;
     if (!sdk) return;
     setSaving(true);
-    setMessage("");
-    void sdk.bilibili.cache.openScreenshotFolder().then(() => setMessage("\u622A\u56FE\u76EE\u5F55\u5DF2\u6253\u5F00")).catch((error) => setMessage(errorMessage(error))).finally(() => setSaving(false));
+    void sdk.bilibili.cache.openScreenshotFolder().then(() => showToast("success", "\u622A\u56FE\u76EE\u5F55\u5DF2\u6253\u5F00")).catch((error) => showToast("error", errorMessage(error))).finally(() => setSaving(false));
   }
+}
+function SettingRow({
+  icon,
+  label,
+  description,
+  control
+}) {
+  return /* @__PURE__ */ React38.createElement("div", { className: "bili-setting-row" }, /* @__PURE__ */ React38.createElement("span", { className: "bili-setting-row-icon" }, /* @__PURE__ */ React38.createElement(Icon5, { name: icon, size: 16 })), /* @__PURE__ */ React38.createElement("span", { className: "bili-setting-row-text" }, /* @__PURE__ */ React38.createElement("strong", null, label), /* @__PURE__ */ React38.createElement("small", null, description)), /* @__PURE__ */ React38.createElement("span", { className: "bili-setting-row-control" }, control));
 }
 
 // src/pages/SpacePage.tsx
@@ -32742,7 +33052,7 @@ function DanmakuSettingsPopover({
 }
 
 // src/components/QualityMenu.tsx
-import React48, { Button as Button19, Icon as Icon5 } from "sdk";
+import React48, { Button as Button19, Icon as Icon6 } from "sdk";
 function QualityMenu({
   qualities,
   mode,
@@ -32786,7 +33096,7 @@ function QualityMenu({
       type: "button",
       onClick: onAuto
     },
-    /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React48.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, "\u81EA\u52A8")),
+    /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, mode === "auto" ? /* @__PURE__ */ React48.createElement(Icon6, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, "\u81EA\u52A8")),
     /* @__PURE__ */ React48.createElement("small", null, currentLabel(currentQualityId, qualities))
   ), qualities.map((quality) => {
     const active = mode === "manual" && selectedQualityId === quality.id;
@@ -32799,7 +33109,7 @@ function QualityMenu({
         type: "button",
         onClick: () => onManual(quality.id)
       },
-      /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React48.createElement(Icon5, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, qualityText(quality))),
+      /* @__PURE__ */ React48.createElement("span", { className: "bili-quality-option-main" }, active ? /* @__PURE__ */ React48.createElement(Icon6, { name: "check", size: 14 }) : null, /* @__PURE__ */ React48.createElement("strong", null, qualityText(quality))),
       /* @__PURE__ */ React48.createElement("small", null, quality.width && quality.height ? `${quality.width}x${quality.height}` : quality.codecs || "video")
     );
   })));
@@ -32848,7 +33158,7 @@ function codeLabel(quality) {
 }
 
 // src/components/VideoInteractionBar.tsx
-import React52, { Button as Button22, Icon as Icon8, useRef as useRef14, useState as useState40 } from "sdk";
+import React52, { Button as Button22, Icon as Icon9, useRef as useRef14, useState as useState40 } from "sdk";
 
 // src/components/CoinPanel.tsx
 import React49, { Button as Button20, Toggle as Toggle3, useState as useState38 } from "sdk";
@@ -32877,7 +33187,7 @@ function CoinPanel({ busy, onClose, onSubmit, style, triggerRef }) {
 }
 
 // src/components/FavoritePanel.tsx
-import React50, { Button as Button21, Icon as Icon6, useState as useState39 } from "sdk";
+import React50, { Button as Button21, Icon as Icon7, useState as useState39 } from "sdk";
 function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) {
   const ownedFolders = folders.filter((folder) => folder.owned);
   const [selected, setSelected] = useState39(
@@ -32904,14 +33214,14 @@ function FavoritePanel({ busy, folders, onClose, onSubmit, style, triggerRef }) 
       type: "button",
       onClick: () => setSelected((value) => ({ ...value, [folder.id]: !value[folder.id] }))
     },
-    selected[folder.id] ? /* @__PURE__ */ React50.createElement(Icon6, { name: "check", size: 14 }) : null,
+    selected[folder.id] ? /* @__PURE__ */ React50.createElement(Icon7, { name: "check", size: 14 }) : null,
     /* @__PURE__ */ React50.createElement("span", null, folder.title || "\u672A\u547D\u540D\u6536\u85CF\u5939"),
     /* @__PURE__ */ React50.createElement("small", null, selected[folder.id] ? "\u5DF2\u9009\u62E9" : `${folder.mediaCount} \u4E2A`)
   ))), /* @__PURE__ */ React50.createElement("div", { className: "bili-menu-footer" }, /* @__PURE__ */ React50.createElement(Button21, { disabled: busy || !hasOwnedFolders, size: "sm", type: "button", onClick: submit }, busy ? "\u63D0\u4EA4\u4E2D" : "\u4FDD\u5B58\u6536\u85CF")));
 }
 
 // src/components/WatchMoreMenu.tsx
-import React51, { Icon as Icon7 } from "sdk";
+import React51, { Icon as Icon8 } from "sdk";
 function WatchMoreMenu({
   onExternalOpen,
   onCopyLink,
@@ -32930,7 +33240,7 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon7, { name: "externalLink", size: 16 }),
+    /* @__PURE__ */ React51.createElement(Icon8, { name: "externalLink", size: 16 }),
     /* @__PURE__ */ React51.createElement("span", null, "\u5916\u90E8\u6253\u5F00")
   ), /* @__PURE__ */ React51.createElement(
     "button",
@@ -32942,7 +33252,7 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon7, { name: "copy", size: 16 }),
+    /* @__PURE__ */ React51.createElement(Icon8, { name: "copy", size: 16 }),
     /* @__PURE__ */ React51.createElement("span", null, "\u590D\u5236\u94FE\u63A5")
   ), /* @__PURE__ */ React51.createElement(
     "button",
@@ -32954,7 +33264,7 @@ function WatchMoreMenu({
         onClose();
       }
     },
-    /* @__PURE__ */ React51.createElement(Icon7, { name: "screenshots", size: 16 }),
+    /* @__PURE__ */ React51.createElement(Icon8, { name: "screenshots", size: 16 }),
     /* @__PURE__ */ React51.createElement("span", null, "\u622A\u56FE\u76EE\u5F55")
   ));
 }
@@ -33102,7 +33412,7 @@ function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDo
       onClick,
       onMouseDown
     },
-    icon ? /* @__PURE__ */ React52.createElement(Icon8, { name: icon, size: 15 }) : null,
+    icon ? /* @__PURE__ */ React52.createElement(Icon9, { name: icon, size: 15 }) : null,
     value ? /* @__PURE__ */ React52.createElement("small", null, value) : null
   );
 }
@@ -33117,10 +33427,10 @@ function trim4(value) {
 }
 
 // src/components/VideoPlayerControls.tsx
-import React54, { Icon as Icon10 } from "sdk";
+import React54, { Icon as Icon11 } from "sdk";
 
 // src/components/ScreenshotButton.tsx
-import React53, { Icon as Icon9, useState as useState41 } from "sdk";
+import React53, { Icon as Icon10, useState as useState41 } from "sdk";
 
 // src/player/frameCapture.ts
 function captureVideoFrame(video) {
@@ -33157,7 +33467,7 @@ function ScreenshotButton({ sdk, videoRef, detail, selectedPage, disabled }) {
       type: "button",
       onClick: saveScreenshot
     },
-    /* @__PURE__ */ React53.createElement(Icon9, { name: "screenshots", size: 16 }),
+    /* @__PURE__ */ React53.createElement(Icon10, { name: "screenshots", size: 16 }),
     saving ? /* @__PURE__ */ React53.createElement("small", null, "\u4FDD\u5B58\u4E2D") : null
   );
   async function saveScreenshot() {
@@ -33230,7 +33540,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onTogglePlay
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
+    /* @__PURE__ */ React54.createElement(Icon11, { name: isPlaying ? "pauseFilled" : "playFilled", size: 18 })
   ), /* @__PURE__ */ React54.createElement(
     "button",
     {
@@ -33240,7 +33550,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleMute
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
+    /* @__PURE__ */ React54.createElement(Icon11, { name: muted || volume === 0 ? "speakerMute" : "speaker", size: 18 })
   ), /* @__PURE__ */ React54.createElement(
     "input",
     {
@@ -33274,7 +33584,7 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleQuality
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: "settings", size: 16 }),
+    /* @__PURE__ */ React54.createElement(Icon11, { name: "settings", size: 16 }),
     /* @__PURE__ */ React54.createElement("small", null, qualityLabel)
   ), /* @__PURE__ */ React54.createElement(
     "button",
@@ -33285,7 +33595,7 @@ function VideoPlayerControls({
       type: "button",
       onMouseDown: onToggleDanmaku
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: "playlistFilled", size: 16 }),
+    /* @__PURE__ */ React54.createElement(Icon11, { name: "playlistFilled", size: 16 }),
     /* @__PURE__ */ React54.createElement("small", null, danmakuEnabled ? "\u5F00" : "\u5173")
   ), /* @__PURE__ */ React54.createElement(ScreenshotButton, { detail, disabled: !canControl, sdk, selectedPage, videoRef }), /* @__PURE__ */ React54.createElement(
     "button",
@@ -33296,7 +33606,7 @@ function VideoPlayerControls({
       type: "button",
       onClick: onToggleFullscreen
     },
-    /* @__PURE__ */ React54.createElement(Icon10, { name: "fullscreen", size: 18 })
+    /* @__PURE__ */ React54.createElement(Icon11, { name: "fullscreen", size: 18 })
   )));
 }
 function formatDuration3(seconds) {
@@ -34662,7 +34972,7 @@ function MainPage() {
   const loggedIn = Boolean(loginInfo?.loggedIn);
   const title = view.name === "watch" ? "\u64AD\u653E" : view.name === "space" ? "UP \u4E3B\u9875" : view.name === "season" ? "\u756A\u5267\u8BE6\u60C5" : view.name === "live" ? "\u76F4\u64AD\u95F4" : view.name === "liveHome" ? "\u76F4\u64AD" : view.name === "history" ? "\u5386\u53F2\u8BB0\u5F55" : view.name === "watchLater" ? "\u7A0D\u540E\u518D\u770B" : view.name === "favorites" ? "\u6536\u85CF\u5939" : view.name === "bangumi" ? "\u8FFD\u756A" : view.name === "pgcList" ? view.title || "\u5168\u90E8" : view.name === "settings" ? "\u8BBE\u7F6E" : view.name === "search" ? "\u641C\u7D22" : view.name === "dynDetail" ? "\u52A8\u6001\u8BE6\u60C5" : view.name === "article" ? "\u4E13\u680F" : view.name === "chat" ? "\u4F1A\u8BDD" : view.name === "notifications" ? "\u901A\u77E5" : "Bilibili";
   const subtitle = view.name === "watch" ? view.bvid || (view.aid ? `av${view.aid}` : "\u64AD\u653E") : view.name === "mine" ? loggedIn && loginInfo?.nickname ? loginInfo.nickname : "\u8D26\u53F7\u4E2D\u5FC3" : "EasyGameHub";
-  const actions = view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "pgcList" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React61.createElement(Button25, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React61.createElement(Icon11, { name: "skipBackFilled", size: 15 })) : void 0;
+  const actions = view.name === "watch" || view.name === "space" || view.name === "season" || view.name === "live" || view.name === "liveHome" || view.name === "history" || view.name === "watchLater" || view.name === "favorites" || view.name === "bangumi" || view.name === "pgcList" || view.name === "dynDetail" || view.name === "article" || view.name === "chat" || view.name === "notifications" || view.name === "search" ? /* @__PURE__ */ React61.createElement(Button25, { "aria-label": "\u8FD4\u56DE", variant: "outline", size: "sm", type: "button", onClick: goBackNav }, /* @__PURE__ */ React61.createElement(Icon12, { name: "skipBackFilled", size: 15 })) : void 0;
   return /* @__PURE__ */ React61.createElement(BiliAppShell, { current: view.name, title, subtitle, actions }, /* @__PURE__ */ React61.createElement("div", { className: view.name === "home" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(HomePage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "dynamic" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(DynamicPage, null)), /* @__PURE__ */ React61.createElement("div", { className: view.name === "mine" ? "" : "bili-hidden" }, /* @__PURE__ */ React61.createElement(MinePage, null)), view.name === "watch" ? /* @__PURE__ */ React61.createElement(WatchPage, { key: watchKey(view), target: view }) : null, view.name === "space" ? /* @__PURE__ */ React61.createElement(SpacePage, { key: `space-${view.mid}`, mid: view.mid }) : null, view.name === "season" ? /* @__PURE__ */ React61.createElement(SeasonPage, { key: `season-${view.seasonId}`, seasonId: view.seasonId }) : null, view.name === "pgcList" ? /* @__PURE__ */ React61.createElement(PgcListPage, { key: `pgc-${view.seasonType}-${view.title ?? ""}`, seasonType: view.seasonType }) : null, view.name === "live" ? /* @__PURE__ */ React61.createElement(LivePage, { key: `live-${view.roomId}`, roomId: view.roomId }) : null, view.name === "liveHome" ? /* @__PURE__ */ React61.createElement(LiveHomePage, null) : null, view.name === "history" ? /* @__PURE__ */ React61.createElement(HistoryPage, null) : null, view.name === "watchLater" ? /* @__PURE__ */ React61.createElement(WatchLaterPage, null) : null, view.name === "favorites" ? /* @__PURE__ */ React61.createElement(FavoritesPage, null) : null, view.name === "bangumi" ? /* @__PURE__ */ React61.createElement(BangumiPage, null) : null, view.name === "settings" ? /* @__PURE__ */ React61.createElement(SettingsPage, null) : null, view.name === "search" ? /* @__PURE__ */ React61.createElement(SearchPage, { keyword: view.keyword ?? "" }) : null, view.name === "dynDetail" ? /* @__PURE__ */ React61.createElement(DynDetailPage, { key: view.dynId, dynId: view.dynId }) : null, view.name === "article" ? /* @__PURE__ */ React61.createElement(ArticlePage, { key: `article-${view.articleId}`, articleId: view.articleId }) : null, view.name === "chat" ? /* @__PURE__ */ React61.createElement(ChatPage, { key: `chat-${view.uid}`, uid: view.uid }) : null, view.name === "notifications" ? /* @__PURE__ */ React61.createElement(NotificationsPage, null) : null);
 }
 function watchKey(view) {
