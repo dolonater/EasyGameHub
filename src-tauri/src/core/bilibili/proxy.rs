@@ -168,9 +168,9 @@ async fn proxy_cover(
     Query(query): Query<CoverQuery>,
 ) -> Result<Response, (StatusCode, String)> {
     validate_cover_url(&query.url)?;
-    if let Some((bytes, content_type)) =
-        cache::load_cover(&state.data_dir, &cache_key).map_err(internal)?
-    {
+    // 缓存是尽力而为层：读失败当 miss、写失败不阻断响应（Windows 上 WebView
+    // 可能锁住旧封面文件导致清理/写入失败，降级保证封面始终可返回）
+    if let Ok(Some((bytes, content_type))) = cache::load_cover(&state.data_dir, &cache_key) {
         return Response::builder()
             .status(StatusCode::OK)
             .header(CONTENT_TYPE, content_type)
@@ -189,7 +189,9 @@ async fn proxy_cover(
         .unwrap_or("application/octet-stream")
         .to_string();
     let bytes = response.bytes().await.map_err(internal)?;
-    cache::save_cover(&state.data_dir, &cache_key, &content_type, &bytes).map_err(internal)?;
+    if let Err(error) = cache::save_cover(&state.data_dir, &cache_key, &content_type, &bytes) {
+        log::warn!("bilibili cover cache save failed: {error}");
+    }
 
     Response::builder()
         .status(StatusCode::OK)

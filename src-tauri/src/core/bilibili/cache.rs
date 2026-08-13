@@ -337,8 +337,10 @@ fn enforce_cover_limit(dir: &Path, max_bytes: u64) -> Result<(), BpiError> {
         if total <= max_bytes {
             break;
         }
-        fs::remove_file(path).map_err(io_error)?;
-        total = total.saturating_sub(size);
+        // 删除失败（Windows 上文件可能被 WebView 锁住）跳过，不阻断保存
+        if fs::remove_file(&path).is_ok() {
+            total = total.saturating_sub(size);
+        }
     }
     Ok(())
 }
