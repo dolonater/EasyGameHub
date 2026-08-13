@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAnimation } from "../../hooks/useAnimation";
 import GlassCard from "./GlassCard";
 
@@ -13,6 +13,9 @@ export interface GameBannerCardProps {
   onClick?: () => void;
   onContextMenu?: (e: React.MouseEvent) => void;
   rightContent?: React.ReactNode;
+  /** Real image URL from the API, used as a fallback when the derived CDN
+   * URLs 404 (games on Steam's new asset system have hashed paths). */
+  imageUrl?: string;
 }
 
 function formatPlaytime(minutes: number): string {
@@ -30,9 +33,18 @@ const badgeColors: Record<string, string> = {
 
 export default function GameBannerCard({
   appId, name, subtitle, playtimeMinutes, badges, actionLabel, onAction,
-  onClick, onContextMenu, rightContent,
+  onClick, onContextMenu, rightContent, imageUrl,
 }: GameBannerCardProps) {
   const anim = useAnimation();
+  const [stage, setStage] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  // Header first (sharp), then the API-provided URL, then the capsule CDN URL.
+  const sources = [
+    `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`,
+    imageUrl,
+    `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/capsule_616x353.jpg`,
+  ].filter((s): s is string => !!s && appId != null);
+  const failed = stage >= sources.length;
   return (
     <GlassCard
       onContextMenu={(e) => onContextMenu?.(e)}
@@ -40,15 +52,16 @@ export default function GameBannerCard({
       className={`rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all ${anim ? "hover:-translate-y-1 hover:shadow-lg" : ""}`}
     >
       <div className="w-full aspect-[460/215] bg-secondary/20 relative overflow-hidden">
-        {appId ? (
+        {!failed ? (
           <img
-            src={`https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`}
+            src={sources[stage]}
             alt={name}
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
             loading="lazy"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src =
-                `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appId}/capsule_616x353.jpg`;
+            onLoad={() => setLoaded(true)}
+            onError={() => {
+              if (stage < sources.length - 1) setStage(stage + 1);
+              else setStage(sources.length);
             }}
           />
         ) : (

@@ -41,6 +41,7 @@ interface SidebarMenuProps {
   screenshotsLabel: string;
   gamesLabel: string;
   steamHubLabel: string;
+  storeLabel: string;
   settingsLabel: string;
   fullscreenLabel: string;
   sectionGames: string;
@@ -188,6 +189,7 @@ export default function SidebarMenu({
   screenshotsLabel,
   gamesLabel,
   steamHubLabel,
+  storeLabel,
   settingsLabel,
   fullscreenLabel,
   sectionGames,
@@ -228,6 +230,7 @@ export default function SidebarMenu({
       // sub-pages (inventory / accounts / authenticator / downloads), which
       // otherwise also match via NavLink's prefix matching.
       { key: "steam", group: "steam", to: "/steam", label: steamHubLabel, icon: "steamLogo", end: true },
+      { key: "store", group: "steam", to: "/steam/store", label: storeLabel, icon: "store" },
     ];
     const system: SidebarItem[] = [
       { key: "settings", group: "system", to: "/settings", label: settingsLabel, icon: "settings" },
@@ -250,6 +253,7 @@ export default function SidebarMenu({
     screenshotsLabel,
     settingsLabel,
     steamHubLabel,
+    storeLabel,
   ]);
 
   const visibleSidebarItems = useMemo(

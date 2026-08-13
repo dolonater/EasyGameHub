@@ -9,8 +9,8 @@
 //! * 流: [查看详情](https://api.bilibili.com/pgc/player/web/playurl?qn=127&fnver=0&fnval=12240&fourk=&ep_id=65709)
 
 pub mod client;
-pub mod index;
 pub mod follow;
+pub mod index;
 pub mod info;
 pub mod params;
 pub mod tab;

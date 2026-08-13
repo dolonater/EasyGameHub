@@ -108,7 +108,11 @@ mod tests {
         assert_eq!(contract.request.method, HttpMethod::Get);
         assert!(!contract.request.auth.requires_wbi());
         assert_eq!(
-            contract.request.query.get("parent_area_id").map(String::as_str),
+            contract
+                .request
+                .query
+                .get("parent_area_id")
+                .map(String::as_str),
             Some("1")
         );
         assert_eq!(
@@ -127,7 +131,12 @@ mod tests {
             contract.request.query.get("sort_type").map(String::as_str),
             Some("online")
         );
-        assert!(contract.cases.iter().all(|case| case.response.api_code == Some(0)));
+        assert!(
+            contract
+                .cases
+                .iter()
+                .all(|case| case.response.api_code == Some(0))
+        );
         Ok(())
     }
 
@@ -157,5 +166,4 @@ mod tests {
         assert!(data.list.iter().all(|room| room.parent_area_id == 1));
         Ok(())
     }
-
 }

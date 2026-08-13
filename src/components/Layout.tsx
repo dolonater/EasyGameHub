@@ -219,6 +219,7 @@ export default function Layout() {
               screenshotsLabel={t("nav.screenshots")}
               gamesLabel={t("nav.games")}
               steamHubLabel={t("steam.navLabel")}
+              storeLabel={t("steam.storeLabel")}
               settingsLabel={t("nav.settings")}
               fullscreenLabel={"Fullscreen"}
               sectionGames={t("nav.gamesLabel") || "Games"}
@@ -270,6 +271,7 @@ export default function Layout() {
               screenshotsLabel={t("nav.screenshots")}
               gamesLabel={t("nav.games")}
               steamHubLabel={t("steam.navLabel")}
+              storeLabel={t("steam.storeLabel")}
               settingsLabel={t("nav.settings")}
               fullscreenLabel={"Fullscreen"}
               sectionGames={t("nav.gamesLabel") || "Games"}

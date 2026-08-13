@@ -188,6 +188,20 @@ export function formatPriceCents(cents: number, currency: string | null): string
   return `${symbol}${(cents / 100).toFixed(2)}`;
 }
 
+/**
+ * Format a Steam price for browse cards. Like [`formatPriceCents`], but
+ * JPY/KRW omit the decimals (¥1,117) since Steam reports their values in
+ * hundredths too and only the formatted display drops them. Unknown
+ * currencies fall back to a `CODE x.xx` prefix.
+ */
+export function formatPrice(cents: number, currency: string | null): string {
+  const symbol = currency ? CURRENCY_SYMBOLS[currency] || `${currency} ` : "";
+  if (currency === "JPY" || currency === "KRW") {
+    return `${symbol}${Math.round(cents / 100)}`;
+  }
+  return `${symbol}${(cents / 100).toFixed(2)}`;
+}
+
 /** Convert a playtime in minutes to a short human string, e.g. 3845 → "64.1h". */
 export function formatPlaytimeMinutes(minutes: number): string {
   if (minutes <= 0) return "0h";
@@ -285,6 +299,49 @@ export interface RegionPriceDto {
   initialFormatted: string | null;
   /** Approximate CNY (static FX table), for cross-region comparison. */
   cnyCents: number | null;
+}
+
+// ── Store browse (storefront rails + filtered grid) ─────────
+
+export interface BrowsePlatformsDto {
+  windows: boolean;
+  mac: boolean;
+  linux: boolean;
+}
+
+/** One title in a browse grid or storefront rail (from `browse_steam_games` /
+ * `get_store_home`). Prices are base units (cents for decimal currencies). */
+export interface BrowseItemDto {
+  appId: number;
+  name: string;
+  tinyImage: string | null;
+  finalPrice: number | null;
+  initialPrice: number | null;
+  discountPercent: number | null;
+  currency: string | null;
+  releaseDate: string | null;
+  platforms: BrowsePlatformsDto | null;
+  metacriticScore: number | null;
+}
+
+/** A page of browse results (from `browse_steam_games`). */
+export interface BrowseResultDto {
+  /** Total matching titles across all pages. */
+  total: number;
+  items: BrowseItemDto[];
+}
+
+/** One storefront rail (from `get_store_home`). */
+export interface FeaturedRailDto {
+  id: string;
+  name: string | null;
+  items: BrowseItemDto[];
+}
+
+/** Storefront home payload: featured rail + curated rails. */
+export interface StoreHomeDto {
+  featured: BrowseItemDto[];
+  rails: FeaturedRailDto[];
 }
 
 // ── Notifications ────────────────────────────────────────────

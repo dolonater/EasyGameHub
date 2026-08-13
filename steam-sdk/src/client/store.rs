@@ -114,6 +114,8 @@ pub struct AppDetail {
     pub recommendations_total: Option<u64>,
     /// DLC app IDs, when the store exposes them.
     pub dlc: Vec<u32>,
+    /// Platform support flags, when present.
+    pub platforms: Option<Platforms>,
 }
 
 /// A storefront screenshot (full + thumbnail URLs).
@@ -172,6 +174,7 @@ struct AppDetailData {
     metacritic: Option<Metacritic>,
     recommendations: Option<Recommendations>,
     dlc: Option<Vec<u32>>,
+    platforms: Option<Platforms>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -227,6 +230,7 @@ fn detail_from_data(app_id: u32, data: AppDetailData) -> AppDetail {
         metacritic: data.metacritic,
         recommendations_total: data.recommendations.and_then(|r| r.total),
         dlc: data.dlc.unwrap_or_default(),
+        platforms: data.platforms,
     }
 }
 
@@ -246,6 +250,17 @@ pub fn get_app_details(
     app_ids: &[u32],
     language: &str,
 ) -> Result<Vec<AppDetail>> {
+    get_app_details_in_region(client, app_ids, language, "cn")
+}
+
+/// Batch variant of [`get_app_details`] with an explicit store region (`cc`).
+/// Used by storefront rails, where prices must follow the selected country.
+pub fn get_app_details_in_region(
+    client: &SteamHttpClient,
+    app_ids: &[u32],
+    language: &str,
+    cc: &str,
+) -> Result<Vec<AppDetail>> {
     const PARALLELISM: usize = 8;
     let mut all = Vec::new();
     for chunk in app_ids.chunks(PARALLELISM) {
@@ -254,7 +269,7 @@ pub fn get_app_details(
                 .iter()
                 .map(|&app_id| {
                     let client = client.clone();
-                    scope.spawn(move || fetch_app_detail(&client, app_id, language))
+                    scope.spawn(move || fetch_app_detail(&client, app_id, language, cc))
                 })
                 .collect();
             handles
@@ -269,10 +284,15 @@ pub fn get_app_details(
 
 /// Fetch a single app's detail with one retry and a short backoff; returns
 /// `None` when the request or parse fails so the caller degrades gracefully.
-fn fetch_app_detail(client: &SteamHttpClient, app_id: u32, language: &str) -> Option<AppDetail> {
+fn fetch_app_detail(
+    client: &SteamHttpClient,
+    app_id: u32,
+    language: &str,
+    cc: &str,
+) -> Option<AppDetail> {
     let url = format!(
-        "{}/api/appdetails?appids={}&l={}&cc=cn",
-        STORE_BASE, app_id, language
+        "{}/api/appdetails?appids={}&l={}&cc={}",
+        STORE_BASE, app_id, language, cc
     );
     for attempt in 0..2 {
         if let Ok(response) = client.get_with_headers(&url, &[("Referer", STORE_BASE)]) {
@@ -378,6 +398,8 @@ pub struct SearchResult {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 struct StoreSearchResponse {
+    #[serde(default)]
+    total: u32,
     items: Vec<StoreSearchItem>,
 }
 
@@ -389,6 +411,9 @@ struct StoreSearchItem {
     name: Option<String>,
     tiny_image: Option<String>,
     price: Option<StoreSearchPrice>,
+    release_date: Option<String>,
+    platforms: Option<Platforms>,
+    metacritic_score: Option<u32>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -396,7 +421,20 @@ struct StoreSearchItem {
 struct StoreSearchPrice {
     #[serde(rename = "final")]
     final_price: Option<u64>,
+    #[serde(rename = "initial")]
+    initial_price: Option<u64>,
+    #[serde(rename = "discount_percent")]
+    discount_percent: Option<u32>,
     currency: Option<String>,
+}
+
+/// Platform support flags (present on browse/search hits).
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Platforms {
+    pub windows: bool,
+    pub mac: bool,
+    pub linux: bool,
 }
 
 /// Search the Steam store by name. Pinned to the China store (`cc=cn`) so
@@ -451,6 +489,372 @@ fn percent_encode(input: &str) -> String {
         }
     }
     out
+}
+
+// ── Store browse (search + filters + pagination) ────────────
+
+/// Sort order accepted by `/api/storesearch` (`sort_by`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BrowseSort {
+    Relevance,
+    PriceAsc,
+    PriceDesc,
+    ReviewsDesc,
+    ReleasedDesc,
+}
+
+impl BrowseSort {
+    /// The `sort_by` value passed to the store API.
+    pub fn as_param(self) -> &'static str {
+        match self {
+            BrowseSort::Relevance => "relevance",
+            BrowseSort::PriceAsc => "Price_ASC",
+            BrowseSort::PriceDesc => "Price_DESC",
+            BrowseSort::ReviewsDesc => "Reviews_DESC",
+            BrowseSort::ReleasedDesc => "Released_DESC",
+        }
+    }
+}
+
+impl Default for BrowseSort {
+    fn default() -> Self {
+        BrowseSort::Relevance
+    }
+}
+
+/// Filters for store browsing.
+#[derive(Debug, Clone)]
+pub struct BrowseParams {
+    /// Search term; empty/`None` browses without a query.
+    pub term: Option<String>,
+    /// `category1` genre id (e.g. 19 = Action).
+    pub category: Option<u32>,
+    pub sort: BrowseSort,
+    /// When true, only discounted titles are returned.
+    pub specials: bool,
+    /// Store country code; defaults to `cn` (prices in CNY).
+    pub cc: String,
+    /// First result offset for pagination.
+    pub start: u32,
+    /// Number of results per page.
+    pub count: u32,
+}
+
+impl Default for BrowseParams {
+    fn default() -> Self {
+        BrowseParams {
+            term: None,
+            category: None,
+            sort: BrowseSort::Relevance,
+            specials: false,
+            cc: "cn".into(),
+            start: 0,
+            count: 15,
+        }
+    }
+}
+
+/// A single hit from a browse query (same shape as search, plus filters).
+#[derive(Debug, Clone)]
+pub struct BrowseItem {
+    pub app_id: u32,
+    pub name: String,
+    pub tiny_image: Option<String>,
+    /// Current price in base units (cents for decimal currencies), if any.
+    pub final_price: Option<u64>,
+    pub initial_price: Option<u64>,
+    pub discount_percent: Option<u32>,
+    pub currency: Option<String>,
+    pub release_date: Option<String>,
+    pub platforms: Option<Platforms>,
+    pub metacritic_score: Option<u32>,
+}
+
+impl BrowseItem {
+    fn from_search_item(item: StoreSearchItem) -> Self {
+        BrowseItem {
+            app_id: item.id,
+            name: item.name.unwrap_or_default(),
+            tiny_image: item.tiny_image,
+            final_price: item.price.as_ref().and_then(|p| p.final_price),
+            initial_price: item.price.as_ref().and_then(|p| p.initial_price),
+            discount_percent: item.price.as_ref().and_then(|p| p.discount_percent),
+            currency: item.price.as_ref().and_then(|p| p.currency.clone()),
+            release_date: item.release_date,
+            platforms: item.platforms,
+            metacritic_score: item.metacritic_score,
+        }
+    }
+}
+
+/// A page of browse results.
+#[derive(Debug, Clone)]
+pub struct BrowseResult {
+    /// Total matching titles across all pages.
+    pub total: u32,
+    pub items: Vec<BrowseItem>,
+}
+
+/// Build the `/api/storesearch` URL for a browse query (pure, testable).
+fn build_browse_url(params: &BrowseParams) -> String {
+    let mut query = format!(
+        "l=schinese&cc={}&start={}&count={}",
+        params.cc, params.start, params.count
+    );
+    if let Some(term) = &params.term {
+        if !term.is_empty() {
+            query.push_str(&format!("&term={}", percent_encode(term)));
+        }
+    }
+    if let Some(category) = params.category {
+        query.push_str(&format!("&category1={}", category));
+    }
+    if params.sort != BrowseSort::Relevance {
+        query.push_str(&format!("&sort_by={}", params.sort.as_param()));
+    }
+    if params.specials {
+        query.push_str("&specials=1");
+    }
+    format!("{}/api/storesearch/?{}", STORE_BASE, query)
+}
+
+/// Browse the store with filters (genre, sort, discounts, region) and
+/// pagination. Same endpoint as [`search_games`], pinned to `l=schinese`;
+/// the country code follows `params.cc` (defaults to `cn`).
+pub fn browse_games(client: &SteamHttpClient, params: &BrowseParams) -> Result<BrowseResult> {
+    let url = build_browse_url(params);
+    let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
+    if response.status() != 200 {
+        return Err(SteamError::ApiError {
+            code: response.status() as i32,
+            message: format!("HTTP {}", response.status()),
+        });
+    }
+    let body: StoreSearchResponse = response.into_json()?;
+    Ok(BrowseResult {
+        total: body.total,
+        items: body
+            .items
+            .into_iter()
+            .filter(|item| item.r#type == "app")
+            .map(BrowseItem::from_search_item)
+            .collect(),
+    })
+}
+
+// ── Storefront rails (featured + categories) ────────────────
+
+/// Steam store entry type. The storefront endpoints report it as an integer
+/// code (`0` = app) or, historically, the string `"app"` — accept both.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum FeaturedType {
+    App,
+    #[default]
+    Other,
+}
+
+impl FeaturedType {
+    fn is_app(self) -> bool {
+        self == FeaturedType::App
+    }
+}
+
+impl<'de> Deserialize<'de> for FeaturedType {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct Visitor;
+        impl<'de> serde::de::Visitor<'de> for Visitor {
+            type Value = FeaturedType;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("a Steam store type code (0 = app) or type string")
+            }
+            fn visit_u64<E: serde::de::Error>(self, v: u64) -> std::result::Result<Self::Value, E> {
+                Ok(if v == 0 {
+                    FeaturedType::App
+                } else {
+                    FeaturedType::Other
+                })
+            }
+            fn visit_str<E: serde::de::Error>(
+                self,
+                v: &str,
+            ) -> std::result::Result<Self::Value, E> {
+                Ok(if v == "app" {
+                    FeaturedType::App
+                } else {
+                    FeaturedType::Other
+                })
+            }
+        }
+        deserializer.deserialize_any(Visitor)
+    }
+}
+
+/// A single entry shared by `/api/featured` (featured_win/mac/linux and
+/// large_capsules arrays) and `/api/featuredcategories` (rail `items`).
+/// Prices are flat fields (no `price` block) and platforms come as three
+/// `*_available` booleans.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct FeaturedItem {
+    pub id: u32,
+    #[serde(default)]
+    pub r#type: FeaturedType,
+    pub name: Option<String>,
+    pub discount_percent: Option<u32>,
+    pub original_price: Option<u64>,
+    pub final_price: Option<u64>,
+    pub currency: Option<String>,
+    pub small_capsule_image: Option<String>,
+    pub header_image: Option<String>,
+    #[serde(default)]
+    pub windows_available: bool,
+    #[serde(default)]
+    pub mac_available: bool,
+    #[serde(default)]
+    pub linux_available: bool,
+}
+
+impl FeaturedItem {
+    fn into_browse_item(self) -> BrowseItem {
+        BrowseItem {
+            app_id: self.id,
+            name: self.name.unwrap_or_default(),
+            tiny_image: self.small_capsule_image.or(self.header_image),
+            final_price: self.final_price,
+            initial_price: self.original_price,
+            discount_percent: self.discount_percent,
+            currency: self.currency,
+            release_date: None,
+            platforms: Some(Platforms {
+                windows: self.windows_available,
+                mac: self.mac_available,
+                linux: self.linux_available,
+            }),
+            metacritic_score: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "snake_case")]
+struct FeaturedResponse {
+    #[serde(default)]
+    featured_win: Vec<FeaturedItem>,
+    #[serde(default)]
+    featured_mac: Vec<FeaturedItem>,
+    #[serde(default)]
+    featured_linux: Vec<FeaturedItem>,
+    #[serde(default)]
+    large_capsules: Vec<FeaturedItem>,
+}
+
+/// Fetch the main "featured" rail of the storefront: the featured_win / mac /
+/// linux arrays plus the large capsules, merged and deduplicated by app id.
+/// Items carry display info (price, platforms, images) in one request.
+pub fn featured(client: &SteamHttpClient, cc: &str, language: &str) -> Result<Vec<BrowseItem>> {
+    let url = format!("{}/api/featured?cc={}&l={}", STORE_BASE, cc, language);
+    let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
+    if response.status() != 200 {
+        return Err(SteamError::ApiError {
+            code: response.status() as i32,
+            message: format!("HTTP {}", response.status()),
+        });
+    }
+    let body: FeaturedResponse = response.into_json()?;
+    let mut seen = std::collections::HashSet::new();
+    let mut items = Vec::new();
+    for raw in body
+        .featured_win
+        .into_iter()
+        .chain(body.featured_mac)
+        .chain(body.featured_linux)
+        .chain(body.large_capsules)
+    {
+        if raw.r#type != FeaturedType::App || !seen.insert(raw.id) {
+            continue;
+        }
+        items.push(raw.into_browse_item());
+    }
+    Ok(items)
+}
+
+/// A storefront rail: curated title with full item entries (the API returns
+/// complete display info per item — no separate detail lookups needed).
+#[derive(Debug, Clone)]
+pub struct FeaturedRail {
+    pub id: String,
+    pub name: Option<String>,
+    pub items: Vec<FeaturedItem>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct FeaturedCategory {
+    id: String,
+    name: Option<String>,
+    #[serde(default)]
+    items: Vec<FeaturedItem>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct FeaturedCategoriesResponse {
+    /// Kept as an alias in case the historical `specails` misspelling shows up.
+    #[serde(alias = "specails")]
+    specials: Option<FeaturedCategory>,
+    coming_soon: Option<FeaturedCategory>,
+    top_sellers: Option<FeaturedCategory>,
+    new_releases: Option<FeaturedCategory>,
+}
+
+/// Fetch the storefront's curated rails (specials / coming soon / top
+/// sellers / new releases). Genres and other rails are skipped.
+pub fn featured_categories(
+    client: &SteamHttpClient,
+    cc: &str,
+    language: &str,
+) -> Result<Vec<FeaturedRail>> {
+    let url = format!(
+        "{}/api/featuredcategories/?cc={}&l={}",
+        STORE_BASE, cc, language
+    );
+    let response = client.get_with_headers(&url, &[("Referer", STORE_BASE)])?;
+    if response.status() != 200 {
+        return Err(SteamError::ApiError {
+            code: response.status() as i32,
+            message: format!("HTTP {}", response.status()),
+        });
+    }
+    let body: FeaturedCategoriesResponse = response.into_json()?;
+    let mut rails = Vec::new();
+    for category in [
+        body.specials,
+        body.coming_soon,
+        body.top_sellers,
+        body.new_releases,
+    ]
+    .into_iter()
+    .flatten()
+    {
+        if category.items.is_empty() {
+            continue;
+        }
+        // The API can list the same app twice within a rail — dedupe by id
+        // (keep first) so card keys stay unique.
+        let mut seen = std::collections::HashSet::new();
+        let items = category
+            .items
+            .into_iter()
+            .filter(|item| seen.insert(item.id))
+            .collect();
+        rails.push(FeaturedRail {
+            id: category.id,
+            name: category.name,
+            items,
+        });
+    }
+    Ok(rails)
 }
 
 #[cfg(test)]
@@ -624,5 +1028,332 @@ mod tests {
             detail.website.as_deref(),
             Some("https://counter-strike.net")
         );
+    }
+
+    #[test]
+    fn test_sort_param_mapping() {
+        assert_eq!(BrowseSort::Relevance.as_param(), "relevance");
+        assert_eq!(BrowseSort::PriceAsc.as_param(), "Price_ASC");
+        assert_eq!(BrowseSort::PriceDesc.as_param(), "Price_DESC");
+        assert_eq!(BrowseSort::ReviewsDesc.as_param(), "Reviews_DESC");
+        assert_eq!(BrowseSort::ReleasedDesc.as_param(), "Released_DESC");
+    }
+
+    #[test]
+    fn test_browse_url_construction() {
+        let base = "https://store.steampowered.com/api/storesearch/?";
+        let url = build_browse_url(&BrowseParams::default());
+        assert_eq!(url, format!("{}l=schinese&cc=cn&start=0&count=15", base));
+
+        let mut params = BrowseParams::default();
+        params.term = Some("艾尔登法环".into());
+        params.category = Some(19);
+        params.sort = BrowseSort::PriceAsc;
+        params.specials = true;
+        params.cc = "us".into();
+        params.start = 30;
+        params.count = 10;
+        let url = build_browse_url(&params);
+        assert!(url.contains("term=%E8%89%BE%E5%B0%94%E7%99%BB%E6%B3%95%E7%8E%AF"));
+        assert!(url.contains("category1=19"));
+        assert!(url.contains("sort_by=Price_ASC"));
+        assert!(url.contains("specials=1"));
+        assert!(url.contains("cc=us"));
+        assert!(url.contains("start=30"));
+        assert!(url.contains("count=10"));
+        assert!(url.contains("l=schinese"));
+
+        let mut params = BrowseParams::default();
+        params.term = Some("".into());
+        assert!(!build_browse_url(&params).contains("term="));
+    }
+
+    #[test]
+    fn test_browse_deserialize() {
+        let json = r#"{
+            "success": 1,
+            "total": 42,
+            "items": [
+                {
+                    "type": "app",
+                    "name": "Elden Ring",
+                    "id": 1245620,
+                    "tiny_image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/capsule_231x87.jpg",
+                    "price": {
+                        "currency": "CNY",
+                        "final": 14900,
+                        "initial": 29800,
+                        "discount_percent": 50
+                    },
+                    "release_date": "25 Feb, 2022",
+                    "platforms": { "windows": true, "mac": false, "linux": false },
+                    "metacritic_score": 96
+                },
+                {
+                    "type": "app",
+                    "name": "Minimal Hit",
+                    "id": 999999,
+                    "price": null
+                },
+                {
+                    "type": "sub",
+                    "name": "Elden Ring Bundle",
+                    "id": 55555,
+                    "price": null
+                }
+            ]
+        }"#;
+        let body: StoreSearchResponse = serde_json::from_str(json).unwrap();
+        let result = BrowseResult {
+            total: body.total,
+            items: body
+                .items
+                .into_iter()
+                .filter(|item| item.r#type == "app")
+                .map(BrowseItem::from_search_item)
+                .collect(),
+        };
+        assert_eq!(result.total, 42);
+        assert_eq!(result.items.len(), 2);
+
+        let full = &result.items[0];
+        assert_eq!(full.app_id, 1245620);
+        assert_eq!(full.name, "Elden Ring");
+        assert_eq!(full.final_price, Some(14900));
+        assert_eq!(full.initial_price, Some(29800));
+        assert_eq!(full.discount_percent, Some(50));
+        assert_eq!(full.currency.as_deref(), Some("CNY"));
+        assert_eq!(full.release_date.as_deref(), Some("25 Feb, 2022"));
+        assert_eq!(full.metacritic_score, Some(96));
+        let platforms = full.platforms.as_ref().unwrap();
+        assert!(platforms.windows);
+        assert!(!platforms.mac);
+
+        // Missing optional fields degrade to None / empty, not parse errors.
+        let minimal = &result.items[1];
+        assert_eq!(minimal.app_id, 999999);
+        assert_eq!(minimal.name, "Minimal Hit");
+        assert_eq!(minimal.final_price, None);
+        assert_eq!(minimal.release_date, None);
+        assert_eq!(minimal.platforms, None);
+    }
+
+    #[test]
+    fn test_featured_deserialize() {
+        let json = r#"{
+            "status": 1,
+            "featured_win": [
+                {
+                    "id": 1245620,
+                    "type": 0,
+                    "name": "Elden Ring",
+                    "discounted": true,
+                    "discount_percent": 50,
+                    "original_price": 29800,
+                    "final_price": 14900,
+                    "currency": "CNY",
+                    "large_capsule_image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/capsule_1920x620.jpg",
+                    "small_capsule_image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/capsule_231x87.jpg",
+                    "windows_available": true,
+                    "mac_available": true,
+                    "linux_available": false,
+                    "streamingvideo_available": true,
+                    "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg",
+                    "controller_support": "full"
+                },
+                {
+                    "id": 730,
+                    "type": 0,
+                    "name": "Counter-Strike 2",
+                    "discounted": false,
+                    "discount_percent": 0,
+                    "original_price": 0,
+                    "final_price": 0,
+                    "currency": "CNY",
+                    "windows_available": true,
+                    "mac_available": true,
+                    "linux_available": true
+                },
+                {
+                    "id": 999,
+                    "type": 1,
+                    "name": "Some DLC",
+                    "final_price": 100
+                }
+            ],
+            "featured_mac": [],
+            "featured_linux": [],
+            "large_capsules": [
+                { "id": 1245620, "type": 0, "name": "Elden Ring", "final_price": 14900 }
+            ],
+            "layout": 1
+        }"#;
+        let body: FeaturedResponse = serde_json::from_str(json).unwrap();
+        let mut seen = std::collections::HashSet::new();
+        let mut items = Vec::new();
+        for raw in body
+            .featured_win
+            .into_iter()
+            .chain(body.featured_mac)
+            .chain(body.featured_linux)
+            .chain(body.large_capsules)
+        {
+            if raw.r#type != FeaturedType::App || !seen.insert(raw.id) {
+                continue;
+            }
+            items.push(raw.into_browse_item());
+        }
+        // DLC filtered out; large_capsules duplicate (1245620) dropped.
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].app_id, 1245620);
+        assert_eq!(items[0].name, "Elden Ring");
+        assert_eq!(items[0].final_price, Some(14900));
+        assert_eq!(items[0].initial_price, Some(29800));
+        assert_eq!(items[0].discount_percent, Some(50));
+        assert_eq!(items[0].currency.as_deref(), Some("CNY"));
+        let platforms = items[0].platforms.as_ref().unwrap();
+        assert!(platforms.windows);
+        assert!(platforms.mac);
+        assert!(!platforms.linux);
+        // Free titles degrade gracefully.
+        assert_eq!(items[1].app_id, 730);
+        assert_eq!(items[1].final_price, Some(0));
+        // These endpoints don't expose metacritic/release dates.
+        assert_eq!(items[0].metacritic_score, None);
+        assert_eq!(items[0].release_date, None);
+    }
+
+    #[test]
+    fn test_featured_type_accepts_string_and_missing() {
+        // The API reports `type` as an integer code (0 = app); accept the
+        // historical string form and a missing field too.
+        let json = r#"{
+            "featured_win": [
+                { "id": 1, "type": "app", "name": "String type" },
+                { "id": 2, "type": 0, "name": "Numeric type" },
+                { "id": 3, "name": "No type" },
+                { "id": 4, "type": 1, "name": "DLC code" }
+            ]
+        }"#;
+        let body: FeaturedResponse = serde_json::from_str(json).unwrap();
+        assert_eq!(body.featured_win[0].r#type, FeaturedType::App);
+        assert_eq!(body.featured_win[1].r#type, FeaturedType::App);
+        assert_eq!(body.featured_win[2].r#type, FeaturedType::Other);
+        assert_eq!(body.featured_win[3].r#type, FeaturedType::Other);
+        let apps: Vec<u32> = body
+            .featured_win
+            .into_iter()
+            .filter(|i| i.r#type.is_app())
+            .map(|i| i.id)
+            .collect();
+        assert_eq!(apps, vec![1, 2]);
+    }
+
+    #[test]
+    fn test_featured_categories_deserialize() {
+        let json = r#"{
+            "specials": {
+                "id": "specials",
+                "name": "Special Offers",
+                "items": [
+                    {
+                        "id": 1245620,
+                        "type": 0,
+                        "name": "Elden Ring",
+                        "discounted": true,
+                        "discount_percent": 50,
+                        "original_price": 29800,
+                        "final_price": 14900,
+                        "currency": "CNY",
+                        "small_capsule_image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/capsule_231x87.jpg",
+                        "windows_available": true,
+                        "mac_available": false,
+                        "linux_available": false,
+                        "discount_expiration": "1 Jan, 2026",
+                        "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/1245620/header.jpg"
+                    }
+                ],
+                "browse": false
+            },
+            "coming_soon": {
+                "id": "coming_soon",
+                "name": "Coming Soon",
+                "items": [
+                    {
+                        "id": 271590,
+                        "type": 0,
+                        "name": "Upcoming Title",
+                        "original_price": 9900,
+                        "final_price": 9900,
+                        "currency": "CNY",
+                        "windows_available": true,
+                        "mac_available": false,
+                        "linux_available": false
+                    },
+                    {
+                        "id": 271590,
+                        "type": 0,
+                        "name": "Upcoming Title (duplicate)",
+                        "final_price": 9900
+                    }
+                ],
+                "browse": true
+            },
+            "top_sellers": {
+                "id": "top_sellers",
+                "name": "Top Sellers",
+                "items": [],
+                "browse": false
+            },
+            "new_releases": {
+                "id": "new_releases",
+                "items": [],
+                "browse": true
+            },
+            "genres": [
+                { "id": "action", "name": "Action", "items": [1, 2, 3] }
+            ],
+            "status": 1
+        }"#;
+        let body: FeaturedCategoriesResponse = serde_json::from_str(json).unwrap();
+        let mut rails = Vec::new();
+        for category in [
+            body.specials,
+            body.coming_soon,
+            body.top_sellers,
+            body.new_releases,
+        ]
+        .into_iter()
+        .flatten()
+        {
+            if category.items.is_empty() {
+                continue;
+            }
+            // The API can list the same app twice within a rail — dedupe by id.
+            let mut seen = std::collections::HashSet::new();
+            let items = category
+                .items
+                .into_iter()
+                .filter(|item| seen.insert(item.id))
+                .collect();
+            rails.push(FeaturedRail {
+                id: category.id,
+                name: category.name,
+                items,
+            });
+        }
+        // Genres skipped; empty top_sellers/new_releases rails dropped.
+        assert_eq!(rails.len(), 2);
+        assert_eq!(rails[0].id, "specials");
+        assert_eq!(rails[0].name.as_deref(), Some("Special Offers"));
+        assert_eq!(rails[0].items.len(), 1);
+        assert_eq!(rails[0].items[0].id, 1245620);
+        assert_eq!(rails[0].items[0].name.as_deref(), Some("Elden Ring"));
+        assert_eq!(rails[0].items[0].discount_percent, Some(50));
+        assert_eq!(rails[0].items[0].final_price, Some(14900));
+        // coming_soon duplicate (271590 twice) collapsed to one.
+        assert_eq!(rails[1].id, "coming_soon");
+        assert_eq!(rails[1].items.len(), 1);
+        assert_eq!(rails[1].items[0].final_price, Some(9900));
     }
 }

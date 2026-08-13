@@ -14,9 +14,9 @@ pub mod live_stream;
 pub mod manage;
 pub mod message_stream;
 pub mod recommend;
-pub mod room_list;
 pub mod redpocket;
 pub mod report;
+pub mod room_list;
 pub mod silent_user_manage;
 pub mod user;
 #[cfg(feature = "live")]

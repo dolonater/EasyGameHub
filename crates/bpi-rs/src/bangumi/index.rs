@@ -138,7 +138,11 @@ mod tests {
         assert_eq!(contract.request.url.as_str(), PGC_INDEX_ENDPOINT);
         assert!(!contract.request.auth.requires_wbi());
         assert_eq!(
-            contract.request.query.get("season_type").map(String::as_str),
+            contract
+                .request
+                .query
+                .get("season_type")
+                .map(String::as_str),
             Some("1")
         );
         assert_eq!(
@@ -169,7 +173,12 @@ mod tests {
             contract.request.query.get("sort").map(String::as_str),
             Some("0")
         );
-        assert!(contract.cases.iter().all(|case| case.response.api_code == Some(0)));
+        assert!(
+            contract
+                .cases
+                .iter()
+                .all(|case| case.response.api_code == Some(0))
+        );
         Ok(())
     }
 

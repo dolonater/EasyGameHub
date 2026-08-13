@@ -92,6 +92,10 @@ import speakerHighFill from "../../assets/fill/speaker-high-fill.svg?raw";
 import speakerXFill from "../../assets/fill/speaker-x-fill.svg?raw";
 import signIn from "../../assets/regular/sign-in.svg?raw";
 import signOut from "../../assets/regular/sign-out.svg?raw";
+import storefront from "../../assets/regular/storefront.svg?raw";
+import windowsLogo from "../../assets/regular/windows-logo.svg?raw";
+import appleLogo from "../../assets/regular/apple-logo.svg?raw";
+import linuxLogo from "../../assets/regular/linux-logo.svg?raw";
 
 export const ICONS = {
   home: house,
@@ -193,6 +197,10 @@ export const ICONS = {
   speakerMuteFilled: speakerXFill,
   signIn,
   signOut,
+  store: storefront,
+  windows: windowsLogo,
+  apple: appleLogo,
+  linux: linuxLogo,
 } as const;
 
 export type IconName = keyof typeof ICONS;

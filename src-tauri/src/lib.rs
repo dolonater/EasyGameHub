@@ -463,6 +463,8 @@ pub fn run() {
             commands::steam_community::get_news_article,
             commands::steam_community::get_store_detail,
             commands::steam_community::get_multi_region_price,
+            commands::steam_store::browse_steam_games,
+            commands::steam_store::get_store_home,
             commands::authenticator::get_auth_entries,
             commands::authenticator::add_auth_entry,
             commands::authenticator::delete_auth_entry,
