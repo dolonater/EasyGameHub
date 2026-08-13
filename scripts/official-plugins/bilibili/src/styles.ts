@@ -2989,6 +2989,13 @@ button.bili-dynamic-stat {
   gap: 12px;
   padding: 16px 20px 24px;
 }
+/* 详情页所有区块（正文卡片/评论/转发/标题）统一限宽居中，不再横向撑满 */
+.bili-dyn-detail > * {
+  width: 100%;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
 .bili-dyn-detail-card {
   display: flex;
   flex-direction: column;

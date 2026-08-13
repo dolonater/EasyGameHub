@@ -93,7 +93,7 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
   return (
     <section className="bili-dyn-detail">
       <div className="bili-dyn-detail-card">
-        <DynamicCard card={card} onLike={handleLike} onOpenVideo={() => undefined} />
+        <DynamicCard card={card} onLike={handleLike} onOpenVideo={() => undefined} clickable={false} />
         {card.cardType === "article" && card.articleId ? (
           <button type="button" className="bili-dyn-article-read" onClick={() => openArticle(card.articleId)}>
             阅读全文（CV{card.articleId}）
@@ -102,7 +102,12 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
         {card.forward ? (
           <div className="bili-dyn-detail-forward">
             <div className="bili-dyn-detail-section-title">转发的动态</div>
-            <DynamicCard card={card.forward} onLike={() => Promise.resolve()} onOpenVideo={() => undefined} />
+            <DynamicCard
+              card={card.forward}
+              onLike={() => Promise.resolve()}
+              onOpenVideo={() => undefined}
+              clickable={false}
+            />
           </div>
         ) : null}
       </div>

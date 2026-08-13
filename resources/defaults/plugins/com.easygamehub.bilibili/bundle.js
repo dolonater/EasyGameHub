@@ -26104,6 +26104,13 @@ button.bili-dynamic-stat {
   gap: 12px;
   padding: 16px 20px 24px;
 }
+/* \u8BE6\u60C5\u9875\u6240\u6709\u533A\u5757\uFF08\u6B63\u6587\u5361\u7247/\u8BC4\u8BBA/\u8F6C\u53D1/\u6807\u9898\uFF09\u7EDF\u4E00\u9650\u5BBD\u5C45\u4E2D\uFF0C\u4E0D\u518D\u6A2A\u5411\u6491\u6EE1 */
+.bili-dyn-detail > * {
+  width: 100%;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
 .bili-dyn-detail-card {
   display: flex;
   flex-direction: column;
@@ -27680,7 +27687,7 @@ function switchView(view) {
   listeners.forEach((listener) => listener(view));
 }
 function captureScroll() {
-  const el = document.querySelector(".app-page-surface");
+  const el = document.querySelector(".bili-shell-content");
   if (el) scrollByView[memory.name] = el.scrollTop;
 }
 
@@ -28621,37 +28628,47 @@ function ImagePreview({ images, index, onClose, onIndexChange }) {
   const image = images[index];
   if (!image) return null;
   return createPortal(
-    /* @__PURE__ */ React9.createElement("div", { className: "bili-image-preview-backdrop", onClick: onClose }, /* @__PURE__ */ React9.createElement("div", { className: "bili-image-preview-wrap" }, /* @__PURE__ */ React9.createElement(BiliImage, { className: "bili-image-preview", src: image, alt: "\u9884\u89C8\u5927\u56FE" }), images.length > 1 ? /* @__PURE__ */ React9.createElement("div", { className: "bili-image-preview-nav" }, /* @__PURE__ */ React9.createElement(
-      "button",
+    /* @__PURE__ */ React9.createElement(
+      "div",
       {
-        className: "bili-image-preview-nav-btn",
-        type: "button",
-        disabled: index === 0,
+        className: "bili-image-preview-backdrop",
         onClick: (event) => {
           event.stopPropagation();
-          onIndexChange(index - 1);
+          onClose();
         }
       },
-      "\u4E0A\u4E00\u5F20"
-    ), /* @__PURE__ */ React9.createElement("span", null, index + 1, "/", images.length), /* @__PURE__ */ React9.createElement(
-      "button",
-      {
-        className: "bili-image-preview-nav-btn",
-        type: "button",
-        disabled: index === images.length - 1,
-        onClick: (event) => {
-          event.stopPropagation();
-          onIndexChange(index + 1);
-        }
-      },
-      "\u4E0B\u4E00\u5F20"
-    )) : null)),
+      /* @__PURE__ */ React9.createElement("div", { className: "bili-image-preview-wrap" }, /* @__PURE__ */ React9.createElement(BiliImage, { className: "bili-image-preview", src: image, alt: "\u9884\u89C8\u5927\u56FE" }), images.length > 1 ? /* @__PURE__ */ React9.createElement("div", { className: "bili-image-preview-nav" }, /* @__PURE__ */ React9.createElement(
+        "button",
+        {
+          className: "bili-image-preview-nav-btn",
+          type: "button",
+          disabled: index === 0,
+          onClick: (event) => {
+            event.stopPropagation();
+            onIndexChange(index - 1);
+          }
+        },
+        "\u4E0A\u4E00\u5F20"
+      ), /* @__PURE__ */ React9.createElement("span", null, index + 1, "/", images.length), /* @__PURE__ */ React9.createElement(
+        "button",
+        {
+          className: "bili-image-preview-nav-btn",
+          type: "button",
+          disabled: index === images.length - 1,
+          onClick: (event) => {
+            event.stopPropagation();
+            onIndexChange(index + 1);
+          }
+        },
+        "\u4E0B\u4E00\u5F20"
+      )) : null)
+    ),
     document.body
   );
 }
 
 // src/components/DynamicCard.tsx
-function DynamicCard({ card, onLike, onOpenVideo, hideImages }) {
+function DynamicCard({ card, onLike, onOpenVideo, hideImages, clickable = true }) {
   const [liking, setLiking] = useState7(false);
   const [previewIndex, setPreviewIndex] = useState7(null);
   function openCard() {
@@ -28692,15 +28709,30 @@ function DynamicCard({ card, onLike, onOpenVideo, hideImages }) {
     setLiking(true);
     Promise.resolve(onLike(card, !card.liked)).finally(() => setLiking(false));
   }
-  return /* @__PURE__ */ React10.createElement("article", { className: "bili-dynamic-card", onClick: openCard }, /* @__PURE__ */ React10.createElement("header", { className: "bili-dynamic-head" }, /* @__PURE__ */ React10.createElement(BiliImage, { className: "bili-dynamic-avatar", src: card.face, alt: card.name }), /* @__PURE__ */ React10.createElement("div", { className: "bili-dynamic-meta" }, /* @__PURE__ */ React10.createElement("strong", null, card.name), /* @__PURE__ */ React10.createElement("small", null, card.pubTime)), card.isTop ? /* @__PURE__ */ React10.createElement("span", { className: "bili-dynamic-top-badge" }, "\u7F6E\u9876") : null), card.content ? /* @__PURE__ */ React10.createElement("p", { className: "bili-dynamic-text" }, card.content) : null, card.cardType === "video" && card.video ? /* @__PURE__ */ React10.createElement(VideoBody, { video: card.video }) : null, card.cardType === "image" && card.images.length > 0 && !hideImages ? /* @__PURE__ */ React10.createElement(ImageBody, { images: card.images, onPreview: setPreviewIndex }) : null, card.cardType === "live" && card.live ? /* @__PURE__ */ React10.createElement(LiveBody, { live: card.live }) : null, card.cardType === "article" ? /* @__PURE__ */ React10.createElement(ArticleBody, { card }) : null, card.cardType === "forward" && card.forward ? /* @__PURE__ */ React10.createElement(ForwardBody, { card: card.forward }) : null, previewIndex !== null ? /* @__PURE__ */ React10.createElement(
-    ImagePreview,
+  return /* @__PURE__ */ React10.createElement(
+    "article",
     {
-      images: card.images,
-      index: previewIndex,
-      onClose: () => setPreviewIndex(null),
-      onIndexChange: setPreviewIndex
-    }
-  ) : null, /* @__PURE__ */ React10.createElement("footer", { className: "bili-dynamic-stats" }, /* @__PURE__ */ React10.createElement("button", { className: "bili-dynamic-stat", type: "button", onClick: toggleLike, disabled: liking }, card.liked ? "\u5DF2\u8D5E" : "\u70B9\u8D5E", " ", card.likeCount > 0 ? formatCount2(card.likeCount) : ""), /* @__PURE__ */ React10.createElement("span", { className: "bili-dynamic-stat" }, card.commentCount > 0 ? `${formatCount2(card.commentCount)} \u8BC4\u8BBA` : "\u8BC4\u8BBA"), /* @__PURE__ */ React10.createElement("span", { className: "bili-dynamic-stat" }, card.forwardCount > 0 ? `${formatCount2(card.forwardCount)} \u8F6C\u53D1` : "\u8F6C\u53D1")));
+      className: "bili-dynamic-card",
+      onClick: clickable ? openCard : void 0
+    },
+    /* @__PURE__ */ React10.createElement("header", { className: "bili-dynamic-head" }, /* @__PURE__ */ React10.createElement(BiliImage, { className: "bili-dynamic-avatar", src: card.face, alt: card.name }), /* @__PURE__ */ React10.createElement("div", { className: "bili-dynamic-meta" }, /* @__PURE__ */ React10.createElement("strong", null, card.name), /* @__PURE__ */ React10.createElement("small", null, card.pubTime)), card.isTop ? /* @__PURE__ */ React10.createElement("span", { className: "bili-dynamic-top-badge" }, "\u7F6E\u9876") : null),
+    card.content ? /* @__PURE__ */ React10.createElement("p", { className: "bili-dynamic-text" }, card.content) : null,
+    card.cardType === "video" && card.video ? /* @__PURE__ */ React10.createElement(VideoBody, { video: card.video }) : null,
+    card.cardType === "image" && card.images.length > 0 && !hideImages ? /* @__PURE__ */ React10.createElement(ImageBody, { images: card.images, onPreview: setPreviewIndex }) : null,
+    card.cardType === "live" && card.live ? /* @__PURE__ */ React10.createElement(LiveBody, { live: card.live }) : null,
+    card.cardType === "article" ? /* @__PURE__ */ React10.createElement(ArticleBody, { card }) : null,
+    card.cardType === "forward" && card.forward ? /* @__PURE__ */ React10.createElement(ForwardBody, { card: card.forward }) : null,
+    previewIndex !== null ? /* @__PURE__ */ React10.createElement(
+      ImagePreview,
+      {
+        images: card.images,
+        index: previewIndex,
+        onClose: () => setPreviewIndex(null),
+        onIndexChange: setPreviewIndex
+      }
+    ) : null,
+    /* @__PURE__ */ React10.createElement("footer", { className: "bili-dynamic-stats" }, /* @__PURE__ */ React10.createElement("button", { className: "bili-dynamic-stat", type: "button", onClick: toggleLike, disabled: liking }, card.liked ? "\u5DF2\u8D5E" : "\u70B9\u8D5E", " ", card.likeCount > 0 ? formatCount2(card.likeCount) : ""), /* @__PURE__ */ React10.createElement("span", { className: "bili-dynamic-stat" }, card.commentCount > 0 ? `${formatCount2(card.commentCount)} \u8BC4\u8BBA` : "\u8BC4\u8BBA"), /* @__PURE__ */ React10.createElement("span", { className: "bili-dynamic-stat" }, card.forwardCount > 0 ? `${formatCount2(card.forwardCount)} \u8F6C\u53D1` : "\u8F6C\u53D1"))
+  );
 }
 function VideoBody({ video }) {
   return /* @__PURE__ */ React10.createElement("div", { className: "bili-dynamic-video" }, video.cover ? /* @__PURE__ */ React10.createElement(BiliImage, { className: "bili-dynamic-video-cover", src: video.cover, loading: "lazy" }) : null, /* @__PURE__ */ React10.createElement("div", { className: "bili-dynamic-video-info" }, /* @__PURE__ */ React10.createElement("strong", { title: video.title }, video.title || "\u89C6\u9891"), /* @__PURE__ */ React10.createElement("small", null, video.durationText), video.play > 0 ? /* @__PURE__ */ React10.createElement("small", null, formatCount2(video.play), " \u64AD\u653E") : null));
@@ -34567,7 +34599,15 @@ function DynDetailPage({ dynId }) {
   if (loading) return /* @__PURE__ */ React60.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D\u52A8\u6001");
   if (error && !card) return /* @__PURE__ */ React60.createElement("div", { className: "bili-state bili-state-error" }, error);
   if (!card) return /* @__PURE__ */ React60.createElement("div", { className: "bili-state" }, "\u52A8\u6001\u4E0D\u5B58\u5728\u6216\u5DF2\u5220\u9664");
-  return /* @__PURE__ */ React60.createElement("section", { className: "bili-dyn-detail" }, /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-card" }, /* @__PURE__ */ React60.createElement(DynamicCard, { card, onLike: handleLike, onOpenVideo: () => void 0 }), card.cardType === "article" && card.articleId ? /* @__PURE__ */ React60.createElement("button", { type: "button", className: "bili-dyn-article-read", onClick: () => openArticle(card.articleId) }, "\u9605\u8BFB\u5168\u6587\uFF08CV", card.articleId, "\uFF09") : null, card.forward ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-forward" }, /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u7684\u52A8\u6001"), /* @__PURE__ */ React60.createElement(DynamicCard, { card: card.forward, onLike: () => Promise.resolve(), onOpenVideo: () => void 0 })) : null), forwardsHasMore || forwards.length > 0 ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u5217\u8868") : null, forwards.length > 0 ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forwards" }, forwards.map((entry) => /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forward-entry", key: entry.dynId }, /* @__PURE__ */ React60.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.face, alt: entry.name }), /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forward-entry-body" }, /* @__PURE__ */ React60.createElement("strong", null, entry.name), /* @__PURE__ */ React60.createElement("small", null, entry.pubTime), /* @__PURE__ */ React60.createElement("p", null, entry.content))))) : null, forwardsHasMore ? /* @__PURE__ */ React60.createElement(
+  return /* @__PURE__ */ React60.createElement("section", { className: "bili-dyn-detail" }, /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-card" }, /* @__PURE__ */ React60.createElement(DynamicCard, { card, onLike: handleLike, onOpenVideo: () => void 0, clickable: false }), card.cardType === "article" && card.articleId ? /* @__PURE__ */ React60.createElement("button", { type: "button", className: "bili-dyn-article-read", onClick: () => openArticle(card.articleId) }, "\u9605\u8BFB\u5168\u6587\uFF08CV", card.articleId, "\uFF09") : null, card.forward ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-forward" }, /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u7684\u52A8\u6001"), /* @__PURE__ */ React60.createElement(
+    DynamicCard,
+    {
+      card: card.forward,
+      onLike: () => Promise.resolve(),
+      onOpenVideo: () => void 0,
+      clickable: false
+    }
+  )) : null), forwardsHasMore || forwards.length > 0 ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-detail-section-title" }, "\u8F6C\u53D1\u5217\u8868") : null, forwards.length > 0 ? /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forwards" }, forwards.map((entry) => /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forward-entry", key: entry.dynId }, /* @__PURE__ */ React60.createElement(BiliImage, { className: "bili-dynamic-avatar bili-dynamic-avatar-sm", src: entry.face, alt: entry.name }), /* @__PURE__ */ React60.createElement("div", { className: "bili-dyn-forward-entry-body" }, /* @__PURE__ */ React60.createElement("strong", null, entry.name), /* @__PURE__ */ React60.createElement("small", null, entry.pubTime), /* @__PURE__ */ React60.createElement("p", null, entry.content))))) : null, forwardsHasMore ? /* @__PURE__ */ React60.createElement(
     "button",
     {
       type: "button",
@@ -34613,7 +34653,7 @@ function MainPage() {
   }, []);
   useEffect42(() => {
     const frame = requestAnimationFrame(() => {
-      const el = document.querySelector(".app-page-surface");
+      const el = document.querySelector(".bili-shell-content");
       if (el) el.scrollTop = getViewScroll(view.name);
     });
     return () => cancelAnimationFrame(frame);

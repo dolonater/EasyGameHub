@@ -18,7 +18,14 @@ export function ImagePreview({ images, index, onClose, onIndexChange }: ImagePre
   // portal 到 body：突破 backdrop-filter/transform 祖先（如播放器详情面板）创建的
   // containing block，保证遮罩/图片相对视口全屏显示
   return createPortal(
-    <div className="bili-image-preview-backdrop" onClick={onClose}>
+    <div
+      className="bili-image-preview-backdrop"
+      onClick={(event: any) => {
+        // portal 内容的事件会沿 React 组件树冒泡（如动态卡片 article 的 openCard），需阻止
+        event.stopPropagation();
+        onClose();
+      }}
+    >
       <div className="bili-image-preview-wrap">
         <BiliImage className="bili-image-preview" src={image} alt="预览大图" />
         {images.length > 1 ? (

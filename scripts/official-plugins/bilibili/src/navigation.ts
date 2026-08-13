@@ -186,6 +186,7 @@ function switchView(view: BiliNavView): void {
 }
 
 function captureScroll(): void {
-  const el = document.querySelector<HTMLElement>(".app-page-surface");
+  // P9 骨架后滚动发生在插件内容容器（.bili-shell-content），宿主 main 不滚动
+  const el = document.querySelector<HTMLElement>(".bili-shell-content");
   if (el) scrollByView[memory.name] = el.scrollTop;
 }

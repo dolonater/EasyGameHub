@@ -13,9 +13,11 @@ interface DynamicCardProps {
   onOpenVideo?(card: BiliDynamicCard): void;
   /** 隐藏卡片内图片（详情页用大图网格替代，避免重复显示） */
   hideImages?: boolean;
+  /** 整卡可点击进入详情（详情页自身应传 false，避免重复进入叠加返回栈） */
+  clickable?: boolean;
 }
 
-export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCardProps) {
+export function DynamicCard({ card, onLike, onOpenVideo, hideImages, clickable = true }: DynamicCardProps) {
   const [liking, setLiking] = useState(false);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
@@ -66,7 +68,10 @@ export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCa
   }
 
   return (
-    <article className="bili-dynamic-card" onClick={openCard}>
+    <article
+      className="bili-dynamic-card"
+      onClick={clickable ? openCard : undefined}
+    >
       <header className="bili-dynamic-head">
         <BiliImage className="bili-dynamic-avatar" src={card.face} alt={card.name} />
         <div className="bili-dynamic-meta">

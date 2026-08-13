@@ -43,7 +43,7 @@ export function MainPage() {
   // 视图切换后恢复该视图记录的滚动位置（离开时的位置由 navigation 记录）
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      const el = document.querySelector(".app-page-surface");
+      const el = document.querySelector<HTMLElement>(".bili-shell-content");
       if (el) el.scrollTop = getViewScroll(view.name);
     });
     return () => cancelAnimationFrame(frame);
