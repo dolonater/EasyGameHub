@@ -1251,9 +1251,25 @@ pub async fn bilibili_pgc_tabs(
             )))
         }
     };
-    season::pgc_tabs(&state.tool_dir, kind)
+    // 与推荐/热门一致走缓存（TTL 10 分钟），避免每次切 tab 重新请求显示"正在加载"
+    let cache_key = format!("{}:{}", current_mid(&state.tool_dir)?, kind.tag());
+    if let Some(cached) =
+        cache::load_json(&state.tool_dir, "pgc-tabs", &cache_key).map_err(bpi_error)?
+    {
+        return Ok(cached);
+    }
+    let data = season::pgc_tabs(&state.tool_dir, kind)
         .await
-        .map_err(bpi_error)
+        .map_err(bpi_error)?;
+    cache::save_json(
+        &state.tool_dir,
+        "pgc-tabs",
+        &cache_key,
+        cache::POPULAR_TTL,
+        &data,
+    )
+    .map_err(bpi_error)?;
+    Ok(data)
 }
 
 /// PGC 排行榜分榜（1=番剧 2=电影 3=纪录片 4=国创 5=电视剧 7=综艺）。

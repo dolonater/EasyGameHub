@@ -1,20 +1,44 @@
 import React from "sdk";
 import { openWatch } from "../navigation";
-import type { BiliVideoCard } from "../types";
+import type { BiliPgcCard, BiliVideoCard } from "../types";
 import { BiliImage } from "./BiliImage";
+
+/** 番剧/影视卡片适配为通用视频卡片数据（无 BV 号，点击行为由调用方覆盖）。 */
+export function pgcToVideoCard(card: BiliPgcCard): BiliVideoCard {
+  return {
+    bvid: "",
+    aid: 0,
+    cid: 0,
+    title: card.title,
+    cover: card.cover,
+    ownerName: "",
+    ownerMid: 0,
+    duration: 0,
+    viewCount: 0,
+    danmakuCount: 0,
+    publishedAt: 0,
+    progress: 0,
+  };
+}
 
 interface VideoCardProps {
   video: BiliVideoCard;
+  /** 覆盖默认点击行为（如番剧打开详情页） */
+  onClick?(): void;
+  /** 封面比例：video=横版 16:9（默认）、poster=竖版海报（番剧） */
+  coverRatio?: "video" | "poster";
+  /** 自定义 meta 行（如番剧"更新至第12话 · 9.7分"）；缺省显示播放/弹幕 */
+  meta?: any;
 }
 
-export function VideoCard({ video }: VideoCardProps) {
+export function VideoCard({ video, onClick, coverRatio = "video", meta }: VideoCardProps) {
   const openVideo = () => {
     openWatch({ name: "watch", bvid: video.bvid, aid: video.aid, cid: video.cid });
   };
 
   return (
-    <button className="bili-video-card" type="button" onClick={openVideo}>
-      <span className="bili-cover-wrap">
+    <button className="bili-video-card" type="button" onClick={onClick ?? openVideo}>
+      <span className="bili-cover-wrap" data-ratio={coverRatio}>
         {video.cover ? (
           <BiliImage className="bili-cover" src={video.cover} loading="lazy" />
         ) : (
@@ -26,8 +50,13 @@ export function VideoCard({ video }: VideoCardProps) {
         <strong title={video.title}>{video.title || "Untitled"}</strong>
         <small>{video.ownerName || "未知 UP 主"}</small>
         <span className="bili-video-meta">
-          <span>{formatCount(video.viewCount)} 播放</span>
-          <span>{formatCount(video.danmakuCount)} 弹幕</span>
+          {meta ??
+            (
+              <>
+                <span>{formatCount(video.viewCount)} 播放</span>
+                <span>{formatCount(video.danmakuCount)} 弹幕</span>
+              </>
+            )}
         </span>
         {video.progress > 0 && video.duration > 0 ? (
           <span className="bili-video-progress" title={`看到 ${formatDuration(video.progress)}`}>

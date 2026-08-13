@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "sdk";
 import type { BiliPgcCard, BiliVideoCard } from "../types";
+import { openSeason } from "../navigation";
 import { errorMessage, getState } from "../runtime";
-import { PgcCard } from "./PgcCard";
-import { VideoCard } from "./VideoCard";
+import { VideoCard, pgcToVideoCard } from "./VideoCard";
 
 /** 常用分区 rid：全站 + 各主分区（数值即 /x/web-interface/ranking/v2 的 rid） */
 const RIDS: Array<{ rid: number; name: string }> = [
@@ -160,7 +160,18 @@ export function RankingPanel() {
       {!error && tab === "pgc" && pgcVideos.length > 0 ? (
         <div className="bili-pgc-track bili-pgc-track-wrap">
           {pgcVideos.map((card) => (
-            <PgcCard key={`${card.seasonId}-${card.seasonType}`} card={card} />
+            <VideoCard
+              key={`${card.seasonId}-${card.seasonType}`}
+              video={pgcToVideoCard(card)}
+              coverRatio="poster"
+              onClick={() => openSeason(card.seasonId)}
+              meta={
+                <>
+                  <span>{card.indexShow || "敬请期待"}</span>
+                  {card.score != null ? <span>{card.score.toFixed(1)} 分</span> : null}
+                </>
+              }
+            />
           ))}
         </div>
       ) : null}

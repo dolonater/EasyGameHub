@@ -1,8 +1,8 @@
 import React, { Button, useEffect, useState } from "sdk";
 import type { BiliPgcSection } from "../types";
-import { openPgcList } from "../navigation";
+import { openPgcList, openSeason } from "../navigation";
 import { errorMessage, getState } from "../runtime";
-import { PgcCard } from "./PgcCard";
+import { VideoCard, pgcToVideoCard } from "./VideoCard";
 
 interface PgcSectionFeedProps {
   kind: "bangumi" | "cinema";
@@ -83,9 +83,20 @@ export function PgcSectionFeed({ kind }: PgcSectionFeedProps) {
               查看全部
             </Button>
           </div>
-          <div className="bili-pgc-grid">
+          <div className="bili-video-grid">
             {activeSection.items.map((card) => (
-              <PgcCard key={`${card.seasonId}-${card.seasonType}`} card={card} />
+              <VideoCard
+                key={`${card.seasonId}-${card.seasonType}`}
+                video={pgcToVideoCard(card)}
+                coverRatio="poster"
+                onClick={() => openSeason(card.seasonId)}
+                meta={
+                  <>
+                    <span>{card.indexShow || "敬请期待"}</span>
+                    {card.score != null ? <span>{card.score.toFixed(1)} 分</span> : null}
+                  </>
+                }
+              />
             ))}
           </div>
         </>

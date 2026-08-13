@@ -92,6 +92,15 @@ pub enum PgcTabKind {
     Cinema,
 }
 
+impl PgcTabKind {
+    pub fn tag(self) -> &'static str {
+        match self {
+            PgcTabKind::Bangumi => "bangumi",
+            PgcTabKind::Cinema => "cinema",
+        }
+    }
+}
+
 fn pgc_item_to_card(item: &bpi_rs::bangumi::tab::PgcItem) -> BiliPgcCard {
     BiliPgcCard {
         season_id: item.season_id,

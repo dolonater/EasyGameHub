@@ -1,5 +1,6 @@
 import React, { Button, useEffect, useState } from "sdk";
-import { PgcCard } from "../components/PgcCard";
+import { VideoCard, pgcToVideoCard } from "../components/VideoCard";
+import { openSeason } from "../navigation";
 import { errorMessage, getState } from "../runtime";
 import type { BiliPgcCard, PluginSdk } from "../types";
 
@@ -135,9 +136,20 @@ export function PgcListPage({ seasonType }: PgcListPageProps) {
       {!error && !loading && items.length === 0 ? <div className="bili-state">暂无内容</div> : null}
       {items.length > 0 ? (
         <>
-          <div className="bili-pgc-grid">
+          <div className="bili-video-grid">
             {items.map((card) => (
-              <PgcCard key={`${card.seasonId}-${card.seasonType}`} card={card} />
+              <VideoCard
+                key={`${card.seasonId}-${card.seasonType}`}
+                video={pgcToVideoCard(card)}
+                coverRatio="poster"
+                onClick={() => openSeason(card.seasonId)}
+                meta={
+                  <>
+                    <span>{card.indexShow || "敬请期待"}</span>
+                    {card.score != null ? <span>{card.score.toFixed(1)} 分</span> : null}
+                  </>
+                }
+              />
             ))}
           </div>
           {hasMore ? (

@@ -262,6 +262,10 @@ export const cssText = `
   object-fit: cover;
   transition: transform 160ms ease;
 }
+/* 竖版海报封面（番剧/影视复用 VideoCard 时） */
+.bili-cover-wrap[data-ratio="poster"] .bili-cover {
+  aspect-ratio: 3 / 4;
+}
 .bili-video-card:hover .bili-cover {
   transform: scale(1.025);
 }
@@ -2056,40 +2060,7 @@ export const cssText = `
   flex-wrap: wrap;
   overflow-x: visible;
 }
-.bili-pgc-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 168px;
-  flex: 0 0 auto;
-  padding: 0;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: hsl(var(--foreground, 0 0% 98%));
-  cursor: pointer;
-  text-align: left;
-}
-.bili-pgc-cover {
-  width: 168px;
-  height: 224px;
-  object-fit: cover;
-  border-radius: 10px;
-  background: color-mix(in srgb, hsl(var(--muted, 240 5% 64%)) 40%, transparent);
-}
-.bili-pgc-card strong {
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.bili-pgc-card small {
-  font-size: 11px;
-  color: hsl(var(--muted-foreground, 240 5% 64%));
-}
+
 .bili-pgc-score {
   position: absolute;
   right: 6px;
@@ -2459,6 +2430,11 @@ export const cssText = `
 .bili-search-page,
 .bili-pgc-feed,
 .bili-live-feed {
+  animation: bili-view-in 360ms var(--bili-spring) both;
+}
+/* 内容就绪后再播一次：卡片网格出现时动画更明显（不被 loading 态掩盖） */
+.bili-pgc-feed .bili-pgc-grid,
+.bili-live-feed .bili-live-grid {
   animation: bili-view-in 360ms var(--bili-spring) both;
 }
 .bili-watch {
@@ -4406,11 +4382,7 @@ button.bili-dynamic-stat {
   gap: 12px;
   flex-wrap: wrap;
 }
-.bili-pgc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px 14px;
-}
+
 .bili-pgc-section-heading {
   display: flex;
   align-items: center;

@@ -79,7 +79,8 @@ export function HomePage() {
         )}
       </>
     ) : mode === "bangumi" || mode === "cinema" ? (
-      <PgcSectionFeed kind={mode === "bangumi" ? "bangumi" : "cinema"} />
+      // key 随 kind：追番↔影视切换强制重挂载，进入动画重播（与推荐/热门 tab 一致）
+      <PgcSectionFeed key={mode} kind={mode === "bangumi" ? "bangumi" : "cinema"} />
     ) : mode === "live" ? (
       <LiveFeed onOpenLive={openLive} />
     ) : (
