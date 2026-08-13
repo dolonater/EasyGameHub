@@ -3,7 +3,6 @@ import type { BiliDynamicCard, BiliDynamicForwardEntry, BiliVideoDetail } from "
 import { CommentPanel } from "../components/CommentPanel";
 import { DynamicCard } from "../components/DynamicCard";
 import { BiliImage } from "../components/BiliImage";
-import { ImagePreview } from "../components/ImagePreview";
 import { openArticle } from "../navigation";
 import { errorMessage, getState } from "../runtime";
 
@@ -20,7 +19,6 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
   const [forwardsOffset, setForwardsOffset] = useState("");
   const [forwardsLoading, setForwardsLoading] = useState(false);
   const [forwardsHasMore, setForwardsHasMore] = useState(false);
-  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const requestSeqRef = useRef(0);
 
   useEffect(() => {
@@ -92,30 +90,14 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
   if (error && !card) return <div className="bili-state bili-state-error">{error}</div>;
   if (!card) return <div className="bili-state">动态不存在或已删除</div>;
 
-  const images = card.images;
-
   return (
     <section className="bili-dyn-detail">
       <div className="bili-dyn-detail-card">
-        <DynamicCard card={card} onLike={handleLike} onOpenVideo={() => undefined} hideImages />
+        <DynamicCard card={card} onLike={handleLike} onOpenVideo={() => undefined} />
         {card.cardType === "article" && card.articleId ? (
           <button type="button" className="bili-dyn-article-read" onClick={() => openArticle(card.articleId)}>
             阅读全文（CV{card.articleId}）
           </button>
-        ) : null}
-        {images.length > 0 ? (
-          <div className="bili-dyn-detail-images">
-            {images.map((src, index) => (
-              <button
-                className="bili-dyn-detail-image-wrap"
-                key={`${src}-${index}`}
-                type="button"
-                onClick={() => setPreviewIndex(index)}
-              >
-                <BiliImage className="bili-dyn-detail-image" src={src} loading="lazy" />
-              </button>
-            ))}
-          </div>
         ) : null}
         {card.forward ? (
           <div className="bili-dyn-detail-forward">
@@ -162,14 +144,6 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
         type={card.commentType || 17}
       />
 
-      {previewIndex !== null ? (
-        <ImagePreview
-          images={images}
-          index={previewIndex}
-          onClose={() => setPreviewIndex(null)}
-          onIndexChange={setPreviewIndex}
-        />
-      ) : null}
     </section>
   );
 }

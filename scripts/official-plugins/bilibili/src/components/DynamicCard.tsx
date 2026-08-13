@@ -1,8 +1,9 @@
-import React from "sdk";
+import React, { useState } from "sdk";
 import { openArticle, openDynDetail, openLive, openWatch } from "../navigation";
 import { getState } from "../runtime";
 import type { BiliDynamicCard, BiliDynamicLive, BiliDynamicVideo } from "../types";
 import { BiliImage } from "./BiliImage";
+import { ImagePreview } from "./ImagePreview";
 
 interface DynamicCardProps {
   card: BiliDynamicCard;
@@ -15,7 +16,8 @@ interface DynamicCardProps {
 }
 
 export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCardProps) {
-  const [liking, setLiking] = React.useState(false);
+  const [liking, setLiking] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   function openCard() {
     // 无 dyn_id 的卡片（部分转发原文等）不可跳详情
@@ -78,11 +80,20 @@ export function DynamicCard({ card, onLike, onOpenVideo, hideImages }: DynamicCa
 
       {card.cardType === "video" && card.video ? <VideoBody video={card.video} /> : null}
       {card.cardType === "image" && card.images.length > 0 && !hideImages ? (
-        <ImageBody images={card.images} />
+        <ImageBody images={card.images} onPreview={setPreviewIndex} />
       ) : null}
       {card.cardType === "live" && card.live ? <LiveBody live={card.live} /> : null}
       {card.cardType === "article" ? <ArticleBody card={card} /> : null}
       {card.cardType === "forward" && card.forward ? <ForwardBody card={card.forward} /> : null}
+
+      {previewIndex !== null ? (
+        <ImagePreview
+          images={card.images}
+          index={previewIndex}
+          onClose={() => setPreviewIndex(null)}
+          onIndexChange={setPreviewIndex}
+        />
+      ) : null}
 
       <footer className="bili-dynamic-stats">
         <button className="bili-dynamic-stat" type="button" onClick={toggleLike} disabled={liking}>
@@ -108,11 +119,21 @@ function VideoBody({ video }: { video: BiliDynamicVideo }) {
   );
 }
 
-function ImageBody({ images }: { images: string[] }) {
+function ImageBody({ images, onPreview }: { images: string[]; onPreview(index: number): void }) {
   return (
     <div className={`bili-dynamic-images bili-dynamic-images-${Math.min(images.length, 3)}`}>
       {images.slice(0, 9).map((src, index) => (
-        <BiliImage key={`${src}-${index}`} className="bili-dynamic-image" src={src} loading="lazy" />
+        <button
+          className="bili-dynamic-image-wrap"
+          key={`${src}-${index}`}
+          type="button"
+          onClick={(event: any) => {
+            event.stopPropagation();
+            onPreview(index);
+          }}
+        >
+          <BiliImage className="bili-dynamic-image" src={src} loading="lazy" />
+        </button>
       ))}
     </div>
   );
