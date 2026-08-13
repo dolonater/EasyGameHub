@@ -1,6 +1,6 @@
 {
   "audioPreference": "standard",
-  "autoPlay": false,
+  "autoPlay": true,
   "bufferMode": "auto",
   "codecPreference": "avc",
   "danmakuDensity": 0.85,
@@ -10,10 +10,12 @@
   "danmakuSpeed": 1,
   "defaultFormat": "dash",
   "defaultPlaybackRate": 1,
-  "defaultQualityMode": "manual",
+  "defaultQualityMode": "auto",
   "defaultQualityQn": 0,
   "searchHistory": [
     "罗叔"
   ],
+  "sidebarAutoHide": false,
+  "sidebarPosition": "left",
   "syncProgress": true
 }

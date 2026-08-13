@@ -1,6 +1,6 @@
 import React, { Button, Icon, TextField, useEffect, useState } from "sdk";
 import { navigateNav, openNotifications, openSearch } from "../navigation";
-import { getState, refreshLoginStatus, subscribe } from "../runtime";
+import { getState, refreshLoginStatus, saveConfig, subscribe, withSearchHistory } from "../runtime";
 import { BiliImage } from "./BiliImage";
 
 export type BiliTopNavPage = "home" | "dynamic" | "mine" | "watch";
@@ -51,6 +51,10 @@ export function BiliTopNav({ current, title = "Bilibili", subtitle = "EasyGameHu
     const keywords = searchValue.trim();
     setSearchValue("");
     openSearch(keywords || undefined);
+    if (keywords) {
+      // 记录搜索历史（历史面板在搜索页空态展示）
+      saveConfig({ searchHistory: withSearchHistory(getState().config.searchHistory, keywords) }).catch(() => {});
+    }
   }
 
   return (
