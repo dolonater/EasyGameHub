@@ -1352,6 +1352,15 @@ export const cssText = `
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
+.bili-comment-pictures img {
+  cursor: zoom-in;
+}
+.bili-comment-picture {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
 .bili-comment-pictures {
   display: flex;
   flex-wrap: wrap;

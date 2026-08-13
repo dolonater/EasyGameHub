@@ -3,6 +3,7 @@ import type { BiliDynamicCard, BiliDynamicForwardEntry, BiliVideoDetail } from "
 import { CommentPanel } from "../components/CommentPanel";
 import { DynamicCard } from "../components/DynamicCard";
 import { BiliImage } from "../components/BiliImage";
+import { ImagePreview } from "../components/ImagePreview";
 import { openArticle } from "../navigation";
 import { errorMessage, getState } from "../runtime";
 
@@ -161,39 +162,13 @@ export function DynDetailPage({ dynId }: DynDetailPageProps) {
         type={card.commentType || 17}
       />
 
-      {previewIndex !== null && images[previewIndex] ? (
-        <div className="bili-image-preview-backdrop" onClick={() => setPreviewIndex(null)}>
-          <div className="bili-image-preview-wrap">
-            <BiliImage className="bili-image-preview" src={images[previewIndex]} alt="预览大图" />
-            <div className="bili-image-preview-nav">
-              <button
-                className="bili-image-preview-nav-btn"
-                type="button"
-                disabled={previewIndex === 0}
-                onClick={(event: any) => {
-                  event.stopPropagation();
-                  setPreviewIndex(previewIndex - 1);
-                }}
-              >
-                上一张
-              </button>
-              <span>
-                {previewIndex + 1}/{images.length}
-              </span>
-              <button
-                className="bili-image-preview-nav-btn"
-                type="button"
-                disabled={previewIndex === images.length - 1}
-                onClick={(event: any) => {
-                  event.stopPropagation();
-                  setPreviewIndex(previewIndex + 1);
-                }}
-              >
-                下一张
-              </button>
-            </div>
-          </div>
-        </div>
+      {previewIndex !== null ? (
+        <ImagePreview
+          images={images}
+          index={previewIndex}
+          onClose={() => setPreviewIndex(null)}
+          onIndexChange={setPreviewIndex}
+        />
       ) : null}
     </section>
   );

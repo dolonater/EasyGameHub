@@ -1,6 +1,7 @@
-import React from "sdk";
+import React, { useState } from "sdk";
 import type { BiliComment, BiliReportReason } from "../types";
 import { BiliImage } from "./BiliImage";
+import { ImagePreview } from "./ImagePreview";
 
 export interface ReportDraft {
   reason: BiliReportReason;
@@ -70,6 +71,7 @@ export function CommentItem({
   onReportSubmit,
 }: CommentItemProps) {
   const displayName = comment.member.name || `用户 ${comment.member.mid}`;
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   return (
     <article className={`bili-comment-card ${pinned || comment.isTop ? "bili-comment-card-top" : ""}`}>
@@ -89,10 +91,25 @@ export function CommentItem({
 
         {comment.content.pictures.length > 0 ? (
           <div className="bili-comment-pictures">
-            {comment.content.pictures.map((url) => (
-              <BiliImage key={url} src={url} loading="lazy" />
+            {comment.content.pictures.map((url, pictureIndex) => (
+              <button
+                className="bili-comment-picture"
+                key={url}
+                type="button"
+                onClick={() => setViewerIndex(pictureIndex)}
+              >
+                <BiliImage src={url} loading="lazy" />
+              </button>
             ))}
           </div>
+        ) : null}
+        {viewerIndex != null ? (
+          <ImagePreview
+            images={comment.content.pictures}
+            index={viewerIndex}
+            onClose={() => setViewerIndex(null)}
+            onIndexChange={setViewerIndex}
+          />
         ) : null}
 
         <div className="bili-comment-actions">

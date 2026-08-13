@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { ReactElement } from "react";
 import { createElement, Fragment, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { showToast } from "../lib/toast";
 import { off, onForPlugin } from "./events";
 import type {
@@ -34,7 +35,7 @@ export type {
 
 // React re-exports — plugins must NOT import "react" directly; everything
 // comes from the "sdk" module (resolved via the document import map).
-export { createElement, Fragment, useCallback, useContext, useEffect, useRef, useState };
+export { createElement, createPortal, Fragment, useCallback, useContext, useEffect, useRef, useState };
 
 /// Default export mirrors the React surface so plugins can write the classic
 /// JSX transform import (`import React from "sdk"`) per design 3.1.

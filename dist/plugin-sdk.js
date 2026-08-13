@@ -4,6 +4,7 @@ var Y = (t, o, n) => B1(t, typeof o != "symbol" ? o + "" : o, n);
 import c0, { forwardRef as q0, useState as z, useRef as u0, useEffect as b0, useCallback as G0, useContext as P1, Fragment as O1, createElement as j1 } from "react";
 import { Fragment as br, createElement as dr, useCallback as vr, useContext as gr, useEffect as pr, useRef as fr, useState as mr } from "react";
 import { createPortal as T1 } from "react-dom";
+import { createPortal as hr } from "react-dom";
 function F1(t, o = !1) {
   return window.__TAURI_INTERNALS__.transformCallback(t, o);
 }
@@ -1652,6 +1653,7 @@ export {
   ar as clearPluginRegistrations,
   dr as createElement,
   nr as createPluginSdk,
+  hr as createPortal,
   lr as default,
   q as registeredPages,
   G as registeredSettingsSections,

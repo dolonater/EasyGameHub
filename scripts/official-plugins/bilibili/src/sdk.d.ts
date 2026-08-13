@@ -901,6 +901,7 @@ export interface BiliDynamicCreated {
   }
 
   export function createElement(type: unknown, props?: Record<string, unknown> | null, ...children: unknown[]): unknown;
+  export function createPortal(children: unknown, container: unknown): unknown;
   export const Fragment: symbol;
   export function useEffect(effect: () => void | (() => void), deps?: unknown[]): void;
   export function useState<T>(initial: T | (() => T)): [T, (value: T | ((previous: T) => T)) => void];
