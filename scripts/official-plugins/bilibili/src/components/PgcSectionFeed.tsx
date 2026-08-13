@@ -1,6 +1,6 @@
 import React, { Button, useEffect, useState } from "sdk";
 import type { BiliPgcSection } from "../types";
-import { openPgcList, openSeason } from "../navigation";
+import { openBangumi, openPgcList, openSeason } from "../navigation";
 import { errorMessage, getState } from "../runtime";
 import { VideoCard, pgcToVideoCard } from "./VideoCard";
 
@@ -50,6 +50,16 @@ export function PgcSectionFeed({ kind }: PgcSectionFeedProps) {
   const visible = sections.filter((section) => section.items.length > 0);
   const activeSection = visible.length > 0 ? visible[Math.min(active, visible.length - 1)] : null;
 
+  /** 查看全部：我的追番（style=follow）去追番页 follow 列表；其余按分区卡片推断 season_type。 */
+  function openSectionAll(section: BiliPgcSection) {
+    if (section.style === "follow") {
+      openBangumi();
+      return;
+    }
+    const inferred = section.items[0]?.seasonType ?? 0;
+    openPgcList(Number(inferred) > 0 ? Number(inferred) : SEASON_TYPE[kind], section.title);
+  }
+
   return (
     <section className="bili-pgc-feed">
       {error ? <div className="bili-state bili-state-error">{error}</div> : null}
@@ -78,7 +88,7 @@ export function PgcSectionFeed({ kind }: PgcSectionFeedProps) {
               size="sm"
               variant="ghost"
               type="button"
-              onClick={() => openPgcList(SEASON_TYPE[kind], activeSection.title)}
+              onClick={() => openSectionAll(activeSection)}
             >
               查看全部
             </Button>

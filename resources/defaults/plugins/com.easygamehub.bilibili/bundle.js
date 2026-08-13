@@ -29178,6 +29178,14 @@ function PgcSectionFeed({ kind }) {
   }, [kind]);
   const visible = sections.filter((section) => section.items.length > 0);
   const activeSection = visible.length > 0 ? visible[Math.min(active, visible.length - 1)] : null;
+  function openSectionAll(section) {
+    if (section.style === "follow") {
+      openBangumi();
+      return;
+    }
+    const inferred = section.items[0]?.seasonType ?? 0;
+    openPgcList(Number(inferred) > 0 ? Number(inferred) : SEASON_TYPE[kind], section.title);
+  }
   return /* @__PURE__ */ React17.createElement("section", { className: "bili-pgc-feed" }, error ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state bili-state-error" }, error) : null, !error && loading ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6B63\u5728\u52A0\u8F7D") : null, !error && !loading && visible.length === 0 ? /* @__PURE__ */ React17.createElement("div", { className: "bili-state" }, "\u6682\u65E0\u5185\u5BB9") : null, !error && activeSection ? /* @__PURE__ */ React17.createElement(React17.Fragment, null, /* @__PURE__ */ React17.createElement("div", { className: "bili-pgc-tabs-row" }, /* @__PURE__ */ React17.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u5206\u533A" }, visible.map((section, index) => /* @__PURE__ */ React17.createElement(
     Button6,
     {
@@ -29197,7 +29205,7 @@ function PgcSectionFeed({ kind }) {
       size: "sm",
       variant: "ghost",
       type: "button",
-      onClick: () => openPgcList(SEASON_TYPE[kind], activeSection.title)
+      onClick: () => openSectionAll(activeSection)
     },
     "\u67E5\u770B\u5168\u90E8"
   )), /* @__PURE__ */ React17.createElement("div", { className: "bili-video-grid" }, activeSection.items.map((card) => /* @__PURE__ */ React17.createElement(
