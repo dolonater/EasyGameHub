@@ -30491,7 +30491,7 @@ function formatTime2(timestamp) {
 // src/pages/PgcListPage.tsx
 import React33, { Button as Button14, useEffect as useEffect26, useState as useState25 } from "sdk";
 function PgcListPage({ seasonType }) {
-  const [order, setOrder] = useState25(0);
+  const [order, setOrder] = useState25(1);
   const [finish, setFinish] = useState25(-1);
   const [items, setItems] = useState25([]);
   const [page, setPage] = useState25(1);
@@ -30534,18 +30534,6 @@ function PgcListPage({ seasonType }) {
   return /* @__PURE__ */ React33.createElement("section", { className: "bili-pgc-list" }, /* @__PURE__ */ React33.createElement("div", { className: "bili-pgc-list-filters" }, /* @__PURE__ */ React33.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u6392\u5E8F" }, /* @__PURE__ */ React33.createElement(
     Button14,
     {
-      "aria-selected": order === 0,
-      className: order === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
-      size: "sm",
-      variant: "ghost",
-      role: "tab",
-      type: "button",
-      onClick: () => setOrder(0)
-    },
-    "\u6700\u70ED"
-  ), /* @__PURE__ */ React33.createElement(
-    Button14,
-    {
       "aria-selected": order === 1,
       className: order === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
       size: "sm",
@@ -30553,6 +30541,18 @@ function PgcListPage({ seasonType }) {
       role: "tab",
       type: "button",
       onClick: () => setOrder(1)
+    },
+    "\u6700\u70ED"
+  ), /* @__PURE__ */ React33.createElement(
+    Button14,
+    {
+      "aria-selected": order === 0,
+      className: order === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab",
+      size: "sm",
+      variant: "ghost",
+      role: "tab",
+      type: "button",
+      onClick: () => setOrder(0)
     },
     "\u6700\u65B0"
   )), /* @__PURE__ */ React33.createElement("div", { className: "bili-hot-subtabs", role: "tablist", "aria-label": "\u8FDE\u8F7D\u72B6\u6001" }, /* @__PURE__ */ React33.createElement(

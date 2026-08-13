@@ -16,7 +16,7 @@ type FinishFilter = -1 | 0 | 1;
  * 排序（最热/最新）+ 连载状态（全部/连载/完结）+ 分页"加载更多"。
  */
 export function PgcListPage({ seasonType }: PgcListPageProps) {
-  const [order, setOrder] = useState<PgcOrder>(0);
+  const [order, setOrder] = useState<PgcOrder>(1);
   const [finish, setFinish] = useState<FinishFilter>(-1);
   const [items, setItems] = useState<BiliPgcCard[]>([]);
   const [page, setPage] = useState(1);
@@ -72,17 +72,6 @@ export function PgcListPage({ seasonType }: PgcListPageProps) {
       <div className="bili-pgc-list-filters">
         <div className="bili-hot-subtabs" role="tablist" aria-label="排序">
           <Button
-            aria-selected={order === 0}
-            className={order === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
-            size="sm"
-            variant="ghost"
-            role="tab"
-            type="button"
-            onClick={() => setOrder(0)}
-          >
-            最热
-          </Button>
-          <Button
             aria-selected={order === 1}
             className={order === 1 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
             size="sm"
@@ -90,6 +79,17 @@ export function PgcListPage({ seasonType }: PgcListPageProps) {
             role="tab"
             type="button"
             onClick={() => setOrder(1)}
+          >
+            最热
+          </Button>
+          <Button
+            aria-selected={order === 0}
+            className={order === 0 ? "bili-hot-subtab bili-hot-subtab-active" : "bili-hot-subtab"}
+            size="sm"
+            variant="ghost"
+            role="tab"
+            type="button"
+            onClick={() => setOrder(0)}
           >
             最新
           </Button>
