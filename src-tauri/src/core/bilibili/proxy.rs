@@ -8,7 +8,9 @@ use axum::http::header::{
     ACCEPT_RANGES, ACCESS_CONTROL_ALLOW_ORIGIN, CACHE_CONTROL, CONTENT_LENGTH, CONTENT_RANGE,
     CONTENT_TYPE, RANGE,
 };
+use axum::http::Request as AxRequest;
 use axum::http::{HeaderMap, StatusCode};
+use axum::middleware::{self, Next};
 use axum::response::Response;
 use axum::routing::get;
 use axum::Router;
@@ -20,9 +22,8 @@ use super::playback;
 
 const BROWSER_UA: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-/// 全局复用媒体转发客户端：分段/封面/直播流共享连接池（TLS 会话 + DNS 缓存），
-/// 避免每个分段都重新握手——B 站 dash 每视频数百分段，冷连接会显著拖慢起播。
-/// 参考 bili-rust stream.rs：转发全程用 `bili.http()` 的同一客户端。
+/// 全局复用媒体转发客户端（连接池，参考 bili-rust stream.rs 全程单一客户端）。
+/// 若上游 502，先看日志定位（已加 bilibili proxy upstream 错误日志），不要直接回滚。
 static MEDIA_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
 fn media_client() -> &'static reqwest::Client {
@@ -73,7 +74,9 @@ pub async fn start_proxy(data_dir: PathBuf) -> Result<u16, anyhow::Error> {
             get(super::live_bridge::live_danmaku_ws),
         )
         .route("/bilibili/live_stream/:key", get(proxy_live_stream))
-        .with_state(HttpState { data_dir });
+        .with_state(HttpState { data_dir })
+        // 统一 CORS：即使上游失败（502）也带 CORS 头，前端不再报跨域错误
+        .layer(middleware::from_fn(cors_headers));
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await?;
     let port = listener.local_addr()?.port();
     *lock.lock().unwrap() = Some(ProxyState { port });
@@ -85,6 +88,25 @@ pub async fn start_proxy(data_dir: PathBuf) -> Result<u16, anyhow::Error> {
     });
 
     Ok(port)
+}
+
+/// 统一 CORS 响应头：所有代理响应（含错误）都放行浏览器跨域读取。
+async fn cors_headers(request: AxRequest<Body>, next: Next) -> axum::response::Response {
+    let mut response = next.run(request).await;
+    response
+        .headers_mut()
+        .insert(ACCESS_CONTROL_ALLOW_ORIGIN, "*".parse().unwrap());
+    response.headers_mut().insert(
+        "access-control-expose-headers",
+        "Content-Range, Content-Length, Accept-Ranges"
+            .parse()
+            .unwrap(),
+    );
+    response.headers_mut().insert(
+        "access-control-allow-methods",
+        "GET, HEAD, OPTIONS".parse().unwrap(),
+    );
+    response
 }
 
 pub fn get_proxy_port() -> Option<u16> {
@@ -200,6 +222,7 @@ async fn request_media_with_referer(
     headers: &HeaderMap,
     referer: &str,
 ) -> Result<Response, (StatusCode, String)> {
+    // 全局复用客户端（连接池）：避免每个分段重新 TLS 握手拖慢起播（参考 bili-rust）
     let mut request = media_client()
         .get(raw_url)
         .header("Referer", referer)
@@ -208,9 +231,17 @@ async fn request_media_with_referer(
         request = request.header(RANGE, range);
     }
 
-    let upstream = request.send().await.map_err(internal)?;
+    let upstream = request.send().await.map_err(|err| {
+        log::error!("bilibili proxy upstream request failed: {err} (url: {raw_url})");
+        internal(err)
+    })?;
     if !upstream.status().is_success() && upstream.status() != reqwest::StatusCode::PARTIAL_CONTENT
     {
+        log::error!(
+            "bilibili proxy upstream status {} (url: {})",
+            upstream.status(),
+            raw_url
+        );
         return Err((
             StatusCode::BAD_GATEWAY,
             format!("upstream status {}", upstream.status()),

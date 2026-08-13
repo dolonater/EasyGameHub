@@ -1,6 +1,6 @@
 {
   "audioPreference": "standard",
-  "autoPlay": true,
+  "autoPlay": false,
   "bufferMode": "auto",
   "codecPreference": "avc",
   "danmakuDensity": 0.85,
