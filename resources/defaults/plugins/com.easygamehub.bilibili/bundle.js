@@ -32883,7 +32883,7 @@ function VideoInteractionBar({
     {
       active: Boolean(state2?.liked),
       disabled: writeDisabled,
-      icon: "heartFilled",
+      icon: state2?.liked ? "heartFilled" : "heart",
       label: "\u70B9\u8D5E",
       value: formatCount9(state2?.stats.likeCount),
       onClick: onLike
@@ -32893,6 +32893,7 @@ function VideoInteractionBar({
     {
       active: Boolean(state2?.coinCount),
       disabled: writeDisabled,
+      icon: "coin",
       label: "\u6295\u5E01",
       value: state2?.coinCount ? `\u5DF2\u6295 ${state2.coinCount}` : formatCount9(state2?.stats.coinCount),
       onMouseDown: toggleCoin
@@ -32902,7 +32903,7 @@ function VideoInteractionBar({
     {
       active: Boolean(state2?.favorited),
       disabled: writeDisabled,
-      icon: state2?.favorited ? "starFilled" : "starOutline",
+      icon: state2?.favorited ? "starFill" : "star",
       label: "\u6536\u85CF",
       value: formatCount9(state2?.stats.favoriteCount),
       onMouseDown: toggleFavorite
@@ -32911,6 +32912,7 @@ function VideoInteractionBar({
     ActionButton,
     {
       disabled: disabled || Boolean(busy),
+      icon: "shareNetwork",
       label: "\u5206\u4EAB",
       value: formatCount9(state2?.stats.shareCount),
       onClick: onShare
@@ -32920,12 +32922,12 @@ function VideoInteractionBar({
     {
       active: Boolean(state2?.toView),
       disabled: writeDisabled,
-      icon: "bookmarkFilled",
+      icon: state2?.toView ? "playCircleFilled" : "playCircle",
       label: "\u7A0D\u540E\u518D\u770B",
       value: state2?.toView ? "\u5DF2\u52A0\u5165" : "",
       onClick: onToView
     }
-  ), /* @__PURE__ */ React51.createElement(ActionButton, { disabled: disabled || Boolean(busy), icon: "warning", label: "\u4E3E\u62A5", value: "", onClick: onReport }), /* @__PURE__ */ React51.createElement("span", { className: "bili-popover-anchor", ref: moreAnchorRef }, /* @__PURE__ */ React51.createElement(ActionButton, { disabled, label: "\u66F4\u591A", value: "", onMouseDown: toggleMore }))), coinOpen ? /* @__PURE__ */ React51.createElement(
+  ), /* @__PURE__ */ React51.createElement(ActionButton, { disabled: disabled || Boolean(busy), icon: "warning", label: "\u4E3E\u62A5", value: "", onClick: onReport }), /* @__PURE__ */ React51.createElement("span", { className: "bili-popover-anchor", ref: moreAnchorRef }, /* @__PURE__ */ React51.createElement(ActionButton, { disabled, icon: "list", label: "\u66F4\u591A", value: "", onMouseDown: toggleMore }))), coinOpen ? /* @__PURE__ */ React51.createElement(
     CoinPanel,
     {
       busy: busy === "coin",
@@ -32960,16 +32962,17 @@ function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDo
   return /* @__PURE__ */ React51.createElement(
     Button22,
     {
+      "aria-label": label,
       className: active ? "bili-interaction-button bili-interaction-button-active" : "bili-interaction-button",
       disabled,
       size: "sm",
+      title: label,
       type: "button",
       variant: "ghost",
       onClick,
       onMouseDown
     },
     icon ? /* @__PURE__ */ React51.createElement(Icon8, { name: icon, size: 15 }) : null,
-    /* @__PURE__ */ React51.createElement("span", null, label),
     value ? /* @__PURE__ */ React51.createElement("small", null, value) : null
   );
 }

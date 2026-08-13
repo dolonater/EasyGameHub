@@ -17,6 +17,8 @@ import gear from "../../assets/fill/gear-fill.svg?raw";
 import info from "../../assets/fill/info-fill.svg?raw";
 import arrowsOut from "../../assets/fill/arrows-out-fill.svg?raw";
 import list from "../../assets/regular/list.svg?raw";
+import coin from "../../assets/regular/coin.svg?raw";
+import shareNetwork from "../../assets/regular/share-network.svg?raw";
 import grid from "../../assets/regular/squares-four.svg?raw";
 import folderOpen from "../../assets/regular/folder-open.svg?raw";
 import refresh from "../../assets/regular/arrows-clockwise.svg?raw";
@@ -69,6 +71,8 @@ import rankingFill from "../../assets/fill/ranking-fill.svg?raw";
 import musicNotes from "../../assets/regular/music-notes.svg?raw";
 import musicNotesFill from "../../assets/fill/music-notes-fill.svg?raw";
 import play from "../../assets/regular/play.svg?raw";
+import playCircle from "../../assets/regular/play-circle.svg?raw";
+import playCircleFill from "../../assets/fill/play-circle-fill.svg?raw";
 import pause from "../../assets/regular/pause.svg?raw";
 import skipBack from "../../assets/regular/skip-back.svg?raw";
 import skipForward from "../../assets/regular/skip-forward.svg?raw";
@@ -109,6 +113,8 @@ export const ICONS = {
   info,
   fullscreen: arrowsOut,
   list,
+  coin,
+  shareNetwork,
   grid,
   pin: pushPin,
   folder: folderOpen,
@@ -116,6 +122,7 @@ export const ICONS = {
   upload,
   warning: warningCircle,
   key,
+  star,
   starFilled: star,
   starFill,
   starOutline: star,
@@ -168,6 +175,8 @@ export const ICONS = {
   skipBack,
   skipForward,
   playFilled: playFill,
+  playCircle,
+  playCircleFilled: playCircleFill,
   pauseFilled: pauseFill,
   skipBackFilled: skipBackFill,
   skipForwardFilled: skipForwardFill,

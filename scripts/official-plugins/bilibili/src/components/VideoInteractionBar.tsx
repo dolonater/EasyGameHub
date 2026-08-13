@@ -86,7 +86,7 @@ export function VideoInteractionBar({
         <ActionButton
           active={Boolean(state?.liked)}
           disabled={writeDisabled}
-          icon="heartFilled"
+          icon={state?.liked ? "heartFilled" : "heart"}
           label="点赞"
           value={formatCount(state?.stats.likeCount)}
           onClick={onLike}
@@ -95,6 +95,7 @@ export function VideoInteractionBar({
           <ActionButton
             active={Boolean(state?.coinCount)}
             disabled={writeDisabled}
+            icon="coin"
             label="投币"
             value={state?.coinCount ? `已投 ${state.coinCount}` : formatCount(state?.stats.coinCount)}
             onMouseDown={toggleCoin}
@@ -104,7 +105,7 @@ export function VideoInteractionBar({
           <ActionButton
             active={Boolean(state?.favorited)}
             disabled={writeDisabled}
-            icon={state?.favorited ? "starFilled" : "starOutline"}
+            icon={state?.favorited ? "starFill" : "star"}
             label="收藏"
             value={formatCount(state?.stats.favoriteCount)}
             onMouseDown={toggleFavorite}
@@ -112,6 +113,7 @@ export function VideoInteractionBar({
         </span>
         <ActionButton
           disabled={disabled || Boolean(busy)}
+          icon="shareNetwork"
           label="分享"
           value={formatCount(state?.stats.shareCount)}
           onClick={onShare}
@@ -119,14 +121,14 @@ export function VideoInteractionBar({
         <ActionButton
           active={Boolean(state?.toView)}
           disabled={writeDisabled}
-          icon="bookmarkFilled"
+          icon={state?.toView ? "playCircleFilled" : "playCircle"}
           label="稍后再看"
           value={state?.toView ? "已加入" : ""}
           onClick={onToView}
         />
         <ActionButton disabled={disabled || Boolean(busy)} icon="warning" label="举报" value="" onClick={onReport} />
         <span className="bili-popover-anchor" ref={moreAnchorRef}>
-          <ActionButton disabled={disabled} label="更多" value="" onMouseDown={toggleMore} />
+          <ActionButton disabled={disabled} icon="list" label="更多" value="" onMouseDown={toggleMore} />
         </span>
       </div>
 
@@ -176,16 +178,17 @@ interface ActionButtonProps {
 function ActionButton({ active, disabled, label, value, icon, onClick, onMouseDown }: ActionButtonProps) {
   return (
     <Button
+      aria-label={label}
       className={active ? "bili-interaction-button bili-interaction-button-active" : "bili-interaction-button"}
       disabled={disabled}
       size="sm"
+      title={label}
       type="button"
       variant="ghost"
       onClick={onClick}
       onMouseDown={onMouseDown}
     >
       {icon ? <Icon name={icon as any} size={15} /> : null}
-      <span>{label}</span>
       {value ? <small>{value}</small> : null}
     </Button>
   );
