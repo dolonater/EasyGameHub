@@ -25818,6 +25818,14 @@ var cssText = `
   gap: 12px;
   padding: 16px 20px 24px;
 }
+/* \u52A8\u6001\u5361\u7247\u4E0D\u6A2A\u5411\u6491\u6EE1\uFF1A\u9876\u5C42\u5361\u7247\u9650\u5BBD\u5C45\u4E2D\uFF08\u8BE6\u60C5\u9875\u540C\u6B3E\uFF0C\u8F6C\u53D1\u5185\u5361\u4E0D\u53D7\u5F71\u54CD\uFF09 */
+.bili-dynamic-page > .bili-dynamic-card,
+.bili-dyn-detail-card > .bili-dynamic-card {
+  width: 100%;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
 .bili-dynamic-card {
   display: flex;
   flex-direction: column;
@@ -25920,10 +25928,15 @@ var cssText = `
   gap: 6px;
 }
 .bili-dynamic-images-1 {
-  grid-template-columns: 1fr;
+  /* \u4E0E\u6EE1\u4E5D\u5BAB\u683C\u6BCF\u683C\u4E00\u81F4\uFF1A3 \u5217\u7F51\u683C\u5360\u7B2C\u4E00\u683C\uFF0C\u56FE\u7247\u5927\u5C0F\u7EDF\u4E00\u3001\u9760\u5DE6 */
+  grid-template-columns: repeat(3, 1fr);
+}
+.bili-dynamic-images-1 .bili-dynamic-image-wrap {
+  grid-column: 1;
 }
 .bili-dynamic-images-2 {
-  grid-template-columns: 1fr 1fr;
+  /* \u4E0E\u6EE1\u4E5D\u5BAB\u683C\u6BCF\u683C\u4E00\u81F4\uFF1A3 \u5217\u7F51\u683C\u5360\u524D\u4E24\u683C\uFF0C\u56FE\u7247\u5927\u5C0F\u7EDF\u4E00 */
+  grid-template-columns: repeat(3, 1fr);
 }
 .bili-dynamic-images-3 {
   grid-template-columns: repeat(3, 1fr);

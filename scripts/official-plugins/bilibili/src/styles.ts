@@ -2703,6 +2703,14 @@ export const cssText = `
   gap: 12px;
   padding: 16px 20px 24px;
 }
+/* 动态卡片不横向撑满：顶层卡片限宽居中（详情页同款，转发内卡不受影响） */
+.bili-dynamic-page > .bili-dynamic-card,
+.bili-dyn-detail-card > .bili-dynamic-card {
+  width: 100%;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
 .bili-dynamic-card {
   display: flex;
   flex-direction: column;
@@ -2805,10 +2813,15 @@ export const cssText = `
   gap: 6px;
 }
 .bili-dynamic-images-1 {
-  grid-template-columns: 1fr;
+  /* 与满九宫格每格一致：3 列网格占第一格，图片大小统一、靠左 */
+  grid-template-columns: repeat(3, 1fr);
+}
+.bili-dynamic-images-1 .bili-dynamic-image-wrap {
+  grid-column: 1;
 }
 .bili-dynamic-images-2 {
-  grid-template-columns: 1fr 1fr;
+  /* 与满九宫格每格一致：3 列网格占前两格，图片大小统一 */
+  grid-template-columns: repeat(3, 1fr);
 }
 .bili-dynamic-images-3 {
   grid-template-columns: repeat(3, 1fr);
