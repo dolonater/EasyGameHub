@@ -300,10 +300,19 @@ export default function Store() {
 
   // ── Grid state ───────────────────────────────────────────
   const [items, setItems] = useState<BrowseItemDto[]>([]);
-  const [total, setTotal] = useState(0);
   const [gridLoading, setGridLoading] = useState(false);
   const [gridError, setGridError] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  /** False once a "load more" page adds nothing new (end of results). The
+   * store's `total_count` is unreliable (it can equal the page size), so the
+   * end is detected by deduping appended ids instead. */
+  const [hasMore, setHasMore] = useState(true);
+  const seenIdsRef = useRef<Set<number>>(new Set());
+  /** Raw (pre-dedup) result count loaded so far. The store returns exactly 25
+   * results per page and expects `start` to stay aligned to that (a
+   * dedup-shrunk `items.length` breaks pagination), so the offset is tracked
+   * from the raw counts instead. */
+  const loadedCountRef = useRef(0);
 
   /** Explicit "browse all games" view (no filters), toggled from the home rails. */
   const [browseMode, setBrowseMode] = useState(false);
@@ -361,8 +370,17 @@ export default function Store() {
         start: 0,
       });
       if (id !== requestIdRef.current) return;
-      setItems(result.items);
-      setTotal(result.total);
+      // Dedupe within the page too (the store can repeat ids in one page).
+      const seen = new Set<number>();
+      const deduped = result.items.filter((i) => {
+        if (seen.has(i.appId)) return false;
+        seen.add(i.appId);
+        return true;
+      });
+      seenIdsRef.current = seen;
+      loadedCountRef.current = result.items.length;
+      setItems(deduped);
+      setHasMore(deduped.length > 0);
     } catch (e) {
       if (id !== requestIdRef.current) return;
       setGridError(e instanceof Error ? e.message : String(e));
@@ -387,21 +405,31 @@ export default function Store() {
         sort,
         specials,
         cc: region,
-        start: items.length,
+        start: loadedCountRef.current,
       });
       if (id !== requestIdRef.current) return;
-      setItems((prev) => [...prev, ...result.items]);
-      setTotal(result.total);
+      // Dedupe within the incoming page as well as against already-loaded
+      // ids (the store can repeat an app id in a single page).
+      const fresh: BrowseItemDto[] = [];
+      for (const i of result.items) {
+        if (seenIdsRef.current.has(i.appId)) continue;
+        seenIdsRef.current.add(i.appId);
+        fresh.push(i);
+      }
+      if (fresh.length === 0) {
+        setHasMore(false);
+      } else {
+        loadedCountRef.current += result.items.length;
+        setItems((prev) => [...prev, ...fresh]);
+      }
     } catch {
       // Keep the button clickable so the user can retry.
     } finally {
       if (id === requestIdRef.current) setLoadingMore(false);
     }
-  }, [debouncedTerm, category, sort, specials, region, items.length]);
-
+  }, [debouncedTerm, category, sort, specials, region]);
   const featured = home?.featured ?? [];
   const rails = home?.rails ?? [];
-  const loadedAll = total > 0 && items.length >= total;
 
   return (
     <div className="space-y-4">
@@ -479,7 +507,7 @@ export default function Store() {
                 {t("steam.storeRetry")}
               </button>
             </GlassCard>
-          ) : total === 0 ? (
+          ) : items.length === 0 ? (
             <GlassCard className="p-8 text-center text-muted-foreground">
               {t("steam.storeEmpty")}
             </GlassCard>
@@ -496,7 +524,7 @@ export default function Store() {
                   />
                 ))}
               </div>
-              {loadedAll ? (
+              {!hasMore ? (
                 <p className="text-center text-xs text-muted-foreground">
                   {t("steam.storeLoadedAll")}
                 </p>
