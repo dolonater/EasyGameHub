@@ -2309,6 +2309,7 @@ function QueuePopover({
 }) {
   const activeIndex = state.currentSong ? state.queue.findIndex((song) => song.id === state.currentSong?.id) : -1;
   const activeSongId = activeIndex >= 0 ? state.queue[activeIndex]?.id || "" : "";
+  const listRef = useRef<HTMLDivElement | null>(null);
   const activeRowRef = useRef<HTMLDivElement | null>(null);
   const lastLocatedSongRef = useRef("");
   const renderCount = useProgressiveRenderCount(state.queue, activeIndex >= 0 ? activeIndex + 1 : 0);
@@ -2320,8 +2321,14 @@ function QueuePopover({
   useEffect(() => {
     if (!activeSongId || activeIndex >= renderCount) return;
     const frame = window.requestAnimationFrame(() => {
-      const behavior = lastLocatedSongRef.current ? "smooth" : "auto";
-      activeRowRef.current?.scrollIntoView({ block: "center", behavior });
+      const list = listRef.current;
+      const row = activeRowRef.current;
+      if (list && row) {
+        const behavior: ScrollBehavior = lastLocatedSongRef.current ? "smooth" : "auto";
+        const rowTopInList = row.offsetTop - list.offsetTop;
+        const targetTop = Math.max(0, rowTopInList - (list.clientHeight - row.offsetHeight) / 2);
+        list.scrollTo({ top: targetTop, behavior });
+      }
       lastLocatedSongRef.current = activeSongId;
     });
     return () => window.cancelAnimationFrame(frame);
@@ -2341,7 +2348,7 @@ function QueuePopover({
         ) : null}
       </header>
       {state.queue.length ? (
-        <div className="nm-queue-list">
+        <div className="nm-queue-list" ref={listRef}>
           {visibleSongs.map((song, index) => (
             <QueuePopoverRow
               key={song.id + "-" + index}
