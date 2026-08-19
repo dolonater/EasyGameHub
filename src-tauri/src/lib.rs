@@ -439,7 +439,6 @@ pub fn run() {
             commands::steam_api::get_game_achievements_summary,
             commands::steam_api::get_game_achievements,
             commands::steam_api::get_library_stats,
-            commands::steam_api::get_library_completion,
             commands::steam_cloud::get_local_cloud_files,
             commands::steam_cloud::get_local_cloud_quota,
             commands::steam_cloud::get_local_cloud_entries,

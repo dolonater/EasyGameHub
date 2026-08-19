@@ -12,7 +12,7 @@ import GlassCard from "../components/ui/GlassCard";
 import StatCard from "../components/ui/StatCard";
 import Icon from "../components/ui/Icon";
 
-// ── Library stats / completion DTOs (from steam_api commands) ──
+// ── Library stats DTO (from steam_api commands) ──
 
 interface TopGameDto {
   appid: number;
@@ -30,15 +30,6 @@ interface LibraryStatsDto {
   source: string;
   distribution: { label: string; games: number }[];
   topGames: TopGameDto[];
-}
-
-interface GameCompletionDto {
-  appId: number;
-  name: string | null;
-  achieved: number;
-  total: number;
-  percent: number;
-  source: "web" | "local" | "none";
 }
 
 // ── Helpers ────────────────────────────────────────────────────
@@ -153,10 +144,8 @@ export default function Playtime() {
   const [page, setPage] = useState(1);
   const [mounted, setMounted] = useState(false);
 
-  // Account-level stats (value) + per-game achievement completion.
+  // Account-level stats (value).
   const [stats, setStats] = useState<LibraryStatsDto | null>(null);
-  const [completion, setCompletion] = useState<GameCompletionDto[] | null>(null);
-  const [completionLoading, setCompletionLoading] = useState(false);
 
   const progressPalette = useMemo(
     () => generateChartColors(9, cssVars["--primary"], cssVars["--accent"], cssVars["--muted"]),
@@ -190,10 +179,6 @@ export default function Playtime() {
 
   useEffect(() => {
     void invoke<LibraryStatsDto>("get_library_stats").then(setStats).catch(() => setStats(null));
-    setCompletionLoading(true);
-    void invoke<GameCompletionDto[]>("get_library_completion", { limit: 50 })
-      .then((list) => { setCompletion(list); setCompletionLoading(false); })
-      .catch(() => { setCompletion(null); setCompletionLoading(false); });
   }, []);
 
   useEffect(() => { setPage(1); }, [search]);
@@ -430,43 +415,6 @@ export default function Playtime() {
           ))}
         </div>
       )}
-
-      {/* Achievement completion */}
-      <GlassCard bordered={false} className="rounded-lg shadow-sm p-4 mb-6 mt-6">
-        <h2 className="text-sm font-medium mb-3">{t("playtime.completionTitle")}</h2>
-        {completionLoading ? (
-          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionLoading")}</div>
-        ) : !completion || completion.length === 0 ? (
-          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionEmpty")}</div>
-        ) : completion.every((c) => c.source === "none") ? (
-          <div className="py-2 text-xs text-muted-foreground">{t("playtime.completionUnavailable")}</div>
-        ) : (
-          <div className="divide-y">
-            {completion.filter((c) => c.source !== "none").slice(0, 30).map((c) => {
-              const pct = Math.round(c.percent);
-              return (
-                <div key={c.appId} className="py-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm truncate max-w-[70%]">{c.name || `App ${c.appId}`}</span>
-                    <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0 ml-2">
-                      {c.achieved}/{c.total} · {pct}%
-                    </span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${Math.max(pct, 0.5)}%`,
-                        background: pct >= 100 ? "#22c55e" : "hsl(var(--primary))",
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </GlassCard>
     </div>
   );
 }
